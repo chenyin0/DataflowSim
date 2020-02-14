@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\module">
+      <UniqueIdentifier>{73e18807-7f23-46b4-a34f-9766a4fc986e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sim">
+      <UniqueIdentifier>{2311b744-4369-4b56-a71f-6d1d58ab6dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{dd00f813-7a57-4343-8244-505cb2b2b7a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\define">
+      <UniqueIdentifier>{ab09b8a6-6806-419c-a854-ade58bb38cc5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\util\util.hpp">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\ClkSys.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\DataType.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\LC.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\Channel.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="src\define\Para.h">
+      <Filter>src\define</Filter>
+    </ClInclude>
+    <ClInclude Include="src\define\Define.hpp">
+      <Filter>src\define</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\module\ClkSys.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\Channel.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\LC.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
