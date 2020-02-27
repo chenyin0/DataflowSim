@@ -1,5 +1,6 @@
 #pragma once
 #include "../util/util.hpp"
+#include "../define/Define.hpp"
 
 namespace DFSim
 {
@@ -33,6 +34,8 @@ namespace DFSim
 		static void clkUpdate();
 
 		static void addClkStall();
+
+		static const string getCurrentSystemTime();
 
 	private:
 		static uint _clk;

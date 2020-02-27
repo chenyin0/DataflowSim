@@ -17,6 +17,21 @@
     <Filter Include="src\define">
       <UniqueIdentifier>{ab09b8a6-6806-419c-a854-ade58bb38cc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{c3cb4b9b-54ed-43c5-8499-b3ca25c681d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\input">
+      <UniqueIdentifier>{5782b88e-f2fe-4da2-8e1c-da2aab616c34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\output">
+      <UniqueIdentifier>{7f2c43b9-d312-40e6-8123-3ea8478389c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\output\SimpleFlowTest">
+      <UniqueIdentifier>{2bcfa195-bd21-4294-b674-9fc1d8639d15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tb">
+      <UniqueIdentifier>{083d42ff-9f9f-4bb9-ac07-2736d2579662}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -40,6 +55,13 @@
     <ClInclude Include="src\define\Define.hpp">
       <Filter>src\define</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\sim\Debug.h">
+      <Filter>src\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="tb\SimpleFlowTest.hpp">
+      <Filter>tb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -51,5 +73,19 @@
     <ClCompile Include="src\module\LC.cpp">
       <Filter>src\module</Filter>
     </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\Debug.cpp">
+      <Filter>src\sim</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="resource\output\SimpleFlowTest\log.txt">
+      <Filter>resource\output\SimpleFlowTest</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DataflowSim.rc" />
   </ItemGroup>
 </Project>

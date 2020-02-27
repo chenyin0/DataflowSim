@@ -1,0 +1,1109 @@
+2020-02-27      11:22:21
+
+Output reference: 
+208 423 360 56 1032 2832 258 11925 9222 
+
+**************** Exe:0   Clk:1 ********************
+
+Outer Loop i: 0
+Inner Loop j: 0
+
+Result: 
+
+
+begin valid: 1  bp: 1  getLast: 0
+1:1:0 
+
+i_lc0 valid: 1  bp: 0  getLast: 0
+0:1:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:1:0 
+
+i_lc1 valid: 1  bp: 0  getLast: 0
+0:1:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:1:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+0:1:0 
+
+j_data valid: 0  bp: 0  getLast: 0
+0:8:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:1   Clk:2 ********************
+
+Outer Loop i: 0
+Inner Loop j: 1
+
+Result: 
+
+
+begin valid: 1  bp: 1  getLast: 0
+1:2:0 
+
+i_lc0 valid: 1  bp: 0  getLast: 0
+1:2:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:2:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+0:2:0 1:2:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:2:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 0:9:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+1:2:0 
+
+j_data valid: 0  bp: 0  getLast: 0
+0:8:0 1:9:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:2   Clk:3 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+
+
+begin valid: 1  bp: 1  getLast: 0
+1:3:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 0
+2:3:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:3:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+0:3:0 1:3:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:3:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 0:9:0 0:10:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+2:3:0 
+
+j_data valid: 0  bp: 0  getLast: 0
+0:8:0 1:9:0 2:10:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:3   Clk:4 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+
+
+begin valid: 1  bp: 1  getLast: 0
+1:4:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 1
+2:3:0 2:4:1 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+0:4:1 
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+0:4:0 1:4:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+0:4:1 
+
+i_data valid: 0  bp: 0  getLast: 1
+0:8:0 0:9:0 0:10:0 0:11:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:4:1 
+
+j_data valid: 0  bp: 0  getLast: 1
+0:8:0 1:9:0 2:10:0 2:11:1 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:4   Clk:5 ********************
+
+Outer Loop i: 1
+Inner Loop j: 0
+
+Result: 
+
+
+begin valid: 0  bp: 1  getLast: 0
+1:5:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+2:3:0 2:4:1 0:5:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:5:0 
+
+i_lc1 valid: 1  bp: 0  getLast: 0
+1:4:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:5:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 0:9:0 0:10:0 0:11:1 1:12:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+0:5:0 
+
+j_data valid: 0  bp: 0  getLast: 1
+0:8:0 1:9:0 2:10:0 2:11:1 0:12:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:5   Clk:6 ********************
+
+Outer Loop i: 1
+Inner Loop j: 1
+
+Result: 
+
+
+begin valid: 0  bp: 1  getLast: 0
+1:5:0 
+
+i_lc0 valid: 1  bp: 1  getLast: 1
+2:3:0 2:4:1 0:5:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+1:5:0 2:6:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:6:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 0:9:0 0:10:0 0:11:1 1:12:0 1:13:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+1:6:0 
+
+j_data valid: 0  bp: 0  getLast: 1
+0:8:0 1:9:0 2:10:0 2:11:1 0:12:0 1:13:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:6   Clk:7 ********************
+
+Outer Loop i: 1
+Inner Loop j: 2
+
+Result: 
+
+
+begin valid: 1  bp: 1  getLast: 0
+1:5:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 1
+2:4:1 0:5:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+1:6:0 2:7:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:7:0 
+
+i_data valid: 0  bp: 0  getLast: 0
+0:8:0 0:9:0 0:10:0 0:11:1 1:12:0 1:13:0 1:14:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+2:7:0 
+
+j_data valid: 0  bp: 0  getLast: 1
+0:8:0 1:9:0 2:10:0 2:11:1 0:12:0 1:13:0 2:14:0 
+
+c_lc1 valid: 0  bp: 0  getLast: 0
+
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:7   Clk:8 ********************
+
+Outer Loop i: 1
+Inner Loop j: 2
+
+Result: 
+
+
+begin valid: 0  bp: 1  getLast: 0
+1:8:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+2:4:1 0:5:0 0:8:1 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+0:8:1 
+
+i_lc1 valid: 1  bp: 1  getLast: 0
+1:7:0 2:8:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+0:8:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+0:8:0 0:9:0 0:10:0 0:11:1 1:12:0 1:13:0 1:14:0 1:15:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:8:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+0:8:0 1:9:0 2:10:0 2:11:1 0:12:0 1:13:0 2:14:0 2:15:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 0
+208:8:0 
+
+lc1->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:8   Clk:9 ********************
+
+Outer Loop i: 2
+Inner Loop j: 0
+
+Result: 
+208 
+
+begin valid: 0  bp: 1  getLast: 0
+1:8:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+2:4:1 0:5:0 0:8:1 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 0  getLast: 0
+2:8:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:9:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+0:9:0 0:10:0 0:11:1 1:12:0 1:13:0 1:14:0 1:15:1 2:16:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+0:9:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+1:9:0 2:10:0 2:11:1 0:12:0 1:13:0 2:14:0 2:15:1 0:16:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 0
+423:9:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 0
+1:9:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:9   Clk:10 ********************
+
+Outer Loop i: 2
+Inner Loop j: 1
+
+Result: 
+208 423 
+
+begin valid: 0  bp: 1  getLast: 0
+1:8:0 
+
+i_lc0 valid: 1  bp: 1  getLast: 1
+2:4:1 0:5:0 0:8:1 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+2:9:0 2:10:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:10:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+0:10:0 0:11:1 1:12:0 1:13:0 1:14:0 1:15:1 2:16:0 2:17:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+1:10:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:10:0 2:11:1 0:12:0 1:13:0 2:14:0 2:15:1 0:16:0 1:17:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 0
+360:10:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 0
+1:10:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:10   Clk:11 ********************
+
+Outer Loop i: 2
+Inner Loop j: 2
+
+Result: 
+208 423 360 
+
+begin valid: 1  bp: 1  getLast: 0
+1:8:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 1
+0:5:0 0:8:1 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+2:10:0 2:11:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:11:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+0:11:1 1:12:0 1:13:0 1:14:0 1:15:1 2:16:0 2:17:0 2:18:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+2:11:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:11:1 0:12:0 1:13:0 2:14:0 2:15:1 0:16:0 1:17:0 2:18:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+360:11:1 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 0
+1:11:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:11   Clk:12 ********************
+
+Outer Loop i: 2
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 
+
+begin valid: 0  bp: 1  getLast: 0
+1:12:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+0:5:0 0:8:1 0:12:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:12:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+2:11:0 2:12:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+0:12:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+1:12:0 1:13:0 1:14:0 1:15:1 2:16:0 2:17:0 2:18:0 2:19:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:12:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+0:12:0 1:13:0 2:14:0 2:15:1 0:16:0 1:17:0 2:18:0 2:19:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+56:12:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:12:1 
+
+lc1->sendEnd valid: 1  bp: 0  getLast: 0
+1:12:0 
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:12   Clk:13 ********************
+
+Outer Loop i: 2
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 
+
+begin valid: 0  bp: 1  getLast: 0
+1:12:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+0:5:0 0:8:1 0:12:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 0  getLast: 1
+2:12:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:13:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+1:13:0 1:14:0 1:15:1 2:16:0 2:17:0 2:18:0 2:19:1 2:20:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:13:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+1:13:0 2:14:0 2:15:1 0:16:0 1:17:0 2:18:0 2:19:1 2:20:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+1032:13:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:13:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 1  bp: 0  getLast: 0
+1:13:0 
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:13   Clk:14 ********************
+
+Outer Loop i: 0
+Inner Loop j: 0
+
+Result: 
+208 423 360 360 56 1032 
+
+begin valid: 0  bp: 1  getLast: 0
+1:12:0 
+
+i_lc0 valid: 1  bp: 1  getLast: 1
+0:5:0 0:8:1 0:12:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 0  getLast: 1
+0:14:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:14:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+1:14:0 1:15:1 2:16:0 2:17:0 2:18:0 2:19:1 2:20:1 0:21:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+0:14:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:14:0 2:15:1 0:16:0 1:17:0 2:18:0 2:19:1 2:20:1 0:21:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+2832:14:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:14:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:14   Clk:15 ********************
+
+Outer Loop i: 0
+Inner Loop j: 1
+
+Result: 
+208 423 360 360 56 1032 2832 
+
+begin valid: 1  bp: 1  getLast: 0
+1:12:0 
+
+i_lc0 valid: 1  bp: 0  getLast: 1
+0:8:1 0:12:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:15:0 0:15:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:15:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+1:15:1 2:16:0 2:17:0 2:18:0 2:19:1 2:20:1 0:21:0 0:22:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+1:15:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:15:1 0:16:0 1:17:0 2:18:0 2:19:1 2:20:1 0:21:0 1:22:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+2832:15:1 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:15:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:15   Clk:16 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 1032 2832 2832 
+
+begin valid: 1  bp: 1  getLast: 0
+1:16:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 1
+0:12:0 1:16:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:16:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:16:0 0:16:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:16:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+2:16:0 2:17:0 2:18:0 2:19:1 2:20:1 0:21:0 0:22:0 0:23:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+2:16:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+0:16:0 1:17:0 2:18:0 2:19:1 2:20:1 0:21:0 1:22:0 2:23:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+258:16:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:16:1 
+
+lc1->sendEnd valid: 1  bp: 0  getLast: 0
+1:16:0 
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:16   Clk:17 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 
+
+begin valid: 0  bp: 1  getLast: 0
+1:17:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+0:12:0 1:16:0 1:17:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:17:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:17:0 0:17:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+0:17:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+2:17:0 2:18:0 2:19:1 2:20:1 0:21:0 0:22:0 0:23:0 0:24:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:17:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+1:17:0 2:18:0 2:19:1 2:20:1 0:21:0 1:22:0 2:23:0 2:24:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+11925:17:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:17:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 1  bp: 0  getLast: 0
+1:17:0 
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:17   Clk:18 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 11925 
+
+begin valid: 0  bp: 1  getLast: 0
+1:17:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+0:12:0 1:16:0 1:17:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 0  getLast: 1
+0:17:1 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:18:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+2:18:0 2:19:1 2:20:1 0:21:0 0:22:0 0:23:0 0:24:1 0:25:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:18:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:18:0 2:19:1 2:20:1 0:21:0 1:22:0 2:23:0 2:24:1 2:25:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+9222:18:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:18:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:18   Clk:19 ********************
+
+Outer Loop i: 0
+Inner Loop j: 0
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 11925 9222 
+
+begin valid: 0  bp: 1  getLast: 0
+1:17:0 
+
+i_lc0 valid: 1  bp: 1  getLast: 1
+0:12:0 1:16:0 1:17:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 0  getLast: 1
+0:19:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:19:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+2:19:1 2:20:1 0:21:0 0:22:0 0:23:0 0:24:1 0:25:1 0:26:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+0:19:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:19:1 2:20:1 0:21:0 1:22:0 2:23:0 2:24:1 2:25:1 0:26:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+9222:19:1 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:19:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:19   Clk:20 ********************
+
+Outer Loop i: 0
+Inner Loop j: 1
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 11925 9222 9222 
+
+begin valid: 1  bp: 1  getLast: 0
+1:17:0 
+
+i_lc0 valid: 1  bp: 0  getLast: 1
+1:16:0 1:17:0 
+
+lc0->cond valid: 0  bp: 0  getLast: 0
+
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:20:0 1:20:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:20:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+2:20:1 0:21:0 0:22:0 0:23:0 0:24:1 0:25:1 0:26:0 0:27:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+1:20:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+2:20:1 0:21:0 1:22:0 2:23:0 2:24:1 2:25:1 0:26:0 1:27:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+9222:20:1 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:20:1 
+
+lc1->sendEnd valid: 1  bp: 0  getLast: 0
+1:20:0 
+
+lc0->getEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:20   Clk:21 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 11925 9222 9222 9222 
+
+begin valid: 1  bp: 1  getLast: 0
+1:21:0 
+
+i_lc0 valid: 0  bp: 0  getLast: 1
+1:17:0 2:21:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:21:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:21:0 1:21:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+1:21:0 
+
+i_data valid: 1  bp: 0  getLast: 0
+0:21:0 0:22:0 0:23:0 0:24:1 0:25:1 0:26:0 0:27:0 0:28:0 
+
+j_lc1 valid: 1  bp: 0  getLast: 0
+2:21:0 
+
+j_data valid: 1  bp: 0  getLast: 1
+0:21:0 1:22:0 2:23:0 2:24:1 2:25:1 0:26:0 1:27:0 2:28:0 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+208:21:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:21:1 
+
+lc1->sendEnd valid: 1  bp: 0  getLast: 0
+1:21:0 
+
+lc0->getEnd valid: 1  bp: 0  getLast: 0
+1:21:0 
+
+lc0->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+end valid: 0  bp: 0  getLast: 0
+
+
+**************** Exe:21   Clk:22 ********************
+
+Outer Loop i: 0
+Inner Loop j: 2
+
+Result: 
+208 423 360 360 56 1032 2832 2832 258 11925 9222 9222 9222 208 
+
+begin valid: 0  bp: 1  getLast: 0
+1:22:0 
+
+i_lc0 valid: 0  bp: 1  getLast: 1
+1:17:0 2:21:0 2:22:0 
+
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:22:0 
+
+i_lc1 valid: 1  bp: 1  getLast: 1
+0:22:0 1:22:0 
+
+lc1->cond valid: 1  bp: 0  getLast: 0
+0:22:1 
+
+i_data valid: 1  bp: 0  getLast: 1
+0:22:0 0:23:0 0:24:1 0:25:1 0:26:0 0:27:0 0:28:0 0:29:1 
+
+j_lc1 valid: 1  bp: 0  getLast: 1
+2:22:1 
+
+j_data valid: 1  bp: 0  getLast: 1
+1:22:0 2:23:0 2:24:1 2:25:1 0:26:0 1:27:0 2:28:0 2:29:1 
+
+c_lc1 valid: 1  bp: 0  getLast: 1
+423:22:0 
+
+lc1->getEnd valid: 1  bp: 0  getLast: 1
+1:22:0 
+
+lc1->sendEnd valid: 0  bp: 0  getLast: 0
+
+
+lc0->getEnd valid: 1  bp: 0  getLast: 0
+1:22:0 
+
+lc0->sendEnd valid: 1  bp: 0  getLast: 0
+1:22:0 
+
+end valid: 1  bp: 1  getLast: 0
+1:22:0 
+
+*******************************
+Execution finished succussfully
+*******************************
+Total Cycle: 22
