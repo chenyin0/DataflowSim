@@ -1,9 +1,6 @@
 /*
 Develop log
-	1. lc1_cond getActive 改为来自i_data
-	2. lc getEnd/sendEnd 改动较大
-	3. 循环结束有问题
-	4. sendEndUpdate破坏了封装性
+	1. sendEndUpdate破坏了封装性
 */
 
 #include "../src/define/Define.hpp"
@@ -44,7 +41,7 @@ namespace DFSimTest
 
 		Channel* begin = new Channel(1, 1, 0);
 		begin->noUpstream = 1;
-		begin->enable = 1;
+		//begin->enable = 1;
 		Channel* end = new Channel(1, 1, 0);
 		end->noDownstream = 1;
 
@@ -73,6 +70,14 @@ namespace DFSimTest
 		// LC addPort : getAct, sendAct, getEnd, sendEnd
 		lc0->addPort({begin}, {i_lc0}, {lc1->sendEnd}, {end});
 		lc1->addPort({i_lc1 /*i_data*/}, {j_lc1, i_data}, {c_lc1}, {lc0->getEnd});
+
+#ifdef DGSF
+		// enable channel
+		begin->enable = 1;
+
+		// define activeChannel
+
+#endif
 
 		//create output data
 		vector<int> c;

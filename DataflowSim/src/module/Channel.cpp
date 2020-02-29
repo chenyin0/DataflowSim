@@ -82,24 +82,6 @@ bool Channel::checkUpstream()
 	return ready;
 }
 
-//bool Channel::checkClk(uint clk)
-//{
-//	bool clkSatisfy = 1;
-//	if (!noUpstream)
-//	{
-//		for (auto channel : upstream)
-//		{
-//			if (channel->channel.front().cycle > clk) // data is in advance of the clock
-//			{
-//				clkSatisfy = 0;
-//				break;
-//			}
-//		}
-//	}
-//
-//	return clkSatisfy;
-//}
-
 void Channel::pushChannel(int _data, uint clk)
 {
 	if (!noUpstream)
@@ -162,12 +144,8 @@ vector<int> Channel::push(int data)
 {
 	uint clk = ClkDomain::getInstance()->getClk();
 
-	//// clear hasReceived front
-	//if (!hasReceived.empty())
-	//	hasReceived.pop_front();
-
 	// push data in channel
-	if (checkUpstream()/* && checkClk(clk) && channel.size() < size*/)
+	if (checkUpstream())
 	{
 		pushChannel(data, clk);
 		return {1, data};
@@ -178,12 +156,10 @@ vector<int> Channel::push(int data)
 
 vector<int> Channel::pop()
 {
-	//bool popReady = hasSent.empty() ? 0 : 1;
-	//bool popReady = lastCycleValid;
 	int popSuccess = 0;
 	int popData = 0;
 
-	bool popReady = valid;
+	bool popReady = valid && enable;
 
 	// popLastReady only used in keepMode
 	bool popLastReady = 1;
@@ -208,11 +184,6 @@ vector<int> Channel::pop()
 		popSuccess = 1;
 		popData = data.value;
 
-		//hasSent.pop_front();
-
-		//if (data.last)
-		//	popLast.push_back(1); // signify this channel has poped a data with last flag
-
 		// clear the last flags of downstreams
 		if (keepMode)
 		{
@@ -229,7 +200,10 @@ vector<int> Channel::pop()
 #ifdef DGSF
 		// reset enable
 		if (data.graphSwitch == 1)
-			enable = 0;
+		{
+			sendActive();
+			enable = 0;  // disable current channel for graph switch
+		}
 #endif
 	}
 
@@ -241,25 +215,8 @@ vector<int> Channel::pop()
 		}
 	}
 
-	return { popSuccess, popData };
+	return { popSuccess, popData };  // for debug
 }
-
-//void Channel::collectBp()
-//{
-//	valid = 1;
-//
-//	if (!noDownstream)
-//	{
-//		for (auto channel : downstream)
-//		{
-//			if (channel->bp || !channel->enable)
-//			{
-//				valid = 0;
-//				break;
-//			}
-//		}
-//	}
-//}
 
 void Channel::statusUpdate()
 {
@@ -285,18 +242,13 @@ void Channel::statusUpdate()
 	{
 		for (auto channel : downstream)
 		{
-			if (channel->bp || !channel->enable)
+			if (channel->bp/* || !channel->enable*/)  // _modify 2.27
 			{
 				valid = 0;
 				break;
 			}
 		}
 	}
-
-	//lastCycleValid = valid;
-
-	//if (valid)
-	//	hasSent.push_back(1); // current channel has sent out a data to each downstream;
 
 	// push clkStall in parallel execution mode
 	if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // if the parallel execution dosen't finish, stall the system clock;
@@ -305,16 +257,9 @@ void Channel::statusUpdate()
 	}
 	currId = currId % speedup + 1;
 
-	//#ifdef DGSF
-	//// reset enable
-	//if (channel.size() == size)
-	//{
-	//	enable = 0;
-	//}
-	//#endif
-
 }
 
+#ifdef DGSF
 void Channel::sendActive()
 {
 	if (sendActiveMode)
@@ -324,15 +269,24 @@ void Channel::sendActive()
 			// activeStream is empty
 			DEBUG_ASSERT(false);
 		}
-		else if(channel.size() == size || channel.back().graphSwitch == 1) // when current sub-graph is over, active next sub-graph
+		else
 		{
 			for (auto& channel : activeStream)
 			{
-				channel->enable = 1;
+				enable = 1;
 			}
 		}
+		//else if(channel.size() == size || channel.back().graphSwitch == 1) // when current sub-graph is over, active next sub-graph
+		//{
+		//	enable = 1;  // _modify 2.27
+		//	/*for (auto& channel : activeStream)
+		//	{
+		//		channel->enable = 1;
+		//	}*/
+		//}
 	}
 }
+#endif
 
 void Channel::bpUpdate()
 {
@@ -349,13 +303,12 @@ vector<int> Channel::get(int data)
 	vector<int> popState(2);
 
 	checkConnect();
-	//collectBp();
 	popState = pop(); // data lifetime in nested loop
 	pushState = push(data);
 	statusUpdate(); // set valid according to the downstream channels' status
-#ifdef DGSF
-	sendActive(); // in DGSF architecture
-#endif
+//#ifdef DGSF
+//	sendActive(); // in DGSF architecture
+//#endif
 	bpUpdate();
 
 	return { pushState[0], pushState[1], popState[0], popState[1] };
@@ -372,14 +325,5 @@ int Channel::assign()
 	else
 		return 0;
 }
-//int Channel::assign(Channel* c)
-//{
-//	if (!c->channel.empty())
-//	{
-//		return c->channel.front().value;
-//	}
-//	else
-//		return 0;
-//}
 
 

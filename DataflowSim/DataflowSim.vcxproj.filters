@@ -84,6 +84,12 @@
     <Text Include="resource\output\SimpleFlowTest\log.txt">
       <Filter>resource\output\SimpleFlowTest</Filter>
     </Text>
+    <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt">
+      <Filter>resource\output\SimpleFlowTest</Filter>
+    </Text>
+    <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt">
+      <Filter>resource\output\SimpleFlowTest</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />

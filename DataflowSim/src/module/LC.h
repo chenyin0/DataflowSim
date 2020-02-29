@@ -51,14 +51,11 @@ namespace DFSim
 		uint loopEnd = 0; // the number of finished loop
 		uint currLoopId = 0; // if current loop Id == loop number, loop end
 		deque<uint> loopNumQ; // store each loop number
-		deque<bool> getLastOuter;
+		deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
 	public:
-		/*Channel getActive = Channel(1, 1, 0);
-		Channel sendActive = Channel(1, 1, 0);*/
 		Channel* getEnd = new Channel(2, 1, 0);
 		Channel* sendEnd = new Channel(2, 1, 0);
 		Channel* cond = new Channel(2, 1, 0);  // 1) get condition result; 2) used as getActive and sendActive;
-		//Channel keepLifetime = Channel(1, 1, 0);  // fake channel, just to keep outer loop variable's lifetime
 	};
 }

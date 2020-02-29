@@ -64,6 +64,10 @@ using std::accumulate;
 #define DEBUG_ASSERT(x) if ( !((void)0,(x))) { __debugbreak(); }
 #define DEBUG_CONSOLE true
 
+#define str(s) #s
+#define xstr(s) str(s)
+
+
 class Bool
 {
 public:

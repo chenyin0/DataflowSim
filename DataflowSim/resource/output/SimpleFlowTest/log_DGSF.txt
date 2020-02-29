@@ -1,4 +1,4 @@
-2020-02-27      18:11:54
+2020-02-27      22:47:23
 
 ******  System Config  *******
 Arch: DGSF
@@ -16,14 +16,14 @@ Inner Loop j: 0
 Result: 
 
 
-begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+begin valid: 1  bp: 1  getLast: 0
+1:1:0 
 
 i_lc0 valid: 0  bp: 0  getLast: 0
+0:1:0 
 
-
-lc0->cond valid: 0  bp: 0  getLast: 0
-
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:1:0 
 
 i_lc1 valid: 0  bp: 0  getLast: 0
 
@@ -66,14 +66,14 @@ Inner Loop j: 0
 Result: 
 
 
-begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+begin valid: 1  bp: 1  getLast: 0
+1:2:0 
 
 i_lc0 valid: 0  bp: 0  getLast: 0
+0:1:0 1:2:0 
 
-
-lc0->cond valid: 0  bp: 0  getLast: 0
-
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:2:0 
 
 i_lc1 valid: 0  bp: 0  getLast: 0
 
@@ -117,13 +117,13 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
-
-lc0->cond valid: 0  bp: 0  getLast: 0
-
+lc0->cond valid: 1  bp: 0  getLast: 0
+1:3:0 
 
 i_lc1 valid: 0  bp: 0  getLast: 0
 
@@ -167,10 +167,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -217,10 +217,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -267,10 +267,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -317,10 +317,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -367,10 +367,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -417,10 +417,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -467,10 +467,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -517,10 +517,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -567,10 +567,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -617,10 +617,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -667,10 +667,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -717,10 +717,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -767,10 +767,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -817,10 +817,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -867,10 +867,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -917,10 +917,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -967,10 +967,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1017,10 +1017,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1067,10 +1067,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1117,10 +1117,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1167,10 +1167,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1217,10 +1217,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1267,10 +1267,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1317,10 +1317,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1367,10 +1367,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1417,10 +1417,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1467,10 +1467,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1517,10 +1517,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1567,10 +1567,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1617,10 +1617,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1667,10 +1667,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1717,10 +1717,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1767,10 +1767,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1817,10 +1817,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1867,10 +1867,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1917,10 +1917,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -1967,10 +1967,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2017,10 +2017,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2067,10 +2067,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2117,10 +2117,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2167,10 +2167,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2217,10 +2217,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2267,10 +2267,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2317,10 +2317,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2367,10 +2367,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2417,10 +2417,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 
@@ -2467,10 +2467,10 @@ Result:
 
 
 begin valid: 0  bp: 1  getLast: 0
-1:0:0 
+1:3:0 
 
-i_lc0 valid: 0  bp: 0  getLast: 0
-
+i_lc0 valid: 0  bp: 1  getLast: 0
+0:1:0 1:2:0 1:3:0 
 
 lc0->cond valid: 0  bp: 0  getLast: 0
 

@@ -37,7 +37,8 @@ Usage:
 	3. bool channelCond; // current channel is True channel or False channel
 	4. sendActiveMode;  // current channel need to send active signal to others to swith sub-graph
 	5. vector<Channel> activeStream;
-	6. bool enable; // in DGSF, the beginning channel need be set to 1 in manual; in other archetecture, set defaultly;
+	6. bool enable;   // in DGSF, the beginning channel and the channels within a basic block need be set to 1 in manual;
+					  // in other archetecture, set defaultly;
 	7. vector<Channel*> upstream  // if no upstream, set noUpstream; 
 								  // for constructing const variable;
 	8. vector<Channel*> downstream  // if no downstream, set noDownstream;
@@ -75,16 +76,13 @@ namespace DFSim
 		//deque<bool> hasSent;  // whenever channel status is valid, push a tag in this queue
 
 		void initial();
-		//Data cycleUpdate();
 		void checkConnect();  // check upstream and downstream can't be empty
 		//bool checkUpstream();
-		//bool checkClk(uint clk);
 		void pushChannel(int data, uint clk);
 		vector<int> push(int data); // push data and update cycle; Return {pushSuccess, pushData}
 		void bpUpdate();
 	public:
 		void statusUpdate();
-		//void collectBp();
 	private:
 		void sendActive();
 	public:
@@ -118,7 +116,9 @@ namespace DFSim
 
 		vector<Channel*> upstream;  // if no upstream, push a nullptr in vector head
 		vector<Channel*> downstream;  // if no downstream, push a nullptr in vector head
+#ifdef DGSF
 		vector<Channel*> activeStream;  // active next basic block in DGSF(switch sub-graph)
+#endif
 		//vector<deque<Data>> req;
 	};
 }

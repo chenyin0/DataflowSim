@@ -87,6 +87,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\output\SimpleFlowTest\log.txt" />
+    <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt" />
+    <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />

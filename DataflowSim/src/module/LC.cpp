@@ -15,26 +15,6 @@ void LC::addPort(vector<Channel*> _getActive, vector<Channel*> _sendActive, vect
 	sendEnd->addDownstream(_sendEnd);
 }
 
-//LC::LC(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd)
-//{
-//	init();
-//
-//	cond.addUpstream(_getActive);
-//	cond.addDownstream(_sendActive);
-//	getEnd.addUpstream(_getEnd);
-//	sendEnd.addDownstream(_sendEnd);
-//
-//}
-
-//LC::LC(vector<Channel*> _getEnd, vector<Channel*> _sendEnd)
-//{
-//	init();
-//
-//	getEnd.addUpstream(_getEnd);
-//	sendEnd.addDownstream(_sendEnd);
-//
-//}
-
 void LC::init()
 {
 	getEnd->noDownstream = 1;
@@ -52,13 +32,6 @@ void LC::init()
 
 void LC::getEndUpdate()
 {
-	//if (getEnd->checkUpstream())
-	//{
-	//	currLoopId++;
-	//	getEnd->bp = 0;
-	//}
-	//else
-	//	getEnd->bp = 1;  // backpressure to all the DFG ending node(channel)
 	getEnd->get(1);
 
 	if (!getEnd->channel.empty() && getEnd->channel.back().lastOuter)
@@ -73,14 +46,7 @@ void LC::getEndUpdate()
 
 void LC::sendEndUpdate()
 {
-	//if (!loopNumQ.empty() && currLoopId == loopNumQ.front())
-	//{
-	//	//sendEnd->channel.push_back(Data());  // No matter the data status, just a trig signal
-	//	sendEnd->get(1);
-	//	loopNumQ.pop_front();
-	//}
-
-	if (sendEnd->valid)
+	if (sendEnd->valid && sendEnd->enable)
 	{
 		sendEnd->pop();
 		sendEnd->statusUpdate();
@@ -94,9 +60,6 @@ void LC::sendEndUpdate()
 
 		if (!getLastOuter.empty())
 			getLastOuter.pop_front();
-
-		/*if (!getLast.empty() && loopEnd >= 1)
-			getLast.pop_front();*/
 	}
 }
 
@@ -137,9 +100,6 @@ void LC::condUpdate()
 		cond->channel.back().lastOuter = 1;  // when current LC get a last from outer loop
 		cond->getLast.pop_front();
 	}
-
-	//if (!cond->channel.empty() && cond->channel.front().last && cond->valid) // when cond will pop a last in the next clk
-	//	getLast.push_back(1);
 
 	// update initSel
 	initSelUpdate();
