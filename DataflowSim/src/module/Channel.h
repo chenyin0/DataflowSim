@@ -56,37 +56,36 @@ namespace DFSim
 	{
 	public:
 		//Channel();
-		Channel(uint _size, uint speedup, uint cycle);
+		Channel(uint _size, uint _cycle);
 
 		void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
 
 		// channel get data from the program variable
-		vector<int> get(int data);  // return {pushSuccess, pushData, popSuccess, popData}
+		virtual vector<int> get(int data);  // return {pushSuccess, pushData, popSuccess, popData}
 		
 		// assign channel value to the program variable
-		//int assign(Channel* c);
-		int assign();
+		virtual int assign();
 
-		bool checkUpstream();
-	
-	private:
+		virtual void statusUpdate();
+		virtual vector<int> pop(); // pop the data in the channel head; Return {popSuccess, popData}
+
+	protected:
 		int lastVal = 0;  // only use for the data which last = 1, replace this data's value to lastVal 
+		int lastPopVal = 0;  // record last data poped by channel
 		bool lastCycleValid = 0;
 		//deque<bool> hasSent;  // whenever channel status is valid, push a tag in this queue
 
 		void initial();
 		void checkConnect();  // check upstream and downstream can't be empty
+		bool popLastCheck();
+		virtual vector<int> popData(bool popReady, bool popLastReady);
+		void updateCycle(bool popReady, bool popLastReady); // update cycle in keepMode
 		//bool checkUpstream();
-		void pushChannel(int data, uint clk);
-		vector<int> push(int data); // push data and update cycle; Return {pushSuccess, pushData}
+		virtual bool checkUpstream();
+		virtual void pushChannel(int data, uint clk);
+		virtual vector<int> push(int data); // push data and update cycle; Return {pushSuccess, pushData}
 		void bpUpdate();
-	public:
-		void statusUpdate();
-	private:
-		void sendActive();
-	public:
-		vector<int> pop(); // pop the data in the channel head; Return {popSuccess, popData}
 
 	public:
 		deque<Data> channel;
@@ -97,16 +96,10 @@ namespace DFSim
 		uint size;	// channel size
 		uint cycle; // channel execute cycle
 
-		uint speedup;  // parallelism parameter
-		int currId;	// current threadID
-
 		// channel in branch
 		bool branchMode; // signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
 		bool isCond; // signify current channel stores condition value of the branch (lc->cond)
 		bool channelCond; // current channel is True channel or False channel
-
-		// current channel need to active others
-		bool sendActiveMode = 0;
 
 		bool noUpstream = 0;
 		bool noDownstream = 0;
@@ -116,9 +109,37 @@ namespace DFSim
 
 		vector<Channel*> upstream;  // if no upstream, push a nullptr in vector head
 		vector<Channel*> downstream;  // if no downstream, push a nullptr in vector head
-#ifdef DGSF
-		vector<Channel*> activeStream;  // active next basic block in DGSF(switch sub-graph)
-#endif
 		//vector<deque<Data>> req;
+	};
+
+
+	class ChanDGSF : public Channel
+	{
+	public:
+		ChanDGSF(uint _size, uint _cycle, uint _speedup);
+
+		/*void addUpstream(const vector<ChanDGSF*>& _upStream);
+		void addDownstream(const vector<ChanDGSF*>& _dowmStream);*/
+
+		//vector<int> get(int data) override;  // return {pushSuccess, pushData, popSuccess, popData}
+		//vector<int> pop() override; // pop the data in the channel head; Return {popSuccess, popData}
+		//vector<int> push(int data) override;
+		void statusUpdate() override;
+		//int assign() override;
+
+	private:
+		vector<int> popData(bool popReady, bool popLastReady);
+		void sendActive();
+
+	public:
+		uint speedup;  // parallelism parameter
+		int currId;	// current threadID
+		bool sendActiveMode = 0;  // current channel need to active others
+		vector<ChanDGSF*> activeStream;  // active next basic block in DGSF(switch sub-graph)
+	};
+
+	class ChanSGMF : public Channel
+	{
+
 	};
 }

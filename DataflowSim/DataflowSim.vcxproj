@@ -133,7 +133,8 @@
     <ClInclude Include="src\module\LC.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\util.hpp" />
-    <ClInclude Include="tb\SimpleFlowTest.hpp" />
+    <ClInclude Include="tb\SimpleFlow_Base.hpp" />
+    <ClInclude Include="tb\SimpleFlow_DGSF.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\output\SimpleFlowTest\log.txt" />
+    <Text Include="resource\output\SimpleFlowTest\log_Base.txt" />
     <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt" />
     <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt" />
   </ItemGroup>

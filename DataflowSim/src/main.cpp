@@ -1,10 +1,56 @@
 #include "../src/define/Define.hpp"
 #include "../src/module/ClkSys.h"
 #include "../src/sim/Debug.h"
-#include "../tb/SimpleFlowTest.hpp"
+
+#include "../tb/SimpleFlow_Base.hpp"
+#include "../tb/SimpleFlow_DGSF.hpp"
+
+
+//class Channel
+//{
+//public:
+//	Channel() { std::cout << "Channel" << std::endl; }
+//	void print() { std::cout << "This is Channel" << std::endl; }
+//};
+//
+//class ChanDGSF : public Channel
+//{
+//public:
+//	ChanDGSF() { std::cout << "ChanDGSF" << std::endl; }
+//	void print() { std::cout << "This is ChannDGSF" << std::endl; }
+//};
+//
+//class LC
+//{
+//public:
+//	LC() {}
+//	void func();
+//	Channel* chan = new Channel();
+//};
+//
+//void LC::func()
+//{
+//	chan->print();
+//}
+//
+//class LcDGSF : public LC
+//{
+//public:
+//	LcDGSF() {}
+//	void func();
+//	ChanDGSF* chan = new ChanDGSF();
+//};
+//
+//void LcDGSF::func()
+//{
+//	chan->print();
+//}
 
 int main()
 {
+	//LcDGSF* lc = new LcDGSF();
+	//lc->LC::func();
+
 	DFSim::ClkDomain clk();
 	std::cout << "Begin test" << std::endl;
 
@@ -17,13 +63,12 @@ int main()
 	debug->getFile() << "******************************" << std::endl;
 
 
-	//std::ofstream log;
-	//log.open(".\\resource\\output\\SimpleFlowTest\\log.txt");
-	//if (log.is_open())
-	//	std::cout << "file open" << std::endl;
-	//log << DFSim::ClkDomain::getInstance()->getCurrentSystemTime() << std::endl;
-
-	DFSimTest::simpleFlowTest(debug);
+#ifdef DGSF
+	DFSimTest::simpleFlow_DGSF(debug);
+#endif
+#ifdef Base
+	DFSimTest::simpleFlow_Base(debug);
+#endif
 
 	return 0;
 }

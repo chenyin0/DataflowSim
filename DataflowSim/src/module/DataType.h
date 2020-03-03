@@ -5,24 +5,7 @@ namespace DFSim
 {
 	struct Data
 	{
-		int value;
-		bool valid;
-		bool cond;
-		bool last;  // loop last
-		bool lastOuter; // outer loop last flag
-		bool graphSwitch;
-		uint cycle;
-
-		Data() 
-		{
-			value = 0;
-			valid = 1;
-			cond = 1;
-			last = 0;
-			lastOuter = 0;
-			graphSwitch = 0;
-			cycle = 0;
-		}
+		Data() {}
 
 		void reset()
 		{
@@ -32,5 +15,14 @@ namespace DFSim
 			last = 0;
 			cycle = 0;
 		}
+
+		int value = 0;
+		bool valid = 0;
+		bool cond = 1;
+		bool last = 0;  // loop last
+		bool lastOuter = 0; // outer loop last flag
+		uint cycle = 0;
+
+		bool graphSwitch = 0;
 	};
 }

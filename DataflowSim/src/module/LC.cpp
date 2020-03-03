@@ -2,7 +2,7 @@
 
 using namespace DFSim;
 
-LC::LC()
+LC::LC(Channel* _cond, Channel* _getEnd, Channel* _sendEnd) : cond(_cond), getEnd(_getEnd), sendEnd(_sendEnd)
 {
 	init();
 }
@@ -74,25 +74,33 @@ void LC::initSelUpdate()
 	{
 		initSel = 1;  // reset select initial loop variable, restart a new loop
 	}
+
+	// when cond switch to disable, keep initSel as lastInitSel
+	if (!cond->enable)
+	{
+		initSel = lastInitSel;
+	}
+
+	lastInitSel = initSel;
 }
 
 void LC::condUpdate()
 {
+	// cond valid, signify cond will sends out a data
+	if (cond->valid)
+	{
+		loopNum++;
+	}
+
 	// add last tag
 	if (!cond->channel.empty() && cond->channel.back().value == 0)
 	{
 		cond->channel.back().last = 1;  // if loop 3 times, there will be i = 0,1,2,3(last = 1!)
 		//cond->last = 1;
 		// store loopNum and reset it
-		++loopNum;  // for additional loop with last tag
+		//++loopNum;  // for additional loop with last tag
 		loopNumQ.push_back(loopNum);
 		loopNum = 0;
-
-	}
-	else
-	{
-		loopNum++; // accumulate and record the number of the launched loop 
-		//cond->last = 0;
 	}
 
 	if (!cond->getLast.empty())
@@ -116,4 +124,47 @@ void LC::lcUpdate()
 int LC::mux(int init, int update)
 {
 	return initSel ? init : update;
+}
+
+
+// class LcDGSF
+LcDGSF::LcDGSF(ChanDGSF* _cond, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, uint _graphSize) : 
+	LC(_cond, _getEnd, _sendEnd), cond(_cond), getEnd(_getEnd), sendEnd(_sendEnd), graphSize(_graphSize)
+{
+	init();
+}
+
+void LcDGSF::condUpdate()
+{
+	// cond valid, signify cond will sends out a data
+	if (cond->valid)
+	{
+		loopNum++;
+	}
+
+	// add last tag
+	if (!cond->channel.empty() && cond->channel.back().value == 0)
+	{
+		cond->channel.back().last = 1;  // if loop 3 times, there will be i = 0,1,2,3(last = 1!)
+		//cond->last = 1;
+		// store loopNum and reset it
+		//++loopNum;  // for additional loop with last tag
+		loopNumQ.push_back(loopNum);
+		loopNum = 0;
+	}
+
+	// when 1)loopNum = graphSize, or 2)current loop is over, set graphSwitch to 1
+	if (loopNum == graphSize || (!cond->channel.empty() && cond->channel.front().value == 0))
+	{
+		cond->channel.front().graphSwitch = 1;
+	}
+
+	if (!cond->getLast.empty())
+	{
+		cond->channel.back().lastOuter = 1;  // when current LC get a last from outer loop
+		cond->getLast.pop_front();
+	}
+
+	// update initSel
+	initSelUpdate();
 }

@@ -8,6 +8,7 @@
 #define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
+//#define Base Base
 
 #ifdef DGSF
 	#define ARCH DGSF
@@ -17,6 +18,9 @@
 #endif
 #ifdef TIA
 	#define ARCH TIA
+#endif
+#ifdef Base
+	#define ARCH Base
 #endif
 
 // Array para

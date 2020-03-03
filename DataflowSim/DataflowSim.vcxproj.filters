@@ -59,7 +59,10 @@
     <ClInclude Include="src\sim\Debug.h">
       <Filter>src\sim</Filter>
     </ClInclude>
-    <ClInclude Include="tb\SimpleFlowTest.hpp">
+    <ClInclude Include="tb\SimpleFlow_Base.hpp">
+      <Filter>tb</Filter>
+    </ClInclude>
+    <ClInclude Include="tb\SimpleFlow_DGSF.hpp">
       <Filter>tb</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,6 +91,9 @@
       <Filter>resource\output\SimpleFlowTest</Filter>
     </Text>
     <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt">
+      <Filter>resource\output\SimpleFlowTest</Filter>
+    </Text>
+    <Text Include="resource\output\SimpleFlowTest\log_Base.txt">
       <Filter>resource\output\SimpleFlowTest</Filter>
     </Text>
   </ItemGroup>
