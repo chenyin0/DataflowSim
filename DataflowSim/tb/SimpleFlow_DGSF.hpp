@@ -1,6 +1,6 @@
 /*
 Develop log
-	1. sendEndUpdateÆÆ»µÁË·â×°ÐÔ
+	1. sendEndUpdate() destroy encapsulation
 */
 
 #include "../src/define/Define.hpp"
@@ -25,25 +25,28 @@ namespace DFSimTest
 		vector<int> b = { 26, 8, 3, 47, 86, 159, 72, 48, 87 };
 
 		// declare lc
-		ChanDGSF* lc0_cond = new ChanDGSF(BRAM_BANK_DEPTH, 0, 1);
+		ChanDGSF* lc0_loopVar = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc0_getEnd = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc0_sendEnd = new ChanDGSF(2, 0, 1);
-		LcDGSF* lc0 = new LcDGSF(lc0_cond, lc0_getEnd, lc0_sendEnd, BRAM_BANK_DEPTH);
+		LcDGSF* lc0 = new LcDGSF(lc0_loopVar, lc0_getEnd, lc0_sendEnd, BRAM_BANK_DEPTH);
+		//Mux* mux_lc0 = new Mux({ lc0_loopVar }, { }, { lc0_loopVar });
 
-		ChanDGSF* lc1_cond = new ChanDGSF(2, 0, 1);
+		ChanDGSF* lc1_loopVar = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc1_getEnd = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc1_sendEnd = new ChanDGSF(2, 0, 1);
-		LcDGSF* lc1 = new LcDGSF(lc1_cond, lc1_getEnd, lc1_sendEnd, BRAM_BANK_DEPTH);
+		LcDGSF* lc1 = new LcDGSF(lc1_loopVar, lc1_getEnd, lc1_sendEnd, BRAM_BANK_DEPTH);
+		//Mux* mux_lc1 = new Mux({ lc1_loopVar }, { }, { lc1_loopVar });
 
 		// create channels
-		ChanDGSF* i_lc0 = new ChanDGSF(3, 0, 1);
+		//ChanDGSF* i_lc0 = new ChanDGSF(3, 0, 1);
+		ChanDGSF* i_tmp = new ChanDGSF(BRAM_BANK_DEPTH, 0, 1);
 		ChanDGSF* i_lc1 = new ChanDGSF(BRAM_BANK_DEPTH/*2*/, 0, 1);  // a[i * size + j] * b[j * size + i]
 		i_lc1->keepMode = 1;
 
-		ChanDGSF* i_data = new ChanDGSF(12, 7, 4);   // channel size = cycle + exepected size, in order to avoid stall
+		ChanDGSF* i_data = new ChanDGSF(12, 7, 5);   // channel size = cycle + exepected size, in order to avoid stall
 		//i_data->keepMode = 1;  // inner/outer loop interface channel set in keepMode
-		ChanDGSF* j_lc1 = new ChanDGSF(2, 0, 1);
-		ChanDGSF* j_data = new ChanDGSF(12, 7, 4);
+		//ChanDGSF* j_lc1 = new ChanDGSF(2, 0, 1);
+		ChanDGSF* j_data = new ChanDGSF(12, 7, 5);
 		ChanDGSF* c_lc1 = new ChanDGSF(20, 0, 1);
 
 		ChanDGSF* begin = new ChanDGSF(1, 0, 1);
@@ -53,41 +56,44 @@ namespace DFSimTest
 		end->noDownstream = 1;
 
 		// define channel interconnect
-		begin->addDownstream({ lc0->cond, i_lc0 });
+		begin->addDownstream({ lc0->loopVar/*, i_lc0*/ });
 		end->addUpstream({ lc0->sendEnd });
 
-		i_lc0->addUpstream({ lc0->cond, begin });
-		i_lc0->addDownstream({ i_lc1 });
+		/*i_lc0->addUpstream({ lc0->cond, begin});
+		i_lc0->addDownstream({ i_lc1 });*/
+		i_tmp->addUpstream({ lc0->loopVar });
+		i_tmp->addDownstream({ i_lc1 });
 
-		i_lc1->addUpstream({ i_lc0/*, lc1->cond*/ });
-		i_lc1->addDownstream({ i_data, lc1->cond, j_lc1/*, c_lc1*/ });
+		i_lc1->addUpstream({/*i_lc0/*, lc1->cond*/ /*lc0->loopVar*/i_tmp });
+		i_lc1->addDownstream({ i_data, lc1->loopVar/*, j_lc1*//*, c_lc1*/ });
 
-		i_data->addUpstream({ lc1->cond, i_lc1 });
+		i_data->addUpstream({/*lc1->cond*/ lc1->loopVar, i_lc1 });
 		i_data->addDownstream({ /*lc1->cond, */c_lc1 });
 
-		j_lc1->addUpstream({ lc1->cond, i_lc1 });
-		j_lc1->addDownstream({ j_data });
+		/*j_lc1->addUpstream({lc1->cond, i_lc1});
+		j_lc1->addDownstream({j_data});*/
 
-		j_data->addUpstream({ j_lc1 });
+		j_data->addUpstream({/*j_lc1*/ lc1->loopVar });
 		j_data->addDownstream({ c_lc1 });
 
 		c_lc1->addUpstream({ i_data, j_data/*, i_lc1*/ });
 		c_lc1->addDownstream({ lc1->getEnd });
 
 		// LC addPort : getAct, sendAct, getEnd, sendEnd
-		lc0->addPort({ begin }, { i_lc0 }, { lc1->sendEnd }, { end });
-		lc1->addPort({ i_lc1 /*i_data*/ }, { j_lc1, i_data }, { c_lc1 }, { lc0->getEnd });
-
+		lc0->addPort({ begin }, {/*i_lc0*//*i_lc1*/i_tmp }, { lc1->sendEnd }, { end });
+		lc0->addDependence({}, {});  // No loop dependence
+		lc1->addPort({ i_lc1 /*i_data*/ }, {/*j_lc1*/ j_data, i_data }, { c_lc1 }, { lc0->getEnd });
+		lc1->addDependence({}, {});  // No loop dependence
 
 		// define activeChannel
-		lc0_cond->sendActiveMode = 1;
-		lc0_cond->activeStream = { i_lc1 };
+		i_tmp->sendActiveMode = 1;
+		i_tmp->activeStream = { i_lc1 };
 
 		/*lc1_cond->sendActiveMode = 1;
 		lc1_cond->activeStream = { lc0_cond };*/
 
 		i_lc1->sendActiveMode = 1;
-		i_lc1->activeStream = {lc0_cond/*, begin*/};
+		i_lc1->activeStream = {i_tmp/*, begin*/};
 
 		// disable channel: set all the in activeMode channels' enable = 0, except the first channel(usual the most outer loop->cond)
 		i_lc1->enable = 0;
@@ -116,48 +122,48 @@ namespace DFSimTest
 		vector<int> result;
 
 		// Execute
-		while (iter < 100)
+		while (iter < 1000)
 		{
 			DFSim::ClkDomain::getInstance()->clkUpdate(); // update clk in each loop
 			int clk = DFSim::ClkDomain::getInstance()->getClk();
 			debug->getFile() << "\n" << "**************** " << "Exe:" << iter << "  ";
 			debug->getFile() << " Clk:" << clk << " ********************" << std::endl;
 
-			if (!lc0->cond->enable)
+			/*if (!lc0->cond->enable)
 			{
 				begin->enable = 0;
-			}
+			}*/
 
 			// Outer LC0
-			i = lc0->mux(0, i);
-			bool flag0 = i < size;
-			lc0->cond->get(flag0);
-			lc0->lcUpdate();
-			i_lc0->get(i);  // push i into channel after LC cond has updated
-			i = i_lc0->assign() + 1;
+			i = lc0->mux->mux(i, 0, lc0->sel);
+			lc0->mux->muxUpdate(lc0->sel);
+			lc0->loopVar->get(i);
+			i = lc0->loopVar->assign() + 1;
+			//lc0->sel = i < size;
+			lc0->lcUpdate(i < size);
 
 			begin->get(1);  // update begin
 
 			// loop interface: var i
-			int i_0 = i_lc0->assign();
-			i_lc1->get(i_0);
-			//int i_1 = i_lc1->assign();
-			//i_data->get(i_1);
-			//int i_d = i_data->assign();
+			int i_0 = lc0->loopVar->assign();
+			i_tmp->get(i_0);
+			int i_temp = i_tmp->assign();
+			//int i_0 = lc0->loopVar->assign();
+			i_lc1->get(i_temp);
 
 			// Inner LC1
-			j = lc1->mux(0, j);
-			bool flag1 = j < size;
-			lc1->cond->get(flag1);
-			lc1->lcUpdate();
-			j_lc1->get(j);
-			j = j_lc1->assign() + 1;
+			j = lc1->mux->mux(j, 0, lc1->sel);
+			lc1->mux->muxUpdate(lc1->sel);
+			lc1->loopVar->get(j);
+			j = lc1->loopVar->assign() + 1;
+			//lc1->sel = j < size;
+			lc1->lcUpdate(j < size);
 
 			int i_1 = i_lc1->assign();
 			i_data->get(i_1);
 			int i_d = i_data->assign();
 
-			int j_1 = j_lc1->assign();
+			int j_1 = lc1->loopVar->assign();
 			j_data->get(j_1);
 			int j_d = j_data->assign();
 
@@ -178,12 +184,13 @@ namespace DFSimTest
 			debug->vecPrint("Result", result);
 
 			debug->chanPrint("begin", begin);
-			debug->chanPrint("i_lc0", i_lc0);
-			debug->chanPrint("lc0->cond", lc0_cond);
+			//debug->chanPrint("i_lc0", i_lc0);
+			debug->chanPrint("lc0->loopVar", lc0->loopVar);
+			debug->chanPrint("i_tmp", i_tmp);
 			debug->chanPrint("i_lc1", i_lc1);
-			debug->chanPrint("lc1->cond", lc1_cond);
+			debug->chanPrint("lc1->loopVar", lc1->loopVar);
 			debug->chanPrint("i_data", i_data);
-			debug->chanPrint("j_lc1", j_lc1);
+			//debug->chanPrint("j_lc1", j_lc1);
 			debug->chanPrint("j_data", j_data);
 			debug->chanPrint("c_lc1", c_lc1);
 
@@ -197,11 +204,16 @@ namespace DFSimTest
 			
 			if (!end->channel.empty())
 			{
+				std::cout << std::endl;
+				std::cout << "*******************************" << std::endl;
+				std::cout << "Execution finished succussfully" << std::endl;
+				std::cout << "*******************************" << std::endl;
+				std::cout << "Total Cycle: " << clk << std::endl;
+
 				debug->getFile() << std::endl;
 				debug->getFile() << "*******************************" << std::endl;
 				debug->getFile() << "Execution finished succussfully" << std::endl;
 				debug->getFile() << "*******************************" << std::endl;
-
 				debug->getFile() << "Total Cycle: " << clk << std::endl;
 
 				break;

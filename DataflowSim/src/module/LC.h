@@ -12,12 +12,15 @@ Usage:
 	lc0->addPort({getAct}, {sendAct}, {getEnd}, {sendEnd});
 
 2. Code insert:
-	i = lc->mux(initial value, i);
-	flag = i < boundary;  // => if(i < boundary)
-	lc->cond->get(flag);
+	Mux mux0 = new Mux({lc->var}, {empty or other channel*}, {lc->var});
+
+	int i = init val;
+	int i = mux0->mux(i, init val, lc->sel);
+	mux0->muxUpdate(lc->sel);
+	lc->loopVar->get(i);
+	i = lc->loopVar.assign() -> update; // e.g. i = lc->loopVar.assign() + 1 (to implement i++);
+	lc->sel = i < boundary;  // => if(i < boundary)
 	lc->lcUpdate();
-	i_channel->get(i);
-	i = i_channel.assign() -> update; // e.g. i = i_channel.assign() + 1 (to implement i++);
 */
 
 #pragma once
@@ -25,6 +28,7 @@ Usage:
 #include "./DataType.h"
 #include "../define/Para.h"
 #include "./Channel.h"
+#include "./Mux.h"
 
 namespace DFSim
 {
@@ -32,36 +36,37 @@ namespace DFSim
 	{
 	public:
 		//LC(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd);
-		LC(Channel* _cond, Channel* _getEnd, Channel* _sendEnd);
-		void lcUpdate();
-		int mux(int init, int update);  // select initial loop variable(e.g. i=0) or updated loop variable(e.g. i++)
+		LC(Channel* _var, Channel* _getEnd, Channel* _sendEnd);
+		void lcUpdate(bool newSel);
+		void selUpdate(bool newSel);
+		//int mux(int init, int update);  // Select initial loop variable(e.g. i=0) or updated loop variable(e.g. i++)
 		void addPort(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd);
-
+		// initDepend: external initial loop var; updateDepend: for variable loop boundary and variable loop updating
+		void addDependence(vector<Channel*> _initDepend, vector<Channel*> _updateDepend);  
 	protected:
 		void init();
-		void initSelUpdate();
+		//void initSelUpdate();
 		void getEndUpdate();
 		void sendEndUpdate();
-		virtual void condUpdate();
+		virtual void loopUpdate();
 
 	private:
 	public:
-		bool initSel = 1; // trig = 1, select initial loop variable; trig = 0, select updated loop variable;
-		bool lastInitSel = 1;  // record last cycle initSel when cond disable
+		bool sel = 0;  // Sel for loop control, default set to select initial value
+		//bool initSel = 1; // trig = 1, select initial loop variable; trig = 0, select updated loop variable;
 		uint loopNum = 0; // loop number
 		uint loopEnd = 0; // the number of finished loop
-		uint currLoopId = 0; // if current loop Id == loop number, loop end
-		deque<uint> loopNumQ; // store each loop number
+		uint currLoopId = 0; // If current loop Id == loop number, loop end
+		deque<uint> loopNumQ; // Store each loop number
 		deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
 	public:
-		//Channel* getEnd = new Channel(2, 0);
-		//Channel* sendEnd = new Channel(2, 0);
-		//Channel* cond = new Channel(2, 0);  // 1) get condition result; 2) used as getActive and sendActive;
 		Channel* getEnd;
 		Channel* sendEnd;
-		Channel* cond;  // 1) get condition result; 2) used as getActive and sendActive;
+		Channel* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
+		MuxLC* mux = new MuxLC({ loopVar }, { }, { loopVar });
 	};
+
 
 /*
 LcDGSF usage:
@@ -69,19 +74,18 @@ LcDGSF usage:
 1. set graphSize after declaring; (graphSize is equal to BRAM bank depth) 
 
 */
-
 	// LC for DGSF
 	class LcDGSF : public LC
 	{
 	public:
-		LcDGSF(ChanDGSF* _cond, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, uint _graphSize);
+		LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, uint _graphSize);
 		//void addPort(vector<ChanDGSF*> _getActive, vector<ChanDGSF*> _sendActive, vector<ChanDGSF*> _getEnd, vector<ChanDGSF*> _sendEnd);
-		void condUpdate() override;
+		void loopUpdate() override;
 		uint graphSize;
 
 	public:
-		ChanDGSF* getEnd;
-		ChanDGSF* sendEnd;
-		ChanDGSF* cond;  // 1) get condition result; 2) used as getActive and sendActive;
+		//ChanDGSF* getEnd;
+		//ChanDGSF* sendEnd;
+		ChanDGSF* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
 	};
 }

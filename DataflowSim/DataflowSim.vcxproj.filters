@@ -65,6 +65,9 @@
     <ClInclude Include="tb\SimpleFlow_DGSF.hpp">
       <Filter>tb</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\Mux.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -81,6 +84,9 @@
     </ClCompile>
     <ClCompile Include="src\sim\Debug.cpp">
       <Filter>src\sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\Mux.cpp">
+      <Filter>src\module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

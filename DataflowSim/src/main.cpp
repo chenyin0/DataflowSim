@@ -46,8 +46,38 @@
 //	chan->print();
 //}
 
+//class A
+//{
+//public:
+//	A()
+//		:n2(0),
+//		n1(n2 + 2)
+//	{
+//		std::cout << std::endl;
+//		std::cout << std::endl;
+//		std::cout << std::endl;
+//	}
+//
+//	//~A();
+//
+//	void print()
+//	{
+//		std::cout << "n1:" << n1 << " ,  n2:" << n2 << std::endl;
+//		std::cout << "n3:" << n3 << std::endl;
+//	}
+//
+//private:
+//	int n2;
+//	int n1;
+//	int n3 = n1;
+//};
+
 int main()
 {
+	//A a;
+	//a.print();
+	//system("pause");
+
 	//LcDGSF* lc = new LcDGSF();
 	//lc->LC::func();
 
