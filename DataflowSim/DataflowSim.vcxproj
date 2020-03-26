@@ -130,18 +130,19 @@
     <ClInclude Include="src\module\Channel.h" />
     <ClInclude Include="src\module\ClkSys.h" />
     <ClInclude Include="src\module\DataType.h" />
-    <ClInclude Include="src\module\LC.h" />
+    <ClInclude Include="src\module\Lc.h" />
     <ClInclude Include="src\module\Mux.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\util.hpp" />
-    <ClInclude Include="tb\SimpleFlow_Base.hpp" />
-    <ClInclude Include="tb\SimpleFlow_DGSF.hpp" />
+    <ClInclude Include="test\SimpleFlow_Base.hpp" />
+    <ClInclude Include="test\SimpleFlow_DGSF.hpp" />
+    <ClInclude Include="test\SimpleFlow_SGMF.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\module\Channel.cpp" />
     <ClCompile Include="src\module\ClkSys.cpp" />
-    <ClCompile Include="src\module\LC.cpp" />
+    <ClCompile Include="src\module\Lc.cpp" />
     <ClCompile Include="src\module\Mux.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
   </ItemGroup>

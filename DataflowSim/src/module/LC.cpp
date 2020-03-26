@@ -1,31 +1,22 @@
-#include "LC.h"
+#include "Lc.h"
 
 using namespace DFSim;
 
-LC::LC(Channel* _loopVar, Channel* _getEnd, Channel* _sendEnd) : loopVar(_loopVar), getEnd(_getEnd), sendEnd(_sendEnd)
+Lc::Lc(Channel* _loopVar, Channel* _getEnd, Channel* _sendEnd, Mux* _mux) 
+	: loopVar(_loopVar), getEnd(_getEnd), sendEnd(_sendEnd), mux(_mux)
 {
 	init();
 }
 
-void LC::addPort(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd)
+Lc::~Lc()
 {
-	loopVar->addUpstream(_getActive);
-	loopVar->addDownstream(_sendActive);
-	getEnd->addUpstream(_getEnd);
-	sendEnd->addDownstream(_sendEnd);
-
-	// Add getActive to LC Mux's trueChan and falseChan
-	mux->trueChan->addUpstream(_getActive);
-	mux->falseChan->addUpstream(_getActive);
+	delete getEnd;
+	delete sendEnd;
+	delete loopVar;
+	delete mux;
 }
 
-void LC::addDependence(vector<Channel*> _initDepend, vector<Channel*> _updateDepend)
-{
-	mux->falseChan->addUpstream(_initDepend);
-	mux->trueChan->addUpstream(_updateDepend);
-}
-
-void LC::init()
+void Lc::init()
 {
 	getEnd->noDownstream = 1;
 	getEnd->downstream = { nullptr };
@@ -37,10 +28,30 @@ void LC::init()
 	sendEnd->enable = 1;
 	loopVar->enable = 1;
 
-	loopVar->isCond = 1;
+	//loopVar->isCond = 1;
+	loopVar->isLoopVar = 1;
+	loopVar->isFeedback = 1;
 }
 
-void LC::getEndUpdate()
+void Lc::addPort(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd)
+{
+	loopVar->addUpstream(_getActive);
+	loopVar->addDownstream(_sendActive);
+	getEnd->addUpstream(_getEnd);
+	sendEnd->addDownstream(_sendEnd);
+
+	// Add getActive to LC Mux's trueChan and falseChan
+	mux->trueChan->addUpstream(_getActive);
+	mux->falseChan->addUpstream(_getActive);
+}
+
+void Lc::addDependence(vector<Channel*> _initDepend, vector<Channel*> _updateDepend)
+{
+	mux->falseChan->addUpstream(_initDepend);
+	mux->trueChan->addUpstream(_updateDepend);
+}
+
+void Lc::getEndUpdate()
 {
 	getEnd->get(1);
 
@@ -49,12 +60,11 @@ void LC::getEndUpdate()
 
 	if (!getEnd->channel.empty())
 	{
-		//getEnd->channel.pop_front();
 		++loopEnd;
 	}
 }
 
-void LC::sendEndUpdate()
+void Lc::sendEndUpdate()
 {
 	if (sendEnd->valid && sendEnd->enable)
 	{
@@ -62,7 +72,7 @@ void LC::sendEndUpdate()
 		sendEnd->statusUpdate();
 	}
 
-	if (!loopNumQ.empty() && loopEnd == loopNumQ.front()/*(loopEnd == loopNumQ.front() || !getLastOuter.empty())*/)
+	if (!loopNumQ.empty() && loopEnd == loopNumQ.front())
 	{
 		sendEnd->get(1);
 		loopNumQ.pop_front();
@@ -73,7 +83,7 @@ void LC::sendEndUpdate()
 	}
 }
 
-void LC::loopUpdate()
+void Lc::loopUpdate()
 {
 	// cond valid, signify cond will sends out a data
 	if (loopVar->valid)
@@ -89,28 +99,27 @@ void LC::loopUpdate()
 	// Add last tag
 	if (!loopVar->channel.empty() && sel == 0)
 	{
-		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0,1,2(last = 1!)
+		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
 	}
 
 	if (!loopVar->getLast.empty())
 	{
-		loopVar->channel.back().lastOuter = 1;  // When current LC get a last from outer loop
+		loopVar->channel.back().lastOuter = 1;  // The last gotten by LC->loopVar is only from the outer loop
 		loopVar->getLast.pop_front();
 	}
 }
 
-void LC::selUpdate(bool newSel)
+void Lc::selUpdate(bool newSel)
 {
-	if (mux->muxSuccess)
+	if (this->mux->muxSuccess)
 	{
 		sel = newSel;
 	}
 }
 
-void LC::lcUpdate(bool newSel)
+void Lc::lcUpdate(bool newSel)
 {
 	selUpdate(newSel);
-	//initSelUpdate();  //update initSel
 	loopUpdate();  //Update cond channel
 	getEndUpdate();  //Update getEnd
 	sendEndUpdate();  //Update sendEnd
@@ -118,10 +127,17 @@ void LC::lcUpdate(bool newSel)
 
 
 // class LcDGSF
-LcDGSF::LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, uint _graphSize) : 
-	LC(_loopVar, _getEnd, _sendEnd), loopVar(_loopVar)/*, getEnd(_getEnd), sendEnd(_sendEnd)*/, graphSize(_graphSize)
+LcDGSF::LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint _graphSize) : 
+	Lc(_loopVar, _getEnd, _sendEnd, _mux), loopVar(_loopVar), graphSize(_graphSize)
 {
-	init();
+	//init();
+	loopVar->isLoopVar = 1;
+	loopVar->isFeedback = 1;
+}
+
+LcDGSF::~LcDGSF()
+{
+	delete loopVar;
 }
 
 void LcDGSF::loopUpdate()
@@ -140,12 +156,7 @@ void LcDGSF::loopUpdate()
 	// add last tag
 	if (!loopVar->channel.empty() && sel == 0)
 	{
-		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0,1,2,3(last = 1!)
-		////cond->last = 1;
-		//// store loopNum and reset it
-		////++loopNum;  // for additional loop with last tag
-		//loopNumQ.push_back(loopNum);
-		//loopNum = 0;
+		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
 	}
 
 	// When 1)loopNum = graphSize, or 2)current loop is over, set graphSwitch to 1
@@ -159,7 +170,55 @@ void LcDGSF::loopUpdate()
 		loopVar->channel.back().lastOuter = 1;  // When current LC get a last from outer loop
 		loopVar->getLast.pop_front();
 	}
-
-	//// update initSel
-	//initSelUpdate();
 }
+
+
+// class LcSGMF
+LcSGMF::LcSGMF(ChanSGMF* _loopVar, Channel* _getEnd, Channel* _sendEnd, MuxSGMF* _mux) :
+	Lc(_loopVar, _getEnd, _sendEnd, _mux), loopVar(_loopVar), mux(_mux)
+{
+	_loopVar->tagUpdateMode = 1;  // Set loopVar in tagUpdateMode
+
+	loopVar->isLoopVar = 1;
+	loopVar->isFeedback = 1;
+
+	mux->isLcMux = 1;  // Set the mux to isLcMux;
+
+	//// In Lc of SGMF, add outChan as upstream for the downstream(loopVar) automatically
+	//for (auto& chan : _downstream)
+	//{
+	//	chan->addUpstream({ outChan }); 
+	//}
+}
+
+LcSGMF::~LcSGMF()
+{
+	delete loopVar;
+	delete mux;
+}
+
+//void LcSGMF::loopUpdate()
+//{
+//	// cond valid, signify cond will sends out a data
+//	if (loopVar->valid)
+//	{
+//		loopNum++;
+//		if (sel == 0)
+//		{
+//			loopNumQ.push_back(loopNum);
+//			loopNum = 0;
+//		}
+//	}
+//
+//	// Add last tag
+//	if (!loopVar->channel.empty() && sel == 0)
+//	{
+//		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
+//	}
+//
+//	if (!loopVar->getLast.empty())
+//	{
+//		loopVar->channel.back().lastOuter = 1;  // The last gotten by LC->loopVar is only from the outer loop
+//		loopVar->getLast.pop_front();
+//	}
+//}

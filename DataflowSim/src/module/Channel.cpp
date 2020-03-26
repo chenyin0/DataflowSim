@@ -1,5 +1,6 @@
 #include "Channel.h"
 #include "ClkSys.h"
+#include "../sim/Debug.h"
 
 using namespace DFSim;
 
@@ -7,6 +8,19 @@ Channel::Channel(uint _size, uint _cycle)
 	: size(_size), cycle(_cycle)
 {
 	initial();
+}
+
+Channel::~Channel()
+{
+	for (auto& chan : upstream)
+	{
+		delete chan;
+	}
+
+	for (auto& chan : downstream)
+	{
+		delete chan;
+	}
 }
 
 void Channel::initial()
@@ -25,8 +39,6 @@ void Channel::initial()
 
 void Channel::addUpstream(const vector<Channel*>& _upStream)
 {
-	//upstream = _upStream;
-	//upstream.assign(_upStream.begin(), _upStream.end());
 	for (auto& chan : _upStream)
 	{
 		upstream.push_back(chan);
@@ -35,8 +47,6 @@ void Channel::addUpstream(const vector<Channel*>& _upStream)
 
 void Channel::addDownstream(const vector<Channel*>& _downStream)
 {
-	//downstream = _downStream;
-	//downstream.assign(_downStream.begin(), _downStream.end());
 	for (auto& chan : _downStream)
 	{
 		downstream.push_back(chan);
@@ -47,10 +57,7 @@ void Channel::checkConnect()
 {
 	if ((!noUpstream && upstream.empty()) || (!noDownstream && downstream.empty()))
 	{
-		uint clk = DFSim::ClkDomain::getInstance()->getClk();
-		std::cout << "Error clock: " << clk << std::endl;
-		// upstream/downstream is empty
-		DEBUG_ASSERT(false);
+		Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
 	}
 }
 
@@ -70,7 +77,7 @@ bool Channel::checkUpstream()
 	}
 	else
 	{
-		if (channel.size() == size)  // if no upstream
+		if (channel.size() == size)  // When channel is full
 			ready = 0;
 	}
 
@@ -82,6 +89,7 @@ void Channel::pushChannel(int _data, uint clk)
 	if (!noUpstream)
 	{
 		Data data = upstream.front()->channel.front();
+		data.last = 0;  // Reset last flag
 		data.value = _data;
 		uint cycleTemp = data.cycle + cycle;
 		data.cycle = cycleTemp > clk ? cycleTemp : clk;
@@ -89,19 +97,15 @@ void Channel::pushChannel(int _data, uint clk)
 		// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
 		for (auto channel : upstream)
 		{
-			if (!isCond && channel->keepMode == 0)
+			// loopVar not receive last, only receive lastOuter
+			// Due to a channel in keepMode may repeatly send a data with a last for many times
+			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)  
 			{
 				data.last |= channel->channel.front().last;
 			}
 			data.lastOuter |= channel->channel.front().lastOuter;
 			data.graphSwitch |= channel->channel.front().graphSwitch;
 		}
-
-		//// replace the value of the last data, to avoid overflow
-		//if (data.last && !isCond)  // if current channel is a cond channel, do not replace!
-		//	data.value = lastVal;
-		//else
-		//	lastVal = _data;
 
 		// Push getLast
 		if (data.last)
@@ -111,40 +115,28 @@ void Channel::pushChannel(int _data, uint clk)
 		{
 			if (!upstream.front()->isCond)
 			{
-				uint clk = DFSim::ClkDomain::getInstance()->getClk();
-				std::cout << "Error clock: " << clk << std::endl;
 				// The cond channel must be in the first element of the upstream vector (e.g. upstream vector = {cond_channel, channelA, ...} )
-				DEBUG_ASSERT(false);
+				Debug::throwError("The cond channel must be in the first element of the upstream vector!", __FILE__, __LINE__);
 			}
 			else if (data.cond == channelCond)
 			{
 				channel.push_back(data);
 			}
-			//if (/*static_cast<bool>(data.value)*/ data.cond == channelCond)
-			//{
-			//	if (!upstream.front()->isCond)
-			//	{
-			//		uint clk = DFSim::ClkDomain::getInstance()->getClk();
-			//		std::cout << "Error clock: " << clk << std::endl;
-			//		// the cond channel must be in the first element of the upstream vector (e.g. upstream vector = {cond_channel, channelA, ...} )
-			//		DEBUG_ASSERT(false);
-			//	}
-			//	else
-			//	{
-			//		channel.push_back(data);
-			//		//hasReceived.push_back(1);
-			//	}
-			//}
+
+			if (data.graphSwitch)
+			{
+				channel.back().graphSwitch = 1;  // In branch mode, if upstream send a graphSwitch flag, all the downstreams(branch paths) must receive it.
+			}
 		}
 		else
 		{
 			channel.push_back(data);
-			//hasReceived.push_back(1);
 		}
 	}
 	else
 	{
 		Data data = Data();
+		data.valid = 1;
 		data.value = _data;
 		data.cycle = clk;
 		channel.push_back(data);
@@ -160,8 +152,8 @@ bool Channel::popLastCheck()
 		for (auto channel : downstream)
 		{
 			// If only one of the downstream channel set last, the data can not be poped
-			// lc->cond produces last tag rather than get last tag, so ignore lc->cond!
-			if (!channel->isCond && channel->getLast.empty())
+			// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+			if (/*!channel->isCond*/ !channel->isLoopVar && channel->getLast.empty())
 			{
 				popLastReady = 0;
 				break;
@@ -172,7 +164,7 @@ bool Channel::popLastCheck()
 	return popLastReady;
 }
 
-vector<int> Channel::popData(bool popReady, bool popLastReady)
+vector<int> Channel::popChannel(bool popReady, bool popLastReady)
 {
 	int popSuccess = 0;
 	int popData = 0;
@@ -190,19 +182,13 @@ vector<int> Channel::popData(bool popReady, bool popLastReady)
 		{
 			for (auto& channel : downstream)
 			{
-				// lc->cond produces last tag rather than get last tag, so ignore lc->cond!
-				if (!channel->isCond)
+				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+				if (/*!channel->isCond*/ !channel->isLoopVar)
 				{
 					channel->getLast.pop_front();
 				}
 			}
 		}
-
-		//// reset enable
-		//if (data.graphSwitch == 1)
-		//{
-		//	enable = 0;  // disable current channel for graph switch
-		//}
 	}
 
 	return { popSuccess , popData };
@@ -214,7 +200,7 @@ vector<int> Channel::pop()
 
 	// popLastReady only used in keepMode
 	bool popLastReady = popLastCheck();
-	vector<int> popState = popData(popReady, popLastReady);
+	vector<int> popState = popChannel(popReady, popLastReady);
 	updateCycle(popReady, popLastReady);
 
 	return { popState[0], popState[1] };  // For debug
@@ -223,11 +209,15 @@ vector<int> Channel::pop()
 // Update cycle in keepMode
 void Channel::updateCycle(bool popReady, bool popLastReady)
 {
-	if (popReady && keepMode && !popLastReady)  // Update data cycle in keepMode
+	// Update cycle in keepMode, only when the system clk updates successfully
+	if (ClkDomain::getInstance()->checkClkAdd())
 	{
-		for (auto& data : channel)
+		if (popReady && keepMode && !popLastReady)  // Update data cycle in keepMode
 		{
-			++data.cycle;
+			for (auto& data : channel)
+			{
+				++data.cycle;
+			}
 		}
 	}
 }
@@ -264,19 +254,56 @@ void Channel::statusUpdate()
 		{
 			valid = 0;
 		}
-	}
 
-	if (!noDownstream)
-	{
-		for (auto channel : downstream)
+		// Check sendable
+		if (!noDownstream)
 		{
-			if (channel->bp/* || !channel->enable*/)  // _modify 2.27
+			for (auto& channel : downstream)
 			{
-				valid = 0;
-				break;
+				if (!channel->checkSend(data, this))
+				{
+					valid = 0;
+					break;
+				}
 			}
 		}
 	}
+
+	//if (!noDownstream)
+	//{
+	//	for (auto channel : downstream)
+	//	{
+	//		if (channel->bp/* || !channel->enable*/)  // _modify 2.27
+	//		{
+	//			valid = 0;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	//if (!noDownstream)
+	//{
+	//	for (auto& channel : downstream)
+	//	{
+	//		if (!channel->checkSend(data, this))
+	//		{
+	//			valid = 0;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	bpUpdate();
+}
+
+bool Channel::checkSend(Data data, Channel* upstream)
+{
+	bool sendable = 1;
+	if (bp)
+	{
+		sendable = 0;
+	}
+	return sendable;
 }
 
 void Channel::bpUpdate()
@@ -297,7 +324,7 @@ vector<int> Channel::get(int data)
 	popState = pop(); // Data lifetime in nested loop
 	pushState = push(data);
 	statusUpdate(); // Set valid according to the downstream channels' status
-	bpUpdate();
+	//bpUpdate();
 
 	return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -319,37 +346,20 @@ int Channel::assign()
 ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
 	: Channel(_size, _cycle), speedup(_speedup)
 {
-	initial();
 	//enable = 1;
 	currId = 1; // Id begins at 1
 	sendActiveMode = 0;  // Default set to false
 }
 
-//void ChanDGSF::addUpstream(const vector<ChanDGSF*>& _upStream)
-//{
-//	//upstream = _upStream;
-//	upstream.assign(_upStream.begin(), _upStream.end());
-//}
-//
-//void ChanDGSF::addDownstream(const vector<ChanDGSF*>& _downStream)
-//{
-//	//downstream = _downStream;
-//	downstream.assign(_downStream.begin(), _downStream.end());
-//}
+ChanDGSF::~ChanDGSF()
+{
+	for (auto& chan : activeStream)
+	{
+		delete chan;
+	}
+}
 
-//vector<int> ChanDGSF::pop()
-//{
-//	bool popReady = valid;
-//
-//	// popLastReady only used in keepMode
-//	bool popLastReady = popLastCheck();
-//	vector<int> popState = popData(popReady, popLastReady);
-//	updateCycle(popReady, popLastReady);
-//
-//	return { popState[0], popState[1] };  // for debug
-//}
-
-vector<int> ChanDGSF::popData(bool popReady, bool popLastReady)
+vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
 {
 	int popSuccess = 0;
 	int popData = 0;
@@ -367,15 +377,15 @@ vector<int> ChanDGSF::popData(bool popReady, bool popLastReady)
 		{
 			for (auto& channel : downstream)
 			{
-				// lc->cond produces last tag rather than get last tag, so ignore lc->cond!
-				if (!channel->isCond)
+				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+				if (/*!channel->isCond*/ !channel->isLoopVar)
 				{
 					channel->getLast.pop_front();
 				}
 			}
 		}
 
-		// Reset enable
+		// Active downstream and disable itself
 		if (data.graphSwitch == 1 && sendActiveMode == 1)
 		{
 			sendActive();
@@ -392,10 +402,7 @@ void ChanDGSF::sendActive()
 	{
 		if (activeStream.empty())
 		{
-			uint clk = DFSim::ClkDomain::getInstance()->getClk();
-			std::cout << "Error clock: " << clk << std::endl;
-			// ActiveStream is empty
-			DEBUG_ASSERT(false);
+			Debug::throwError("ActiveStream is empty!", __FILE__, __LINE__);
 		}
 		else
 		{
@@ -404,30 +411,8 @@ void ChanDGSF::sendActive()
 				channel->enable = 1;
 			}
 		}
-		//else if(channel.size() == size || channel.back().graphSwitch == 1) // when current sub-graph is over, active next sub-graph
-		//{
-		//	enable = 1;  // _modify 2.27
-		//	/*for (auto& channel : activeStream)
-		//	{
-		//		channel->enable = 1;
-		//	}*/
-		//}
 	}
 }
-
-//vector<int> ChanDGSF::push(int data)
-//{
-//	uint clk = ClkDomain::getInstance()->getClk();
-//
-//	// push data in channel
-//	if (checkUpstream())
-//	{
-//		pushChannel(data, clk);
-//		return { 1, data };
-//	}
-//	else
-//		return { 0, data };
-//}
 
 void ChanDGSF::statusUpdate()
 {
@@ -447,19 +432,46 @@ void ChanDGSF::statusUpdate()
 		{
 			valid = 0;
 		}
-	}
 
-	if (!noDownstream)
-	{
-		for (auto channel : downstream)
+		// Check sendable
+		if (!noDownstream)
 		{
-			if (channel->bp/* || !channel->enable*/)  // _modify 2.27
+			for (auto& channel : downstream)
 			{
-				valid = 0;
-				break;
+				if (!channel->checkSend(data, this))
+				{
+					valid = 0;
+					break;
+				}
 			}
 		}
 	}
+
+	//if (!noDownstream)
+	//{
+	//	for (auto channel : downstream)
+	//	{
+	//		if (channel->bp)  // _modify 2.27
+	//		{
+	//			valid = 0;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	//if (!noDownstream)
+	//{
+	//	for (auto& channel : downstream)
+	//	{
+	//		if (!channel->checkSend(Data(), this))
+	//		{
+	//			valid = 0;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	bpUpdate();
 
 	// Push clkStall in parallel execution mode
 	if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
@@ -470,29 +482,544 @@ void ChanDGSF::statusUpdate()
 
 }
 
-//// channel get data from the program variable 
-//vector<int> ChanDGSF::get(int data)
+
+// class ChanSGMF
+ChanSGMF::ChanSGMF(uint _size, uint _cycle) : Channel(_size, _cycle), chanSize(_size)
+{
+	init();
+}
+
+ChanSGMF::ChanSGMF(uint _size, uint _cycle, uint _bundleSize) : 
+	Channel(_size, _cycle), chanSize(_size), chanBundleSize(_bundleSize)
+{
+	init();
+}
+
+ChanSGMF::~ChanSGMF()
+{
+	for (auto& upstream : upstreamBundle)
+	{
+		for (auto& chan : upstream)
+		{
+			delete chan;
+		}
+	}
+}
+
+void ChanSGMF::init()
+{
+	chanBundle.resize(chanBundleSize);  // Default channel number(chanBundleSize) = 2;
+	upstreamBundle.resize(chanBundleSize);
+	//downstream.resize(chanBundleSize);
+
+	for (auto& chan : chanBundle)
+	{
+		chan.resize(chanSize);
+	}
+
+	//matchQueue.resize(chanSize);
+}
+
+void ChanSGMF::checkConnect()
+{
+	bool upstreamEmpty = 0;
+	for (auto& upstream : upstreamBundle)
+	{
+		upstreamEmpty |= upstream.empty();
+	}
+
+	if ((!noUpstream && upstreamEmpty) || (!noDownstream && downstream.empty()))
+	{
+		Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
+	}
+}
+
+void ChanSGMF::addUpstream(const vector<vector<Channel*>>& _upstreamBundle)
+{
+	for (size_t i = 0; i < _upstreamBundle.size(); ++i)
+	{
+		for (auto& chan : _upstreamBundle[i])
+		{
+			upstreamBundle[i].push_back(chan);
+		}
+	}
+}
+
+// addUpstream for single channel chanSGMF
+void ChanSGMF::addUpstream(const vector<Channel*>& _upstream)
+{
+	if (chanBundle.size() != 1)
+	{
+		Debug::throwError("chanBundle's size is not equal to 1!", __FILE__, __LINE__);
+	}
+	else
+	{
+		for (auto& chan : _upstream)
+		{
+			upstreamBundle[0].push_back(chan);
+			upstream.push_back(chan);  // For single channel
+		}
+	}
+}
+
+//void ChanSGMF::addDownstream(const vector<vector<ChanSGMF*>>& _downstreamBundle)
 //{
-//	vector<int> pushState(2);
-//	vector<int> popState(2);
-//
-//	checkConnect();
-//	popState = pop(); // data lifetime in nested loop
-//	pushState = push(data);
-//	statusUpdate(); // set valid according to the downstream channels' status
-//	bpUpdate();
-//
-//	return { pushState[0], pushState[1], popState[0], popState[1] };
+//	for (size_t i = 0; i < _downstreamBundle.size(); ++i)
+//	{
+//		for (auto& chan : _downstreamBundle[i])
+//		{
+//			downstreamBundle[i].push_back(chan);
+//		}
+//	}
 //}
 
-//// assign channel value to program varieties
-//int ChanDGSF::assign()
-//{
-//	if (!this->channel.empty())
-//	{
-//		Data data = channel.front();
-//		return data.value;
-//	}
-//	else
-//		return 0;
-//}
+vector<int> ChanSGMF::get(vector<int> data)
+{
+	vector<int> pushState(chanBundleSize * 2);  // Push into Din1 and Din2
+	vector<int> popState(2);
+
+	checkConnect();
+	popState = pop(); // Data lifetime in nested loop
+	
+	for (size_t i = 0; i < chanBundle.size(); ++i)
+	{
+		vector<int> tmp(2);
+		tmp = push(data[i], i, 0);  // If no upstream, default tag = 0
+		pushState[i] = tmp[0];
+		pushState[i + 1] = tmp[1];
+	}
+	
+	statusUpdate(); // Set valid according to the downstream channels' status
+	//bpUpdate();
+
+	pushState.insert(pushState.end(), popState.begin(), popState.end());
+	return pushState;
+}
+
+// For single channel
+vector<int> ChanSGMF::get(int data)
+{
+	if (chanBundleSize != 1)
+	{
+		Debug::throwError("chanBundle's size is not equal to 1!", __FILE__, __LINE__);
+	}
+
+	vector<int> pushState(chanBundleSize * 2);  // Push into Din1 and Din2
+	vector<int> popState(2);
+
+	checkConnect();
+	popState = pop(); // Data lifetime in nested loop
+	pushState = push(data, 0, 0);  // For single channel, chanId = 0 defaultly; If no upstream, tag = 0 defaultly;
+	statusUpdate(); // Set valid according to the downstream channels' status
+	//bpUpdate();
+
+	pushState.insert(pushState.end(), popState.begin(), popState.end());
+	return pushState;
+}
+
+// For no upstream channel
+vector<int> ChanSGMF::get(int data, uint tag)
+{
+	if (chanBundleSize != 1)
+	{
+		Debug::throwError("chanBundle's size is not equal to 1!", __FILE__, __LINE__);
+	}
+
+	if (!noUpstream)
+	{
+		Debug::throwError("It is not a no upstream channel!", __FILE__, __LINE__);
+	}
+
+	vector<int> pushState(chanBundleSize * 2);  // Push into Din1 and Din2
+	vector<int> popState(2);
+
+	checkConnect();
+	popState = pop(); // Data lifetime in nested loop
+	pushState = push(data, 0, tag);  // For single channel, chanId = 0 defaultly
+	statusUpdate(); // Set valid according to the downstream channels' status
+	//bpUpdate();
+
+	pushState.insert(pushState.end(), popState.begin(), popState.end());
+	return pushState;
+}
+
+vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
+{
+	int popSuccess = 0;
+	int popData = 0;
+
+	if (popReady && (!keepMode || popLastReady)) // If keepMode = 0, popLastReady is irrelevant
+	{
+		Data data = channel.front();
+		uint tag = data.tag;
+
+		channel.pop_front();  // Pop channel(sendQueue)
+		for (auto& chan : chanBundle)
+		{
+			chan[tag].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
+		}
+
+		//for (auto& data : matchQueue)
+		//{
+		//	if (data.tag == tag)  // Pop matchQueue
+		//	{
+		//		data.valid = 0;
+		//	}
+		//}
+
+		for (auto ptr = matchQueue.begin(); ptr != matchQueue.end();/* ++ptr*/)
+		{
+			if (ptr->tag == tag)
+			{
+				ptr = matchQueue.erase(ptr);  // Pop matchQueue
+			}
+			else
+			{
+				++ptr;
+			}
+		}
+
+		popSuccess = 1;
+		popData = data.value;
+		lastPopVal = data.value;  // For LC->cond, record last pop data when the channel pop empty
+
+		// Clear the last flags of downstreams
+		if (keepMode)
+		{
+			for (auto& channel : downstream)
+			{
+				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+				if (/*!channel->isCond*/ !channel->isLoopVar)
+				{
+					channel->getLast.pop_front();
+				}
+			}
+		}
+	}
+
+	return { popSuccess , popData };
+}
+
+void ChanSGMF::updateCycle(bool popReady, bool popLastReady)
+{
+	if (popReady && keepMode && !popLastReady)  // Update data cycle in keepMode
+	{
+		for (auto& chan : chanBundle)  // Update data cycle in channel
+		{
+			for (auto& data : chan)
+			{
+				++data.cycle;
+			}
+		}
+
+		for (auto& data : matchQueue)  // Update data cycle in popFifo
+		{
+			++data.cycle;
+		}
+
+		for (auto& data : channel)  // Update data cycle in channel(sendQueue)
+		{
+			++data.cycle;
+		}
+	}
+}
+
+vector<int> ChanSGMF::push(int data, uint chanId, uint tag)
+{
+	uint clk = ClkDomain::getInstance()->getClk();
+
+	// Push data in channel
+	if (checkUpstream(chanId))
+	{
+		pushChannel(data, clk, chanId, tag);
+		return { 1, data };
+	}
+	else
+		return { 0, data };
+}
+
+bool ChanSGMF::checkUpstream(uint chanId)
+{
+	bool ready = 1;
+	if (!noUpstream)
+	{
+		for (auto channel : upstreamBundle[chanId])
+		{
+			if (!channel->valid)
+			{
+				ready = 0;
+				break;
+			}
+		}
+	}
+	else
+	{
+		if (channel.size() == size)  // if no upstream
+			ready = 0;
+	}
+
+	return ready;
+}
+
+void ChanSGMF::pushChannel(int _data, uint clk, uint chanId, uint _tag)
+{
+	if (!noUpstream)
+	{
+		Data data = upstreamBundle[chanId].front()->channel.front();
+		data.value = _data;
+		uint cycleTemp = data.cycle + cycle;
+		data.cycle = cycleTemp > clk ? cycleTemp : clk;
+
+		// Bind tags for data; (Ignore the the tag of upstream channel in keepMode)
+		uint tag;
+		bool tagBind = 0;
+		for (auto& chan : upstreamBundle[chanId])
+		{
+			if (!chan->keepMode)
+			{
+				tag = data.tag;
+				tagBind = 1;
+				break;
+			}
+		}
+		if (!tagBind)
+		{
+			Debug::throwError("Need more upstream channels except the one in keepMode!", __FILE__, __LINE__);
+		}
+
+		if (tagUpdateMode)
+		{
+			tag = (tag + 1) % chanSize;  // Update tag in tagUpdateMode
+			data.tag = tag;
+		}
+
+		// loopVar not receive last, only receive lastOuter
+		// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
+		for (auto& channel : upstreamBundle[chanId])
+		{
+			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			{
+				data.last |= channel->channel.front().last;
+			}
+			data.lastOuter |= channel->channel.front().lastOuter;
+			//data.graphSwitch |= channel->channel.front().graphSwitch;
+		}
+
+		// Push getLast
+		if (data.last)
+			getLast.push_back(1);
+
+		if (branchMode)
+		{
+			if (!upstream.front()->isCond)
+			{
+				// The cond channel must be in the first element of the upstream vector (e.g. upstream vector = {cond_channel, channelA, ...} )
+				Debug::throwError("The cond channel must be in the first element of the upstream vector!", __FILE__, __LINE__);
+			}
+			else if (data.cond == channelCond)
+			{
+				//channel.push_back(data);
+				chanBundle[chanId][tag] = data;
+			}
+		}
+		else
+		{
+			//channel.push_back(data);
+			chanBundle[chanId][tag] = data;
+		}
+	}
+	else
+	{
+		Data data = Data();
+		data.tag = _tag;
+		data.valid = 1;
+		data.value = _data;
+		data.cycle = clk;
+		//channel.push_back(data);
+		chanBundle[chanId][data.tag] = data;  
+	}
+}
+
+void ChanSGMF::statusUpdate()
+{
+	// Reset valid
+	valid = 0;
+
+	// Check tag match among channels
+	for (size_t i = 0; i < chanSize; ++i)
+	{
+		uint tag = i;
+		Data data;
+		bool match = 1;
+
+		for (auto& chan : chanBundle)
+		{
+			if (!chan[i].valid)
+			{
+				match = 0;
+				break;
+			}
+			else
+			{
+				// loopVar not receive last, only receive lastOuter
+				// Due to a channel in keepMode may repeatly send a data with a last for many times
+				if (!isLoopVar && keepMode == 0)
+				{
+					data.last |= chan[i].last;
+				}
+				data.lastOuter |= chan[i].lastOuter;
+				data.cycle = std::max(data.cycle, chan[i].cycle);  // Update the cycle as the mux of each channel
+			}
+		}
+
+		if (match)
+		{
+			data.valid = 1;
+			data.tag = i;
+			bool tagConflict = 0;
+
+			// Avoid a same data being pushed into matchQueue twice
+			for (auto data : matchQueue)
+			{
+				if (data.tag == tag)
+				{
+					tagConflict = 1;
+					break;
+				}
+			}
+
+			if (!tagConflict)
+			{
+				matchQueue.push_back(data);
+			}
+		}
+	}
+
+	// Check the cycle of data in the matchQueue
+	uint clk = ClkDomain::getInstance()->getClk();
+	for (auto& data : matchQueue)
+	{
+		if (data.cycle > clk)
+		{
+			data.valid = 0;
+		}
+		else
+		{
+			data.valid = 1;
+		}
+	}
+	
+	// Check whether downstream channel avaliable to receive data
+	if (!noDownstream)
+	{
+		for (auto& data : matchQueue)
+		{
+			if (data.valid)
+			{
+				bool sendable = 1;
+				// Regard the data in keepMode channel as a constant, always can be send out if the channel is valid;
+				if (keepMode)
+				{
+					if (!channel.empty())  // Only when the channel is empty, a new data can be pushed in it
+					{
+						sendable = 0;
+					}
+				}
+				else
+				{
+					for (auto& channel : downstream)
+					{
+						if (!channel->checkSend(data, this))  // Must guarantee "this" points to current upstream channel!
+						{
+							sendable = 0;
+							break;
+						}
+					}
+				}
+
+				if (sendable)
+				{
+					channel.push_back(data);  // Push data sendable into channel(sendQueue)
+					//valid = 1;  // Set valid = 1, signify the data in channel(sendQueue) is valid for all the downstream
+					break;  // Only one data can be pushed in each cylce
+				}
+			}
+		}
+	}
+
+	if (!channel.empty())
+	{
+		valid = 1;
+	}
+
+	//bpUpdate();
+}
+
+bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
+{
+	uint tag = _data.tag;
+	bool sendable = 0;
+	uint chanId = 0;
+	bool upstreamMatch = 0;
+
+	if (!bp)  // In ChanSGMF, bp is only updated by downstream if needed.(e.g. in trueChan & falseChan in Mux)
+	{
+		// Search current upstream is in which upstreamBundle
+		for (size_t i = 0; i < upstreamBundle.size(); ++i)
+		{
+			for (auto& chan : upstreamBundle[i])
+			{
+				if (chan == _upstream)
+				{
+					upstreamMatch = 1;
+					chanId = i;
+					break;
+				}
+			}
+
+			// Check same tag conflict
+			if (upstreamMatch)
+			{
+				if (tagUpdateMode)
+				{
+					tag = (tag + 1) % chanSize;  // Update tag in tagUpdateMode
+					if (!chanBundle[chanId][tag].valid)
+					{
+						sendable = 1;
+					}
+				}
+				else
+				{
+					if (!chanBundle[chanId][tag].valid)
+					{
+						sendable = 1;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+	else
+	{
+		sendable = 0;
+	}
+
+	return sendable;
+}
+
+// In SGMF mode, interface func assign is to get value of corresponding channel by chanId (e.g. Din1, Din2)
+int ChanSGMF::assign(uint chanId)
+{
+	uint tag = 0;
+	if (!channel.empty())
+	{
+		tag = channel.front().tag;
+		return chanBundle[chanId][tag].value;
+	}
+	else
+	{
+		//return MAX;  // Indicate current value is invalid
+		return lastPopVal;
+	}
+}

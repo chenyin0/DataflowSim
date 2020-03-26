@@ -29,22 +29,6 @@ Develop log:
 	
 */
 
-/*
-Usage: 
-	Need additionally set the parameters below in manual, after constructing a class object:
-	1. bool branchMode; // signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
-	2. bool isCond; // signify current channel stores condition value of the branch
-	3. bool channelCond; // current channel is True channel or False channel
-	4. sendActiveMode;  // current channel need to send active signal to others to swith sub-graph
-	5. vector<Channel> activeStream;
-	6. bool enable;   // in DGSF, the beginning channel and the channels within a basic block need be set to 1 in manual;
-					  // in other archetecture, set defaultly;
-	7. vector<Channel*> upstream  // if no upstream, set noUpstream; 
-								  // for constructing const variable;
-	8. vector<Channel*> downstream  // if no downstream, set noDownstream;
-	9. bool keepMode; // keep data lifetime in interact between inner/outer loop;
-*/
-
 #pragma once
 #include "../define/Define.hpp"
 #include "./DataType.h"
@@ -52,38 +36,50 @@ Usage:
 
 namespace DFSim
 {
+/*
+class Channel usage:
+	Need additionally set the parameters below in manual, after constructing a class object:
+	1. bool branchMode; // signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
+	2. bool isCond; // signify current channel stores condition value of the branch
+	3. bool channelCond; // current channel is True channel or False channel
+	4. vector<Channel*> upstream  // if no upstream, set noUpstream;
+								  // for constructing const variable;
+	5. vector<Channel*> downstream  // if no downstream, set noDownstream;
+	6. bool keepMode; // keep data lifetime in interact between inner/outer loop;
+	7. bool isFeedback  // In a feedback loop
+	8. bool isLoopVar  // loopVar in Lc
+*/
 	class Channel 
 	{
 	public:
 		Channel(uint _size, uint _cycle);
+		virtual ~Channel();
 
-		void addUpstream(const vector<Channel*>& _upStream);
+		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
 
 		// Channel get data from the program variable
 		virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
 		
 		// Assign channel value to the program variable
-		virtual int assign();
+		int assign();
 
 		virtual void statusUpdate();
+		virtual bool checkSend(Data data, Channel* upstream);
 		virtual vector<int> pop(); // Pop the data in the channel head; Return {popSuccess, popData}
 
 	protected:
-		//int lastVal = 0;  // Only use for the data which last = 1, replace this data's value to lastVal 
 		int lastPopVal = 0;  // Record last data poped by channel
-		bool lastCycleValid = 0;
-		//deque<bool> hasSent;  // whenever channel status is valid, push a tag in this queue
+		//bool lastCycleValid = 0;
 
 		void initial();
-		void checkConnect();  // Check upstream and downstream can't be empty
+		virtual void checkConnect();  // Check upstream and downstream can't be empty
 		bool popLastCheck();
-		virtual vector<int> popData(bool popReady, bool popLastReady);
-		void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
-		//bool checkUpstream();
+		virtual vector<int> popChannel(bool popReady, bool popLastReady);
+		virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
 		virtual bool checkUpstream();
 		virtual void pushChannel(int data, uint clk);
-		virtual vector<int> push(int data); // Push data and update cycle; Return {pushSuccess, pushData}
+		vector<int> push(int data); // Push data and update cycle; Return {pushSuccess, pushData}
 		void bpUpdate();
 
 	public:
@@ -97,37 +93,43 @@ namespace DFSim
 
 		// Channel in branch
 		bool branchMode; // Signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
-		bool isCond; // Signify current channel stores condition value of the branch (lc->var->channel.element.cond)
+		bool isCond; // Signify current channel stores condition value of the branch (e.g. channel.element.cond)
 		bool channelCond; // Current channel is True channel or False channel
+
+		bool isFeedback = 0;  // Signify current channel is in a feedback loop (e.g. loopVar, or sum[i+1] = sum[1] + a)
+		bool isLoopVar = 0;  // Signify current channel is a loopVar of Lc
 
 		bool noUpstream = 0;
 		bool noDownstream = 0;
 
-		//deque<bool> hasReceived; // Current channel has received a data;
 		bool keepMode = 0;  // Keep data lifetime in the interface of inner and outer loop, data invalid only when inner loop over
 
 		vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
 		vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
-		//vector<deque<Data>> req;
+
+		ArchType archType = ArchType::Base;
 	};
 
 
+/* ChanDGSF:
+
+	Support sub-graph switch
+
+class ChanDGSF usage:
+	1. sendActiveMode;  // current channel need to send active signal to others to swith sub-graph
+	2. vector<Channel> activeStream;
+	3. bool enable;   // in DGSF, the beginning channel and the channels within a basic block need be set to 1 in manual;
+					  // in other archetecture, set defaultly;
+*/
 	class ChanDGSF : public Channel
 	{
 	public:
 		ChanDGSF(uint _size, uint _cycle, uint _speedup);
-
-		/*void addUpstream(const vector<ChanDGSF*>& _upStream);
-		void addDownstream(const vector<ChanDGSF*>& _dowmStream);*/
-
-		//vector<int> get(int data) override;  // Return {pushSuccess, pushData, popSuccess, popData}
-		//vector<int> pop() override; // Pop the data in the channel head; Return {popSuccess, popData}
-		//vector<int> push(int data) override;
+		~ChanDGSF();
 		void statusUpdate() override;
-		//int assign() override;
 
 	private:
-		vector<int> popData(bool popReady, bool popLastReady);
+		vector<int> popChannel(bool popReady, bool popLastReady);
 		void sendActive();
 
 	public:
@@ -135,10 +137,56 @@ namespace DFSim
 		int currId;	// Current threadID
 		bool sendActiveMode = 0;  // Current channel need to active others
 		vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
+
+		ArchType archType = ArchType::DGSF;
 	};
 
+
+/* ChanSGMF
+	
+	Support tag-based OoO execution
+
+class ChanSGMF usage:
+
+*/
 	class ChanSGMF : public Channel
 	{
+	public:
+		ChanSGMF(uint _size, uint _cycle);
+		ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
+		void init();
+		~ChanSGMF();
+		void checkConnect() override;
+		void addUpstream(const vector<vector<Channel*>>& _upstreamBundle);
+		void addUpstream(const vector<Channel*>& _upstream) override;
+		//void addDownstream(const vector<vector<Channel*>>& _downstreamBundle);
+		vector<int> get(vector<int> data);  // vector data for multi-inPort: Din1, Din2, Bin...
+		vector<int> get(int data);  // For single channel (only Din1)
+		vector<int> get(int data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
+		int assign(uint chanId);
+		vector<int> popChannel(bool popReady, bool popLastReady) override;
+		void updateCycle(bool popReady, bool popLastReady) override;
+		vector<int> push(int data, uint chanId, uint tag);  // Push data into corresponding channel
+		bool checkUpstream(uint chanId); 
+		void pushChannel(int data, uint clk, uint chanId, uint tag);
 
+		void statusUpdate() override;
+		bool checkSend(Data _data, Channel* _upstream) override;
+
+	public:
+		vector<deque<Data>> chanBundle;  // channel[0]: Din1, channel[1]: Din2
+		deque<Data> matchQueue;  // Store the data pass tag matching
+		vector<vector<Channel*>> upstreamBundle;  // { { Din1's upstream }, { Din2's upstream } ... }
+		//vector<vector<ChanSGMF*>> downstreamBundle;  // { { to whose Din1 }, { to whose Din2 } ...}
+		//deque<Data> popFifo;  // Store match ready data
+
+		bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
+
+		ArchType archType = ArchType::SGMF;
+
+	private:
+		uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
+		uint chanSize;
+		//bool isLoopVar = 0;  // If the chanSGMF is loopVar, it need to update tag when a data is pushed.
 	};
 }

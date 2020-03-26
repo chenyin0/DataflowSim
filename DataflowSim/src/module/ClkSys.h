@@ -35,10 +35,13 @@ namespace DFSim
 
 		static void addClkStall();
 
+		static bool checkClkAdd();
+
 		static const string getCurrentSystemTime();
 
 	private:
 		static uint _clk;
+		static bool clkAdd;
 		static deque<bool> clkStall;
 		static void resetClkStall();
 	};

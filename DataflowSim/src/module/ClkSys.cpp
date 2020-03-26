@@ -3,6 +3,7 @@
 namespace DFSim
 {
 	uint ClkDomain::_clk = 0;
+	bool ClkDomain::clkAdd = 0;
 	deque<bool> ClkDomain::clkStall = {};
 
 	uint ClkDomain::getClk()
@@ -30,6 +31,11 @@ namespace DFSim
 		if (clkStall.empty())
 		{
 			selfAdd();
+			clkAdd = 1;
+		}
+		else
+		{
+			clkAdd = 0;
 		}
 
 		resetClkStall();
@@ -43,6 +49,11 @@ namespace DFSim
 	void ClkDomain::resetClkStall()
 	{
 		clkStall.clear();
+	}
+
+	bool ClkDomain::checkClkAdd()
+	{
+		return clkAdd;
 	}
 
 	const string ClkDomain::getCurrentSystemTime()

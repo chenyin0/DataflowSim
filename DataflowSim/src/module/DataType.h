@@ -23,6 +23,10 @@ namespace DFSim
 		bool lastOuter = 0; // outer loop last flag
 		uint cycle = 0;
 
+		// DGSF
 		bool graphSwitch = 0;
+
+		// SGMF
+		uint tag = 0;
 	};
 }

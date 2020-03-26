@@ -29,6 +29,8 @@
 #include <ratio>
 #include <chrono>
 
+#include <limits>
+
 using uint = std::size_t;
 using std::shared_ptr;
 using std::unique_ptr;

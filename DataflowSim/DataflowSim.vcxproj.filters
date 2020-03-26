@@ -29,7 +29,7 @@
     <Filter Include="resource\output\SimpleFlowTest">
       <UniqueIdentifier>{2bcfa195-bd21-4294-b674-9fc1d8639d15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tb">
+    <Filter Include="test">
       <UniqueIdentifier>{083d42ff-9f9f-4bb9-ac07-2736d2579662}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -41,9 +41,6 @@
       <Filter>src\module</Filter>
     </ClInclude>
     <ClInclude Include="src\module\DataType.h">
-      <Filter>src\module</Filter>
-    </ClInclude>
-    <ClInclude Include="src\module\LC.h">
       <Filter>src\module</Filter>
     </ClInclude>
     <ClInclude Include="src\module\Channel.h">
@@ -59,13 +56,19 @@
     <ClInclude Include="src\sim\Debug.h">
       <Filter>src\sim</Filter>
     </ClInclude>
-    <ClInclude Include="tb\SimpleFlow_Base.hpp">
-      <Filter>tb</Filter>
-    </ClInclude>
-    <ClInclude Include="tb\SimpleFlow_DGSF.hpp">
-      <Filter>tb</Filter>
-    </ClInclude>
     <ClInclude Include="src\module\Mux.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_Base.hpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_DGSF.hpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_SGMF.hpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\Lc.h">
       <Filter>src\module</Filter>
     </ClInclude>
   </ItemGroup>
@@ -76,9 +79,6 @@
     <ClCompile Include="src\module\Channel.cpp">
       <Filter>src\module</Filter>
     </ClCompile>
-    <ClCompile Include="src\module\LC.cpp">
-      <Filter>src\module</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -86,6 +86,9 @@
       <Filter>src\sim</Filter>
     </ClCompile>
     <ClCompile Include="src\module\Mux.cpp">
+      <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\Lc.cpp">
       <Filter>src\module</Filter>
     </ClCompile>
   </ItemGroup>

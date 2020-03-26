@@ -18,6 +18,7 @@ namespace DFSim
 		}
 
 		void chanPrint(const string name, const Channel* channel);
+		void chanPrint(const string name, const ChanSGMF* channel);
 
 		template <typename T>
 		void vecPrint(const string name, const vector<T>& vec)
@@ -36,6 +37,7 @@ namespace DFSim
 			_output_file << std::endl;
 		}
 
+		static void throwError(string errorDescrip, string fileName, uint lineNum);
 
 	private:
 		std::ofstream _output_file;

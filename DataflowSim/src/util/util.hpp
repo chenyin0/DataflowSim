@@ -22,6 +22,8 @@
  * 
  * Util::findKeyByValue根据值查找键，支持map/unordered_map
  * 不支持自定义cmp函数，需要的话再添加对应支持
+
+ * Util::cast 对容器(vector/list/queue...)中元素进行类型转换，目前仅支持vector，其他容器自行添加
  * 
  * 行 2019.7.4
  *
@@ -275,6 +277,24 @@ namespace DFSim
 			}
 			return resultStringVector;
 		}
-	};
 
+		
+		/** Convert element type in Vector */
+		template<
+			typename L, // 源类型
+			typename R  // 目标类型
+		>
+			static std::vector<R>cast(const std::vector<L>& left, std::vector<R>*) 
+		{
+			std::vector<R> right;
+			std::transform(
+				left.begin(), // 输入容器迭代器(开始)
+				left.end(), // 输入容器迭代器(结尾)
+				std::insert_iterator<std::vector<R>>(right, right.begin()), // 输出迭代器
+				[](L l)->R {return static_cast<R>(l);/*cast(l, (R*)nullptr);*/ } // lambda表达式调用上面的定义的Cast函数完成元素类型转换
+				// 如果上面的cast函数无法满足要求，请自行根据需要扩展。
+			);
+			return std::move(right);
+		}
+	};
 }
