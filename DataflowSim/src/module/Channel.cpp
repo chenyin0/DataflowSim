@@ -514,7 +514,8 @@ void ChanSGMF::init()
 
 	for (auto& chan : chanBundle)
 	{
-		chan.resize(chanSize);
+		//chan.resize(chanSize);
+		chan.resize(chanSize * std::max(cycle, static_cast<uint>(1)));  // Avoid tag conflict stall in multi-cycle channel
 	}
 
 	//matchQueue.resize(chanSize);
@@ -652,11 +653,12 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
 	{
 		Data data = channel.front();
 		uint tag = data.tag;
+		uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + tag;
 
 		channel.pop_front();  // Pop channel(sendQueue)
 		for (auto& chan : chanBundle)
 		{
-			chan[tag].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
+			chan[addr].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
 		}
 
 		//for (auto& data : matchQueue)
@@ -818,14 +820,30 @@ void ChanSGMF::pushChannel(int _data, uint clk, uint chanId, uint _tag)
 			}
 			else if (data.cond == channelCond)
 			{
-				//channel.push_back(data);
 				chanBundle[chanId][tag] = data;
+				//for (size_t i = tag; i < chanBundle[chanId].size(); i = i + chanSize)
+				//{
+				//	if (!chanBundle[chanId][i].valid)
+				//	{
+				//		//data.chanBundleAddr = i;
+				//		chanBundle[chanId][i] = data;
+				//		break;
+				//	}
+				//}
 			}
 		}
 		else
 		{
-			//channel.push_back(data);
 			chanBundle[chanId][tag] = data;
+			//for (size_t i = tag; i < chanBundle[chanId].size(); i = i + chanSize)
+			//{
+			//	if (!chanBundle[chanId][i].valid)
+			//	{
+			//		//data.chanBundleAddr = i;
+			//		chanBundle[chanId][i] = data;
+			//		break;
+			//	}
+			//}
 		}
 	}
 	else
@@ -835,8 +853,16 @@ void ChanSGMF::pushChannel(int _data, uint clk, uint chanId, uint _tag)
 		data.valid = 1;
 		data.value = _data;
 		data.cycle = clk;
-		//channel.push_back(data);
 		chanBundle[chanId][data.tag] = data;  
+		//for (size_t i = _tag; i < chanBundle[chanId].size(); i = i + chanSize)
+		//{
+		//	if (!chanBundle[chanId][i].valid)
+		//	{
+		//		//data.chanBundleAddr = i;
+		//		chanBundle[chanId][i] = data;
+		//		break;
+		//	}
+		//}
 	}
 }
 
@@ -845,16 +871,40 @@ void ChanSGMF::statusUpdate()
 	// Reset valid
 	valid = 0;
 
+	// Shift data in multi-cycle chanBundle
+	for (auto& chan : chanBundle)  // Traverse each channel in chanBundle
+	{
+		for (size_t tag = 0; tag < chanSize; ++tag)  // Traverse tag
+		{
+			if (cycle > 1)  // Only when cycle >= 2, it needs to shift data
+			{
+				for (uint i = 0; i < cycle - 1; ++i)
+				{
+					uint addrBase = (cycle - 2 - i) * chanSize;
+					if (!chan[addrBase + chanSize + tag].valid)  // Next round addr
+					{
+						if (chan[addrBase + tag].valid)
+						{
+							chan[addrBase + chanSize + tag] = chan[addrBase + tag];  // Shfit data
+							chan[addrBase + tag].valid = 0;  // Clear after shift
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// Check tag match among channels
 	for (size_t i = 0; i < chanSize; ++i)
 	{
 		uint tag = i;
 		Data data;
 		bool match = 1;
+		uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + i;  // For multi-cycle channel, only check the bottom section's tag
 
 		for (auto& chan : chanBundle)
 		{
-			if (!chan[i].valid)
+			if (!chan[addr].valid)
 			{
 				match = 0;
 				break;
@@ -865,10 +915,10 @@ void ChanSGMF::statusUpdate()
 				// Due to a channel in keepMode may repeatly send a data with a last for many times
 				if (!isLoopVar && keepMode == 0)
 				{
-					data.last |= chan[i].last;
+					data.last |= chan[addr].last;
 				}
-				data.lastOuter |= chan[i].lastOuter;
-				data.cycle = std::max(data.cycle, chan[i].cycle);  // Update the cycle as the mux of each channel
+				data.lastOuter |= chan[addr].lastOuter;
+				data.cycle = std::max(data.cycle, chan[addr].cycle);  // Update the cycle as the mux of each channel
 			}
 		}
 
@@ -941,7 +991,7 @@ void ChanSGMF::statusUpdate()
 				{
 					channel.push_back(data);  // Push data sendable into channel(sendQueue)
 					//valid = 1;  // Set valid = 1, signify the data in channel(sendQueue) is valid for all the downstream
-					break;  // Only one data can be pushed in each cylce
+					break;  // Only one data can be pushed in each cycle
 				}
 			}
 		}
@@ -1015,7 +1065,8 @@ int ChanSGMF::assign(uint chanId)
 	if (!channel.empty())
 	{
 		tag = channel.front().tag;
-		return chanBundle[chanId][tag].value;
+		uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + tag;
+		return chanBundle[chanId][addr].value;
 	}
 	else
 	{

@@ -28,5 +28,6 @@ namespace DFSim
 
 		// SGMF
 		uint tag = 0;
+		//uint chanBundleAddr = 0;  // In multi-cycle channel, record the actual addr of the data in chanBundles
 	};
 }
