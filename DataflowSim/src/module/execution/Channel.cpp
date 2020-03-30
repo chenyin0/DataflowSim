@@ -4,8 +4,10 @@
 
 using namespace DFSim;
 
-Channel::Channel(uint _size) : size(_size)
+Channel::Channel(uint _size, uint _cycle)
+	: size(_size), cycle(_cycle)
 {
+	initial();
 }
 
 Channel::~Channel()
@@ -19,6 +21,20 @@ Channel::~Channel()
 	{
 		delete chan;
 	}
+}
+
+void Channel::initial()
+{
+	enable = 1;  
+	bp = 0;
+
+	// Default branch setting
+	branchMode = 0;
+	isCond = 0;
+	channelCond = 1;
+
+	noUpstream = 0;
+	noDownstream = 0;
 }
 
 void Channel::addUpstream(const vector<Channel*>& _upStream)
@@ -68,47 +84,7 @@ bool Channel::checkUpstream()
 	return ready;
 }
 
-bool Channel::checkSend(Channel* upstream)
-{
-	bool sendable = 1;
-	if (bp)
-	{
-		sendable = 0;
-	}
-	return sendable;
-}
-
-void Channel::bpUpdate()
-{
-	if (channel.size() < size)
-		bp = 0;
-	else
-		bp = 1;
-}
-
-
-// class ChanBase
-ChanBase::ChanBase(uint _size, uint _cycle)
-	: Channel(_size), cycle(_cycle)
-{
-	initial();
-}
-
-void ChanBase::initial()
-{
-	enable = 1;
-	bp = 0;
-
-	// Default branch setting
-	branchMode = 0;
-	isCond = 0;
-	channelCond = 1;
-
-	noUpstream = 0;
-	noDownstream = 0;
-}
-
-void ChanBase::pushChannel(int _data, uint clk)
+void Channel::pushChannel(int _data, uint clk)
 {
 	if (!noUpstream)
 	{
@@ -123,7 +99,7 @@ void ChanBase::pushChannel(int _data, uint clk)
 		{
 			// loopVar not receive last, only receive lastOuter
 			// Due to a channel in keepMode may repeatly send a data with a last for many times
-			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)  
 			{
 				data.last |= channel->channel.front().last;
 			}
@@ -167,7 +143,7 @@ void ChanBase::pushChannel(int _data, uint clk)
 	}
 }
 
-bool ChanBase::popLastCheck()
+bool Channel::popLastCheck()
 {
 	bool popLastReady = 1;
 
@@ -188,7 +164,7 @@ bool ChanBase::popLastCheck()
 	return popLastReady;
 }
 
-vector<int> ChanBase::popChannel(bool popReady, bool popLastReady)
+vector<int> Channel::popChannel(bool popReady, bool popLastReady)
 {
 	int popSuccess = 0;
 	int popData = 0;
@@ -218,7 +194,7 @@ vector<int> ChanBase::popChannel(bool popReady, bool popLastReady)
 	return { popSuccess , popData };
 }
 
-vector<int> ChanBase::pop()
+vector<int> Channel::pop()
 {
 	bool popReady = valid;
 
@@ -231,7 +207,7 @@ vector<int> ChanBase::pop()
 }
 
 // Update cycle in keepMode
-void ChanBase::updateCycle(bool popReady, bool popLastReady)
+void Channel::updateCycle(bool popReady, bool popLastReady)
 {
 	// Update cycle in keepMode, only when the system clk updates successfully
 	if (ClkDomain::getInstance()->checkClkAdd())
@@ -246,7 +222,7 @@ void ChanBase::updateCycle(bool popReady, bool popLastReady)
 	}
 }
 
-vector<int> ChanBase::push(int data)
+vector<int> Channel ::push(int data)
 {
 	uint clk = ClkDomain::getInstance()->getClk();
 
@@ -260,7 +236,7 @@ vector<int> ChanBase::push(int data)
 		return { 0, data };
 }
 
-void ChanBase::statusUpdate()
+void Channel::statusUpdate()
 {
 	// Set valid
 	valid = 1;
@@ -284,7 +260,7 @@ void ChanBase::statusUpdate()
 		{
 			for (auto& channel : downstream)
 			{
-				if (!channel->checkSend(this))
+				if (!channel->checkSend(data, this))
 				{
 					valid = 0;
 					break;
@@ -320,9 +296,27 @@ void ChanBase::statusUpdate()
 	bpUpdate();
 }
 
-// Channel get data from the program variable 
-vector<int> ChanBase::get(int data)
+bool Channel::checkSend(Data data, Channel* upstream)
 {
+	bool sendable = 1;
+	if (bp)
+	{
+		sendable = 0;
+	}
+	return sendable;
+}
+
+void Channel::bpUpdate()
+{
+	if (channel.size() < size)
+		bp = 0;
+	else
+		bp = 1;
+}
+
+// Channel get data from the program variable 
+vector<int> Channel::get(int data)
+{	
 	vector<int> pushState(2);
 	vector<int> popState(2);
 
@@ -336,7 +330,7 @@ vector<int> ChanBase::get(int data)
 }
 
 // Assign channel value to program varieties
-int ChanBase::assign()
+int Channel::assign()
 {
 	if (!this->channel.empty())
 	{
@@ -350,7 +344,7 @@ int ChanBase::assign()
 
 // class ChanDGSF
 ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
-	: ChanBase(_size, _cycle), speedup(_speedup)
+	: Channel(_size, _cycle), speedup(_speedup)
 {
 	//enable = 1;
 	currId = 1; // Id begins at 1
@@ -444,7 +438,7 @@ void ChanDGSF::statusUpdate()
 		{
 			for (auto& channel : downstream)
 			{
-				if (!channel->checkSend(this))
+				if (!channel->checkSend(data, this))
 				{
 					valid = 0;
 					break;
@@ -490,14 +484,13 @@ void ChanDGSF::statusUpdate()
 
 
 // class ChanSGMF
-ChanSGMF::ChanSGMF(uint _size, uint _cycle) : 
-	ChanBase(_size, _cycle), chanSize(_size)
+ChanSGMF::ChanSGMF(uint _size, uint _cycle) : Channel(_size, _cycle), chanSize(_size)
 {
 	init();
 }
 
 ChanSGMF::ChanSGMF(uint _size, uint _cycle, uint _bundleSize) : 
-	ChanBase(_size, _cycle), chanSize(_size), chanBundleSize(_bundleSize)
+	Channel(_size, _cycle), chanSize(_size), chanBundleSize(_bundleSize)
 {
 	init();
 }

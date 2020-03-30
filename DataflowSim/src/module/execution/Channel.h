@@ -52,48 +52,20 @@ class Channel usage:
 	class Channel 
 	{
 	public:
-		Channel(uint _size);
+		Channel(uint _size, uint _cycle);
 		virtual ~Channel();
+
 		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
-		bool checkSend(Channel* upstream);
-		virtual bool checkSend(Data _data, Channel* _upstream);
-		virtual void statusUpdate() = 0;
-		virtual int assign() = 0;
-
-	protected:
-		virtual void checkConnect();  // Check upstream and downstream can't be empty
-		bool checkUpstream();
-		void bpUpdate();
-
-	public:
-
-
-		deque<Data> channel;
-		bool bp = 0;
-		bool valid = 0; // Only if all the consumer channels is not full, channel is valid
-		bool enable;  // Active channel
-		uint size;	// Channel size
-		bool noUpstream = 0;
-		bool noDownstream = 0;
-		vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
-		vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
-	};
-
-
-	class ChanBase : public Channel
-	{
-	public:
-		ChanBase(uint _size, uint _cycle);
 
 		// Channel get data from the program variable
 		virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
-
+		
 		// Assign channel value to the program variable
-		int assign() override;
+		int assign();
 
-		virtual void statusUpdate() override;
-		//virtual bool checkSend(Data data, Channel* upstream);
+		virtual void statusUpdate();
+		virtual bool checkSend(Data data, Channel* upstream);
 		virtual vector<int> pop(); // Pop the data in the channel head; Return {popSuccess, popData}
 
 	protected:
@@ -101,17 +73,39 @@ class Channel usage:
 		//bool lastCycleValid = 0;
 
 		void initial();
-		//virtual void checkConnect();  // Check upstream and downstream can't be empty
+		virtual void checkConnect();  // Check upstream and downstream can't be empty
 		bool popLastCheck();
 		virtual vector<int> popChannel(bool popReady, bool popLastReady);
 		virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
-		//virtual bool checkUpstream();
+		virtual bool checkUpstream();
 		virtual void pushChannel(int data, uint clk);
 		vector<int> push(int data); // Push data and update cycle; Return {pushSuccess, pushData}
-		//void bpUpdate();
+		void bpUpdate();
 
 	public:
-		
+		deque<Data> channel;
+		bool bp;
+		deque<bool> getLast; // Signify has gotten a data with last tag;
+		bool valid = 0; // Only if all the consumer channels is not full, channel is valid
+		bool enable;  // Active channel
+		uint size;	// Channel size
+		uint cycle; // Channel execute cycle
+
+		// Channel in branch
+		bool branchMode; // Signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
+		bool isCond; // Signify current channel stores condition value of the branch (e.g. channel.element.cond)
+		bool channelCond; // Current channel is True channel or False channel
+
+		bool isFeedback = 0;  // Signify current channel is in a feedback loop (e.g. loopVar, or sum[i+1] = sum[1] + a)
+		bool isLoopVar = 0;  // Signify current channel is a loopVar of Lc
+
+		bool noUpstream = 0;
+		bool noDownstream = 0;
+
+		bool keepMode = 0;  // Keep data lifetime in the interface of inner and outer loop, data invalid only when inner loop over
+
+		vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
+		vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
 		ArchType archType = ArchType::Base;
 	};
@@ -127,7 +121,7 @@ class ChanDGSF usage:
 	3. bool enable;   // in DGSF, the beginning channel and the channels within a basic block need be set to 1 in manual;
 					  // in other archetecture, set defaultly;
 */
-	class ChanDGSF : public ChanBase
+	class ChanDGSF : public Channel
 	{
 	public:
 		ChanDGSF(uint _size, uint _cycle, uint _speedup);
@@ -155,7 +149,7 @@ class ChanDGSF usage:
 class ChanSGMF usage:
 
 */
-	class ChanSGMF : public ChanBase
+	class ChanSGMF : public Channel
 	{
 	public:
 		ChanSGMF(uint _size, uint _cycle);
