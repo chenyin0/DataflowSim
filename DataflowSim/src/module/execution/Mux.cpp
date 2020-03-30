@@ -1,5 +1,5 @@
 #include "./Mux.h"
-#include "../util/util.hpp"
+#include "../../util/util.hpp"
 
 using namespace DFSim;
 

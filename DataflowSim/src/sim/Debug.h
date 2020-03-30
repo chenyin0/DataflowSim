@@ -1,7 +1,7 @@
 #pragma once
 #include "../define/Define.hpp"
 #include "../module/ClkSys.h"
-#include "../module/Channel.h"
+#include "../module/execution/Channel.h"
 
 namespace DFSim
 {

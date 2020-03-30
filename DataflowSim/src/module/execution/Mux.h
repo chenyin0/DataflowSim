@@ -34,8 +34,8 @@ Usage:
 */
 
 #pragma once
-#include "../define/Define.hpp"
-#include "../define/Para.h"
+#include "../../define/Define.hpp"
+#include "../../define/Para.h"
 #include "./Channel.h"
 
 namespace DFSim

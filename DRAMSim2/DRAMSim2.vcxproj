@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{8048CE47-84A8-4305-A511-50920E83AC53}</ProjectGuid>
-    <RootNamespace>DataflowSim</RootNamespace>
+    <ProjectGuid>{86C551D5-103A-49C1-A654-325BEE187EF1}</ProjectGuid>
+    <RootNamespace>DRAMSim2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,7 +39,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -70,24 +70,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;DRAMSIM_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,45 +124,54 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="src\define\Define.hpp" />
-    <ClInclude Include="src\define\Para.h" />
-    <ClInclude Include="src\module\ClkSys.h" />
-    <ClInclude Include="src\module\DataType.h" />
-    <ClInclude Include="src\module\execution\Channel.h" />
-    <ClInclude Include="src\module\execution\Lc.h" />
-    <ClInclude Include="src\module\execution\Lse.h" />
-    <ClInclude Include="src\module\execution\Mux.h" />
-    <ClInclude Include="src\module\mem\MemSystem.h" />
-    <ClInclude Include="src\sim\Debug.h" />
-    <ClInclude Include="src\util\util.hpp" />
-    <ClInclude Include="test\SimpleFlow_Base.hpp" />
-    <ClInclude Include="test\SimpleFlow_DGSF.hpp" />
-    <ClInclude Include="test\SimpleFlow_SGMF.hpp" />
+    <ClCompile Include="src\AddressMapping.cpp" />
+    <ClCompile Include="src\Bank.cpp" />
+    <ClCompile Include="src\BankState.cpp" />
+    <ClCompile Include="src\BusPacket.cpp" />
+    <ClCompile Include="src\ClockDomain.cpp" />
+    <ClCompile Include="src\CommandQueue.cpp" />
+    <ClCompile Include="src\IniReader.cpp" />
+    <ClCompile Include="src\MemoryController.cpp" />
+    <ClCompile Include="src\MemorySystem.cpp" />
+    <ClCompile Include="src\MultiChannelMemorySystem.cpp" />
+    <ClCompile Include="src\PrintMacros.cpp" />
+    <ClCompile Include="src\Rank.cpp" />
+    <ClCompile Include="src\SimulatorObject.cpp" />
+    <ClCompile Include="src\Transaction.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\module\ClkSys.cpp" />
-    <ClCompile Include="src\module\execution\Channel.cpp" />
-    <ClCompile Include="src\module\execution\Lc.cpp" />
-    <ClCompile Include="src\module\execution\Lse.cpp" />
-    <ClCompile Include="src\module\execution\Mux.cpp" />
-    <ClCompile Include="src\module\mem\MemSystem.cpp" />
-    <ClCompile Include="src\sim\Debug.cpp" />
+    <ClInclude Include="src\AddressMapping.h" />
+    <ClInclude Include="src\Bank.h" />
+    <ClInclude Include="src\BankState.h" />
+    <ClInclude Include="src\BusPacket.h" />
+    <ClInclude Include="src\Callback.h" />
+    <ClInclude Include="src\ClockDomain.h" />
+    <ClInclude Include="src\CommandQueue.h" />
+    <ClInclude Include="src\CSVWriter.h" />
+    <ClInclude Include="src\DllDefine.h" />
+    <ClInclude Include="src\IniReader.h" />
+    <ClInclude Include="src\MemoryController.h" />
+    <ClInclude Include="src\MemorySystem.h" />
+    <ClInclude Include="src\MultiChannelMemorySystem.h" />
+    <ClInclude Include="src\PrintMacros.h" />
+    <ClInclude Include="src\Rank.h" />
+    <ClInclude Include="src\SimulatorObject.h" />
+    <ClInclude Include="src\SystemConfiguration.h" />
+    <ClInclude Include="src\Transaction.h" />
+    <ClInclude Include="src\unistd.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resource\output\SimpleFlowTest\log.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_Base.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="DataflowSim.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DRAMSim2\DRAMSim2.vcxproj">
-      <Project>{86c551d5-103a-49c1-a654-325bee187ef1}</Project>
-    </ProjectReference>
+    <None Include="ini\DDR2_micron_16M_8b_x8_sg3E.ini" />
+    <None Include="ini\DDR2_micron_32M_4B_x4_sg3E.ini" />
+    <None Include="ini\DDR2_micron_32M_8B_x4_sg25E.ini" />
+    <None Include="ini\DDR3_micron_16M_8B_x8_sg15.ini" />
+    <None Include="ini\DDR3_micron_32M_8B_x4_sg125.ini" />
+    <None Include="ini\DDR3_micron_32M_8B_x4_sg15.ini" />
+    <None Include="ini\DDR3_micron_32M_8B_x8_sg15.ini" />
+    <None Include="ini\DDR3_micron_32M_8B_x8_sg25E.ini" />
+    <None Include="ini\DDR3_micron_64M_8B_x4_sg15.ini" />
+    <None Include="ini\DDR3_micron_8M_8B_x16_sg15.ini" />
+    <None Include="ini\system.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

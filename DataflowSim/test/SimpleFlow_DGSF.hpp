@@ -4,9 +4,9 @@ Develop log
 */
 
 #include "../src/define/Define.hpp"
-#include "../src/module/Channel.h"
+#include "../src/module/execution/Channel.h"
 #include "../src/module/ClkSys.h"
-#include "../src/module/Lc.h"
+#include "../src/module/execution/Lc.h"
 #include "../src/sim/Debug.h"
 
 

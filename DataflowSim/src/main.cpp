@@ -6,7 +6,7 @@
 #include "../test/SimpleFlow_DGSF.hpp"
 #include "../test/SimpleFlow_SGMF.hpp"
 
-#include "./module/Channel.h"
+#include "./module/execution/Channel.h"
 
 using namespace DFSim;
 //class Channel

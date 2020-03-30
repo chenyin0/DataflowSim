@@ -32,6 +32,15 @@
     <Filter Include="test">
       <UniqueIdentifier>{083d42ff-9f9f-4bb9-ac07-2736d2579662}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\module\exe">
+      <UniqueIdentifier>{2419bcba-02bd-492a-83e2-f6598f38e9d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module\mem">
+      <UniqueIdentifier>{6c6a0e49-5d07-4517-b044-0b909727b1fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module\connect">
+      <UniqueIdentifier>{f7cf56cd-75f0-45d3-85e9-e9ffb6a0faeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -41,9 +50,6 @@
       <Filter>src\module</Filter>
     </ClInclude>
     <ClInclude Include="src\module\DataType.h">
-      <Filter>src\module</Filter>
-    </ClInclude>
-    <ClInclude Include="src\module\Channel.h">
       <Filter>src\module</Filter>
     </ClInclude>
     <ClInclude Include="src\define\Para.h">
@@ -56,9 +62,6 @@
     <ClInclude Include="src\sim\Debug.h">
       <Filter>src\sim</Filter>
     </ClInclude>
-    <ClInclude Include="src\module\Mux.h">
-      <Filter>src\module</Filter>
-    </ClInclude>
     <ClInclude Include="test\SimpleFlow_Base.hpp">
       <Filter>test</Filter>
     </ClInclude>
@@ -68,15 +71,24 @@
     <ClInclude Include="test\SimpleFlow_SGMF.hpp">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="src\module\Lc.h">
-      <Filter>src\module</Filter>
+    <ClInclude Include="src\module\execution\Channel.h">
+      <Filter>src\module\exe</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\execution\Lc.h">
+      <Filter>src\module\exe</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\execution\Mux.h">
+      <Filter>src\module\exe</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\mem\MemSystem.h">
+      <Filter>src\module\mem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\execution\Lse.h">
+      <Filter>src\module\exe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
-      <Filter>src\module</Filter>
-    </ClCompile>
-    <ClCompile Include="src\module\Channel.cpp">
       <Filter>src\module</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -85,11 +97,20 @@
     <ClCompile Include="src\sim\Debug.cpp">
       <Filter>src\sim</Filter>
     </ClCompile>
-    <ClCompile Include="src\module\Mux.cpp">
-      <Filter>src\module</Filter>
+    <ClCompile Include="src\module\execution\Channel.cpp">
+      <Filter>src\module\exe</Filter>
     </ClCompile>
-    <ClCompile Include="src\module\Lc.cpp">
-      <Filter>src\module</Filter>
+    <ClCompile Include="src\module\execution\Lc.cpp">
+      <Filter>src\module\exe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\execution\Mux.cpp">
+      <Filter>src\module\exe</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\MemSystem.cpp">
+      <Filter>src\module\mem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\execution\Lse.cpp">
+      <Filter>src\module\exe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

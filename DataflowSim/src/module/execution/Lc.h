@@ -24,9 +24,9 @@ Usage:
 */
 
 #pragma once
-#include "../define/Define.hpp"
-#include "./DataType.h"
-#include "../define/Para.h"
+#include "../../define/Define.hpp"
+#include "../DataType.h"
+#include "../../define/Para.h"
 #include "./Channel.h"
 #include "./Mux.h"
 
