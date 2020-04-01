@@ -25,26 +25,26 @@ namespace DFSimTest
 		vector<int> b = { 26, 8, 3, 47, 86, 159, 72, 48, 87 };
 
 		// Declare lc
-		Channel* lc0_loopVar = new Channel(2, 0);
-		Channel* lc0_getEnd = new Channel(2, 0);
-		Channel* lc0_sendEnd = new Channel(2, 0);
+		ChanBase* lc0_loopVar = new ChanBase(2, 0);
+		ChanBase* lc0_getEnd = new ChanBase(2, 0);
+		ChanBase* lc0_sendEnd = new ChanBase(2, 0);
 
-		Channel* lc0_mux_trueChan = new Channel(2, 0);
-		Channel* lc0_mux_falseChan = new Channel(2, 0);
-		Channel* lc0_mux_outChan = new Channel(2, 0);
+		ChanBase* lc0_mux_trueChan = new ChanBase(2, 0);
+		ChanBase* lc0_mux_falseChan = new ChanBase(2, 0);
+		ChanBase* lc0_mux_outChan = new ChanBase(2, 0);
 
 		Mux* lc0_mux = new Mux(lc0_mux_trueChan, lc0_mux_falseChan, lc0_mux_outChan);
 		lc0_mux->addPort({ lc0_loopVar }, { }, { lc0_loopVar });
 		//Mux* lc0_mux = new Mux({ lc0_loopVar }, { }, { lc0_loopVar });
 		Lc* lc0 = new Lc(lc0_loopVar, lc0_getEnd, lc0_sendEnd, lc0_mux);
 
-		Channel* lc1_loopVar = new Channel(2, 0);
-		Channel* lc1_getEnd = new Channel(2, 0);
-		Channel* lc1_sendEnd = new Channel(2, 0);
+		ChanBase* lc1_loopVar = new ChanBase(2, 0);
+		ChanBase* lc1_getEnd = new ChanBase(2, 0);
+		ChanBase* lc1_sendEnd = new ChanBase(2, 0);
 
-		Channel* lc1_mux_trueChan = new Channel(2, 0);
-		Channel* lc1_mux_falseChan = new Channel(2, 0);
-		Channel* lc1_mux_outChan = new Channel(2, 0);
+		ChanBase* lc1_mux_trueChan = new ChanBase(2, 0);
+		ChanBase* lc1_mux_falseChan = new ChanBase(2, 0);
+		ChanBase* lc1_mux_outChan = new ChanBase(2, 0);
 
 		Mux* lc1_mux = new Mux(lc1_mux_trueChan, lc1_mux_falseChan, lc1_mux_outChan);
 		lc1_mux->addPort({ lc1_loopVar }, { }, { lc1_loopVar });
@@ -52,17 +52,17 @@ namespace DFSimTest
 		Lc* lc1 = new Lc(lc1_loopVar, lc1_getEnd, lc1_sendEnd, lc1_mux);
 
 		// Create channels
-		Channel* i_lc1 = new Channel(2, 0);  // a[i * size + j] * b[j * size + i]
+		ChanBase* i_lc1 = new ChanBase(2, 0);  // a[i * size + j] * b[j * size + i]
 		i_lc1->keepMode = 1;
 
-		Channel* i_data = new Channel(12, 7);   // channel size = cycle + exepected size, in order to avoid stall
-		Channel* j_data = new Channel(12, 7);
-		Channel* c_lc1 = new Channel(20, 0);
+		ChanBase* i_data = new ChanBase(12, 7);   // channel size = cycle + exepected size, in order to avoid stall
+		ChanBase* j_data = new ChanBase(12, 7);
+		ChanBase* c_lc1 = new ChanBase(20, 0);
 
-		Channel* begin = new Channel(1, 0);
+		ChanBase* begin = new ChanBase(1, 0);
 		begin->noUpstream = 1;
 		//begin->enable = 1;
-		Channel* end = new Channel(1, 0);
+		ChanBase* end = new ChanBase(1, 0);
 		end->noDownstream = 1;
 
 		// define channel interconnect

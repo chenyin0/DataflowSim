@@ -28,9 +28,9 @@ namespace DFSimTest
 		ChanDGSF* lc0_getEnd = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc0_sendEnd = new ChanDGSF(2, 0, 1);
 
-		Channel* lc0_mux_trueChan = new Channel(2, 0);
-		Channel* lc0_mux_falseChan = new Channel(2, 0);
-		Channel* lc0_mux_outChan = new Channel(2, 0);
+		ChanBase* lc0_mux_trueChan = new ChanBase(2, 0);
+		ChanBase* lc0_mux_falseChan = new ChanBase(2, 0);
+		ChanBase* lc0_mux_outChan = new ChanBase(2, 0);
 
 		Mux* lc0_mux = new Mux(lc0_mux_trueChan, lc0_mux_falseChan, lc0_mux_outChan);
 		lc0_mux->addPort({ lc0_loopVar }, { }, { lc0_loopVar });
@@ -41,9 +41,9 @@ namespace DFSimTest
 		ChanDGSF* lc1_getEnd = new ChanDGSF(2, 0, 1);
 		ChanDGSF* lc1_sendEnd = new ChanDGSF(2, 0, 1);
 
-		Channel* lc1_mux_trueChan = new Channel(2, 0);
-		Channel* lc1_mux_falseChan = new Channel(2, 0);
-		Channel* lc1_mux_outChan = new Channel(2, 0);
+		ChanBase* lc1_mux_trueChan = new ChanBase(2, 0);
+		ChanBase* lc1_mux_falseChan = new ChanBase(2, 0);
+		ChanBase* lc1_mux_outChan = new ChanBase(2, 0);
 
 		Mux* lc1_mux = new Mux(lc1_mux_trueChan, lc1_mux_falseChan, lc1_mux_outChan);
 		lc1_mux->addPort({ lc1_loopVar }, { }, { lc1_loopVar });

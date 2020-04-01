@@ -1,6 +1,11 @@
 #pragma once
 #include "./Define.hpp"
 
+/*
+*****************************************************
+*************	Execution parameters  ***************
+*/
+
 // Architecture para
 //1) DGSF: channel size = BRAM size; Speedup = unroll number;
 //2) SGMF: channel size = 2;
@@ -16,7 +21,7 @@ enum class ArchType
 
 //#define Base Base
 //#define DGSF DGSF
-#define SGMF SGMF
+//#define SGMF SGMF
 //#define TIA TIA
 
 #ifdef DGSF
@@ -49,3 +54,17 @@ enum class ArchType
 #ifdef SGMF
 	#define CHAN_SIZE INPUT_BUFF_SIZE
 #endif
+
+
+/*
+************************************************
+*************	Memory parameters  *************
+*/
+
+// MemSystem
+#define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
+
+// SPM
+#define SPM_BANK_NUM 16
+#define SPM_BANK_DEPTH 64
+#define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM

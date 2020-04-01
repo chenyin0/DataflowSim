@@ -91,6 +91,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DRAMSim2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,11 +136,13 @@
     <ClInclude Include="src\module\execution\Lse.h" />
     <ClInclude Include="src\module\execution\Mux.h" />
     <ClInclude Include="src\module\mem\MemSystem.h" />
+    <ClInclude Include="src\module\mem\Spm.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\util.hpp" />
-    <ClInclude Include="test\SimpleFlow_Base.hpp" />
-    <ClInclude Include="test\SimpleFlow_DGSF.hpp" />
-    <ClInclude Include="test\SimpleFlow_SGMF.hpp" />
+    <ClInclude Include="test\MemoryTest.h" />
+    <ClInclude Include="test\SimpleFlow_Base.cpp" />
+    <ClInclude Include="test\SimpleFlow_DGSF.cpp" />
+    <ClInclude Include="test\SimpleFlow_SGMF.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -148,9 +152,12 @@
     <ClCompile Include="src\module\execution\Lse.cpp" />
     <ClCompile Include="src\module\execution\Mux.cpp" />
     <ClCompile Include="src\module\mem\MemSystem.cpp" />
+    <ClCompile Include="src\module\mem\Spm.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="test\MemoryTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="resource\output\MemoryTest\memory_test.txt" />
     <Text Include="resource\output\SimpleFlowTest\log.txt" />
     <Text Include="resource\output\SimpleFlowTest\log_Base.txt" />
     <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt" />
@@ -158,11 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DRAMSim2\DRAMSim2.vcxproj">
-      <Project>{86c551d5-103a-49c1-a654-325bee187ef1}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

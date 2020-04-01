@@ -2,7 +2,7 @@
 
 using namespace DFSim;
 
-Lc::Lc(Channel* _loopVar, Channel* _getEnd, Channel* _sendEnd, Mux* _mux) 
+Lc::Lc(ChanBase* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, Mux* _mux) 
 	: loopVar(_loopVar), getEnd(_getEnd), sendEnd(_sendEnd), mux(_mux)
 {
 	init();
@@ -174,7 +174,7 @@ void LcDGSF::loopUpdate()
 
 
 // class LcSGMF
-LcSGMF::LcSGMF(ChanSGMF* _loopVar, Channel* _getEnd, Channel* _sendEnd, MuxSGMF* _mux) :
+LcSGMF::LcSGMF(ChanSGMF* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, MuxSGMF* _mux) :
 	Lc(_loopVar, _getEnd, _sendEnd, _mux), loopVar(_loopVar), mux(_mux)
 {
 	_loopVar->tagUpdateMode = 1;  // Set loopVar in tagUpdateMode

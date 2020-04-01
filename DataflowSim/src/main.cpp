@@ -2,9 +2,11 @@
 #include "../src/module/ClkSys.h"
 #include "../src/sim/Debug.h"
 
-#include "../test/SimpleFlow_Base.hpp"
-#include "../test/SimpleFlow_DGSF.hpp"
-#include "../test/SimpleFlow_SGMF.hpp"
+#include "../test/SimpleFlow_Base.cpp"
+#include "../test/SimpleFlow_DGSF.cpp"
+#include "../test/SimpleFlow_SGMF.cpp"
+
+#include "../test/MemoryTest.h"
 
 #include "./module/execution/Channel.h"
 
@@ -128,14 +130,17 @@ int main()
 	DFSim::ClkDomain clk();
 	std::cout << "Begin test" << std::endl;
 
-	DFSim::Debug* debug = new DFSim::Debug(string(".\\resource\\output\\SimpleFlowTest\\log_") + string(xstr(ARCH)) + string(".txt"));
+	//DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/SimpleFlowTest/log_") + string(xstr(ARCH)) + string(".txt"));
 
+	DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
+
+#ifdef ARCH
 	debug->getFile() << std::endl;
 	debug->getFile() << "******  System Config  *******" << std::endl;
 	debug->getFile() << "Arch: " << xstr(ARCH) << std::endl;
 	debug->getFile() << std::endl;
 	debug->getFile() << "******************************" << std::endl;
-
+#endif
 
 #ifdef DGSF
 	DFSimTest::simpleFlow_DGSF(debug);
@@ -146,6 +151,8 @@ int main()
 #ifdef SGMF
 	DFSimTest::simpleFlow_SGMF(debug);
 #endif
+
+	DFSimTest::MemoryTest::memory_test(debug);
 
 	return 0;
 }

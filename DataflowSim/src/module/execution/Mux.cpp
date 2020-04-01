@@ -3,7 +3,7 @@
 
 using namespace DFSim;
 
-Mux::Mux(Channel* _trueChan, Channel* _falseChan, Channel* _outChan) :
+Mux::Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan) :
 	trueChan(_trueChan), falseChan(_falseChan), outChan(_outChan)
 {
 	trueChan->noDownstream = 1;

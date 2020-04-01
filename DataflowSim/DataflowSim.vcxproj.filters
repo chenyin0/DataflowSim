@@ -32,14 +32,17 @@
     <Filter Include="test">
       <UniqueIdentifier>{083d42ff-9f9f-4bb9-ac07-2736d2579662}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\module\exe">
-      <UniqueIdentifier>{2419bcba-02bd-492a-83e2-f6598f38e9d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\module\mem">
+    <Filter Include="src\module\memory">
       <UniqueIdentifier>{6c6a0e49-5d07-4517-b044-0b909727b1fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\module\connect">
+    <Filter Include="src\module\execution">
+      <UniqueIdentifier>{2419bcba-02bd-492a-83e2-f6598f38e9d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\module\connection">
       <UniqueIdentifier>{f7cf56cd-75f0-45d3-85e9-e9ffb6a0faeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\output\MemoryTest">
+      <UniqueIdentifier>{45935b0d-d59b-4ba2-86b5-4557cd3dde11}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -62,29 +65,35 @@
     <ClInclude Include="src\sim\Debug.h">
       <Filter>src\sim</Filter>
     </ClInclude>
-    <ClInclude Include="test\SimpleFlow_Base.hpp">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_DGSF.hpp">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_SGMF.hpp">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="src\module\execution\Channel.h">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClInclude>
     <ClInclude Include="src\module\execution\Lc.h">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClInclude>
     <ClInclude Include="src\module\execution\Mux.h">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClInclude>
     <ClInclude Include="src\module\mem\MemSystem.h">
-      <Filter>src\module\mem</Filter>
+      <Filter>src\module\memory</Filter>
     </ClInclude>
     <ClInclude Include="src\module\execution\Lse.h">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\mem\Spm.h">
+      <Filter>src\module\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_DGSF.cpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_SGMF.cpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_Base.cpp">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\MemoryTest.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,19 +107,25 @@
       <Filter>src\sim</Filter>
     </ClCompile>
     <ClCompile Include="src\module\execution\Channel.cpp">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClCompile>
     <ClCompile Include="src\module\execution\Lc.cpp">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClCompile>
     <ClCompile Include="src\module\execution\Mux.cpp">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
     </ClCompile>
     <ClCompile Include="src\module\mem\MemSystem.cpp">
-      <Filter>src\module\mem</Filter>
+      <Filter>src\module\memory</Filter>
     </ClCompile>
     <ClCompile Include="src\module\execution\Lse.cpp">
-      <Filter>src\module\exe</Filter>
+      <Filter>src\module\execution</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\Spm.cpp">
+      <Filter>src\module\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\MemoryTest.cpp">
+      <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +140,9 @@
     </Text>
     <Text Include="resource\output\SimpleFlowTest\log_Base.txt">
       <Filter>resource\output\SimpleFlowTest</Filter>
+    </Text>
+    <Text Include="resource\output\MemoryTest\memory_test.txt">
+      <Filter>resource\output\MemoryTest</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

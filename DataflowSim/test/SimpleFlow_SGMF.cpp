@@ -26,8 +26,8 @@ namespace DFSimTest
 
 		// Declare lc
 		ChanSGMF* lc0_loopVar = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);  // BundleSize = 1
-		Channel* lc0_getEnd = new Channel(2, 0);
-		Channel* lc0_sendEnd = new Channel(2, 0);
+		ChanBase* lc0_getEnd = new ChanBase(2, 0);
+		ChanBase* lc0_sendEnd = new ChanBase(2, 0);
 
 		ChanSGMF* lc0_mux_trueChan = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);
 		ChanSGMF* lc0_mux_falseChan = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);
@@ -39,8 +39,8 @@ namespace DFSimTest
 		LcSGMF* lc0 = new LcSGMF(lc0_loopVar, lc0_getEnd, lc0_sendEnd, lc0_mux);
 
 		ChanSGMF* lc1_loopVar = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);  // BundleSize = 1
-		Channel* lc1_getEnd = new Channel(2, 0);
-		Channel* lc1_sendEnd = new Channel(2, 0);
+		ChanBase* lc1_getEnd = new ChanBase(2, 0);
+		ChanBase* lc1_sendEnd = new ChanBase(2, 0);
 
 		ChanSGMF* lc1_mux_trueChan = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);
 		ChanSGMF* lc1_mux_falseChan = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);
@@ -70,10 +70,10 @@ namespace DFSimTest
 		chan_result->noUpstream = 1;
 		chan_result->noDownstream = 1;
 
-		Channel* begin = new Channel(1, 0);
+		ChanBase* begin = new ChanBase(1, 0);
 		begin->noUpstream = 1;
 		//begin->enable = 1;
-		Channel* end = new Channel(1, 0);
+		ChanBase* end = new ChanBase(1, 0);
 		end->noDownstream = 1;
 
 		// Define channel interconnect

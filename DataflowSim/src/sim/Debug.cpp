@@ -21,7 +21,7 @@ Debug::~Debug()
 void Debug::chanPrint(const string name, const Channel* channel)
 {
 	_output_file << std::endl;
-	_output_file << name << " valid: " << channel->valid;
+	_output_file << "== " << name << " valid: " << channel->valid;
 	_output_file << "  ";
 	_output_file<< "bp: "<< channel->bp/* << std::endl*/;
 	_output_file << "  ";
@@ -29,44 +29,13 @@ void Debug::chanPrint(const string name, const Channel* channel)
 	_output_file << "  ";
 	_output_file << "en: " << channel->enable << std::endl;
 
-	//switch (channel->archType)
-	//{
-	//	case ArchType::Base:
-	//	{
-	//		for (auto i : channel->channel)
-	//		{
-	//			_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
-	//			_output_file << " ";
-	//		}
-	//		_output_file << std::endl;
-	//	}
-	//	case ArchType::DGSF:
-	//	{
-	//		for (auto i : channel->channel)
-	//		{
-	//			_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
-	//			_output_file << ":" << "g" << i.graphSwitch;
-	//			_output_file << " ";
-	//		}
-	//		_output_file << std::endl;
-	//	}
-	//	case ArchType::SGMF:
-	//	{
-	//		for(auto chan:channel->)
-	//	}
-	//}
-
 	for (auto i : channel->channel)
 	{
-//#ifdef SGMF
-//		_output_file << "v" << i.valid << ":" << "t" << i.tag << ":";
-//#endif
 		_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
 		_output_file << ":" << "g" << i.graphSwitch;
 #endif
 		_output_file << " ";
-		//_output_file << "D" << i.value << ":" << "C" << i.cycle << ":" << "L" << i.last << " ";
 	}
 	_output_file << std::endl;
 }
@@ -74,7 +43,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 void Debug::chanPrint(const string name, const ChanSGMF* channel)
 {
 	_output_file << std::endl;
-	_output_file << "**" << name << " valid: " << channel->valid;
+	_output_file << "== " << name << " valid: " << channel->valid;
 	_output_file << "  ";
 	_output_file << "bp: " << channel->bp/* << std::endl*/;
 	_output_file << "  ";
@@ -82,6 +51,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 	_output_file << "  ";
 	_output_file << "en: " << channel->enable << std::endl;
 
+	// Print chanBundle
 	for (size_t i = 0; i < channel->chanBundle.size(); ++i)
 	{
 		auto chan = channel->chanBundle[i];
@@ -108,6 +78,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		}
 	}
 
+	// Print SGMF matchQ
 	_output_file << std::endl;
 	_output_file << "matchQ:" << std::endl;
 	_output_file << "\t";
@@ -121,6 +92,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		}
 	}
 
+	// Print SGMF channel
 	_output_file << std::endl;
 	_output_file << "channel:" << std::endl;
 	_output_file << "\t";
@@ -130,6 +102,201 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		_output_file <</* "d" << data.value << ":" <<*/ "c" << data.cycle << ":" << "l" << data.last;
 		_output_file << " ";
 	}
+	_output_file << std::endl;
+}
+
+void Debug::lsePrint(const string _name, const Lse* _lse)
+{
+	_output_file << std::endl;
+	_output_file << "== " << _name << " valid: " << _lse->valid;
+	_output_file << "  ";
+	_output_file << "bp: " << _lse->bp/* << std::endl*/;
+	_output_file << "  ";
+	_output_file << "getLast: " << !_lse->getLast.empty();
+	_output_file << "  ";
+	_output_file << "en: " << _lse->enable << std::endl;
+
+	// Print Lse reqQueue
+	_output_file << "reqQueue:" << std::endl;
+	_output_file << std::setw(12) << "addr:";
+	for (auto& req : _lse->reqQueue)
+	{
+		if (req.first.valid)
+		{
+			_output_file << std::setw(5) << req.first.addr;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "isWt:";
+	for (auto& req : _lse->reqQueue)
+	{
+		if (req.first.valid)
+		{
+			_output_file << std::setw(5) << req.first.isWrite;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "inflg:";
+	for (auto& req : _lse->reqQueue)
+	{
+		if (req.first.valid)
+		{
+			_output_file << std::setw(5) << req.first.inflight;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "rdy:";
+	for (auto& req : _lse->reqQueue)
+	{
+		if (req.first.valid)
+		{
+			_output_file << std::setw(5) << req.first.ready;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "hasPush:";
+	for (auto req : _lse->reqQueue)
+	{
+		if (req.first.valid)
+		{
+			_output_file << std::setw(5) << req.first.hasPushChan;
+		}
+	}
+
+	// Print Lse channel
+	_output_file << std::endl;
+	_output_file << "channel:" << std::endl;
+	_output_file << "\t";
+	for (auto& i : _lse->channel)
+	{
+		_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
+#ifdef DGSF
+		_output_file << ":" << "g" << i.graphSwitch;
+#endif
+		_output_file << " ";
+	}
+
+	_output_file << std::endl;
+}
+
+void Debug::memSysPrint(const MemSystem* _memSys)
+{
+	_output_file << std::endl;
+	_output_file << "== " << "MemorySystem" << std::endl;
+
+	// Print memSys reqQueue
+	_output_file << "MemSys reqQueue:" << std::endl;
+	_output_file << std::setw(12) << "addr:";
+	for (auto& req : _memSys->reqQueue)
+	{
+		if (req.valid)
+		{
+			_output_file << std::setw(5) << req.addr;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "isWt:";
+	for (auto& req : _memSys->reqQueue)
+	{
+		if (req.valid)
+		{
+			_output_file << std::setw(5) << req.isWrite;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "inflg:";
+	for (auto& req : _memSys->reqQueue)
+	{
+		if (req.valid)
+		{
+			_output_file << std::setw(5) << req.inflight;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "rdy:";
+	for (auto& req : _memSys->reqQueue)
+	{
+		if (req.valid)
+		{
+			_output_file << std::setw(5) << req.ready;
+		}
+	}
+
+	_output_file << std::endl;
+	_output_file << std::setw(12) << "hasPush:";
+	for (auto& req : _memSys->reqQueue)
+	{
+		if (req.valid)
+		{
+			_output_file << std::setw(5) << req.hasPushChan;
+		}
+	}
+	_output_file << std::endl;
+
+	// SPM
+	if (_memSys->spm != nullptr)
+	{
+		// Print SPM reqQueue
+		_output_file << std::endl;
+		_output_file << "SPM reqQueue:" << std::endl;
+
+		_output_file << std::setw(12) << "addr:";
+		for (auto& req : _memSys->spm->reqQueue)
+		{
+			if (req.valid)
+			{
+				_output_file << std::setw(5) << req.addr;
+			}
+		}
+
+		_output_file << std::endl;
+		_output_file << std::setw(12) << "isWt:";
+		for (auto& req : _memSys->spm->reqQueue)
+		{
+			if (req.valid)
+			{
+				_output_file << std::setw(5) << req.isWrite;
+			}
+		}
+
+		_output_file << std::endl;
+		_output_file << std::setw(12) << "inflg:";
+		for (auto& req : _memSys->spm->reqQueue)
+		{
+			if (req.valid)
+			{
+				_output_file << std::setw(5) << req.inflight;
+			}
+		}
+
+		_output_file << std::endl;
+		_output_file << std::setw(12) << "rdy:";
+		for (auto& req : _memSys->spm->reqQueue)
+		{
+			if (req.valid)
+			{
+				_output_file << std::setw(5) << req.ready;
+			}
+		}
+
+		_output_file << std::endl;
+		_output_file << std::setw(12) << "hasPush:";
+		for (auto& req : _memSys->spm->reqQueue)
+		{
+			if (req.valid)
+			{
+				_output_file << std::setw(5) << req.hasPushChan;
+			}
+		}
+	}
+
 	_output_file << std::endl;
 }
 

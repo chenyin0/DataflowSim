@@ -36,7 +36,7 @@ namespace DFSim
 	{
 	public:
 		//LC(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd);
-		Lc(Channel* _loopVar, Channel* _getEnd, Channel* _sendEnd, Mux* _mux);
+		Lc(ChanBase* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, Mux* _mux);
 		virtual ~Lc();
 		void lcUpdate(bool newSel);
 		void selUpdate(bool newSel);
@@ -59,9 +59,9 @@ namespace DFSim
 		deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
 	public:
-		Channel* getEnd;
-		Channel* sendEnd;
-		Channel* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
+		ChanBase* getEnd;
+		ChanBase* sendEnd;
+		ChanBase* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
 		//MuxLc* mux = new MuxLc({ loopVar }, { }, { loopVar });
 		Mux* mux;
 	};
@@ -97,7 +97,7 @@ LcSGMF usage:
 	class LcSGMF : public Lc
 	{
 	public:
-		LcSGMF(ChanSGMF* _loopVar, Channel* _getEnd, Channel* _sendEnd, MuxSGMF* _mux);
+		LcSGMF(ChanSGMF* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, MuxSGMF* _mux);
 		~LcSGMF();
 		//void loopUpdate() override;
 

@@ -1,4 +1,4 @@
-2020-03-28      16:56:54
+2020-04-06      18:45:13
 
 ******  System Config  *******
 Arch: DGSF
@@ -182,7 +182,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d0:c1:l0:g0 d1:c2:l0:g0 d2:c3:l1:g1 
+d0:c4:l0:g0 d1:c2:l0:g0 d2:c3:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d0:c4:l0:g0 
@@ -234,7 +234,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d0:c1:l0:g0 d1:c2:l0:g0 d2:c3:l1:g1 
+d0:c4:l0:g0 d1:c2:l0:g0 d2:c3:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d1:c4:l0:g0 
@@ -286,7 +286,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d0:c2:l0:g0 d1:c3:l0:g0 d2:c4:l1:g1 
+d0:c5:l0:g0 d1:c3:l0:g0 d2:c4:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d2:c5:l1:g1 
@@ -338,7 +338,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d1:c3:l0:g0 d2:c4:l1:g1 
+d1:c5:l0:g0 d2:c4:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d0:c5:l0:g0 
@@ -390,7 +390,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d1:c3:l0:g0 d2:c4:l1:g1 
+d1:c5:l0:g0 d2:c4:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d1:c5:l0:g0 
@@ -442,7 +442,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d1:c3:l0:g0 d2:c4:l1:g1 
+d1:c5:l0:g0 d2:c4:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d2:c5:l1:g1 
@@ -494,7 +494,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d2:c4:l1:g1 
+d2:c5:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d0:c5:l0:g1 
@@ -546,7 +546,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d2:c5:l1:g1 
+d2:c6:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d1:c6:l0:g1 
@@ -598,7 +598,7 @@ i_tmp valid: 0  bp: 0  getLast: 1  en: 0
 
 
 i_lc1 valid: 1  bp: 0  getLast: 1  en: 1
-d2:c5:l1:g1 
+d2:c6:l1:g1 
 
 lc1->loopVar valid: 1  bp: 0  getLast: 0  en: 1
 d2:c6:l1:g1 
@@ -2063,10 +2063,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d1:c12:l0:g0 d1:c12:l0:g0 d1:c12:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
+d1:c13:l0:g0 d1:c12:l0:g0 d1:c12:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d0:c12:l0:g0 d1:c12:l0:g0 d2:c12:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
+d0:c13:l0:g0 d1:c12:l0:g0 d2:c12:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d56:c13:l0:g0 
@@ -2115,10 +2115,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d1:c12:l0:g0 d1:c12:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
+d1:c14:l0:g0 d1:c12:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d1:c12:l0:g0 d2:c12:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
+d1:c14:l0:g0 d2:c12:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d1032:c14:l0:g0 
@@ -2167,10 +2167,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d1:c12:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
+d1:c14:l1:g1 d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d2:c12:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
+d2:c14:l1:g1 d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d2832:c14:l1:g1 
@@ -2219,10 +2219,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d2:c12:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
+d2:c15:l0:g1 d2:c13:l0:g1 d2:c13:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d0:c12:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
+d0:c15:l0:g1 d1:c13:l0:g1 d2:c13:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d258:c15:l0:g1 
@@ -2271,10 +2271,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d2:c13:l0:g1 d2:c13:l1:g1 
+d2:c16:l0:g1 d2:c13:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d1:c13:l0:g1 d2:c13:l1:g1 
+d1:c16:l0:g1 d2:c13:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d11925:c16:l0:g1 
@@ -2323,10 +2323,10 @@ lc1_mux_outChan valid: 0  bp: 0  getLast: 0  en: 1
 
 
 i_data valid: 1  bp: 0  getLast: 0  en: 1
-d2:c13:l1:g1 
+d2:c17:l1:g1 
 
 j_data valid: 1  bp: 0  getLast: 1  en: 1
-d2:c13:l1:g1 
+d2:c17:l1:g1 
 
 c_lc1 valid: 1  bp: 0  getLast: 1  en: 1
 d9222:c17:l1:g1 

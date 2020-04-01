@@ -291,7 +291,7 @@ namespace DFSim
 				left.begin(), // 输入容器迭代器(开始)
 				left.end(), // 输入容器迭代器(结尾)
 				std::insert_iterator<std::vector<R>>(right, right.begin()), // 输出迭代器
-				[](L l)->R {return static_cast<R>(l);/*cast(l, (R*)nullptr);*/ } // lambda表达式调用上面的定义的Cast函数完成元素类型转换
+				[](L l)->R { return static_cast<R>(l);/*cast(l, (R*)nullptr);*/ } // lambda表达式调用上面的定义的Cast函数完成元素类型转换
 				// 如果上面的cast函数无法满足要求，请自行根据需要扩展。
 			);
 			return std::move(right);

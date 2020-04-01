@@ -1,4 +1,4 @@
-2020-03-30      16:57:30
+2020-04-05      19:01:38
 
 ******  System Config  *******
 Arch: SGMF
@@ -465,7 +465,7 @@ Chan0:
 matchQ:
 	t2:c3:l0 t3:c3:l0 
 channel:
-	t2:c3:l0 
+	t2:c4:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:
@@ -609,7 +609,7 @@ Chan0:
 matchQ:
 	t2:c4:l0 t3:c4:l0 
 channel:
-	t2:c4:l0 
+	t2:c5:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:
@@ -753,7 +753,7 @@ Chan0:
 matchQ:
 	t2:c5:l0 t3:c5:l0 
 channel:
-	t2:c5:l0 
+	t2:c6:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:
@@ -897,7 +897,7 @@ Chan0:
 matchQ:
 	t3:c5:l0 
 channel:
-	t3:c5:l0 
+	t3:c7:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:
@@ -1041,7 +1041,7 @@ Chan0:
 matchQ:
 	t3:c6:l0 
 channel:
-	t3:c6:l0 
+	t3:c8:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:
@@ -1185,7 +1185,7 @@ Chan0:
 matchQ:
 	t3:c7:l0 
 channel:
-	t3:c7:l0 
+	t3:c9:l0 
 
 **lc1_mux_trueChan valid: 0  bp: 0  getLast: 0  en: 1
 Chan0:

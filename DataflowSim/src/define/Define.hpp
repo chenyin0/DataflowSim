@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 
 #include <ctime>
 #include <ratio>
@@ -31,7 +32,9 @@
 
 #include <limits>
 
-using uint = std::size_t;
+//using uint = std::size_t;
+using uint = uint64_t;
+//using uint64 = uint64_t;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::make_shared;

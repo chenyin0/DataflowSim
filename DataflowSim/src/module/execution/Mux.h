@@ -44,7 +44,7 @@ namespace DFSim
 	{
 	public:
 		//Mux(vector<Channel*> _trueChan, vector<Channel*> _falseChan, vector<Channel*> _downstream);
-		Mux(Channel* _trueChan, Channel* _falseChan, Channel* _outChan);
+		Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan);
 		virtual ~Mux();
 		void addPort(vector<Channel*> _trueChanUpstream, vector<Channel*> _falseChanUpstream, vector<Channel*> _outChanDownstream);
 		void muxUpdate(bool sel);
@@ -56,14 +56,14 @@ namespace DFSim
 	protected:
 		virtual void bpUpdate();
 	public:
-		bool sel;
+		bool sel = 0;
 		bool muxSuccess = 0; // If current cycle mux works, set muxSuccess to 1; Used for LC which initial value is a constant
 		/*Channel* trueChan = new Channel(2, 0);
 		Channel* falseChan = new Channel(2, 0);
 		Channel* outChan = new Channel(2, 0);*/
-		Channel* trueChan;
-		Channel* falseChan;
-		Channel* outChan;
+		ChanBase* trueChan;
+		ChanBase* falseChan;
+		ChanBase* outChan;
 	protected:
 		Data upstreamDataStatus;
 	};

@@ -2,6 +2,7 @@
 #include "../define/Define.hpp"
 #include "../module/ClkSys.h"
 #include "../module/execution/Channel.h"
+#include "../module/execution/Lse.h"
 
 namespace DFSim
 {
@@ -19,6 +20,8 @@ namespace DFSim
 
 		void chanPrint(const string name, const Channel* channel);
 		void chanPrint(const string name, const ChanSGMF* channel);
+		void lsePrint(const string _name, const Lse* _lse);
+		void memSysPrint(const MemSystem* _memSys);
 
 		template <typename T>
 		void vecPrint(const string name, const vector<T>& vec)
