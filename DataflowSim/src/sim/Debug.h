@@ -29,7 +29,7 @@ namespace DFSim
 		}
 
 		template <>
-		void vecPrint<int>(string name, const vector<int>& data)
+		void vecPrint<int>(const string name, const vector<int>& data)
 		{
 			_output_file << std::endl;
 			_output_file << name <<": "<< std::endl;
@@ -40,7 +40,7 @@ namespace DFSim
 			_output_file << std::endl;
 		}
 
-		static void throwError(string errorDescrip, string fileName, uint lineNum);
+		static void throwError(const string errorDescrip, const string fileName, const uint lineNum);
 
 	private:
 		std::ofstream _output_file;

@@ -78,11 +78,37 @@ void Spm::spmUpdate()
 	// Undefined
 }
 
-void Spm::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//void Spm::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//{
+//	for (auto& req : reqQueue)
+//	{
+//		if (req.valid && !req.ready && req.addr == _addr && req.isWrite == false)  // May exist WAR, WAW, RAW contention
+//		{
+//			req.ready = 1;
+//			req.inflight = 0;
+//			break;
+//		}
+//	}
+//}
+//
+//void Spm::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//{
+//	for (auto& req : reqQueue)
+//	{
+//		if (req.valid && !req.ready && req.addr == _addr && req.isWrite == true)  // May exist WAR, WAW, RAW contention
+//		{
+//			req.ready = 1;
+//			req.inflight = 0;
+//			break;
+//		}
+//	}
+//}
+
+void Spm::mem_req_complete(MemReq _req)
 {
 	for (auto& req : reqQueue)
 	{
-		if (req.valid && !req.ready && req.addr == _addr && req.isWrite == false)  // May exist WAR, WAW, RAW contention
+		if (req.valid && !req.ready && req.addr == _req.addr && req.isWrite == _req.isWrite)  // May exist WAR, WAW, RAW contention
 		{
 			req.ready = 1;
 			req.inflight = 0;
@@ -91,15 +117,12 @@ void Spm::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
 	}
 }
 
-void Spm::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+
+// For debug
+#ifdef DEBUG_MODE
+const vector<MemReq>& Spm::getReqQueue() const
 {
-	for (auto& req : reqQueue)
-	{
-		if (req.valid && !req.ready && req.addr == _addr && req.isWrite == true)  // May exist WAR, WAW, RAW contention
-		{
-			req.ready = 1;
-			req.inflight = 0;
-			break;
-		}
-	}
+	return reqQueue;
 }
+
+#endif

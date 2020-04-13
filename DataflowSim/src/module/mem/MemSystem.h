@@ -6,6 +6,7 @@
 namespace DFSim
 {
 	class Lse;
+	class MemoryDataBus;
 
 	class MemSystem
 	{
@@ -22,6 +23,10 @@ namespace DFSim
 		void send2Spm();
 		void getFromSpm();
 
+		// MemoryDataBus
+		void getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks);
+		void returnReqAck();  // return reqStack's reqs back to SPM/Cache
+
 		void MemSystemUpdate();
 
 		static void power_callback(double a, double b, double c, double d) {}  // Unused
@@ -29,20 +34,42 @@ namespace DFSim
 	private:
 		void sendBack2Lse();
 
+#ifdef DEBUG_MODE  // Get private instance for debug
+	public:
+		const vector<Lse*>& getLseRegistry() const;
+		const vector<MemReq>& getReqQueue() const;
+		//const vector<pair<MemReq, uint>>& getBusDelayFifo() const;
+#endif // DEBUG_MODE
+
 	public:
 		DRAMSim::MultiChannelMemorySystem* mem = nullptr;  // DRAM
 		Spm* spm = nullptr;
-		vector<Lse*> lseRegistry;
-		vector<MemReq> reqQueue;
+		MemoryDataBus* memDataBus = nullptr;
+
 	private:
 		uint sendPtr = 0;  // SendPtr for reqQueue, round-robin
+		vector<Lse*> lseRegistry;
+		vector<MemReq> reqQueue;
+		deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
 	};
 
 
-	//class DramInterface
-	//{
-	//public:
-	//	void read_complete(unsigned id, uint64_t address, uint64_t clock_cycle);
-	//	void write_complete(unsigned id, uint64_t address, uint64_t clock_cycle);
-	//};
+	class MemoryDataBus
+	{
+	public:
+		MemoryDataBus();
+		void mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk);
+		void mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk);
+		vector<MemReq> MemoryDataBusUpdate();
+		//vector<MemReq> getFromBusDelayFifo();  // Interface function to get req back from memory bus
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+	public:
+		const deque<pair<MemReq, uint>>& getBusDelayFifo() const;
+#endif // DEBUG_MODE
+
+	private:
+		uint busDelay = BUS_DELAY;
+		deque<pair<MemReq, uint>> busDelayFifo;  // Emulate bus delay when receive data from DRAM
+	};
 }

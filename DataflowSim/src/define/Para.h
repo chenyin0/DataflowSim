@@ -1,6 +1,14 @@
 #pragma once
 #include "./Define.hpp"
 
+
+/*
+*****************************************************
+*************	Simulation parameters  ***************
+*/
+#define DEBUG_MODE DEBUG_MODE
+
+
 /*
 *****************************************************
 *************	Execution parameters  ***************
@@ -63,6 +71,7 @@ enum class ArchType
 
 // MemSystem
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
+#define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
 
 // SPM
 #define SPM_BANK_NUM 16

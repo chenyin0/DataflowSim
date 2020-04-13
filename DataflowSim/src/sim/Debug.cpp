@@ -191,7 +191,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 	// Print memSys reqQueue
 	_output_file << "MemSys reqQueue:" << std::endl;
 	_output_file << std::setw(12) << "addr:";
-	for (auto& req : _memSys->reqQueue)
+	for (auto& req : _memSys->getReqQueue())
 	{
 		if (req.valid)
 		{
@@ -201,7 +201,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 	_output_file << std::endl;
 	_output_file << std::setw(12) << "isWt:";
-	for (auto& req : _memSys->reqQueue)
+	for (auto& req : _memSys->getReqQueue())
 	{
 		if (req.valid)
 		{
@@ -211,7 +211,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 	_output_file << std::endl;
 	_output_file << std::setw(12) << "inflg:";
-	for (auto& req : _memSys->reqQueue)
+	for (auto& req : _memSys->getReqQueue())
 	{
 		if (req.valid)
 		{
@@ -221,7 +221,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 	_output_file << std::endl;
 	_output_file << std::setw(12) << "rdy:";
-	for (auto& req : _memSys->reqQueue)
+	for (auto& req : _memSys->getReqQueue())
 	{
 		if (req.valid)
 		{
@@ -229,15 +229,15 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		}
 	}
 
-	_output_file << std::endl;
-	_output_file << std::setw(12) << "hasPush:";
-	for (auto& req : _memSys->reqQueue)
-	{
-		if (req.valid)
-		{
-			_output_file << std::setw(5) << req.hasPushChan;
-		}
-	}
+	//_output_file << std::endl;
+	//_output_file << std::setw(12) << "hasPush:";
+	//for (auto& req : _memSys->getReqQueue())
+	//{
+	//	if (req.valid)
+	//	{
+	//		_output_file << std::setw(5) << req.hasPushChan;
+	//	}
+	//}
 	_output_file << std::endl;
 
 	// SPM
@@ -248,7 +248,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		_output_file << "SPM reqQueue:" << std::endl;
 
 		_output_file << std::setw(12) << "addr:";
-		for (auto& req : _memSys->spm->reqQueue)
+		for (auto& req : _memSys->spm->getReqQueue())
 		{
 			if (req.valid)
 			{
@@ -258,7 +258,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 		_output_file << std::endl;
 		_output_file << std::setw(12) << "isWt:";
-		for (auto& req : _memSys->spm->reqQueue)
+		for (auto& req : _memSys->spm->getReqQueue())
 		{
 			if (req.valid)
 			{
@@ -268,7 +268,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 		_output_file << std::endl;
 		_output_file << std::setw(12) << "inflg:";
-		for (auto& req : _memSys->spm->reqQueue)
+		for (auto& req : _memSys->spm->getReqQueue())
 		{
 			if (req.valid)
 			{
@@ -278,7 +278,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
 		_output_file << std::endl;
 		_output_file << std::setw(12) << "rdy:";
-		for (auto& req : _memSys->spm->reqQueue)
+		for (auto& req : _memSys->spm->getReqQueue())
 		{
 			if (req.valid)
 			{
@@ -286,21 +286,21 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 			}
 		}
 
-		_output_file << std::endl;
-		_output_file << std::setw(12) << "hasPush:";
-		for (auto& req : _memSys->spm->reqQueue)
-		{
-			if (req.valid)
-			{
-				_output_file << std::setw(5) << req.hasPushChan;
-			}
-		}
+		//_output_file << std::endl;
+		//_output_file << std::setw(12) << "hasPush:";
+		//for (auto& req : _memSys->spm->getReqQueue())
+		//{
+		//	if (req.valid)
+		//	{
+		//		_output_file << std::setw(5) << req.hasPushChan;
+		//	}
+		//}
 	}
 
 	_output_file << std::endl;
 }
 
-void Debug::throwError(string errorDescrip, string fileName, uint lineNum)
+void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)
 {
 	uint clk = DFSim::ClkDomain::getInstance()->getClk();
 	std::cout << std::endl;

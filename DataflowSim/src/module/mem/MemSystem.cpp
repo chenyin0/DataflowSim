@@ -1,4 +1,5 @@
 #include "./MemSystem.h"
+#include "../ClkSys.h"
 
 using namespace DFSim;
 
@@ -7,10 +8,13 @@ MemSystem::MemSystem()
 	reqQueue.resize(MEMSYS_REQ_QUEUE_SIZE);
 
 	spm = new Spm();
+	memDataBus = new MemoryDataBus();
 
 	mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
-	TransactionCompleteCB* read_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_read_complete);
-	TransactionCompleteCB* write_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_write_complete);
+	TransactionCompleteCB* read_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_read_complete);
+	TransactionCompleteCB* write_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_write_complete);
+	//TransactionCompleteCB* read_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_read_complete);
+	//TransactionCompleteCB* write_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_write_complete);
 	mem->RegisterCallbacks(read_cb, write_cb, power_callback);
 }
 
@@ -18,6 +22,7 @@ MemSystem::~MemSystem()
 {
 	delete mem;
 	delete spm;
+	delete memDataBus;
 
 	for (auto& lse : lseRegistry)
 	{
@@ -119,14 +124,136 @@ void MemSystem::getFromSpm()
 	}
 }
 
+void MemSystem::getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks)
+{
+	for (auto& reqAck : _reqAcks)
+	{
+		reqAckStack.push_back(reqAck);
+	}
+}
+
+void MemSystem::returnReqAck()
+{
+	// Send reqAck back to SPM
+	for (auto& reqAck : reqAckStack)
+	{
+		spm->mem_req_complete(reqAck);
+	}
+
+	reqAckStack.clear();
+}
+
 void MemSystem::MemSystemUpdate()
 {
 	send2Spm();  // Send req to SPM
 	spm->spmUpdate();
 	spm->sendReq(mem);
 
-	mem->update();
+	if (ClkDomain::getInstance()->checkClkAdd())  // Update DRAM only when system clk update (Synchronize clk domain, in DGSF speedup mode)
+	{
+		mem->update();
+		getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
+	}
+
+	returnReqAck();
 	getFromSpm();  // Get callback from SPM
 	sendBack2Lse();
 }
 
+
+#ifdef DEBUG_MODE
+// For Debug
+const vector<Lse*>& MemSystem::getLseRegistry() const
+{
+	return lseRegistry;
+}
+
+const vector<MemReq>& MemSystem::getReqQueue() const
+{
+	return reqQueue;
+}
+#endif
+
+
+// MemoryDataBus
+MemoryDataBus::MemoryDataBus()
+{
+}
+
+void MemoryDataBus::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+{
+	MemReq req;
+	req.valid = 1;
+	req.isWrite = false;
+	req.addr = _addr;
+
+	busDelayFifo.push_back(make_pair(req, busDelay));
+}
+
+void MemoryDataBus::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+{
+	MemReq req;
+	req.valid = 1;
+	req.isWrite = true;
+	req.addr = _addr;
+
+	busDelayFifo.push_back(make_pair(req, busDelay));
+}
+
+vector<MemReq> MemoryDataBus::MemoryDataBusUpdate()
+{
+	// Emulate bus delay
+	for (auto& req : busDelayFifo)
+	{
+		if (req.second > 0)
+		{
+			--req.second; 
+		}
+	}
+
+	// Send ready req from memoryDataBus to reqStack in memSystem
+	vector<MemReq> _reqAckStack;
+	bool traverse = 1;
+	while (traverse)
+	{
+		if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
+		{
+			_reqAckStack.push_back(busDelayFifo.front().first);
+			busDelayFifo.pop_front();
+		}
+		else
+		{
+			traverse = 0;
+		}
+	}
+
+	return _reqAckStack;
+}
+
+//vector<MemReq> MemoryDataBus::getFromBusDelayFifo()
+//{
+//	vector<MemReq> reqStack;
+//	bool traverse = 1;
+//	while (traverse)
+//	{
+//		if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
+//		{
+//			reqStack.push_back(busDelayFifo.front().first);
+//			busDelayFifo.pop_front();
+//		}
+//		else
+//		{
+//			traverse = 0;
+//		}
+//	}
+//
+//	return reqStack;
+//}
+
+
+#ifdef DEBUG_MODE
+const deque<pair<MemReq, uint>>& MemoryDataBus::getBusDelayFifo() const
+{
+	return busDelayFifo;
+}
+#endif // DEBUG_MODE
