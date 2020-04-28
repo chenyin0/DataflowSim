@@ -100,7 +100,7 @@ void MemSystem::send2Spm()
 		MemReq& req = reqQueue[sendPtr];
 		if (req.valid && !req.inflight && !req.ready)
 		{
-			if (spm->addTransaction(req))  // Send req to DRAM, if send failed -> break;
+			if (spm->addTransaction(req))  // Send req to SPM, if send failed -> break;
 			{
 				req.inflight = 1;
 			}

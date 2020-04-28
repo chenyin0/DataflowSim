@@ -1,4 +1,11 @@
 #pragma once
+/*
+TODO:
+
+1. ADD bank conflict
+
+*/
+
 #include "../../define/Define.hpp"
 #include "../../define/Para.h"
 #include "../DataType.h"
@@ -23,14 +30,17 @@ namespace DFSim
 
 		void spmUpdate();
 
+	private:
+		void reqQueueUpdate();
+
 #ifdef DEBUG_MODE  // Get private instance for debug
 	public:
-		const vector<MemReq>& getReqQueue() const;
+		const vector<pair<MemReq, uint>>& getReqQueue() const;
 #endif // DEBUG_MODE 
 
 	private:
 		uint sendPtr = 0;
-		vector<MemReq> reqQueue;
+		vector<pair<MemReq, uint>> reqQueue;  // pair<req, latency>
 		uint bankNum = SPM_BANK_NUM;
 		uint bankDepth = SPM_BANK_DEPTH;
 	};

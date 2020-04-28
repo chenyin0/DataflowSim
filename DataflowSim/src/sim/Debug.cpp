@@ -250,9 +250,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		_output_file << std::setw(12) << "addr:";
 		for (auto& req : _memSys->spm->getReqQueue())
 		{
-			if (req.valid)
+			if (req.first.valid)
 			{
-				_output_file << std::setw(5) << req.addr;
+				_output_file << std::setw(5) << req.first.addr;
 			}
 		}
 
@@ -260,9 +260,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		_output_file << std::setw(12) << "isWt:";
 		for (auto& req : _memSys->spm->getReqQueue())
 		{
-			if (req.valid)
+			if (req.first.valid)
 			{
-				_output_file << std::setw(5) << req.isWrite;
+				_output_file << std::setw(5) << req.first.isWrite;
 			}
 		}
 
@@ -270,9 +270,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		_output_file << std::setw(12) << "inflg:";
 		for (auto& req : _memSys->spm->getReqQueue())
 		{
-			if (req.valid)
+			if (req.first.valid)
 			{
-				_output_file << std::setw(5) << req.inflight;
+				_output_file << std::setw(5) << req.first.inflight;
 			}
 		}
 
@@ -280,9 +280,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 		_output_file << std::setw(12) << "rdy:";
 		for (auto& req : _memSys->spm->getReqQueue())
 		{
-			if (req.valid)
+			if (req.first.valid)
 			{
-				_output_file << std::setw(5) << req.ready;
+				_output_file << std::setw(5) << req.first.ready;
 			}
 		}
 

@@ -95,6 +95,12 @@
     <ClInclude Include="test\MemoryTest.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\mem\Cache.h">
+      <Filter>src\module\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\EnumType.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -126,6 +132,9 @@
     </ClCompile>
     <ClCompile Include="test\MemoryTest.cpp">
       <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\Cache.cpp">
+      <Filter>src\module\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

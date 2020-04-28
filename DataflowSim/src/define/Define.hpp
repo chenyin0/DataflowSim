@@ -72,6 +72,7 @@ using std::accumulate;
 #define str(s) #s
 #define xstr(s) str(s)
 
+#define ULONG_LONG_MAX (std::numeric_limits<uint>::max)()
 
 class Bool
 {
