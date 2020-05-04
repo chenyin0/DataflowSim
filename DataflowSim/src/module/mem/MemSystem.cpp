@@ -1,5 +1,6 @@
 #include "./MemSystem.h"
 #include "../ClkSys.h"
+#include "../../sim/Debug.h"
 
 using namespace DFSim;
 
@@ -7,7 +8,16 @@ MemSystem::MemSystem()
 {
 	reqQueue.resize(MEMSYS_REQ_QUEUE_SIZE);
 
-	spm = new Spm();
+	if (SPM_ENABLE)
+	{
+		spm = new Spm();
+	}
+
+	if (CACHE_ENABLE)
+	{
+		cache = new Cache();
+	}
+
 	memDataBus = new MemoryDataBus();
 
 	mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
@@ -22,6 +32,7 @@ MemSystem::~MemSystem()
 {
 	delete mem;
 	delete spm;
+	delete cache;
 	delete memDataBus;
 
 	for (auto& lse : lseRegistry)
@@ -51,6 +62,18 @@ uint MemSystem::registerLse(Lse* _lse)
 //	}
 //}
 
+uint MemSystem::addrBias(uint _addr) 
+{
+	if (DATA_PRECISION % 8 != 0)
+	{
+		Debug::throwError("DATA_PRECISION is not in multiples of byte!", __FILE__, __LINE__);
+	}
+	else
+	{
+		return _addr << (uint)log2(DATA_PRECISION / 8);
+	}
+}
+
 bool MemSystem::addTransaction(MemReq _req)
 {
 	//if (reqQueue.size() < MEMSYS_REQ_QUEUE_SIZE)
@@ -69,6 +92,7 @@ bool MemSystem::addTransaction(MemReq _req)
 		if (!reqQueue[i].valid)
 		{
 			_req.memSysReqQueueIndex = i;  // Record the entry of reqQueue in memSystem
+			_req.addr = addrBias(_req.addr);
 			reqQueue[i] = _req;
 			addSuccess = 1;
 			break;
@@ -93,34 +117,95 @@ void MemSystem::sendBack2Lse()
 
 void MemSystem::send2Spm()
 {
-	for (size_t i = 0; i < reqQueue.size(); ++i)
+	if (spm != nullptr)
 	{
-		//sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
-
-		MemReq& req = reqQueue[sendPtr];
-		if (req.valid && !req.inflight && !req.ready)
+		for (size_t i = 0; i < reqQueue.size(); ++i)
 		{
-			if (spm->addTransaction(req))  // Send req to SPM, if send failed -> break;
-			{
-				req.inflight = 1;
-			}
-			else
-			{
-				break;
-			}
-		}
+			//sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
 
-		sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+			MemReq& req = reqQueue[sendPtr];
+			if (req.valid && !req.inflight && !req.ready)
+			{
+				if (spm->addTransaction(req))  // Send req to SPM, if send failed -> break;
+				{
+					req.inflight = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+		}
+	}
+	else
+	{
+		Debug::throwError("Not define SPM!", __FILE__, __LINE__);
 	}
 }
 
 void MemSystem::getFromSpm()
 {
-	vector<MemReq> _req = spm->callBack();
-	for (auto req : _req)
+	if (spm != nullptr)
 	{
-		reqQueue[req.memSysReqQueueIndex].ready = 1;
-		reqQueue[req.memSysReqQueueIndex].inflight = 0;
+		vector<MemReq> _req = spm->callBack();
+		for (auto req : _req)
+		{
+			reqQueue[req.memSysReqQueueIndex].ready = 1;
+			reqQueue[req.memSysReqQueueIndex].inflight = 0;
+		}
+	}
+	else
+	{
+		Debug::throwError("Not define SPM!", __FILE__, __LINE__);
+	}
+}
+
+void MemSystem::send2Cache()
+{
+	if (cache != nullptr)
+	{
+		for (size_t i = 0; i < reqQueue.size(); ++i)
+		{
+			//sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
+
+			MemReq& req = reqQueue[sendPtr];
+			if (req.valid && !req.inflight && !req.ready)
+			{
+				if (cache->addTransaction(req))  // Send req to SPM, if send failed -> break;
+				{
+					req.inflight = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+		}
+	}
+	else
+	{
+		Debug::throwError("Not define Cache!", __FILE__, __LINE__);
+	}
+}
+
+void MemSystem::getFromCache()
+{
+	if (cache != nullptr)
+	{
+		vector<MemReq> _req = cache->callBack();
+		for (auto req : _req)
+		{
+			reqQueue[req.memSysReqQueueIndex].ready = 1;
+			reqQueue[req.memSysReqQueueIndex].inflight = 0;
+		}
+	}
+	else
+	{
+		Debug::throwError("Not define Cache!", __FILE__, __LINE__);
 	}
 }
 
@@ -134,10 +219,22 @@ void MemSystem::getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks)
 
 void MemSystem::returnReqAck()
 {
-	// Send reqAck back to SPM
-	for (auto& reqAck : reqAckStack)
+	if (SPM_ENABLE)
 	{
-		spm->mem_req_complete(reqAck);
+		// Send reqAck back to SPM
+		for (auto& reqAck : reqAckStack)
+		{
+			spm->mem_req_complete(reqAck);
+		}
+	}
+
+	if (CACHE_ENABLE)
+	{
+		// Send reqAck back to Cache
+		for (auto& reqAck : reqAckStack)
+		{
+			cache->mem_req_complete(reqAck);
+		}
 	}
 
 	reqAckStack.clear();
@@ -145,9 +242,19 @@ void MemSystem::returnReqAck()
 
 void MemSystem::MemSystemUpdate()
 {
-	send2Spm();  // Send req to SPM
-	spm->spmUpdate();
-	spm->sendReq(mem);
+	if (SPM_ENABLE)
+	{
+		send2Spm();  // Send req to SPM
+		spm->spmUpdate();
+		spm->sendReq2Mem(mem);
+	}
+
+	if (CACHE_ENABLE)
+	{
+		send2Cache();
+		cache->cacheUpdate();
+		cache->sendReq2Mem(mem);
+	}
 
 	if (ClkDomain::getInstance()->checkClkAdd())  // Update DRAM only when system clk update (Synchronize clk domain, in DGSF speedup mode)
 	{
@@ -156,7 +263,17 @@ void MemSystem::MemSystemUpdate()
 	}
 
 	returnReqAck();
-	getFromSpm();  // Get callback from SPM
+
+	if (SPM_ENABLE)
+	{
+		getFromSpm();  // Get callback from SPM
+	}
+
+	if (CACHE_ENABLE)
+	{
+		getFromCache();  // Get callback from Cache
+	}
+
 	sendBack2Lse();
 }
 

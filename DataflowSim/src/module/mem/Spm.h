@@ -23,7 +23,7 @@ namespace DFSim
 		vector<MemReq> callBack();  // Get memory access results from SPM
 		
 		// Interface func with DRAM
-		void sendReq(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
+		void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
 		/*void mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk);
 		void mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk);*/
 		void mem_req_complete(MemReq _req);

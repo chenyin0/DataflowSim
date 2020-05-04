@@ -44,6 +44,12 @@
     <Filter Include="resource\output\MemoryTest">
       <UniqueIdentifier>{45935b0d-d59b-4ba2-86b5-4557cd3dde11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\gemm">
+      <UniqueIdentifier>{be6a0389-df79-48b9-a2f7-f24a5875f1a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\bfs">
+      <UniqueIdentifier>{cb976672-f379-4342-9590-b86638b2583a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -101,6 +107,9 @@
     <ClInclude Include="src\module\EnumType.h">
       <Filter>src\module</Filter>
     </ClInclude>
+    <ClInclude Include="test\gemm\Gemm.h">
+      <Filter>test\gemm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -135,6 +144,9 @@
     </ClCompile>
     <ClCompile Include="src\module\mem\Cache.cpp">
       <Filter>src\module\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gemm\Gemm_Base.cpp">
+      <Filter>test\gemm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

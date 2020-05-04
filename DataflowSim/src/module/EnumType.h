@@ -17,6 +17,19 @@ namespace DFSim
 		READ,
 		WRITE,
 		LOCK,
-		UNLOCK
+		UNLOCK,
+		WRITEBACK_DIRTY_BLOCK
+	};
+
+	enum class Cache_write_strategy
+	{
+		WRITE_BACK,
+		WRITE_THROUGH
+	};
+
+	enum class Cache_write_allocate
+	{
+		WRITE_ALLOCATE,
+		WRITE_NON_ALLOCATE
 	};
 }

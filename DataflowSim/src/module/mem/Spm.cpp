@@ -52,7 +52,7 @@ vector<MemReq> Spm::callBack()
 	return readyReq;
 }
 
-void Spm::sendReq(DRAMSim::MultiChannelMemorySystem* mem)
+void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
 {
 	for (size_t i = 0; i < reqQueue.size(); ++i)
 	{

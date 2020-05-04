@@ -70,14 +70,18 @@ enum class ArchType
 */
 
 // MemSystem
+#define DATA_PRECISION 32  // Data precision is 32bits
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
 #define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
 
 // SPM
+#define SPM_ENABLE 0
 #define SPM_ACCESS_LATENCY 1
 #define SPM_BANK_NUM 16
 #define SPM_BANK_DEPTH 64
 #define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM
 
 // Cache
+#define CACHE_ENABLE 1
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
+#define REQ_QUEUE_TO_MEM_SIZE 32 

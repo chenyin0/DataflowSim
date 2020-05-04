@@ -141,6 +141,7 @@
     <ClInclude Include="src\module\mem\Spm.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\util.hpp" />
+    <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\MemoryTest.h" />
     <ClInclude Include="test\SimpleFlow_Base.cpp" />
     <ClInclude Include="test\SimpleFlow_DGSF.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="src\module\mem\MemSystem.cpp" />
     <ClCompile Include="src\module\mem\Spm.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\MemoryTest.cpp" />
   </ItemGroup>
   <ItemGroup>

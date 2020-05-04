@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
 #include "./Spm.h"
+#include "./Cache.h"
 #include "../execution/Lse.h"
 
 namespace DFSim
@@ -23,6 +24,10 @@ namespace DFSim
 		void send2Spm();
 		void getFromSpm();
 
+		// Cache
+		void send2Cache();
+		void getFromCache();
+
 		// MemoryDataBus
 		void getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks);
 		void returnReqAck();  // return reqStack's reqs back to SPM/Cache
@@ -33,6 +38,7 @@ namespace DFSim
 
 	private:
 		void sendBack2Lse();
+		uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr
 
 #ifdef DEBUG_MODE  // Get private instance for debug
 	public:
@@ -44,6 +50,7 @@ namespace DFSim
 	public:
 		DRAMSim::MultiChannelMemorySystem* mem = nullptr;  // DRAM
 		Spm* spm = nullptr;
+		Cache* cache = nullptr;
 		MemoryDataBus* memDataBus = nullptr;
 
 	private:

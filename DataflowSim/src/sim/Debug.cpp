@@ -285,16 +285,78 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 				_output_file << std::setw(5) << req.first.ready;
 			}
 		}
+	}
+	_output_file << std::endl;
 
-		//_output_file << std::endl;
-		//_output_file << std::setw(12) << "hasPush:";
-		//for (auto& req : _memSys->spm->getReqQueue())
-		//{
-		//	if (req.valid)
-		//	{
-		//		_output_file << std::setw(5) << req.hasPushChan;
-		//	}
-		//}
+	// Cache
+	if (_memSys->cache != nullptr)
+	{
+		// Print cache reqQueue
+		_output_file << std::endl;
+		_output_file << "Cache reqQueue:" << std::endl;
+
+		const vector<vector<ReqQueueBank>> reqQueue = _memSys->cache->getReqQueue();
+
+		for (size_t level = 0; level < reqQueue.size(); ++level)
+		{
+			_output_file << std::setw(8) << "Cache_L" << level+1 << "_reqQueue:" << std::endl;
+
+			for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
+			{
+				_output_file << std::setw(8) << "Bank_" << bankId << "_L" << level+1 <<":" << std::endl;
+				
+				// Print each req
+				_output_file << std::setw(12) << "addr:";
+				for (auto& req : reqQueue[level][bankId])
+				{
+					if (req.first.valid)
+					{
+						_output_file << std::setw(5) << req.first.addr;
+					}
+				}
+
+				_output_file << std::endl;
+				_output_file << std::setw(12) << "isWt:";
+				for (auto& req : reqQueue[level][bankId])
+				{
+					if (req.first.valid)
+					{
+						if (req.first.cacheOp == Cache_operation::WRITE)
+						{
+							_output_file << std::setw(5) << "1";
+						}
+						else
+						{
+							_output_file << std::setw(5) << "0";
+						}
+					}
+				}
+
+				_output_file << std::endl;
+				_output_file << std::setw(12) << "inflg:";
+				for (auto& req : reqQueue[level][bankId])
+				{
+					if (req.first.valid)
+					{
+						_output_file << std::setw(5) << req.first.inflight;
+					}
+				}
+
+				_output_file << std::endl;
+				_output_file << std::setw(12) << "rdy:";
+				for (auto& req : reqQueue[level][bankId])
+				{
+					if (req.first.valid)
+					{
+						_output_file << std::setw(5) << req.first.ready;
+					}
+				}
+
+				_output_file << std::endl;
+			}
+
+			_output_file << std::endl;
+		}
 	}
 
 	_output_file << std::endl;

@@ -14,10 +14,16 @@ Cache Module
 
 Req flow:
 1. Send req:
-	reqQueue_MemSystem -> reqQueue_L1 (hit/miss check, MSHR merge) -> reqQueue_L2 (hit/miss check, MSHR merge) -> ... -> DRAM
+	reqQueue_MemSystem -> reqQueue_L1 (hit/miss check, MSHR coalescing) -> reqQueue_L2 (hit/miss check, MSHR coalescing) -> ... -> DRAM
 
 2. Receive req:
-	DRAM -> reqQueue Ln (update cacheline, hit/miss check again) -> ... -> reqQueue L1 -> reqQueue_MemSystem
+	DRAM -> reqQueue Ln (update cacheline) -> ... -> reqQueue L1 (update cacheline) -> reqQueue_MemSystem
+
+
+Address bit fields:
+  32位地址寻址空间2^32words
+	MSB                                    LSB
+	Tag + Set(Index) + Block_offset(Cacheline)   Lower bits of Set is bank_index    
 
 */
 
@@ -25,12 +31,15 @@ Req flow:
 #include "../../define/Para.h"
 #include "../DataType.h"
 #include "../EnumType.h"
+#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
 
 typedef unsigned char _u8;
 //typedef unsigned long long uint;
 
 namespace DFSim
 {
+	using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict
+
 	//写内存方法就默认写回吧。
 	class Cache_Line 
 	{
@@ -59,7 +68,7 @@ namespace DFSim
 		vector<MemReq> callBack();  // Get memory access results from Cache
 
 		// Interface func with DRAM
-		void sendReq(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
+		void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
 		void mem_req_complete(MemReq _req);
 
 		void cacheUpdate();
@@ -82,8 +91,8 @@ namespace DFSim
 		int get_cache_free_line(uint set_base, int level);
 		/**找到合适的line之后，将数据写入cache line中*/
 		void set_cache_line(uint index, uint addr, int level);
-		/**对一个指令进行分析*/
-		void do_cache_op(uint addr, Cache_operation oper_style);
+		///**对一个指令进行分析*/
+		//void do_cache_op(uint addr, Cache_operation oper_style);
 		///**读入trace文件*/
 		//void load_trace(const char* filename);
 
@@ -99,7 +108,27 @@ namespace DFSim
 
 		void re_init();
 
-		CacheReq transMemReq2CacheReq(const MemReq& _req);
+		CacheReq transMemReq2CacheReq(const MemReq& memReq);
+		MemReq transCacheReq2MemReq(const CacheReq& cacheReq);
+
+		uint getCacheTag(const uint addr, const uint level);
+		uint getCacheSetIndex(const uint addr, const uint level);
+		uint getCacheBank(const uint addr, const uint level);
+		uint getCacheBlockOffset(const uint addr, const uint level);
+
+		bool sendReq2CacheBank(const CacheReq cacheReq, const uint level);
+		bool addrCoaleseCheck(const uint addr, const uint level);
+		bool sendReq2reqQueue2Mem(const CacheReq cacheReq);
+		bool setCacheBlock(uint addr, uint level);  // Set a cacheblock which the addr belongs to a specific cache level 
+		bool writeBackDirtyCacheline(const uint tag, const uint setIndex, const uint level);
+
+		void updateReqQueueOfCacheLevel();
+		void updateCacheLine();
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+	public:
+		const vector<vector<ReqQueueBank>>& getReqQueue() const;
+#endif // DEBUG_MODE
 
 	private:
 		const unsigned char CACHE_FLAG_VALID = 0x01;
@@ -114,12 +143,15 @@ namespace DFSim
 		//const char OPERATION_UNLOCK = 'u';
 
 		vector<uint> a_cache_size = {1*1024, 8*1024};  // 多级cache的大小设置 (byte)
-		vector<uint> a_cache_line_size = {64, 64};  // 多级cache的line size（block size）大小 (byte)
+		vector<uint> a_cache_line_size = {32, 32};  // 多级cache的line size（block size）大小 (byte)
 		vector<uint> a_mapping_ways = {4, 4};  // 组相连的链接方式 (几路组相连)
 
-		vector<uint> cache_access_latency = {1, 4};  // L1 cycle = 1; L2 cycle = 4;
-		vector<uint> reqQueueSize = { 8, 16 };  // L1 reqQueueSize = 8; L2 = 16;
-		vector<uint> bankNum = { 8, 16 };  // L1 = 8, L2 = 16
+		vector<uint> cache_access_latency = { 1, 4 };  // L1 cycle = 1; L2 cycle = 4;
+		vector<uint> reqQueueSizePerBank = { 8, 4 };  // L1 each bank's reqQueueSize = 2; L2 = 2;
+		vector<uint> bankNum = { 4, 4 };  // L1 = 8, L2 = 16
+		vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
+		vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
+		vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
 
 		/**cache的总大小，单位byte*/
 		uint cache_size[CACHE_MAXLEVEL];
@@ -129,6 +161,8 @@ namespace DFSim
 		uint cache_line_num[CACHE_MAXLEVEL];
 		/**Bank number*/
 		uint cache_bank_num[CACHE_MAXLEVEL];
+		/**2的多少次方是bank的数量，用于匹配地址时，进行位移比较*/
+		uint cache_bank_shifts[CACHE_MAXLEVEL];
 		/**每个set有多少way*/
 		uint cache_mapping_ways[CACHE_MAXLEVEL];
 		/**整个cache有多少组*/
@@ -146,6 +180,10 @@ namespace DFSim
 	//    _u8 *cache_buf[CACHE_MAXLEVEL];
 		/**缓存替换算法*/
 		Cache_swap_style swap_style[CACHE_MAXLEVEL];
+		// Write strategy
+		Cache_write_strategy write_strategy[CACHE_MAXLEVEL];
+		// Write allocate
+		Cache_write_allocate write_allocate[CACHE_MAXLEVEL];
 		/**读写内存的计数*/
 		uint cache_r_count, cache_w_count;
 		/**实际写内存的计数，cache --> memory */
@@ -156,6 +194,9 @@ namespace DFSim
 		/**空闲cache line的index记录，在寻找时，返回空闲line的index*/
 		uint cache_free_num[CACHE_MAXLEVEL];
 
-		vector<deque<pair<CacheReq, uint>>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
+		//vector<vector<pair<CacheReq, uint>>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
+		vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
+		deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
+		vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
 	};
 }
