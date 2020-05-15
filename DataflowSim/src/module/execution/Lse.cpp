@@ -24,6 +24,24 @@ void Lse::get(bool _isWrite, uint _addr)
 	statusUpdate();
 }
 
+void Lse::get(bool _isWrite, uint _addr, uint& trig_cnt)
+{
+	checkConnect();
+	pop();
+
+	// Only when trigger valid, push channel
+	// Must ensure the valid signal arrives earlier than the data, or else the data will be flushed 
+	if (trig_cnt > 0) 
+	{
+		if (push(_isWrite, _addr))
+		{
+			--trig_cnt;  // Decrease trig_cnt
+		}
+	}
+
+	statusUpdate();
+}
+
 void Lse::pop()
 {
 	bool popReady = valid;
@@ -98,12 +116,17 @@ void Lse::pushReqQ(bool _isWrite, uint _addr)
 	}
 }
 
-void Lse::push(bool _isWrite, uint _addr)
+bool Lse::push(bool _isWrite, uint _addr)
 {
 	// Push data in channel
 	if (checkUpstream())
 	{
 		pushReqQ(_isWrite, _addr);
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

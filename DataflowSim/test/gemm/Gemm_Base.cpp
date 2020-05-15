@@ -31,6 +31,9 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 
 void GemmTest::gemm_base(Debug* debug)
 {
+	// Generate benchmark data
+	generateData();
+
 	// Define module
 	MemSystem* memSys = new MemSystem();
 

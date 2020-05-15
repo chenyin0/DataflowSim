@@ -40,5 +40,29 @@ namespace DFSim
 	{
 	public:
 		static void gemm_base(Debug* debug);
+	
+	private:
+		static void generateData();  // Generate benchmark data
+
+		static const uint matrix_width = 500;
+		static const uint matrix_height = matrix_width;
+
+		static vector<int> m1;
+		static vector<int> m2;
+		static vector<int> result;
 	};
+
+	void GemmTest::generateData() 
+	{
+		uint size = matrix_width * matrix_height;
+		m1.resize(size);
+		m2.resize(size);
+		result.resize(size);
+
+		for (size_t i = 0; i < size; ++i)
+		{
+			m1[i] = i;
+			m2[i] = i;
+		}
+	}
 }

@@ -27,6 +27,10 @@ Module Channel:
 //////////////
 Develop log:
 	
+TODO:
+	1. Channel need add trigger signal
+	(e.g. inner loop executes many times then trigger outer loop execute once)
+
 */
 
 #pragma once

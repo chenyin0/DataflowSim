@@ -127,6 +127,45 @@ int main()
 
 	//system("pause");
 
+	//cout << "hello" << endl;
+
+	//uint clkk = 0;
+	//uint buffer_size = 210;
+	//uint dram_lat = 200;
+	//uint tile = 16;
+	//uint buffer_cnt = 210;
+	//deque<uint> req;
+
+	//while (clkk < 100000)
+	//{
+	//	if (clkk % 16 == 0)
+	//	{
+	//		req.push_back(dram_lat);
+	//	}
+
+	//	--buffer_cnt;
+
+	//	for (auto& i : req)
+	//	{
+	//		--i;
+	//		if (i == 0)
+	//		{
+	//			buffer_cnt += 16;
+	//			req.pop_front();
+	//		}
+	//	}
+
+	//	++clkk;
+
+	//	cout << buffer_cnt << endl;
+	//	if (buffer_cnt == 0)
+	//	{
+	//		cout << "!!!!!!!!!" << endl;
+	//		system("pause");
+	//	}
+	//}
+	//system("pause");
+
 	DFSim::ClkDomain clk();
 	std::cout << "Begin test" << std::endl;
 

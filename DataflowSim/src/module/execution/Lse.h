@@ -13,13 +13,17 @@ namespace DFSim
 		~Lse();
 
 		void get(bool _isWrite, uint _addr);  // Load/store addr
+		// Trigger mode (e.g. inner loop executes many times then trigger outer loop execute once,
+		// or upper pe updates local reg many times then sends the data to lse once)
+		void get(bool _isWrite, uint _addr, uint& trig_cnt);  
 		uint assign();  // Return corresponding addr
 		bool checkSend(Data _data, Channel* upstream) override;
 		void callback(MemReq _req);  // Callback func for MemSys
 
 	protected:
 		bool checkUpstream() override;
-		void push(bool _isWrite, uint _addr);  // Push memory access request into reqQueue
+		bool push(bool _isWrite, uint _addr);  // Push memory access request into reqQueue
+		//void push(bool _isWrite, uint _addr, bool& trigger);  // Trigger mode
 		void pushReqQ(bool _isWrite, uint _addr);
 		void pop();  // Pop memory request from reqQueue when the data has sent to the downstream channel
 		void statusUpdate() override;
