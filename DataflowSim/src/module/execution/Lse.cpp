@@ -6,14 +6,31 @@ using namespace DFSim;
 Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys) : 
 	Channel(_size, _cycle), memSys(_memSys)
 {
-	reqQueue.resize(_size);
+	//reqQueue.resize(_size);
+	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
 
-	lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+	initial();
+}
+
+Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup) :
+	Channel(_size, _cycle, _speedup), memSys(_memSys)
+{
+	//reqQueue.resize(_size);
+	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+
+	initial();
 }
 
 Lse::~Lse()
 {
 	delete memSys;
+}
+
+void Lse::initial()
+{
+	reqQueue.resize(size);
+
+	lseId = memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
 }
 
 void Lse::get(bool _isWrite, uint _addr)
@@ -203,6 +220,12 @@ void Lse::statusUpdate()
 	}
 
 	bpUpdate();
+
+	// Emulate hardware parallel loop unrolling
+	if (speedup > 1)
+	{
+		parallelize();
+	}
 }
 
 bool Lse::checkSend(Data _data, Channel* upstream)

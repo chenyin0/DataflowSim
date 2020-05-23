@@ -1,4 +1,5 @@
 #include "../src/define/Define.hpp"
+#include "../src/define/Para.h"
 #include "../src/module/ClkSys.h"
 #include "../src/sim/Debug.h"
 
@@ -7,6 +8,8 @@
 #include "../test/SimpleFlow_SGMF.cpp"
 
 #include "../test/MemoryTest.h"
+
+#include "../test/gemm/Gemm.h"
 
 #include "./module/execution/Channel.h"
 
@@ -169,9 +172,17 @@ int main()
 	DFSim::ClkDomain clk();
 	std::cout << "Begin test" << std::endl;
 
-	//DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/SimpleFlowTest/log_") + string(xstr(ARCH)) + string(".txt"));
+	/* TestBench name list
+	SimpleFlowTest
+	MemoryTest
+	Gemm
+	*/
+	TestBench_name tb_name = TestBench_name::Gemm;
+	ArchType arch = ArchType::Base;
 
-	DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
+	DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/") + tb_name_convert::toString(tb_name) + string("/log_") + string(xstr(ARCH)) + string(".txt"));
+
+	//DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
 
 #ifdef ARCH
 	debug->getFile() << std::endl;
@@ -181,17 +192,74 @@ int main()
 	debug->getFile() << "******************************" << std::endl;
 #endif
 
-#ifdef DGSF
-	DFSimTest::simpleFlow_DGSF(debug);
-#endif
-#ifdef Base
-	DFSimTest::simpleFlow_Base(debug);
-#endif
-#ifdef SGMF
-	DFSimTest::simpleFlow_SGMF(debug);
-#endif
+	switch (tb_name)
+	{
+	case TestBench_name::SimpleFlowTest:
+	{
+		switch (arch)
+		{
+		case ArchType::Base:
+			DFSimTest::simpleFlow_Base(debug);
+			break;
+		case ArchType::DGSF:
+			DFSimTest::simpleFlow_DGSF(debug);
+			break;
+		case ArchType::SGMF:
+			DFSimTest::simpleFlow_SGMF(debug);
+			break;
+		}
 
-	DFSimTest::MemoryTest::memory_test(debug);
+		break;
+	}
+	case TestBench_name::MemoryTest:
+	{
+		switch (arch)
+		{
+		case ArchType::Base:
+			DFSimTest::MemoryTest::memory_test(debug);
+			break;
+		case ArchType::DGSF:
+			DFSimTest::MemoryTest::memory_test(debug);
+			break;
+		case ArchType::SGMF:
+			DFSimTest::MemoryTest::memory_test(debug);
+			break;
+		}
+
+		break;
+	}
+	case TestBench_name::Gemm:
+	{
+		switch (arch)
+		{
+		case ArchType::Base:
+			DFSimTest::GemmTest::gemm_base(debug);
+			break;
+		case ArchType::DGSF:
+			//DFSimTest::MemoryTest::memory_test(debug);
+			break;
+		case ArchType::SGMF:
+			//DFSimTest::MemoryTest::memory_test(debug);
+			break;
+		}
+
+		break;
+	}
+	default:
+		std::cout << "Not selected a simulation function" << std::endl;
+	}
+
+//#ifdef DGSF
+//	DFSimTest::simpleFlow_DGSF(debug);
+//#endif
+//#ifdef Base
+//	DFSimTest::simpleFlow_Base(debug);
+//#endif
+//#ifdef SGMF
+//	DFSimTest::simpleFlow_SGMF(debug);
+//#endif
+
+	//DFSimTest::MemoryTest::memory_test(debug);
 
 	return 0;
 }

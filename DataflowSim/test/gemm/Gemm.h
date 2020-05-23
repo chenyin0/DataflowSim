@@ -1,10 +1,10 @@
 #pragma once
 #include "../../src/define/Define.hpp"
 #include "../../src/module/mem/MemSystem.h"
-//#include "../src/module/mem/Spm.h"
 #include "../../src/module/execution/Channel.h"
+#include "../../src/module/execution/Lc.h"
+#include "../../src/module/execution/Mux.h"
 #include "../../src/module/ClkSys.h"
-//#include "../src/module/execution/Lc.h"
 #include "../../src/sim/Debug.h"
 
 /*  gemm src code 
@@ -34,8 +34,10 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 
 */
 
-namespace DFSim
+namespace DFSimTest
 {
+	using namespace DFSim;
+
 	class GemmTest
 	{
 	public:
@@ -44,25 +46,33 @@ namespace DFSim
 	private:
 		static void generateData();  // Generate benchmark data
 
-		static const uint matrix_width = 500;
-		static const uint matrix_height = matrix_width;
+		static const uint matrix_width;
+		static const uint matrix_height;
+		static const uint block_size;
 
-		static vector<int> m1;
-		static vector<int> m2;
-		static vector<int> result;
+		static vector<vector<int>> m1;
+		static vector<vector<int>> m2;
+		static vector<vector<int>> result;
 	};
 
-	void GemmTest::generateData() 
-	{
-		uint size = matrix_width * matrix_height;
-		m1.resize(size);
-		m2.resize(size);
-		result.resize(size);
-
-		for (size_t i = 0; i < size; ++i)
-		{
-			m1[i] = i;
-			m2[i] = i;
-		}
-	}
+//	void GemmTest::generateData() 
+//	{
+//		uint size = matrix_width * matrix_height;
+//		m1.resize(matrix_height);
+//		m2.resize(matrix_height);
+//		result.resize(matrix_height);
+//
+//		for (size_t i = 0; i < matrix_height; ++i)
+//		{
+//			m1[i].resize(matrix_width);
+//			m2[i].resize(matrix_width);
+//			result.resize(matrix_width);
+//
+//			for (size_t j = 0; j < matrix_width; ++i)
+//			{
+//				m1[i][j] = i * matrix_width + j;
+//				m2[i][j] = i * matrix_width + j;
+//			}
+//		}
+//	}
 }

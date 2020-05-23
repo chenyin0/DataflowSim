@@ -1,6 +1,6 @@
 #include "./MemoryTest.h"
 
-using namespace DFSim;
+using namespace DFSimTest;
 
 void MemoryTest::memory_test(Debug* debug)
 {

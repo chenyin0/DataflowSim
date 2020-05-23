@@ -40,6 +40,36 @@ namespace DFSim
 			_output_file << std::endl;
 		}
 
+		// Only print the last "num" elements
+		template <typename T>
+		void vecPrint(const string name, const vector<T>& vec, const uint num)
+		{
+		}
+
+		template <>
+		void vecPrint<int>(const string name, const vector<int>& data, const uint num)  
+		{
+			_output_file << std::endl;
+			_output_file << name << ": " << std::endl;
+			uint size = data.size();
+			if (size > 0)
+			{
+				uint init_index = size - 1;
+				for (size_t i = 0; i < num; ++i)
+				{
+					if (init_index >= i)
+					{
+						_output_file << data[init_index - i] << " ";
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			_output_file << std::endl;
+		}
+
 		static void throwError(const string errorDescrip, const string fileName, const uint lineNum);
 
 	private:

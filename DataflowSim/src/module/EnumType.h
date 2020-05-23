@@ -1,8 +1,32 @@
 #pragma once
 #include "../define/Define.hpp"
+//#include "../sim/Debug.h"
 
 namespace DFSim
 {
+	enum class TestBench_name
+	{
+		SimpleFlowTest,
+		MemoryTest,
+		Gemm
+	};
+
+	class tb_name_convert
+	{
+	public:
+		static string toString(TestBench_name type_)
+		{
+			if (type_ == TestBench_name::SimpleFlowTest)
+				return "SimpleFlowTest";
+			if (type_ == TestBench_name::MemoryTest)
+				return "MemoryTest";
+			if (type_ == TestBench_name::Gemm)
+				return "Gemm";
+			//Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
+			return "";
+		}
+	};
+
 	// Cache replacement algorithm
 	enum class Cache_swap_style
 	{

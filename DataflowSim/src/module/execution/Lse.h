@@ -1,3 +1,18 @@
+/*
+Module Lse:
+
+1. Trigger mode: 
+	Applicate scenario: 
+		Inner loop executes many times then trigger outer loop execute once
+	Usage:
+		uint trig_cnt = 3;  // Define trig_cnt in the benchmark_config.cpp
+		Lse.get(isWrite, addr, &trig_cnt);  // get function decrease trig_cnt by reference &trig_cnt
+		if(trig_cnt == 0) {  // Reset trig_cnt in config.cpp
+			trig_cnt = 3;
+		}
+
+*/
+
 #pragma once
 #include "./Channel.h"
 #include "../mem/MemSystem.h"
@@ -10,6 +25,7 @@ namespace DFSim
 	{
 	public:
 		Lse(uint _size, uint _cycle, MemSystem* _memSys);
+		Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup);
 		~Lse();
 
 		void get(bool _isWrite, uint _addr);  // Load/store addr
@@ -21,6 +37,7 @@ namespace DFSim
 		void callback(MemReq _req);  // Callback func for MemSys
 
 	protected:
+		void initial();
 		bool checkUpstream() override;
 		bool push(bool _isWrite, uint _addr);  // Push memory access request into reqQueue
 		//void push(bool _isWrite, uint _addr, bool& trigger);  // Trigger mode

@@ -50,6 +50,9 @@
     <Filter Include="test\bfs">
       <UniqueIdentifier>{cb976672-f379-4342-9590-b86638b2583a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resource\output\Gemm">
+      <UniqueIdentifier>{64aae03b-8412-4afa-9b50-7f42875185f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -164,6 +167,9 @@
     </Text>
     <Text Include="resource\output\MemoryTest\memory_test.txt">
       <Filter>resource\output\MemoryTest</Filter>
+    </Text>
+    <Text Include="resource\output\Gemm\log_Base.txt">
+      <Filter>resource\output\Gemm</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

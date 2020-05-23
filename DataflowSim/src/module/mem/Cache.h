@@ -38,6 +38,11 @@ typedef unsigned char _u8;
 
 namespace DFSim
 {
+	//struct CacheReq;
+	//enum class Cache_swap_style;
+	//enum class Cache_write_strategy;
+	//enum class Cache_write_allocate;
+
 	using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict
 
 	//写内存方法就默认写回吧。

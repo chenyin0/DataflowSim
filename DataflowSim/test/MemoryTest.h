@@ -7,8 +7,10 @@
 //#include "../src/module/execution/Lc.h"
 #include "../src/sim/Debug.h"
 
-namespace DFSim
+namespace DFSimTest
 {
+	using namespace DFSim;
+
 	class MemoryTest
 	{
 	public:

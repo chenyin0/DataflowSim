@@ -6,6 +6,13 @@ using namespace DFSim;
 
 Channel::Channel(uint _size, uint _cycle) : size(_size), cycle(_cycle)
 {
+	speedup = 1;  // Default speedup = 1, signify no speedup
+	//currId = 1;  // Begin at 1
+}
+
+Channel::Channel(uint _size, uint _cycle, uint _speedup) :
+	size(_size), cycle(_cycle), speedup(_speedup)
+{
 }
 
 Channel::~Channel()
@@ -43,6 +50,16 @@ void Channel::checkConnect()
 	{
 		Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
 	}
+}
+
+void Channel::parallelize()
+{
+	// Push clkStall in parallel execution mode
+	if (currId != speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
+	{
+		ClkDomain::getInstance()->addClkStall();
+	}
+	currId = currId % speedup + 1;
 }
 
 //bool Channel::checkUpstream()
@@ -88,8 +105,14 @@ void Channel::checkConnect()
 
 
 // class ChanBase
-ChanBase::ChanBase(uint _size, uint _cycle)
-	: Channel(_size, _cycle)
+ChanBase::ChanBase(uint _size, uint _cycle) : 
+	Channel(_size, _cycle)
+{
+	initial();
+}
+
+ChanBase::ChanBase(uint _size, uint _cycle, uint _speedup) : 
+	Channel(_size, _cycle, _speedup)
 {
 	initial();
 }
@@ -346,6 +369,11 @@ void ChanBase::statusUpdate()
 	//}
 
 	bpUpdate();
+
+	if (speedup > 1)
+	{
+		parallelize();
+	}
 }
 
 bool ChanBase::checkSend(Data _data, Channel* upstream)
@@ -396,7 +424,7 @@ int ChanBase::assign()
 
 // class ChanDGSF
 ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
-	: ChanBase(_size, _cycle), speedup(_speedup)
+	: ChanBase(_size, _cycle, _speedup)
 {
 	//enable = 1;
 	currId = 1; // Id begins at 1
@@ -466,6 +494,16 @@ void ChanDGSF::sendActive()
 	}
 }
 
+void ChanDGSF::parallelize()
+{
+	// Push clkStall in parallel execution mode
+	if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
+	{
+		ClkDomain::getInstance()->addClkStall();
+	}
+	currId = currId % speedup + 1;
+}
+
 void ChanDGSF::statusUpdate()
 {
 	uint clk = ClkDomain::getInstance()->getClk();
@@ -531,12 +569,17 @@ void ChanDGSF::statusUpdate()
 
 	bpUpdate();
 
-	// Push clkStall in parallel execution mode
-	if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
+	//// Push clkStall in parallel execution mode
+	//if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
+	//{
+	//	ClkDomain::getInstance()->addClkStall();
+	//}
+	//currId = currId % speedup + 1;
+
+	if (speedup > 1)
 	{
-		ClkDomain::getInstance()->addClkStall();
+		parallelize();
 	}
-	currId = currId % speedup + 1;
 
 }
 

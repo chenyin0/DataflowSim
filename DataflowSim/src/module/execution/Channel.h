@@ -24,10 +24,14 @@ Module Channel:
 	2) for outer loop variety(lifetime = loop cycle): 
 		last cycle's valid == 1 && all the downstream has gotten a data which last == 1;
 
+7. If a channel is set to keepMode, it must has at least one inner loop downstream to clear its keepMode
+	(Inner loop's loopVar can clear the keepMode)
+
 //////////////
 Develop log:
 	
 TODO:
+	20.05.15:
 	1. Channel need add trigger signal
 	(e.g. inner loop executes many times then trigger outer loop execute once)
 
@@ -63,6 +67,7 @@ class Channel usage:
 	{
 	public:
 		Channel(uint _size, uint _cycle);
+		Channel(uint _size, uint _cycle, uint _speedup);
 		virtual ~Channel();
 		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
@@ -75,6 +80,7 @@ class Channel usage:
 		virtual void checkConnect();  // Check upstream and downstream can't be empty
 		virtual bool checkUpstream() = 0;
 		virtual void bpUpdate() = 0;
+		virtual void parallelize();  // Emulate hardware parallel loop unrolling
 
 	public:
 		deque<Data> channel;
@@ -102,6 +108,8 @@ class Channel usage:
 	protected:
 		uint size;	// Channel size
 		uint cycle; // Channel execute cycle
+		uint speedup;  // Parallelism parameter
+		int currId = 1;	// Current threadID, start at 1
 	};
 
 
@@ -114,6 +122,7 @@ class Channel usage:
 	{
 	public:
 		ChanBase(uint _size, uint _cycle);
+		ChanBase(uint _size, uint _cycle, uint _speedup);
 
 		// Channel get data from the program variable
 		virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
@@ -164,10 +173,11 @@ class ChanDGSF usage:
 	private:
 		vector<int> popChannel(bool popReady, bool popLastReady);
 		void sendActive();
+		void parallelize() override;
 
 	public:
-		uint speedup;  // Parallelism parameter
-		int currId;	// Current threadID
+		//uint speedup;  // Parallelism parameter
+		//int currId;	// Current threadID
 		bool sendActiveMode = 0;  // Current channel need to active others
 		vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
 

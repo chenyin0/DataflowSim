@@ -49,7 +49,7 @@ namespace DFSim
 		bool ready = 0;  // Signify the data has been load already
 		bool hasPushChan = 0;
 
-		uint lseId;  // Signify belongs to which Lse
+		uint lseId = 0;  // Signify belongs to which Lse
 		uint lseReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in Lse
 		uint memSysReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in memSys
 		uint spmReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in SPM

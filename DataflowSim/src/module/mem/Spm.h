@@ -13,6 +13,7 @@ TODO:
 
 namespace DFSim
 {
+	/*struct MemReq;*/
 	class Spm
 	{
 	public:
