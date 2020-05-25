@@ -86,6 +86,7 @@ class Channel usage:
 		deque<Data> channel;
 		bool bp = 0;
 		deque<bool> getLast; // Signify has gotten a data with last tag;
+		deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
 		bool valid = 0; // Only if all the consumer channels is not full, channel is valid
 		bool enable = 1;  // Active channel
 

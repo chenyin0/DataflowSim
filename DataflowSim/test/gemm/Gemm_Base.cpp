@@ -13,8 +13,8 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 	loopjj:for (jj = 0; jj < row_size; jj += block_size){
 		loopkk:for (kk = 0; kk < row_size; kk += block_size){
 			loopi:for ( i = 0; i < row_size; ++i){
+				i_row = i * row_size;  // Chan_i_row
 				loopk:for (k = 0; k < block_size; ++k){
-					i_row = i * row_size;  // Chan_i_row
 					k_row = (k  + kk) * row_size;  // Chan_k_row
 					temp_x = m1[i_row + k + kk];  // Chan_m1_addr, Lse_ld_m1, Chan_m1_getData
 					loopj:for (j = 0; j < block_size; ++j){
@@ -26,6 +26,16 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 		}
 	}
 }
+
+*/
+
+/*
+Config tips:
+
+1. 如果channel的来源是外层循环变量，则upstream来自外层的keepMode的loopIndex channel；
+	如果channel的来源是同层循环变量，则upstream来自同层的loopVar
+
+2. 即使channel的数据来源不是同层的循环变量，upstream中也要添加当前循环的loopVar，用来接收当前循环产生的last_tag
 
 */
 
@@ -50,9 +60,9 @@ void GemmTest::generateData()
 	}
 }
 
-const uint GemmTest::matrix_width = 500;
+const uint GemmTest::matrix_width = 10;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 20;
+const uint GemmTest::block_size = 5;
 
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;
@@ -170,22 +180,38 @@ void GemmTest::gemm_base(Debug* debug)
 	ChanBase* end = new ChanBase(1, 0);
 	end->noDownstream = 1;
 
-	ChanBase* chan_m1_addr = new ChanBase(16, 4);
+	// loop kk
+	ChanBase* chan_jj_relay_loop_kk = new ChanBase(16, 4);  // Relay channel in loop kk for chan_jj_lc
+	chan_jj_relay_loop_kk->keepMode = 1;
 
-	ChanBase* chan_k_row = new ChanBase(16, 4);
-	chan_k_row->keepMode = 1;
-
-	ChanBase* chan_i_row = new ChanBase(16, 4);
+	// loop i
+	ChanBase* chan_i_row = new ChanBase(160, 4);
 	chan_i_row->keepMode = 1;
 
-	ChanBase* chan_m1_getData = new ChanBase(16, 4);
+	ChanBase* chan_jj_relay_loop_i = new ChanBase(16, 4);  // Relay channel in loop i for chan_jj_lc
+	chan_jj_relay_loop_i->keepMode = 1;
+
+	ChanBase* chan_kk_relay_loop_i = new ChanBase(160, 4);  // Relay channel in loop i for chan_kk_lc
+	chan_kk_relay_loop_i->keepMode = 1;
+
+	// loop k
+	ChanBase* chan_m1_addr = new ChanBase(16, 4);
+
+	ChanBase* chan_k_row = new ChanBase(1600, 4);
+	chan_k_row->keepMode = 1;
+
+	ChanBase* chan_m1_getData = new ChanBase(1600, 4);
 	chan_m1_getData->keepMode = 1;
 
+	ChanBase* chan_jj_relay_loop_k = new ChanBase(160, 4);  // Relay channel in loop k for chan_jj_lc
+	chan_jj_relay_loop_k->keepMode = 1;
+
+	// loop j
 	ChanBase* chan_m2_addr = new ChanBase(16, 4);
 
 	ChanBase* chan_mul = new ChanBase(16, 4);
 
-	ChanBase* chan_partialSum_addr = new ChanBase(16, 4);
+	ChanBase* chan_partialSum_addr = new ChanBase(160, 4);
 	/*ChanBase* chan_partialSum_getData = new ChanBase(16, 4);*/
 
 	ChanBase* chan_partialSum = new ChanBase(16, 4);
@@ -198,13 +224,13 @@ void GemmTest::gemm_base(Debug* debug)
 
 	// Loop index channel
 	chan_jj_lc->addUpstream({ lc_jj->loopVar });
-	chan_jj_lc->addDownstream({ lc_kk->loopVar, chan_m2_addr, chan_partialSum_addr });
+	chan_jj_lc->addDownstream({ lc_kk->loopVar, /*chan_m2_addr, chan_partialSum_addr*/chan_jj_relay_loop_kk });
 
 	chan_kk_lc->addUpstream({ lc_kk->loopVar });
-	chan_kk_lc->addDownstream({ lc_i->loopVar, chan_m1_addr, chan_k_row });
+	chan_kk_lc->addDownstream({ lc_i->loopVar, /*chan_m1_addr, chan_k_row*/chan_kk_relay_loop_i });
 
 	chan_i_lc->addUpstream({ lc_i->loopVar });
-	chan_i_lc->addDownstream({ lc_k->loopVar, chan_m1_addr });
+	chan_i_lc->addDownstream({ lc_k->loopVar /*chan_m1_addr*/ /*chan_i_row*/});
 
 	chan_k_lc->addUpstream({ lc_k->loopVar });
 	chan_k_lc->addDownstream({ lc_j->loopVar/*, chan_m1_addr, chan_m2_addr */});  // Only add inner loop channels as downstream; As for same loop channel, added as loopVar's downstream
@@ -212,22 +238,38 @@ void GemmTest::gemm_base(Debug* debug)
 	//chan_j_lc->addUpstream({  });
 	//chan_j_lc->addDownstream({  });
 
-	chan_m1_addr->addUpstream({ chan_i_row, lc_k->loopVar, chan_kk_lc });
+	// loop kk
+	chan_jj_relay_loop_kk->addUpstream({ chan_jj_lc, lc_kk->loopVar });
+	chan_jj_relay_loop_kk->addDownstream({ chan_jj_relay_loop_i });
+
+	// loop i
+	chan_i_row->addUpstream({ lc_i->loopVar/*chan_i_lc*//*, lc_k->loopVar*/ });
+	chan_i_row->addDownstream({ chan_m1_addr, chan_partialSum_addr });
+
+	chan_kk_relay_loop_i->addUpstream({ chan_kk_lc, lc_i->loopVar });
+	chan_kk_relay_loop_i->addDownstream({ chan_m1_addr, chan_k_row });
+
+	chan_jj_relay_loop_i->addUpstream({ chan_jj_relay_loop_kk, lc_i->loopVar });
+	chan_jj_relay_loop_i->addDownstream({ chan_jj_relay_loop_k });
+
+	// loop k
+	chan_m1_addr->addUpstream({ chan_i_row/*chan_i_lc*/, lc_k->loopVar, /*chan_kk_lc*/chan_kk_relay_loop_i });
 	chan_m1_addr->addDownstream({ lse_ld_m1 });
 
 	lse_ld_m1->addUpstream({ chan_m1_addr });
 	lse_ld_m1->addDownstream({ chan_m1_getData });
 
 	chan_m1_getData->addUpstream({ lse_ld_m1 });
-	chan_m1_getData->addDownstream({ chan_partialSum });
+	chan_m1_getData->addDownstream({ chan_mul });
 
-	chan_i_row->addUpstream({ chan_i_lc });
-	chan_i_row->addDownstream({ chan_m1_addr, chan_partialSum_addr });
-
-	chan_k_row->addUpstream({ lc_k->loopVar, chan_kk_lc });
+	chan_k_row->addUpstream({ lc_k->loopVar, /*chan_kk_lc*/chan_kk_relay_loop_i });
 	chan_k_row->addDownstream({ chan_m2_addr });
 
-	chan_m2_addr->addUpstream({ chan_k_row, lc_j->loopVar, chan_jj_lc });
+	chan_jj_relay_loop_k->addUpstream({ chan_jj_relay_loop_i, lc_k->loopVar });
+	chan_jj_relay_loop_k->addDownstream({ chan_m2_addr, chan_partialSum_addr });
+
+	// loop j
+	chan_m2_addr->addUpstream({ chan_k_row, lc_j->loopVar, /*chan_jj_lc*/chan_jj_relay_loop_k });
 	chan_m2_addr->addDownstream({ lse_ld_m2 });
 
 	lse_ld_m2->addUpstream({ chan_m2_addr });
@@ -236,10 +278,10 @@ void GemmTest::gemm_base(Debug* debug)
 	/*chan_m2_getData->addUpstream({  });
 	chan_m2_getData->addDownstream({  });*/
 
-	chan_mul->addUpstream({ lse_ld_m1, lse_ld_m2 });
+	chan_mul->addUpstream({ chan_m1_getData, lse_ld_m2, lc_j->loopVar });
 	chan_mul->addDownstream({ chan_partialSum });
 
-	chan_partialSum_addr->addUpstream({ chan_i_row, lc_j->loopVar, chan_jj_lc });
+	chan_partialSum_addr->addUpstream({ chan_i_row, lc_j->loopVar, /*chan_jj_lc*/chan_jj_relay_loop_k });
 	chan_partialSum_addr->addDownstream({ lse_ld_partialSum });
 
 	lse_ld_partialSum->addUpstream({ chan_partialSum_addr });
@@ -256,16 +298,16 @@ void GemmTest::gemm_base(Debug* debug)
 	lc_jj->addPort({ }, { chan_jj_lc }, { lc_kk->sendEnd }, { end });
 	lc_jj->addDependence({ begin }, {});  // No loop dependence
 
-	lc_kk->addPort({ chan_jj_lc }, { chan_kk_lc }, { lc_i->sendEnd }, { lc_jj->getEnd });
+	lc_kk->addPort({ chan_jj_lc }, { chan_kk_lc, chan_jj_relay_loop_kk }, { lc_i->sendEnd }, { lc_jj->getEnd });
 	lc_kk->addDependence({}, {});  // No loop dependence
 
-	lc_i->addPort({ chan_kk_lc }, { chan_i_lc }, { lc_k->sendEnd }, { lc_kk->getEnd });
+	lc_i->addPort({ chan_kk_lc }, { chan_i_lc, chan_i_row, chan_kk_relay_loop_i, chan_jj_relay_loop_i }, { lc_k->sendEnd }, { lc_kk->getEnd });
 	lc_i->addDependence({}, {});  // No loop dependence
 
-	lc_k->addPort({ chan_i_lc }, { chan_k_lc, chan_k_row, chan_m1_addr }, { lc_j->sendEnd }, { lc_i->getEnd });
+	lc_k->addPort({ chan_i_lc }, { chan_k_lc, /*chan_i_row,*/ chan_k_row, chan_m1_addr, chan_jj_relay_loop_k }, { lc_j->sendEnd }, { lc_i->getEnd });
 	lc_k->addDependence({}, {});  // No loop dependence
 
-	lc_j->addPort({ chan_k_lc }, { /*chan_j_lc*/ chan_m2_addr, chan_partialSum_addr}, { chan_partialSum }, { lc_k->getEnd });
+	lc_j->addPort({ chan_k_lc }, { /*chan_j_lc*/ chan_m2_addr, chan_mul, chan_partialSum_addr}, { chan_partialSum }, { lc_k->getEnd });
 	lc_j->addDependence({}, {});  // No loop dependence
 
 
@@ -297,7 +339,7 @@ void GemmTest::gemm_base(Debug* debug)
 	vector<int> temp; // temp_result
 
 	// Execute
-	while (iter < 10000)
+	while (iter < 2000)
 	{
 		DFSim::ClkDomain::getInstance()->clkUpdate(); // update clk in each loop
 		int clk = DFSim::ClkDomain::getInstance()->getClk();
@@ -329,6 +371,9 @@ void GemmTest::gemm_base(Debug* debug)
 		int kk_ = lc_kk->loopVar->assign();
 		chan_kk_lc->get(kk_);
 
+		int jj_relay_lp_kk = chan_jj_lc->assign();
+		chan_jj_relay_loop_kk->get(jj_relay_lp_kk);
+
 		//** Loop Lc_i
 		i = lc_i->mux->mux(i, 0, lc_i->sel);
 		lc_i->mux->muxUpdate(lc_i->sel);
@@ -339,6 +384,16 @@ void GemmTest::gemm_base(Debug* debug)
 		// loop interface: var i
 		int i_ = lc_i->loopVar->assign();
 		chan_i_lc->get(i_);
+
+		int i_chan = chan_i_lc->assign();
+		int i_row = i_chan * matrix_height;
+		chan_i_row->get(i_row);
+
+		int kk_relay_lp_i = chan_kk_lc->assign();
+		chan_kk_relay_loop_i->get(kk_relay_lp_i);
+
+		int jj_relay_lp_i = chan_jj_relay_loop_kk->assign();
+		chan_jj_relay_loop_i->get(jj_relay_lp_i);
 
 		//** Loop Lc_k
 		k = lc_k->mux->mux(k, 0, lc_k->sel);
@@ -351,16 +406,12 @@ void GemmTest::gemm_base(Debug* debug)
 		int k_ = lc_k->loopVar->assign();
 		chan_k_lc->get(k_);
 
-		int i_chan = chan_i_lc->assign();
-		int i_row = i_chan * matrix_height;
-		chan_i_row->get(i_row);
-
 		int k_var = lc_k->loopVar->assign();
-		int kk_chan = chan_kk_lc->assign();
-		int k_row = (k_var + kk_chan) * matrix_height;
+		int kk_chan_relay_lp_i = chan_kk_relay_loop_i->assign();
+		int k_row = (k_var + kk_chan_relay_lp_i) * matrix_height;
 		chan_k_row->get(k_row);
 
-		int m1_addr_chan = i_row + k_var + kk_chan;
+		int m1_addr_chan = i_row + k_var + kk_chan_relay_lp_i;
 		chan_m1_addr->get(m1_addr_chan);
 
 		uint m1_addr_lse = chan_m1_addr->assign();
@@ -371,6 +422,9 @@ void GemmTest::gemm_base(Debug* debug)
 		uint m1_colId = m1_addr_ack % matrix_width;
 		int m1_data = m1[m1_rowId][m1_colId];
 		chan_m1_getData->get(m1_data);
+
+		int jj_relay_loop_k = chan_jj_relay_loop_i->assign();
+		chan_jj_relay_loop_k->get(jj_relay_loop_k);
 
 		//** Loop Lc_j
 		j = lc_j->mux->mux(j, 0, lc_j->sel);
@@ -385,9 +439,9 @@ void GemmTest::gemm_base(Debug* debug)
 
 		int k_row_lc_j = chan_k_row->assign();
 		int j_ = lc_j->loopVar->assign();
-		int jj_lc_j = chan_jj_lc->assign();
+		int jj_chan_relay_lp_j = chan_jj_relay_loop_k->assign();
 
-		uint m2_addr_chan = k_row_lc_j + j_ + jj_lc_j;
+		uint m2_addr_chan = k_row_lc_j + j_ + jj_chan_relay_lp_j;
 		chan_m2_addr->get(m2_addr_chan);
 
 		uint m2_addr_lse = chan_m2_addr->assign();
@@ -403,8 +457,11 @@ void GemmTest::gemm_base(Debug* debug)
 		chan_mul->get(mul_data);
 
 		int i_row_lc_j = chan_i_row->assign();
-		uint partialSum_addr = i_row_lc_j + j_ + jj_lc_j;
-		lse_ld_partialSum->get(false, partialSum_addr);
+		uint partialSum_addr = i_row_lc_j + j_ + jj_chan_relay_lp_j;
+		chan_partialSum_addr->get(partialSum_addr);
+
+		uint partialSum_addr_chan = chan_partialSum_addr->assign();
+		lse_ld_partialSum->get(false, partialSum_addr_chan);
 
 		uint partialSum_addr_ack = lse_ld_partialSum->assign();
 		uint partialSum_rowId = partialSum_addr_ack / matrix_width;
@@ -415,7 +472,7 @@ void GemmTest::gemm_base(Debug* debug)
 		int partialSum_data_update = partialSum_data + mul_data_chan;
 		temp = chan_partialSum->get(partialSum_data_update);
 
-		lse_st_partialSum->get(false, partialSum_addr);
+		lse_st_partialSum->get(true, partialSum_addr);
 
 		if (temp[2])
 		{
@@ -426,59 +483,102 @@ void GemmTest::gemm_base(Debug* debug)
 		memSys->MemSystemUpdate();
 
 		//** Print log
-		debug->getFile() << std::endl;
-		debug->getFile() << "Loop index jj: " << jj_ << std::endl;
-		debug->getFile() << "Loop index kk: " << kk_ << std::endl;
-		debug->getFile() << "Loop index i: " << i_ << std::endl;
-		debug->getFile() << "Loop index k: " << k_ << std::endl;
-		debug->getFile() << "Loop index j: " << j_ << std::endl;
+		// Set debug mode
+		//debug->debug_mode = Debug_mode::print_detail;
+		//debug->debug_mode = Debug_mode::turn_off;
 
-		debug->getFile() << "Loop index jj: " << jj_lc_j << std::endl;
-		debug->getFile() << "Loop index kk: " << kk_chan << std::endl;
-		debug->getFile() << "Loop index i: " << i_chan << std::endl;
-		debug->getFile() << "Loop index k: " << chan_k_lc->assign() << std::endl;
-		debug->getFile() << "Loop index j: " << j_ << std::endl;
+		//if (iter > 143030)
+		//{
+			//debug->getFile() << std::endl;
+			//debug->getFile() << "Loop index jj: " << jj_ << std::endl;
+			//debug->getFile() << "Loop index kk: " << kk_ << std::endl;
+			//debug->getFile() << "Loop index i: " << i_ << std::endl;
+			//debug->getFile() << "Loop index k: " << k_ << std::endl;
+			//debug->getFile() << "Loop index j: " << j_ << std::endl;
 
-		debug->vecPrint("Result", res, 15);
+			debug->getFile() << std::endl;
+			debug->getFile() << "Loop index jj: " << jj_chan_relay_lp_j << std::endl;  // Inner most relay channel
+			debug->getFile() << "Loop index kk: " << kk_chan_relay_lp_i << std::endl;  // Inner most relay channel
+			debug->getFile() << "Loop index i: " << i_chan << std::endl;
+			debug->getFile() << "Loop index k: " << chan_k_lc->assign() << std::endl;
+			debug->getFile() << "Loop index j: " << j_ << std::endl;
 
-		//debug->chanPrint("begin", begin);
-		//debug->chanPrint("lc_jj->loopVar", lc_jj->loopVar);
-		//debug->chanPrint("chan_jj_lc", chan_jj_lc);
-		//debug->chanPrint("lc_kk->loopVar", lc_kk->loopVar);
-		//debug->chanPrint("chan_kk_lc", chan_kk_lc);
-		//debug->chanPrint("lc_i->loopVar", lc_i->loopVar);
-		//debug->chanPrint("chan_i_lc", chan_i_lc);
-		//debug->chanPrint("lc_k->loopVar", lc_k->loopVar);
-		//debug->chanPrint("chan_k_lc", chan_k_lc);
-		//debug->chanPrint("lc_j->loopVar", lc_j->loopVar);
-		///*debug->chanPrint("chan_j_lc", chan_j_lc);*/
+			debug->vecPrint("Result", res, 15);
 
-		//debug->chanPrint("chan_m1_addr", chan_m1_addr);
-		//debug->chanPrint("chan_k_row", chan_k_row);
-		//debug->chanPrint("chan_i_row", chan_i_row);
-		//debug->chanPrint("lse_ld_m1", lse_ld_m1);
-		//debug->chanPrint("chan_m1_getData", chan_m1_getData);
-		//debug->chanPrint("chan_m2_addr", chan_m2_addr);
-		//debug->chanPrint("lse_ld_m2", lse_ld_m2);
-		//debug->chanPrint("chan_mul", chan_mul);
-		//debug->chanPrint("chan_partialSum_addr", chan_partialSum_addr);
-		//debug->chanPrint("lse_ld_partialSum", lse_ld_partialSum);
-		//debug->chanPrint("chan_partialSum", chan_partialSum);
+			debug->chanPrint("begin", begin);
+		/*	debug->chanPrint("lc_jj->loopVar", lc_jj->loopVar);
+			debug->chanPrint("chan_jj_lc", chan_jj_lc);
+			debug->chanPrint("lc_kk->loopVar", lc_kk->loopVar);
+			debug->chanPrint("chan_kk_lc", chan_kk_lc);
+			debug->chanPrint("lc_i->loopVar", lc_i->loopVar);
+			debug->chanPrint("chan_i_lc", chan_i_lc);
+			debug->chanPrint("lc_k->loopVar", lc_k->loopVar);
+			debug->chanPrint("chan_k_lc", chan_k_lc);
+			debug->chanPrint("lc_j->loopVar", lc_j->loopVar);*/
 
-		//debug->chanPrint("lc_j->getEnd", lc_j->getEnd);
-		//debug->chanPrint("lc_j->sendEnd", lc_j->sendEnd);
-		//debug->chanPrint("lc_k->getEnd", lc_k->getEnd);
-		//debug->chanPrint("lc_k->sendEnd", lc_k->sendEnd);
-		//debug->chanPrint("lc_i->getEnd", lc_i->getEnd);
-		//debug->chanPrint("lc_i->sendEnd", lc_i->sendEnd);
-		//debug->chanPrint("lc_kk->getEnd", lc_kk->getEnd);
-		//debug->chanPrint("lc_kk->sendEnd", lc_kk->sendEnd);
-		//debug->chanPrint("lc_jj->getEnd", lc_jj->getEnd);
-		//debug->chanPrint("lc_jj->sendEnd", lc_jj->sendEnd);
+			// loop jj
+			debug->chanPrint("lc_jj->loopVar", lc_jj->loopVar);
+			debug->chanPrint("chan_jj_lc", chan_jj_lc);
+			// loop kk
+			debug->chanPrint("lc_kk->loopVar", lc_kk->loopVar);
+			debug->chanPrint("chan_kk_lc", chan_kk_lc);
+			debug->chanPrint("chan_jj_relay_loop_kk", chan_jj_relay_loop_kk);
+			// loop i
+			debug->chanPrint("lc_i->loopVar", lc_i->loopVar);
+			debug->chanPrint("chan_i_lc", chan_i_lc);
+			debug->chanPrint("chan_i_row", chan_i_row);
+			debug->chanPrint("chan_jj_relay_loop_i", chan_jj_relay_loop_i);
+			debug->chanPrint("chan_kk_relay_loop_i", chan_kk_relay_loop_i);
+			// loop k
+			debug->chanPrint("lc_k->loopVar", lc_k->loopVar);
+			debug->chanPrint("chan_k_lc", chan_k_lc);
+			debug->chanPrint("chan_m1_addr", chan_m1_addr);
+			debug->chanPrint("chan_k_row", chan_k_row);
+			debug->lsePrint("lse_ld_m1", lse_ld_m1);
+			debug->chanPrint("chan_m1_getData", chan_m1_getData);
+			debug->chanPrint("chan_jj_relay_loop_k", chan_jj_relay_loop_k);
+			// loop j
+			debug->chanPrint("lc_j->loopVar", lc_j->loopVar);
+			debug->chanPrint("chan_m2_addr", chan_m2_addr);
+			debug->lsePrint("lse_ld_m2", lse_ld_m2);
+			debug->chanPrint("chan_mul", chan_mul);
+			debug->chanPrint("chan_partialSum_addr", chan_partialSum_addr);
+			debug->lsePrint("lse_ld_partialSum", lse_ld_partialSum);
+			debug->chanPrint("chan_partialSum", chan_partialSum);
 
-		//debug->chanPrint("end", end);
+			//debug->chanPrint("lc_j->getEnd", lc_j->getEnd);
+			//debug->chanPrint("lc_j->sendEnd", lc_j->sendEnd);
+			//debug->chanPrint("lc_k->getEnd", lc_k->getEnd);
+			//debug->chanPrint("lc_k->sendEnd", lc_k->sendEnd);
+			//debug->chanPrint("lc_i->getEnd", lc_i->getEnd);
+			//debug->chanPrint("lc_i->sendEnd", lc_i->sendEnd);
+			//debug->chanPrint("lc_kk->getEnd", lc_kk->getEnd);
+			//debug->chanPrint("lc_kk->sendEnd", lc_kk->sendEnd);
+			//debug->chanPrint("lc_jj->getEnd", lc_jj->getEnd);
+			//debug->chanPrint("lc_jj->sendEnd", lc_jj->sendEnd);
 
-		//debug->memSysPrint(memSys);
+			//debug->chanPrint("end", end);
+
+			//debug->memSysPrint(memSys);
+		/*}*/
+
+		if (!end->channel.empty())
+		{
+			std::cout << std::endl;
+			std::cout << "Arch: " << xstr(ARCH) << std::endl;
+			std::cout << "*******************************" << std::endl;
+			std::cout << "Execution finished succussfully" << std::endl;
+			std::cout << "*******************************" << std::endl;
+			std::cout << "Total Cycle: " << clk << std::endl;
+
+			debug->getFile() << std::endl;
+			debug->getFile() << "*******************************" << std::endl;
+			debug->getFile() << "Execution finished succussfully" << std::endl;
+			debug->getFile() << "*******************************" << std::endl;
+			debug->getFile() << "Total Cycle: " << clk << std::endl;
+
+			break;
+		}
 
 		++iter;
 	}

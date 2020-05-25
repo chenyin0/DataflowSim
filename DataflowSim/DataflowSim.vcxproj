@@ -162,7 +162,7 @@
     <ClCompile Include="test\MemoryTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resource\output\Gemm\log_Base.txt" />
+    <Text Include="resource\output\Gemm\Gemm_log_Base.txt" />
     <Text Include="resource\output\MemoryTest\memory_test.txt" />
     <Text Include="resource\output\SimpleFlowTest\log.txt" />
     <Text Include="resource\output\SimpleFlowTest\log_Base.txt" />

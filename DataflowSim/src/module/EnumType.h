@@ -27,6 +27,12 @@ namespace DFSim
 		}
 	};
 
+	enum class Debug_mode
+	{
+		turn_off,
+		print_detail
+	};
+
 	// Cache replacement algorithm
 	enum class Cache_swap_style
 	{

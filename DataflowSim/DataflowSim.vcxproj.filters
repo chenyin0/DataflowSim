@@ -168,7 +168,7 @@
     <Text Include="resource\output\MemoryTest\memory_test.txt">
       <Filter>resource\output\MemoryTest</Filter>
     </Text>
-    <Text Include="resource\output\Gemm\log_Base.txt">
+    <Text Include="resource\output\Gemm\Gemm_log_Base.txt">
       <Filter>resource\output\Gemm</Filter>
     </Text>
   </ItemGroup>

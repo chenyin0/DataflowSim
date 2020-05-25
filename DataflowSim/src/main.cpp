@@ -180,7 +180,7 @@ int main()
 	TestBench_name tb_name = TestBench_name::Gemm;
 	ArchType arch = ArchType::Base;
 
-	DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/") + tb_name_convert::toString(tb_name) + string("/log_") + string(xstr(ARCH)) + string(".txt"));
+	DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
 	//DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
 

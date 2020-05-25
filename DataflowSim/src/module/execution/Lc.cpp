@@ -100,6 +100,13 @@ void Lc::loopUpdate()
 	if (!loopVar->channel.empty() && sel == 0)
 	{
 		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
+		//loopVar->produceLast.push_back(1);
+	}
+
+	// Only when a loopVar pops out a data with last tag, push a flag into produceLast queue 
+	if (loopVar->valid && loopVar->channel.front().last)
+	{
+		loopVar->produceLast.push_back(1);
 	}
 
 	if (!loopVar->getLast.empty())
@@ -111,7 +118,14 @@ void Lc::loopUpdate()
 
 void Lc::selUpdate(bool newSel)
 {
-	if (this->mux->muxSuccess)
+	//if (this->mux->muxSuccess)
+	//{
+	//	sel = newSel;
+	//}
+
+	// 1) MuxSuccess is true: a new data will be pushed into loopVar;
+	// 2) loopVar->valid && loopVar->channel.size()>=2: loopVar is going to pop out the front data, and there is still another data in the channel;
+	if (this->mux->muxSuccess || !loopVar->channel.empty())
 	{
 		sel = newSel;
 	}
@@ -157,6 +171,12 @@ void LcDGSF::loopUpdate()
 	if (!loopVar->channel.empty() && sel == 0)
 	{
 		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
+	}
+
+	// Only when a loopVar pops out a data with last tag, push a flag into produceLast queue 
+	if (loopVar->valid && loopVar->channel.front().last)
+	{
+		loopVar->produceLast.push_back(1);
 	}
 
 	// When 1)loopNum = graphSize, or 2)current loop is over, set graphSwitch to 1

@@ -72,6 +72,10 @@ namespace DFSim
 
 		static void throwError(const string errorDescrip, const string fileName, const uint lineNum);
 
+
+	public:
+		Debug_mode debug_mode = Debug_mode::print_detail;
+
 	private:
 		std::ofstream _output_file;
 	};

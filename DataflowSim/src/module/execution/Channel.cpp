@@ -220,11 +220,33 @@ bool ChanBase::popLastCheck()
 
 	if (!noDownstream && keepMode)
 	{
+		//// If the only downstream is inner loop's loopVar, pop data when the loopVar produce last tag
+		//if(downstream.size() == 1 && downstream[0]->isLoopVar)  
+		//{
+		//	if (downstream[0]->produceLast.empty())
+		//	{
+		//		popLastReady = 0;
+		//	}
+		//}
+		//else
+		//{
+		//	for (auto channel : downstream)
+		//	{
+		//		// If only one of the downstream channel set last, the data can not be poped
+		//		// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+		//		if (/*!channel->isCond*/ !channel->isLoopVar && channel->getLast.empty())
+		//		{
+		//			popLastReady = 0;
+		//			break;
+		//		}
+		//	}
+		//}
+
 		for (auto channel : downstream)
 		{
 			// If only one of the downstream channel set last, the data can not be poped
-			// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-			if (/*!channel->isCond*/ !channel->isLoopVar && channel->getLast.empty())
+			// If the channel is loopVar, check produceLast queue; else check getLast queue;
+			if ((channel->isLoopVar && channel->produceLast.empty()) || (!channel->isLoopVar && channel->getLast.empty()))
 			{
 				popLastReady = 0;
 				break;
@@ -246,7 +268,7 @@ vector<int> ChanBase::popChannel(bool popReady, bool popLastReady)
 		channel.pop_front();
 		popSuccess = 1;
 		popData = data.value;
-		lastPopVal = data.value;  // For LC->cond, record last pop data when the channel pop empty
+		lastPopVal = data.value;  // For LC->loopVar, record last pop data when the channel pop empty
 
 		// Clear the last flags of downstreams
 		if (keepMode)
@@ -254,9 +276,17 @@ vector<int> ChanBase::popChannel(bool popReady, bool popLastReady)
 			for (auto& channel : downstream)
 			{
 				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-				if (/*!channel->isCond*/ !channel->isLoopVar)
+				if (!channel->isLoopVar)
 				{
 					channel->getLast.pop_front();
+				}
+				else
+				{
+					// If it is a loopVar, pop produceLast queue
+					if (!channel->produceLast.empty())
+					{
+						channel->produceLast.pop_front();
+					}
 				}
 			}
 		}
@@ -461,6 +491,14 @@ vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
 				if (/*!channel->isCond*/ !channel->isLoopVar)
 				{
 					channel->getLast.pop_front();
+				}
+				else
+				{
+					// If it is a loopVar, pop produceLast queue
+					if (!channel->produceLast.empty())
+					{
+						channel->produceLast.pop_front();
+					}
 				}
 			}
 		}
@@ -797,6 +835,14 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
 				{
 					channel->getLast.pop_front();
 				}
+				else
+				{
+					// If it is a loopVar, pop produceLast queue
+					if (!channel->produceLast.empty())
+					{
+						channel->produceLast.pop_front();
+					}
+				}
 			}
 		}
 	}
@@ -911,6 +957,10 @@ void ChanSGMF::pushChannel(int _data, uint chanId, uint _tag)
 		// Push getLast
 		if (data.last)
 			getLast.push_back(1);
+		//if (!keepMode && data.last)
+		//{
+		//	getLast.push_back(1);
+		//}
 
 		if (branchMode)
 		{
