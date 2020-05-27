@@ -1,4 +1,5 @@
 #include "Lc.h"
+#include "../Registry.h"
 
 using namespace DFSim;
 
@@ -10,14 +11,16 @@ Lc::Lc(ChanBase* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, Mux* _mux)
 
 Lc::~Lc()
 {
-	delete getEnd;
-	delete sendEnd;
-	delete loopVar;
-	delete mux;
+	//delete getEnd;
+	//delete sendEnd;
+	//delete loopVar;
+	//delete mux;
 }
 
 void Lc::init()
 {
+	moduleId = Registry::registerLc(this);
+
 	getEnd->noDownstream = 1;
 	getEnd->downstream = { nullptr };
 
@@ -103,10 +106,11 @@ void Lc::loopUpdate()
 		//loopVar->produceLast.push_back(1);
 	}
 
-	// Only when a loopVar pops out a data with last tag, push a flag into produceLast queue 
+	// Only when a loopVar pops out a data with last tag, send lastTag to each upstream channel in keepMode
 	if (loopVar->valid && loopVar->channel.front().last)
 	{
-		loopVar->produceLast.push_back(1);
+		//loopVar->produceLast.push_back(1);
+		loopVar->sendLastTag();
 	}
 
 	if (!loopVar->getLast.empty())
@@ -151,7 +155,7 @@ LcDGSF::LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _
 
 LcDGSF::~LcDGSF()
 {
-	delete loopVar;
+	//delete loopVar;
 }
 
 void LcDGSF::loopUpdate()
@@ -173,10 +177,11 @@ void LcDGSF::loopUpdate()
 		loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
 	}
 
-	// Only when a loopVar pops out a data with last tag, push a flag into produceLast queue 
+	// Only when a loopVar pops out a data with last tag, send lastTag to each upstream channel in keepMode 
 	if (loopVar->valid && loopVar->channel.front().last)
 	{
-		loopVar->produceLast.push_back(1);
+		//loopVar->produceLast.push_back(1);
+		loopVar->sendLastTag();
 	}
 
 	// When 1)loopNum = graphSize, or 2)current loop is over, set graphSwitch to 1
@@ -213,8 +218,8 @@ LcSGMF::LcSGMF(ChanSGMF* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, MuxSGM
 
 LcSGMF::~LcSGMF()
 {
-	delete loopVar;
-	delete mux;
+	//delete loopVar;
+	//delete mux;
 }
 
 //void LcSGMF::loopUpdate()

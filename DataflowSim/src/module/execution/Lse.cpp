@@ -23,7 +23,11 @@ Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup) :
 
 Lse::~Lse()
 {
-	delete memSys;
+	//if (memSys != nullptr)
+	//{
+	//	delete memSys;
+	//}
+	memSys = nullptr;  // Destruct memorySystem in the destructor of class MemSystem
 }
 
 void Lse::initial()
@@ -112,6 +116,12 @@ void Lse::pushReqQ(bool _isWrite, uint _addr)
 		data.last |= channel->channel.front().last;
 		data.lastOuter |= channel->channel.front().lastOuter;
 		data.graphSwitch |= channel->channel.front().graphSwitch;
+	}
+
+	// Send lastTag to each upstream channel in keepMode
+	if (data.last)
+	{
+		sendLastTag();
 	}
 
 	MemReq req;

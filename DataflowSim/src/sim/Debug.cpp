@@ -30,11 +30,11 @@ void Debug::chanPrint(const string name, const Channel* channel)
 		_output_file << "getLast: " << !channel->getLast.empty();
 		_output_file << "  ";
 		_output_file << "en: " << channel->enable; /*<< std::endl;*/
-		if (channel->isLoopVar)
-		{
-			_output_file << "  ";
-			_output_file << "prodLast: " << !channel->produceLast.empty();
-		}
+		//if (channel->isLoopVar)
+		//{
+		//	_output_file << "  ";
+		//	_output_file << "prodLast: " << !channel->produceLast.empty();
+		//}
 		_output_file << std::endl;
 
 		for (auto i : channel->channel)

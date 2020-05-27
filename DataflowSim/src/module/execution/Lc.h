@@ -51,6 +51,7 @@ namespace DFSim
 
 	private:
 	public:
+		uint moduleId;
 		bool sel = 0;  // Sel for loop control, default set to select initial value
 		uint loopNum = 0; // loop number
 		uint loopEnd = 0; // the number of finished loop

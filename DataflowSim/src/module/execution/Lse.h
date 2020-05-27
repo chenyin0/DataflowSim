@@ -11,6 +11,8 @@ Module Lse:
 			trig_cnt = 3;
 		}
 
+2. Lse can't be configured in keepMode!
+
 */
 
 #pragma once

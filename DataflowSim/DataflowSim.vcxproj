@@ -139,6 +139,7 @@
     <ClInclude Include="src\module\mem\Cache.h" />
     <ClInclude Include="src\module\mem\MemSystem.h" />
     <ClInclude Include="src\module\mem\Spm.h" />
+    <ClInclude Include="src\module\Registry.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\util.hpp" />
     <ClInclude Include="test\gemm\Gemm.h" />
@@ -157,6 +158,7 @@
     <ClCompile Include="src\module\mem\Cache.cpp" />
     <ClCompile Include="src\module\mem\MemSystem.cpp" />
     <ClCompile Include="src\module\mem\Spm.cpp" />
+    <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\MemoryTest.cpp" />

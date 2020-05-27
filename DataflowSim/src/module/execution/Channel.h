@@ -69,12 +69,14 @@ class Channel usage:
 		Channel(uint _size, uint _cycle);
 		Channel(uint _size, uint _cycle, uint _speedup);
 		virtual ~Channel();
+		void initial();
 		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
 		virtual bool checkSend(Data _data, Channel* upstream) = 0;
 		//virtual bool checkSend(Data _data, Channel* _upstream) { return 0; }
 		virtual void statusUpdate() = 0;
 		//virtual int assign();
+		virtual void sendLastTag();  // Send last tag to all the upstream channels in keepMode
 
 	protected:
 		virtual void checkConnect();  // Check upstream and downstream can't be empty
@@ -83,10 +85,12 @@ class Channel usage:
 		virtual void parallelize();  // Emulate hardware parallel loop unrolling
 
 	public:
+		uint moduleId;  // RegisterTable Id
 		deque<Data> channel;
 		bool bp = 0;
+		vector<pair<uint, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
 		deque<bool> getLast; // Signify has gotten a data with last tag;
-		deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
+		//deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
 		bool valid = 0; // Only if all the consumer channels is not full, channel is valid
 		bool enable = 1;  // Active channel
 
@@ -216,6 +220,7 @@ class ChanSGMF usage:
 
 		void statusUpdate() override;
 		bool checkSend(Data _data, Channel* _upstream) override;
+		virtual void sendLastTag() override;
 
 	public:
 		vector<deque<Data>> chanBundle;  // channel[0]: Din1, channel[1]: Din2

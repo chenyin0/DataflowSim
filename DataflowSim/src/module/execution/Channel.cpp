@@ -1,6 +1,7 @@
 #include "Channel.h"
 #include "../ClkSys.h"
 #include "../../sim/Debug.h"
+#include "../Registry.h"
 
 using namespace DFSim;
 
@@ -8,23 +9,33 @@ Channel::Channel(uint _size, uint _cycle) : size(_size), cycle(_cycle)
 {
 	speedup = 1;  // Default speedup = 1, signify no speedup
 	//currId = 1;  // Begin at 1
+	initial();
 }
 
 Channel::Channel(uint _size, uint _cycle, uint _speedup) :
 	size(_size), cycle(_cycle), speedup(_speedup)
 {
+	initial();
+}
+
+void Channel::initial()
+{
+	// Register itself in the registerTable
+	moduleId = Registry::registerChan(this);
 }
 
 Channel::~Channel()
 {
 	for (auto& chan : upstream)
 	{
-		delete chan;
+		//delete chan;
+		chan = nullptr;
 	}
 
 	for (auto& chan : downstream)
 	{
-		delete chan;
+		//delete chan;
+		chan = nullptr;
 	}
 }
 
@@ -60,6 +71,23 @@ void Channel::parallelize()
 		ClkDomain::getInstance()->addClkStall();
 	}
 	currId = currId % speedup + 1;
+}
+
+void Channel::sendLastTag()
+{
+	for (auto& chan : upstream)
+	{
+		if (chan->keepMode)
+		{
+			for (auto& queue : chan->lastTagQueue)
+			{
+				if (queue.first == this->moduleId)
+				{
+					queue.second.push_back(1);
+				}
+			}
+		}
+	}
 }
 
 //bool Channel::checkUpstream()
@@ -168,9 +196,15 @@ void ChanBase::pushChannel(int _data)
 		// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
 		for (auto channel : upstream)
 		{
-			// loopVar not receive last, only receive lastOuter
+			//// loopVar not receive last, only receive lastOuter
+			//// Due to a channel in keepMode may repeatly send a data with a last for many times
+			//if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			//{
+			//	data.last |= channel->channel.front().last;
+			//}
+
 			// Due to a channel in keepMode may repeatly send a data with a last for many times
-			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			if (channel->keepMode == 0)
 			{
 				data.last |= channel->channel.front().last;
 			}
@@ -178,9 +212,23 @@ void ChanBase::pushChannel(int _data)
 			data.graphSwitch |= channel->channel.front().graphSwitch;
 		}
 
-		// Push getLast
+		//// Push getLast
+		//if (data.last)
+		//	getLast.push_back(1);
+
+		// Send lastTag to each upstream channel in keepMode
 		if (data.last)
-			getLast.push_back(1);
+		{
+			if (isLoopVar)
+			{
+				data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
+				getLast.push_back(1);
+			}
+			else
+			{
+				sendLastTag();
+			}
+		}	
 
 		if (branchMode)
 		{
@@ -242,11 +290,20 @@ bool ChanBase::popLastCheck()
 		//	}
 		//}
 
-		for (auto channel : downstream)
+		//for (auto channel : downstream)
+		//{
+		//	// If only one of the downstream channel set last, the data can not be poped
+		//	// If the channel is loopVar, check produceLast queue; else check getLast queue;
+		//	if ((channel->isLoopVar && channel->produceLast.empty()) || (!channel->isLoopVar && channel->getLast.empty()))
+		//	{
+		//		popLastReady = 0;
+		//		break;
+		//	}
+		//}
+
+		for (auto& queue : lastTagQueue)
 		{
-			// If only one of the downstream channel set last, the data can not be poped
-			// If the channel is loopVar, check produceLast queue; else check getLast queue;
-			if ((channel->isLoopVar && channel->produceLast.empty()) || (!channel->isLoopVar && channel->getLast.empty()))
+			if (queue.second.empty())
 			{
 				popLastReady = 0;
 				break;
@@ -270,24 +327,33 @@ vector<int> ChanBase::popChannel(bool popReady, bool popLastReady)
 		popData = data.value;
 		lastPopVal = data.value;  // For LC->loopVar, record last pop data when the channel pop empty
 
-		// Clear the last flags of downstreams
+		//// Clear the last flags of downstreams
+		//if (keepMode)
+		//{
+		//	for (auto& channel : downstream)
+		//	{
+		//		// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+		//		if (!channel->isLoopVar)
+		//		{
+		//			channel->getLast.pop_front();
+		//		}
+		//		else
+		//		{
+		//			// If it is a loopVar, pop produceLast queue
+		//			if (!channel->produceLast.empty())
+		//			{
+		//				channel->produceLast.pop_front();
+		//			}
+		//		}
+		//	}
+		//}
+
+		// Clear the last tag of lastTagQueue
 		if (keepMode)
 		{
-			for (auto& channel : downstream)
+			for (auto& queue : lastTagQueue)
 			{
-				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-				if (!channel->isLoopVar)
-				{
-					channel->getLast.pop_front();
-				}
-				else
-				{
-					// If it is a loopVar, pop produceLast queue
-					if (!channel->produceLast.empty())
-					{
-						channel->produceLast.pop_front();
-					}
-				}
+				queue.second.pop_front();  // Pop out a lastTag
 			}
 		}
 	}
@@ -465,7 +531,8 @@ ChanDGSF::~ChanDGSF()
 {
 	for (auto& chan : activeStream)
 	{
-		delete chan;
+		//delete chan;
+		chan = nullptr;
 	}
 }
 
@@ -482,24 +549,33 @@ vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
 		popData = data.value;
 		lastPopVal = data.value;
 
-		// Clear the last flags of downstreams
+		//// Clear the last flags of downstreams
+		//if (keepMode)
+		//{
+		//	for (auto& channel : downstream)
+		//	{
+		//		// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+		//		if (/*!channel->isCond*/ !channel->isLoopVar)
+		//		{
+		//			channel->getLast.pop_front();
+		//		}
+		//		else
+		//		{
+		//			// If it is a loopVar, pop produceLast queue
+		//			if (!channel->produceLast.empty())
+		//			{
+		//				channel->produceLast.pop_front();
+		//			}
+		//		}
+		//	}
+		//}
+
+		// Clear the last tag of lastTagQueue
 		if (keepMode)
 		{
-			for (auto& channel : downstream)
+			for (auto& queue : lastTagQueue)
 			{
-				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-				if (/*!channel->isCond*/ !channel->isLoopVar)
-				{
-					channel->getLast.pop_front();
-				}
-				else
-				{
-					// If it is a loopVar, pop produceLast queue
-					if (!channel->produceLast.empty())
-					{
-						channel->produceLast.pop_front();
-					}
-				}
+				queue.second.pop_front();  // Pop out a lastTag
 			}
 		}
 
@@ -641,7 +717,8 @@ ChanSGMF::~ChanSGMF()
 	{
 		for (auto& chan : upstream)
 		{
-			delete chan;
+			//delete chan;
+			chan = nullptr;
 		}
 	}
 }
@@ -825,24 +902,33 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
 		popData = data.value;
 		lastPopVal = data.value;  // For LC->cond, record last pop data when the channel pop empty
 
-		// Clear the last flags of downstreams
+		//// Clear the last flags of downstreams
+		//if (keepMode)
+		//{
+		//	for (auto& channel : downstream)
+		//	{
+		//		// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+		//		if (/*!channel->isCond*/ !channel->isLoopVar)
+		//		{
+		//			channel->getLast.pop_front();
+		//		}
+		//		else
+		//		{
+		//			// If it is a loopVar, pop produceLast queue
+		//			if (!channel->produceLast.empty())
+		//			{
+		//				channel->produceLast.pop_front();
+		//			}
+		//		}
+		//	}
+		//}
+
+		// Clear the last tag of lastTagQueue
 		if (keepMode)
 		{
-			for (auto& channel : downstream)
+			for (auto& queue : lastTagQueue)
 			{
-				// lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-				if (/*!channel->isCond*/ !channel->isLoopVar)
-				{
-					channel->getLast.pop_front();
-				}
-				else
-				{
-					// If it is a loopVar, pop produceLast queue
-					if (!channel->produceLast.empty())
-					{
-						channel->produceLast.pop_front();
-					}
-				}
+				queue.second.pop_front();  // Pop out a lastTag
 			}
 		}
 	}
@@ -946,7 +1032,12 @@ void ChanSGMF::pushChannel(int _data, uint chanId, uint _tag)
 		// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
 		for (auto& channel : upstreamBundle[chanId])
 		{
-			if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			//if (/*!isCond*/ !isLoopVar && channel->keepMode == 0)
+			//{
+			//	data.last |= channel->channel.front().last;
+			//}
+
+			if (channel->keepMode == 0)
 			{
 				data.last |= channel->channel.front().last;
 			}
@@ -954,13 +1045,27 @@ void ChanSGMF::pushChannel(int _data, uint chanId, uint _tag)
 			//data.graphSwitch |= channel->channel.front().graphSwitch;
 		}
 
-		// Push getLast
-		if (data.last)
-			getLast.push_back(1);
+		//// Push getLast
+		//if (data.last)
+		//	getLast.push_back(1);
 		//if (!keepMode && data.last)
 		//{
 		//	getLast.push_back(1);
 		//}
+
+		// Send lastTag to each upstream channel in keepMode
+		if (data.last)
+		{
+			if (isLoopVar)
+			{
+				data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
+				getLast.push_back(1);
+			}
+			else
+			{
+				sendLastTag();
+			}
+		}
 
 		if (branchMode)
 		{
@@ -1208,6 +1313,26 @@ bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
 	}
 
 	return sendable;
+}
+
+void ChanSGMF::sendLastTag()
+{
+	for (auto& upstream : upstreamBundle)
+	{
+		for (auto& chan : upstream)
+		{
+			if (chan->keepMode)
+			{
+				for (auto& queue : chan->lastTagQueue)
+				{
+					if (queue.first == this->moduleId)
+					{
+						queue.second.push_back(1);
+					}
+				}
+			}
+		}
+	}
 }
 
 // In SGMF mode, interface func assign is to get value of corresponding channel by chanId (e.g. Din1, Din2)

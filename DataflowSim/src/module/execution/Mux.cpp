@@ -1,11 +1,14 @@
 #include "./Mux.h"
 #include "../../util/util.hpp"
+#include "../Registry.h"
 
 using namespace DFSim;
 
 Mux::Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan) :
 	trueChan(_trueChan), falseChan(_falseChan), outChan(_outChan)
 {
+	moduleId = Registry::registerMux(this);
+
 	trueChan->noDownstream = 1;
 	falseChan->noDownstream = 1;
 	outChan->noUpstream = 1;
@@ -35,9 +38,9 @@ Mux::Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan) :
 
 Mux::~Mux()
 {
-	delete trueChan;
-	delete falseChan;
-	delete outChan;
+	//delete trueChan;
+	//delete falseChan;
+	//delete outChan;
 }
 
 void Mux::addPort(vector<Channel*> _trueChanUpstream, vector<Channel*> _falseChanUpstream, vector<Channel*> _outChanDownstream)
@@ -300,9 +303,9 @@ MuxSGMF::MuxSGMF(ChanSGMF* _trueChan, ChanSGMF* _falseChan, ChanSGMF* _outChan) 
 
 MuxSGMF::~MuxSGMF()
 {
-	delete trueChan;
-	delete falseChan;
-	delete outChan;
+	//delete trueChan;
+	//delete falseChan;
+	//delete outChan;
 }
 
 void MuxSGMF::addPort(vector<ChanSGMF*> _trueChanUpstream, vector<ChanSGMF*> _falseChanUpstream, vector<ChanSGMF*> _outChanDownstream)

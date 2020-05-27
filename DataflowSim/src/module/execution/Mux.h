@@ -56,6 +56,7 @@ namespace DFSim
 	protected:
 		virtual void bpUpdate();
 	public:
+		uint moduleId;
 		bool sel = 0;
 		bool muxSuccess = 0; // If current cycle mux works, set muxSuccess to 1; Used for LC which initial value is a constant
 		/*Channel* trueChan = new Channel(2, 0);

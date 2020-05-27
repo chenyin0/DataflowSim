@@ -35,10 +35,10 @@ MemSystem::~MemSystem()
 	delete cache;
 	delete memDataBus;
 
-	for (auto& lse : lseRegistry)
-	{
-		delete lse;
-	}
+	//for (auto& lse : lseRegistry)
+	//{
+	//	delete lse;
+	//}
 
 }
 

@@ -6,6 +6,7 @@
 #include "../../src/module/execution/Mux.h"
 #include "../../src/module/ClkSys.h"
 #include "../../src/sim/Debug.h"
+#include "../../src/module/Registry.h"
 
 /*  gemm src code 
 	from MachSuite, blocked

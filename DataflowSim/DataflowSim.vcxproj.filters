@@ -113,6 +113,9 @@
     <ClInclude Include="test\gemm\Gemm.h">
       <Filter>test\gemm</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\Registry.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -150,6 +153,9 @@
     </ClCompile>
     <ClCompile Include="test\gemm\Gemm_Base.cpp">
       <Filter>test\gemm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\Registry.cpp">
+      <Filter>src\module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -75,6 +75,9 @@ void GemmTest::gemm_base(Debug* debug)
 
 
 	//******  Define module  ******//
+	//*** Declare registry
+	Registry* registry = new Registry();
+
 	//*** Declare memory
 	MemSystem* memSys = new MemSystem();
 
@@ -326,6 +329,8 @@ void GemmTest::gemm_base(Debug* debug)
 
 	//*** Simulate
 	// Initiation
+	registry->tableInit();  // Update registry
+
 	begin->get(1);
 	uint iter = 0;
 
@@ -582,5 +587,8 @@ void GemmTest::gemm_base(Debug* debug)
 
 		++iter;
 	}
+
+	delete registry;  // All the Module pointers have been deleted when destruct registry
+	delete memSys;
 
 }
