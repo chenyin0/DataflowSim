@@ -56,6 +56,7 @@ namespace DFSim
 	protected:
 		virtual void bpUpdate();
 	public:
+		ModuleType moduleTypr = ModuleType::Mux;
 		uint moduleId;
 		bool sel = 0;
 		bool muxSuccess = 0; // If current cycle mux works, set muxSuccess to 1; Used for LC which initial value is a constant
@@ -86,7 +87,7 @@ namespace DFSim
 		//MuxSGMF(vector<ChanSGMF*> _trueChan, vector<ChanSGMF*> _falseChan, vector<ChanSGMF*> _downstream);
 		MuxSGMF(ChanSGMF* _trueChan, ChanSGMF* _falseChan, ChanSGMF* _outChan);
 		~MuxSGMF();
-		void addPort(vector<ChanSGMF*> _trueChanUpstream, vector<ChanSGMF*> _falseChanUpstream, vector<ChanSGMF*> _outChanDownstream);
+		//void addPort(vector<ChanSGMF*> _trueChanUpstream, vector<ChanSGMF*> _falseChanUpstream, vector<ChanSGMF*> _outChanDownstream);
 		//void muxUpdate(bool sel) override;
 	protected:
 		//bool checkUpstream(vector<Channel*>& upstream) override;

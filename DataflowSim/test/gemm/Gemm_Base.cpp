@@ -489,8 +489,8 @@ void GemmTest::gemm_base(Debug* debug)
 
 		//** Print log
 		// Set debug mode
-		//debug->debug_mode = Debug_mode::print_detail;
-		//debug->debug_mode = Debug_mode::turn_off;
+		//debug->debug_mode = Debug_mode::Print_detail;
+		//debug->debug_mode = Debug_mode::Turn_off;
 
 		//if (iter > 143030)
 		//{

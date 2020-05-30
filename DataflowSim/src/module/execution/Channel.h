@@ -77,17 +77,21 @@ class Channel usage:
 		virtual void statusUpdate() = 0;
 		//virtual int assign();
 		virtual void sendLastTag();  // Send last tag to all the upstream channels in keepMode
+		int getChanId(Channel* chan);  // Get the index of a channel in the upstream vector(It is also the index of chanBuffer, bp, lastPopVal vector)
 
 	protected:
 		virtual void checkConnect();  // Check upstream and downstream can't be empty
-		virtual bool checkUpstream() = 0;
+		virtual bool checkUpstream(uint bufferId) = 0;
 		virtual void bpUpdate() = 0;
 		virtual void parallelize();  // Emulate hardware parallel loop unrolling
 
 	public:
+		ModuleType moduleTypr = ModuleType::Channel;
 		uint moduleId;  // RegisterTable Id
+		vector<deque<Data>> chanBuffer;  // Store the input data of each upstream
 		deque<Data> channel;
-		bool bp = 0;
+		//bool bp = 0;
+		deque<bool> bp;  // Each inputFifo's bp (replace vector<bool>)
 		vector<pair<uint, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
 		deque<bool> getLast; // Signify has gotten a data with last tag;
 		//deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
@@ -111,7 +115,7 @@ class Channel usage:
 		vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
 	protected:
-		uint size;	// Channel size
+		uint size;	// chanBuffer size
 		uint cycle; // Channel execute cycle
 		uint speedup;  // Parallelism parameter
 		int currId = 1;	// Current threadID, start at 1
@@ -130,27 +134,30 @@ class Channel usage:
 		ChanBase(uint _size, uint _cycle, uint _speedup);
 
 		// Channel get data from the program variable
-		virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
+		//virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
+		virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
 
 		// Assign channel value to the program variable
-		virtual int assign();
+		virtual int assign(uint bufferId);
+		//virtual int assign();
 
 		virtual void statusUpdate() override;
 		bool checkSend(Data data, Channel* upstream) override;
 		virtual vector<int> pop(); // Pop the data in the channel head; Return {popSuccess, popData}
 
 	protected:
-		int lastPopVal = 0;  // Record last data poped by channel
+		vector<int> lastPopVal;  // Record last data poped by each chanBuffer
 		//bool lastCycleValid = 0;
 
 		void initial();
 		//virtual void checkConnect();  // Check upstream and downstream can't be empty
 		bool popLastCheck();
 		virtual vector<int> popChannel(bool popReady, bool popLastReady);
-		virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
-		bool checkUpstream() override;
-		virtual void pushChannel(int data);
-		vector<int> push(int data); // Push data and update cycle; Return {pushSuccess, pushData}
+		//virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
+		bool checkUpstream(uint bufferId) override;
+		virtual void pushBuffer(int data, uint bufferId);
+		virtual void pushChannel();
+		vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
 		void bpUpdate() override;
 
 	public:
@@ -173,10 +180,10 @@ class ChanDGSF usage:
 	public:
 		ChanDGSF(uint _size, uint _cycle, uint _speedup);
 		~ChanDGSF();
-		void statusUpdate() override;
+		//void statusUpdate() override;
 
 	private:
-		vector<int> popChannel(bool popReady, bool popLastReady);
+		vector<int> popChannel(bool popReady, bool popLastReady) override;
 		void sendActive();
 		void parallelize() override;
 
@@ -204,38 +211,40 @@ class ChanSGMF usage:
 		ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
 		void init();
 		~ChanSGMF();
-		void checkConnect() override;
-		void addUpstream(const vector<vector<Channel*>>& _upstreamBundle);
-		void addUpstream(const vector<Channel*>& _upstream) override;
+		//void checkConnect() override;
+		//void addUpstream(const vector<vector<Channel*>>& _upstreamBundle);
+		//void addUpstream(const vector<Channel*>& _upstream) override;
 		//void addDownstream(const vector<vector<Channel*>>& _downstreamBundle);
 		vector<int> get(vector<int> data);  // vector data for multi-inPort: Din1, Din2, Bin...
-		vector<int> get(int data);  // For single channel (only Din1)
-		vector<int> get(int data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
-		int assign(uint chanId);
+		//vector<int> get(int data);  // For single channel (only Din1)
+		vector<int> get(vector<int> data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
+		int assign(uint bufferId);
 		vector<int> popChannel(bool popReady, bool popLastReady) override;
-		void updateCycle(bool popReady, bool popLastReady) override;
-		vector<int> push(int data, uint chanId, uint tag);  // Push data into corresponding channel
-		bool checkUpstream(uint chanId); 
-		void pushChannel(int data, uint chanId, uint tag);
+		//void updateCycle(bool popReady, bool popLastReady) override;
+		vector<int> push(int data, uint bufferId, uint tag);  // Push data into corresponding channel
+		bool checkUpstream(uint bufferId, uint tag);
+		void pushBuffer(int data, uint bufferId, uint tag);
+		//void pushChannel(int data, uint chanId, uint tag);
+		void pushChannel(uint tag);
 
 		void statusUpdate() override;
 		bool checkSend(Data _data, Channel* _upstream) override;
 		virtual void sendLastTag() override;
 
 	public:
-		vector<deque<Data>> chanBundle;  // channel[0]: Din1, channel[1]: Din2
-		deque<Data> matchQueue;  // Store the data pass tag matching
-		vector<vector<Channel*>> upstreamBundle;  // { { Din1's upstream }, { Din2's upstream } ... }
+		//vector<deque<Data>> chanBundle;  // channel[0]: Din1, channel[1]: Din2
+		deque<Data> matchQueue;  // Store the data which passes tag matching
+		//vector<vector<Channel*>> upstreamBundle;  // { { Din1's upstream }, { Din2's upstream } ... }
 		//vector<vector<ChanSGMF*>> downstreamBundle;  // { { to whose Din1 }, { to whose Din2 } ...}
 		//deque<Data> popFifo;  // Store match ready data
-
+		uint tagSize = TAG_SIZE;  // Number of tags
 		bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
 
 		ArchType archType = ArchType::SGMF;
 
-	private:
-		uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
-		uint chanSize;
+	//private:
+		//uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
+		//uint tagSize = TAG_SIZE;  // Number of tags
 		//bool isLoopVar = 0;  // If the chanSGMF is loopVar, it need to update tag when a data is pushed.
 	};
 }

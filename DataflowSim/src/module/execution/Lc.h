@@ -51,6 +51,7 @@ namespace DFSim
 
 	private:
 	public:
+		ModuleType moduleTypr = ModuleType::Lc;
 		uint moduleId;
 		bool sel = 0;  // Sel for loop control, default set to select initial value
 		uint loopNum = 0; // loop number

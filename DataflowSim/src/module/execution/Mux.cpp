@@ -126,7 +126,8 @@ void Mux::bpUpdate()
 	bool bp = 0;
 	for (auto& channel : outChan->downstream)  // Check outChan's downstream rather than outChan, due to the outChan is like a pass wire.
 	{
-		if (!channel->isFeedback && channel->bp)
+		uint chanId = channel->getChanId(outChan);
+		if (!channel->isFeedback && channel->bp[chanId])
 		{
 			bp = 1;
 			break;
@@ -135,19 +136,38 @@ void Mux::bpUpdate()
 
 	if (bp)
 	{
-		trueChan->bp = 1;
-		falseChan->bp = 1;
+		for (auto& _bp : trueChan->bp)
+		{
+			_bp = 1;
+		}
+
+		for (auto& _bp : falseChan->bp)
+		{
+			_bp = 1;
+		}
+		//trueChan->bp = 1;
+		//falseChan->bp = 1;
 	}
 	else
 	{
-		trueChan->bp = 0;
-		falseChan->bp = 0;
+		for (auto& _bp : trueChan->bp)
+		{
+			_bp = 0;
+		}
+
+		for (auto& _bp : falseChan->bp)
+		{
+			_bp = 0;
+		}
+
+		//trueChan->bp = 0;
+		//falseChan->bp = 0;
 	}
 }
 
 void Mux::pushOutChan()
 {
-	outChan->get(1);
+	outChan->get({ 1 });
 
 	// Update data status
 	outChan->channel.back().last = upstreamDataStatus.last;
@@ -308,35 +328,35 @@ MuxSGMF::~MuxSGMF()
 	//delete outChan;
 }
 
-void MuxSGMF::addPort(vector<ChanSGMF*> _trueChanUpstream, vector<ChanSGMF*> _falseChanUpstream, vector<ChanSGMF*> _outChanDownstream)
-{
-	trueChan->addUpstream(Util::cast(_trueChanUpstream, (vector<Channel*>*)nullptr));  // addUpstream for single channel
-	falseChan->addUpstream(Util::cast(_falseChanUpstream, (vector<Channel*>*)nullptr));  // addUpstream for single channel
-	outChan->addDownstream(Util::cast(_outChanDownstream, (vector<Channel*>*)nullptr));
-
-	// Add trueChan as downstream for each upstream automatically
-	for (auto& chan : _trueChanUpstream)
-	{
-		chan->addDownstream({ trueChan });
-	}
-
-	// Add falseChan as downstream for each upstream automatically
-	for (auto& chan : _falseChanUpstream)
-	{
-		chan->addDownstream({ falseChan });
-	}
-
-	// Add outChan as upstream only for the single channel downstream automatically
-	for (auto& chan : _outChanDownstream)
-	{
-		if (chan->chanBundle.size() == 1)
-		{
-			chan->addUpstream({ outChan });
-		}
-
-		//chan->addUpstream({ { outChan }, {outChan} });
-	}
-}
+//void MuxSGMF::addPort(vector<ChanSGMF*> _trueChanUpstream, vector<ChanSGMF*> _falseChanUpstream, vector<ChanSGMF*> _outChanDownstream)
+//{
+//	trueChan->addUpstream(Util::cast(_trueChanUpstream, (vector<Channel*>*)nullptr));  // addUpstream for single channel
+//	falseChan->addUpstream(Util::cast(_falseChanUpstream, (vector<Channel*>*)nullptr));  // addUpstream for single channel
+//	outChan->addDownstream(Util::cast(_outChanDownstream, (vector<Channel*>*)nullptr));
+//
+//	// Add trueChan as downstream for each upstream automatically
+//	for (auto& chan : _trueChanUpstream)
+//	{
+//		chan->addDownstream({ trueChan });
+//	}
+//
+//	// Add falseChan as downstream for each upstream automatically
+//	for (auto& chan : _falseChanUpstream)
+//	{
+//		chan->addDownstream({ falseChan });
+//	}
+//
+//	// Add outChan as upstream only for the single channel downstream automatically
+//	for (auto& chan : _outChanDownstream)
+//	{
+//		if (chan->chanBundle.size() == 1)
+//		{
+//			chan->addUpstream({ outChan });
+//		}
+//
+//		//chan->addUpstream({ { outChan }, {outChan} });
+//	}
+//}
 
 void MuxSGMF::bpUpdate()
 {
@@ -345,7 +365,7 @@ void MuxSGMF::bpUpdate()
 		In other words, when trueChan/falseChan's upstreams execute checkSend(), they actually are checking the outChan's downstream.
 	*/
 	Data data;
-	for (int i = 0; i < trueChan->chanBundle[0].size(); ++i)  // Traverse each tag 
+	for (int i = 0; i < trueChan->tagSize; ++i)  // Traverse each tag 
 	{
 		data.tag = i;
 		bool setValid = 0;
@@ -356,14 +376,14 @@ void MuxSGMF::bpUpdate()
 			{
 				if (!chan->checkSend(data, outChan))
 				{
-					for (auto& chan : trueChan->chanBundle)
+					for (auto& buffer : trueChan->chanBuffer)
 					{
-						chan[i].valid = 1;  // Copy downstream's status
+						buffer[i].valid = 1;  // Copy downstream's status
 					}
 
-					for (auto& chan : falseChan->chanBundle)
+					for (auto& buffer : falseChan->chanBuffer)
 					{
-						chan[i].valid = 1;  // Copy downstream's status
+						buffer[i].valid = 1;  // Copy downstream's status
 					}
 
 					setValid = 1;
@@ -374,17 +394,59 @@ void MuxSGMF::bpUpdate()
 
 		if (!setValid)
 		{
-			for (auto& chan : trueChan->chanBundle)
+			for (auto& buffer : trueChan->chanBuffer)
 			{
-				chan[i].valid = 0;  // Copy downstream's status
+				buffer[i].valid = 0;  // Copy downstream's status
 			}
 
-			for (auto& chan : falseChan->chanBundle)
+			for (auto& buffer : falseChan->chanBuffer)
 			{
-				chan[i].valid = 0;  // Copy downstream's status
+				buffer[i].valid = 0;  // Copy downstream's status
 			}
 		}
 	}
+
+	//Data data;
+	//for (int i = 0; i < trueChan->chanBundle[0].size(); ++i)  // Traverse each tag 
+	//{
+	//	data.tag = i;
+	//	bool setValid = 0;
+
+	//	for (auto& chan : outChan->downstream)
+	//	{
+	//		if (!chan->isFeedback)  // Ignore feedback channel to aviod deadlock (e.g. loopVar or inter-loop dependency)
+	//		{
+	//			if (!chan->checkSend(data, outChan))
+	//			{
+	//				for (auto& chan : trueChan->chanBundle)
+	//				{
+	//					chan[i].valid = 1;  // Copy downstream's status
+	//				}
+
+	//				for (auto& chan : falseChan->chanBundle)
+	//				{
+	//					chan[i].valid = 1;  // Copy downstream's status
+	//				}
+
+	//				setValid = 1;
+	//				break;
+	//			}
+	//		}
+	//	}
+
+	//	if (!setValid)
+	//	{
+	//		for (auto& chan : trueChan->chanBundle)
+	//		{
+	//			chan[i].valid = 0;  // Copy downstream's status
+	//		}
+
+	//		for (auto& chan : falseChan->chanBundle)
+	//		{
+	//			chan[i].valid = 0;  // Copy downstream's status
+	//		}
+	//	}
+	//}
 }
 
 void MuxSGMF::recordDataStatus(vector<Channel*>& upstream)
@@ -428,7 +490,7 @@ void MuxSGMF::pushOutChan()
 	//outChan->get(tmp);
 
 	uint tag = upstreamDataStatus.tag;
-	outChan->get(1, tag);  // outChan is a single channel
+	outChan->get({ 1 }, tag);  // outChan is a single & noUpstream channel
 
 	// Update data status
 	// Note: due to pass checkUpstream, the data received by outChan must been pushed into the outChan's channel in the same cycle, 

@@ -21,6 +21,7 @@ namespace DFSim
 		Lc* lcPtr = nullptr;
 		Mux* muxPtr = nullptr;
 		uint moduleId = 0;
+		ModuleType moduleType;
 	};
 
 	class Registry
@@ -35,6 +36,7 @@ namespace DFSim
 
 	private:
 		void initLastTagQueue();  // Initial last tag vec for keepMode channel
+		void initInputFifo();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
 
 	private:
 		static uint moduleId;

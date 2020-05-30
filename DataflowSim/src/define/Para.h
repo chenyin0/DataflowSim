@@ -53,8 +53,9 @@ enum class ArchType
 #define BRAM_BANK_DEPTH 32  // SPM bank depth
 
 // SGMF
-#define INPUT_BUFF_SIZE 16  // Input buffer size of PE
-#define CHANNEL_BUNDLE_SIZE 2  // PE chanBundle size (Din1, Din2...)
+#define INPUT_BUFF_SIZE 16  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
+#define TAG_SIZE 16  // Channel data tag size
+//#define CHANNEL_BUNDLE_SIZE 2  // PE chanBundle size (Din1, Din2...)
 
 #ifdef DGSF
 	#define CHAN_SIZE BRAM_BANK_DEPTH

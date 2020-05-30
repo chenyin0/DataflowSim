@@ -20,7 +20,7 @@ Debug::~Debug()
 
 void Debug::chanPrint(const string name, const Channel* channel)
 {
-	if (debug_mode == Debug_mode::print_detail)
+	if (debug_mode == Debug_mode::Print_detail)
 	{
 		_output_file << std::endl;
 		_output_file << "== " << name << " valid: " << channel->valid;
@@ -51,7 +51,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 
 void Debug::chanPrint(const string name, const ChanSGMF* channel)
 {
-	if (debug_mode == Debug_mode::print_detail)
+	if (debug_mode == Debug_mode::Print_detail)
 	{
 		_output_file << std::endl;
 		_output_file << "== " << name << " valid: " << channel->valid;
@@ -119,7 +119,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 
 void Debug::lsePrint(const string _name, const Lse* _lse)
 {
-	if (debug_mode == Debug_mode::print_detail)
+	if (debug_mode == Debug_mode::Print_detail)
 	{
 		_output_file << std::endl;
 		_output_file << "== " << _name << " valid: " << _lse->valid;
@@ -200,7 +200,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 
 void Debug::memSysPrint(const MemSystem* _memSys)
 {
-	if (debug_mode == Debug_mode::print_detail)
+	if (debug_mode == Debug_mode::Print_detail)
 	{
 		_output_file << std::endl;
 		_output_file << "== " << "MemorySystem" << std::endl;

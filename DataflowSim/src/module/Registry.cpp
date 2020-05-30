@@ -41,6 +41,7 @@ int Registry::registerChan(Channel* chan)
 		RegistryTable entry;
 		entry.chanPtr = chan;
 		entry.moduleId = Registry::moduleId;
+		entry.moduleType = ModuleType::Channel;
 		registryTable.push_back(entry);
 		++Registry::moduleId;
 
@@ -60,6 +61,7 @@ int Registry::registerLc(Lc* lc)
 		RegistryTable entry;
 		entry.lcPtr = lc;
 		entry.moduleId = Registry::moduleId;
+		entry.moduleType = ModuleType::Lc;
 		registryTable.push_back(entry);
 		++Registry::moduleId;
 
@@ -79,6 +81,7 @@ int Registry::registerMux(Mux* mux)
 		RegistryTable entry;
 		entry.muxPtr = mux;
 		entry.moduleId = Registry::moduleId;
+		entry.moduleType = ModuleType::Mux;
 		registryTable.push_back(entry);
 		++Registry::moduleId;
 
@@ -109,6 +112,17 @@ void Registry::initLastTagQueue()
 					chan->lastTagQueue[i] = make_pair(_moduleId, queue);
 				}
 			}
+		}
+	}
+}
+
+void Registry::initInputFifo()
+{
+	for (auto& entry : registryTable)
+	{
+		if (entry.moduleType == ModuleType::Channel)
+		{
+			entry.chanPtr->inputFifo.resize)
 		}
 	}
 }

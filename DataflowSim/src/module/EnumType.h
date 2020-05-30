@@ -29,8 +29,15 @@ namespace DFSim
 
 	enum class Debug_mode
 	{
-		turn_off,
-		print_detail
+		Turn_off,
+		Print_detail
+	};
+
+	enum class ModuleType
+	{
+		Channel,
+		Lc,
+		Mux
 	};
 
 	// Cache replacement algorithm

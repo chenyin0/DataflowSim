@@ -55,7 +55,7 @@ namespace DFSimTest
 		ChanSGMF* i_lc1 = new ChanSGMF(INPUT_BUFF_SIZE, 0, 1);  // a[i * size + j] * b[j * size + i]
 		i_lc1->keepMode = 1;
 
-		ChanSGMF* i_data = new ChanSGMF(INPUT_BUFF_SIZE, 4, 1);  // channel size = cycle + exepected size, in order to avoid stall
+		ChanSGMF* i_data = new ChanSGMF(INPUT_BUFF_SIZE, 4, 1);  // channel size = cycle + expected size, in order to avoid stall
 		ChanSGMF* j_data = new ChanSGMF(INPUT_BUFF_SIZE, 4, 1);
 
 		ChanSGMF* chan_addr_a = new ChanSGMF(INPUT_BUFF_SIZE, 0);  // Memory latency
