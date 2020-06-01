@@ -3,8 +3,26 @@
 
 using namespace DFSim;
 
-Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys) : 
-	Channel(_size, _cycle), memSys(_memSys)
+//Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys) : 
+//	Channel(_size, _cycle), memSys(_memSys)
+//{
+//	//reqQueue.resize(_size);
+//	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+//
+//	initial();
+//}
+//
+//Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup) :
+//	Channel(_size, _cycle, _speedup), memSys(_memSys)
+//{
+//	//reqQueue.resize(_size);
+//	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+//
+//	initial();
+//}
+
+Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys) :
+	Channel(_size, _cycle), isWrite(_isWrite), memSys(_memSys)
 {
 	//reqQueue.resize(_size);
 	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
@@ -12,8 +30,8 @@ Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys) :
 	initial();
 }
 
-Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup) :
-	Channel(_size, _cycle, _speedup), memSys(_memSys)
+Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup) :
+	Channel(_size, _cycle, _speedup), isWrite(_isWrite), memSys(_memSys)
 {
 	//reqQueue.resize(_size);
 	//lseId = _memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
@@ -35,37 +53,41 @@ void Lse::initial()
 	reqQueue.resize(size);
 
 	lseId = memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+
+	chanType = ChanType::Chan_Lse;
 }
 
-void Lse::get(bool _isWrite, uint _addr)
-{
-	checkConnect();
-	pop();
-	push(_isWrite, _addr);
-	statusUpdate();
-}
+//void Lse::get(bool _isWrite, uint _addr)
+//{
+//	checkConnect();
+//	pop();
+//	push(_isWrite, _addr);
+//	statusUpdate();
+//}
 
-void Lse::get(bool _isWrite, uint _addr, uint& trig_cnt)
-{
-	checkConnect();
-	pop();
+//void Lse::get(vector<int> data, uint& trig_cnt)
+//{
+//	checkConnect();
+//	pop();
+//
+//	// Only when trigger valid, push channel
+//	// Must ensure the valid signal arrives earlier than the data, or else the data will be flushed 
+//	if (trig_cnt > 0) 
+//	{
+//		if (push(_isWrite, _addr))
+//		{
+//			--trig_cnt;  // Decrease trig_cnt
+//		}
+//	}
+//
+//	statusUpdate();
+//}
 
-	// Only when trigger valid, push channel
-	// Must ensure the valid signal arrives earlier than the data, or else the data will be flushed 
-	if (trig_cnt > 0) 
-	{
-		if (push(_isWrite, _addr))
-		{
-			--trig_cnt;  // Decrease trig_cnt
-		}
-	}
-
-	statusUpdate();
-}
-
-void Lse::pop()
+vector<int> Lse::pop()
 {
 	bool popReady = valid;
+	bool popSuccess = 0;
+	int popAddr = 0;
 
 	if (popReady)
 	{
@@ -74,39 +96,54 @@ void Lse::pop()
 		channel.pop_front();  // Pop channel
 		reqQueue[reqQueueIndex].first.valid = 0;  // Pop reqQueue
 		reqQueue[reqQueueIndex].second.valid = 0;
+
+		popSuccess = 1;
+		popAddr = reqQueue[reqQueueIndex].first.addr;
 	}
+
+	return { popSuccess, popAddr };
 }
 
-bool Lse::checkUpstream()
+//bool Lse::checkUpstream()
+//{
+//	bool ready = 1;
+//	if (!noUpstream)
+//	{
+//		for (auto channel : upstream)
+//		{
+//			if (!channel->valid)
+//			{
+//				ready = 0;
+//				break;
+//			}
+//		}
+//	}
+//	else
+//	{
+//		if (reqQueue.size() == size)  // When reqQueue is full
+//			ready = 0;
+//	}
+//
+//	return ready;
+//}
+
+// Pop chanBuffer after push reqQueue, avoid to push a req into reqQueue many times
+void Lse::popChanBuffer()
 {
-	bool ready = 1;
-	if (!noUpstream)
+	for (auto& buffer : chanBuffer)
 	{
-		for (auto channel : upstream)
-		{
-			if (!channel->valid)
-			{
-				ready = 0;
-				break;
-			}
-		}
+		buffer.pop_front();
 	}
-	else
-	{
-		if (reqQueue.size() == size)  // When reqQueue is full
-			ready = 0;
-	}
-
-	return ready;
 }
 
-void Lse::pushReqQ(bool _isWrite, uint _addr)
+void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store addr!!!
 {
 	//uint clk = ClkDomain::getInstance()->getClk();
-	Data data = upstream.front()->channel.front();  // Inherit cond status
+	//Data data = upstream.front()->channel.front();  // Inherit cond status
+	Data data = chanBuffer[0].front();  // Inherit cond status
 	data.valid = 1;
 	data.last = 0;  // Reset last flag
-	data.cycle = data.cycle + cycle;
+	//data.cycle = data.cycle + cycle;
 	/*uint cycleTemp = data.cycle + cycle;
 	data.cycle = cycleTemp > clk ? cycleTemp : clk;*/
 
@@ -126,8 +163,8 @@ void Lse::pushReqQ(bool _isWrite, uint _addr)
 
 	MemReq req;
 	req.valid = 1;
-	req.addr = _addr;
-	req.isWrite = _isWrite;
+	req.addr = chanBuffer[0].front().value;  // Address must stored in chanBuffer[0]!!!
+	req.isWrite = isWrite;
 	req.lseId = lseId;
 
 	for (size_t i = 0; i < reqQueue.size(); ++i)
@@ -138,24 +175,26 @@ void Lse::pushReqQ(bool _isWrite, uint _addr)
 			data.lseReqQueueIndex = i;  // Record reqQueue Id, for delete from channel
 			reqQueue[i].first = req;
 			reqQueue[i].second = data;
+
+			popChanBuffer();
 			break;
 		}
 	}
 }
 
-bool Lse::push(bool _isWrite, uint _addr)
-{
-	// Push data in channel
-	if (checkUpstream())
-	{
-		pushReqQ(_isWrite, _addr);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
+//bool Lse::push(bool _isWrite, uint _addr)
+//{
+//	// Push data in channel
+//	if (checkUpstream())
+//	{
+//		pushReqQ(_isWrite, _addr);
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
+//}
 
 bool Lse::sendReq(MemReq _req)
 {
@@ -177,6 +216,20 @@ void Lse::statusUpdate()
 	uint clk = ClkDomain::getInstance()->getClk();
 	valid = 1;
 
+	bool match = 1;
+	for (auto& buffer : chanBuffer)
+	{
+		if (buffer.empty() || buffer.front().cycle > clk)
+		{
+			match = 0;
+		}
+	}
+
+	if (match && channel.empty())  // Channel size is 1
+	{
+		pushReqQ();
+	}
+
 	// Send req to memSystem
 	for (size_t i = 0; i < reqQueue.size(); ++i)
 	{
@@ -196,7 +249,7 @@ void Lse::statusUpdate()
 		sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
 	}
 
-	// Send already data to channel
+	// Send ready data to channel
 	for (auto& req : reqQueue)
 	{
 		if (req.first.valid && req.first.ready && !req.first.hasPushChan)
@@ -209,14 +262,13 @@ void Lse::statusUpdate()
 
 	if (!channel.empty())
 	{
-		Data data = channel.front();
-
+		//Data data = channel.front();
 		// Check sendable
 		if (!noDownstream)
 		{
 			for (auto& channel : downstream)
 			{
-				if (!channel->checkSend(data, this))
+				if (!channel->checkSend(this->channel.front(), this))
 				{
 					valid = 0;
 					break;
@@ -238,33 +290,33 @@ void Lse::statusUpdate()
 	}
 }
 
-bool Lse::checkSend(Data _data, Channel* upstream)
-{
-	bool sendable = 1;
-	if (bp)
-	{
-		sendable = 0;
-	}
-	return sendable;
-}
+//bool Lse::checkSend(Data _data, Channel* upstream)
+//{
+//	bool sendable = 1;
+//	if (bp)
+//	{
+//		sendable = 0;
+//	}
+//	return sendable;
+//}
 
-void Lse::bpUpdate()
-{
-	/*if (reqQueue.size() < size)
-		bp = 0;
-	else
-		bp = 1;*/
-
-	bp = 1;
-	for (auto& req : reqQueue)
-	{
-		if (!req.first.valid)
-		{
-			bp = 0;
-			break;
-		}
-	}
-}
+//void Lse::bpUpdate()
+//{
+//	/*if (reqQueue.size() < size)
+//		bp = 0;
+//	else
+//		bp = 1;*/
+//
+//	bp = 1;
+//	for (auto& req : reqQueue)
+//	{
+//		if (!req.first.valid)
+//		{
+//			bp = 0;
+//			break;
+//		}
+//	}
+//}
 
 uint Lse::assign()
 {
@@ -277,7 +329,7 @@ uint Lse::assign()
 		return lastPopVal;
 }
 
-void Lse::callback(MemReq _req)
+void Lse::ackCallback(MemReq _req)
 {
 	uint index = _req.lseReqQueueIndex;
 	reqQueue[index].first.ready = 1;

@@ -27,12 +27,16 @@ Module Channel:
 7. If a channel is set to keepMode, it must has at least one inner loop downstream to clear its keepMode
 	(Inner loop's loopVar can clear the keepMode)
 
+8. Recommand:
+	chanBase/chanDGSF/chanSGMF use assign(Channel* chan) rather than assign(uint bufferId);
+	lse MUST use assign()!!!
+
 //////////////
 Develop log:
 	
 TODO:
 	20.05.15:
-	1. Channel need add trigger signal
+	1. Channel need add trigger signal/trigMode, this mode is complementary with keepMode!
 	(e.g. inner loop executes many times then trigger outer loop execute once)
 
 */
@@ -72,7 +76,13 @@ class Channel usage:
 		void initial();
 		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
-		virtual bool checkSend(Data _data, Channel* upstream) = 0;
+		virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
+		virtual int assign(uint bufferId);
+		virtual int assign(Channel* chan);  // Suggest use this assign function
+		virtual vector<int> pop() = 0;
+		vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
+		//virtual bool checkSend(Data _data, Channel* upstream) = 0;
+		virtual bool checkSend(Data data, Channel* upstream);
 		//virtual bool checkSend(Data _data, Channel* _upstream) { return 0; }
 		virtual void statusUpdate() = 0;
 		//virtual int assign();
@@ -81,8 +91,10 @@ class Channel usage:
 
 	protected:
 		virtual void checkConnect();  // Check upstream and downstream can't be empty
-		virtual bool checkUpstream(uint bufferId) = 0;
-		virtual void bpUpdate() = 0;
+		virtual bool checkUpstream(uint bufferId);
+		virtual void pushBuffer(int data, uint bufferId);
+		virtual void bpUpdate();
+		//virtual void bpUpdate() = 0;
 		virtual void parallelize();  // Emulate hardware parallel loop unrolling
 
 	public:
@@ -114,11 +126,16 @@ class Channel usage:
 		vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
 		vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
-	protected:
 		uint size;	// chanBuffer size
+		vector<int> lastPopVal;  // Record last data poped by each chanBuffer
+		ChanType chanType;
+
+	protected:
+		//uint size;	// chanBuffer size
 		uint cycle; // Channel execute cycle
 		uint speedup;  // Parallelism parameter
 		int currId = 1;	// Current threadID, start at 1
+		//vector<int> lastPopVal;  // Record last data poped by each chanBuffer
 	};
 
 
@@ -135,18 +152,18 @@ class Channel usage:
 
 		// Channel get data from the program variable
 		//virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
-		virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
+		//virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
 
 		// Assign channel value to the program variable
-		virtual int assign(uint bufferId);
+		//virtual int assign(uint bufferId);
 		//virtual int assign();
 
 		virtual void statusUpdate() override;
-		bool checkSend(Data data, Channel* upstream) override;
-		virtual vector<int> pop(); // Pop the data in the channel head; Return {popSuccess, popData}
+		//bool checkSend(Data data, Channel* upstream) override;
+		virtual vector<int> pop() override; // Pop the data in the channel head; Return {popSuccess, popData}
 
 	protected:
-		vector<int> lastPopVal;  // Record last data poped by each chanBuffer
+		//vector<int> lastPopVal;  // Record last data poped by each chanBuffer
 		//bool lastCycleValid = 0;
 
 		void initial();
@@ -154,14 +171,14 @@ class Channel usage:
 		bool popLastCheck();
 		virtual vector<int> popChannel(bool popReady, bool popLastReady);
 		//virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
-		bool checkUpstream(uint bufferId) override;
-		virtual void pushBuffer(int data, uint bufferId);
+		//bool checkUpstream(uint bufferId) override;
+		//virtual void pushBuffer(int data, uint bufferId);
 		virtual void pushChannel();
-		vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
-		void bpUpdate() override;
+		//vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
+		//void bpUpdate() override;
 
-	public:
-		ArchType archType = ArchType::Base;
+	//public:
+	//	ArchType archType = ArchType::Base;
 	};
 
 
@@ -193,7 +210,7 @@ class ChanDGSF usage:
 		bool sendActiveMode = 0;  // Current channel need to active others
 		vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
 
-		ArchType archType = ArchType::DGSF;
+		//ArchType archType = ArchType::DGSF;
 	};
 
 
@@ -218,7 +235,7 @@ class ChanSGMF usage:
 		vector<int> get(vector<int> data);  // vector data for multi-inPort: Din1, Din2, Bin...
 		//vector<int> get(int data);  // For single channel (only Din1)
 		vector<int> get(vector<int> data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
-		int assign(uint bufferId);
+		int assign(uint bufferId) override;
 		vector<int> popChannel(bool popReady, bool popLastReady) override;
 		//void updateCycle(bool popReady, bool popLastReady) override;
 		vector<int> push(int data, uint bufferId, uint tag);  // Push data into corresponding channel
@@ -240,7 +257,7 @@ class ChanSGMF usage:
 		uint tagSize = TAG_SIZE;  // Number of tags
 		bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
 
-		ArchType archType = ArchType::SGMF;
+		/*ArchType archType = ArchType::SGMF;*/
 
 	//private:
 		//uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)

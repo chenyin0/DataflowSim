@@ -25,8 +25,8 @@ void Debug::chanPrint(const string name, const Channel* channel)
 		_output_file << std::endl;
 		_output_file << "== " << name << " valid: " << channel->valid;
 		_output_file << "  ";
-		_output_file << "bp: " << channel->bp/* << std::endl*/;
-		_output_file << "  ";
+		//_output_file << "bp: " << channel->bp/* << std::endl*/;
+		//_output_file << "  ";
 		_output_file << "getLast: " << !channel->getLast.empty();
 		_output_file << "  ";
 		_output_file << "en: " << channel->enable; /*<< std::endl;*/
@@ -37,6 +37,24 @@ void Debug::chanPrint(const string name, const Channel* channel)
 		//}
 		_output_file << std::endl;
 
+		// Print each chanBuffer
+		for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
+		{
+			_output_file << "chanBuffer_" << i << "(bp=" << channel->bp[i] << "): ";
+			for (auto& data : channel->chanBuffer[i])
+			{
+				if (data.valid)
+				{
+					_output_file << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
+#ifdef DGSF
+					_output_file << ":" << "g" << data.graphSwitch;
+#endif
+					_output_file << " ";
+				}
+			}
+			_output_file << std::endl;
+		}
+
 		for (auto i : channel->channel)
 		{
 			_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
@@ -44,7 +62,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 			_output_file << ":" << "g" << i.graphSwitch;
 #endif
 			_output_file << " ";
-	}
+		}
 		_output_file << std::endl;
 	}
 }
@@ -56,38 +74,53 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		_output_file << std::endl;
 		_output_file << "== " << name << " valid: " << channel->valid;
 		_output_file << "  ";
-		_output_file << "bp: " << channel->bp/* << std::endl*/;
-		_output_file << "  ";
+		//_output_file << "bp: " << channel->bp/* << std::endl*/;
+		//_output_file << "  ";
 		_output_file << "getLast: " << !channel->getLast.empty();
 		_output_file << "  ";
 		_output_file << "en: " << channel->enable << std::endl;
 
-		// Print chanBundle
-		for (size_t i = 0; i < channel->chanBundle.size(); ++i)
+		// Print each chanBuffer
+		for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
 		{
-			auto chan = channel->chanBundle[i];
-
-			if (!chan.empty())
-			{
-				_output_file << "Chan" << i << ":" << std::endl;
-				_output_file << "\t";
-			}
-
-			for (auto data : chan)
+			_output_file << "chanBuffer_" << i << "(bp=" << channel->bp[i] << "): ";
+			for (auto& data : channel->chanBuffer[i])
 			{
 				if (data.valid)
 				{
-					_output_file <</* "v" << data.valid << ":" <<*/ "t" << data.tag << ":";
-					_output_file << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
+					_output_file << "t" << data.tag << ":" << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
 					_output_file << " ";
 				}
 			}
-
-			if (!chan.empty() && i != channel->chanBundle.size() - 1)
-			{
-				_output_file << std::endl;
-			}
+			_output_file << std::endl;
 		}
+
+		//// Print chanBundle
+		//for (size_t i = 0; i < channel->chanBundle.size(); ++i)
+		//{
+		//	auto chan = channel->chanBundle[i];
+
+		//	if (!chan.empty())
+		//	{
+		//		_output_file << "Chan" << i << ":" << std::endl;
+		//		_output_file << "\t";
+		//	}
+
+		//	for (auto data : chan)
+		//	{
+		//		if (data.valid)
+		//		{
+		//			_output_file <</* "v" << data.valid << ":" <<*/ "t" << data.tag << ":";
+		//			_output_file << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
+		//			_output_file << " ";
+		//		}
+		//	}
+
+		//	if (!chan.empty() && i != channel->chanBundle.size() - 1)
+		//	{
+		//		_output_file << std::endl;
+		//	}
+		//}
 
 		// Print SGMF matchQ
 		_output_file << std::endl;
@@ -124,11 +157,26 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 		_output_file << std::endl;
 		_output_file << "== " << _name << " valid: " << _lse->valid;
 		_output_file << "  ";
-		_output_file << "bp: " << _lse->bp/* << std::endl*/;
-		_output_file << "  ";
+		//_output_file << "bp: " << _lse->bp/* << std::endl*/;
+		//_output_file << "  ";
 		_output_file << "getLast: " << !_lse->getLast.empty();
 		_output_file << "  ";
 		_output_file << "en: " << _lse->enable << std::endl;
+
+		// Print each chanBuffer
+		for (size_t i = 0; i < _lse->chanBuffer.size(); ++i)
+		{
+			_output_file << "chanBuffer_" << i << "(bp=" << _lse->bp[i] << "): ";
+			for (auto& data : _lse->chanBuffer[i])
+			{
+				if (data.valid)
+				{
+					_output_file << "t" << data.tag << ":" << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
+					_output_file << " ";
+				}
+			}
+			_output_file << std::endl;
+		}
 
 		// Print Lse reqQueue
 		_output_file << "reqQueue:" << std::endl;

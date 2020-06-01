@@ -40,6 +40,14 @@ namespace DFSim
 		Mux
 	};
 
+	enum class ChanType
+	{
+		Chan_Base,
+		Chan_DGSF,
+		Chan_SGMF,
+		Chan_Lse
+	};
+
 	// Cache replacement algorithm
 	enum class Cache_swap_style
 	{

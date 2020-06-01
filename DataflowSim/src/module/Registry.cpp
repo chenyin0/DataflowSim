@@ -91,38 +91,79 @@ int Registry::registerMux(Mux* mux)
 
 void Registry::tableInit()
 {
-	initLastTagQueue();
-
+	initChannel();
 }
 
-void Registry::initLastTagQueue()
+void Registry::initLastTagQueue(Channel* _chan)
 {
-	for (auto& entry : registryTable)
+	//for (auto& entry : registryTable)
+	//{
+	//	if (entry.chanPtr != nullptr)
+	//	{
+	//		Channel* chan = entry.chanPtr;
+	//		if (chan->keepMode)
+	//		{
+	//			chan->lastTagQueue.resize(chan->downstream.size());  // Resize a queue for each downstream channel
+	//			for (size_t i = 0; i < chan->lastTagQueue.size(); ++i)
+	//			{
+	//				uint _moduleId = chan->downstream[i]->moduleId;
+	//				deque<bool> queue;
+	//				chan->lastTagQueue[i] = make_pair(_moduleId, queue);
+	//			}
+	//		}
+	//	}
+	//}
+
+	if (_chan->keepMode)
 	{
-		if (entry.chanPtr != nullptr)
+		_chan->lastTagQueue.resize(_chan->downstream.size());  // Resize a queue for each downstream channel
+		for (size_t i = 0; i < _chan->lastTagQueue.size(); ++i)
 		{
-			Channel* chan = entry.chanPtr;
-			if (chan->keepMode)
-			{
-				chan->lastTagQueue.resize(chan->downstream.size());  // Resize a queue for each downstream channel
-				for (size_t i = 0; i < chan->lastTagQueue.size(); ++i)
-				{
-					uint _moduleId = chan->downstream[i]->moduleId;
-					deque<bool> queue;
-					chan->lastTagQueue[i] = make_pair(_moduleId, queue);
-				}
-			}
+			uint _moduleId = _chan->downstream[i]->moduleId;
+			deque<bool> queue;
+			_chan->lastTagQueue[i] = make_pair(_moduleId, queue);
 		}
 	}
 }
 
-void Registry::initInputFifo()
+void Registry::initChanBuffer(Channel* _chan)
+{
+	uint upstreamSize = _chan->upstream.size();
+	_chan->chanBuffer.resize(upstreamSize);
+
+	// If channel is SGMF, resize each buffer of chanBuffer
+	if (_chan->chanType == ChanType::Chan_SGMF)
+	{
+		for (auto& buffer : _chan->chanBuffer)
+		{
+			buffer.resize(_chan->size);
+		}
+	}
+}
+
+void Registry::initBp(Channel* _chan)
+{
+	uint upstreamSize = _chan->upstream.size();
+	_chan->bp.resize(upstreamSize);
+}
+
+void Registry::initLastPopVal(Channel* _chan)
+{
+	uint upstreamSize = _chan->upstream.size();
+	_chan->lastPopVal.resize(upstreamSize);
+}
+
+void Registry::initChannel()
 {
 	for (auto& entry : registryTable)
 	{
 		if (entry.moduleType == ModuleType::Channel)
 		{
-			entry.chanPtr->inputFifo.resize)
+			initChanBuffer(entry.chanPtr);
+			initLastTagQueue(entry.chanPtr);
+			initBp(entry.chanPtr);
+			initLastPopVal(entry.chanPtr);
 		}
 	}
 }
+

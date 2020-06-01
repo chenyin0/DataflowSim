@@ -104,6 +104,146 @@ int Channel::getChanId(Channel* chan)
 	return -1;
 }
 
+// Channel get data from the program variable 
+vector<int> Channel::get(vector<int> data)
+{
+	vector<int> pushState(2);
+	vector<int> popState(2);
+
+	checkConnect();
+	popState = pop(); // Data lifetime in nested loop
+
+	for (size_t i = 0; i < data.size(); ++i)
+	{
+		// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+		pushState = push(data[i], i);
+	}
+
+	statusUpdate(); // Set valid according to the downstream channels' status
+	//bpUpdate();
+
+	return { pushState[0], pushState[1], popState[0], popState[1] };
+}
+
+// Assign channel value to program varieties
+int Channel::assign(uint bufferId)
+{
+	//if (!this->channel.empty())
+	//{
+	//	Data data = channel.front();
+	//	return data.value;
+	//}
+	//else
+	//	return lastPopVal;
+
+	if (!this->chanBuffer[bufferId].empty())
+	{
+		return chanBuffer[bufferId].front().value;
+	}
+	else
+		return lastPopVal[bufferId];
+}
+
+// Assign value according to upstream channel's pointer
+int Channel::assign(Channel* chan)
+{
+	uint bufferId = getChanId(chan);
+
+	return this->assign(bufferId);
+}
+
+vector<int> Channel::push(int data, uint bufferId)
+{
+	// Push data in channel
+	if (checkUpstream(bufferId))
+	{
+		pushBuffer(data, bufferId);
+		return { 1, data };
+	}
+	else
+		return { 0, data };
+}
+
+bool Channel::checkUpstream(uint bufferId)
+{
+	bool ready = 1;
+	if (!noUpstream)
+	{
+		//for (auto channel : upstream)
+		//{
+		//	if (!channel->valid)
+		//	{
+		//		ready = 0;
+		//		break;
+		//	}
+		//}
+		uint chanId = bufferId;
+		if (!upstream[chanId]->valid)
+		{
+			ready = 0;
+		}
+	}
+	else
+	{
+		//if (channel.size() == size)  // When channel is full
+		//	ready = 0;
+		if (chanBuffer[bufferId].size() == size)  // When channel is full
+			ready = 0;
+	}
+
+	return ready;
+}
+
+void Channel::pushBuffer(int _data, uint _bufferId)
+{
+	uint upstreamId = _bufferId;
+	Data data = upstream[upstreamId]->channel.front();
+	data.value = _data;
+	data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+	chanBuffer[_bufferId].push_back(data);
+}
+
+bool Channel::checkSend(Data _data, Channel* _upstream)
+{
+	bool sendable = 1;
+	uint bufferId = getChanId(_upstream);
+	//// Find corresponding bufferId of upstream
+	//for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
+	//{
+	//	if (upstream[chanId] == _upstream)
+	//	{
+	//		bufferId = chanId;
+	//		break;
+	//	}
+	//}
+
+	if (bp[bufferId] == 1)
+	{
+		sendable = 0;
+	}
+	return sendable;
+}
+
+void Channel::bpUpdate()
+{
+	//if (channel.size() < size)
+	//	bp = 0;
+	//else
+	//	bp = 1;
+
+	for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+	{
+		if (chanBuffer[bufferId].size() < size)
+		{
+			bp[bufferId] = 0;
+		}
+		else
+		{
+			bp[bufferId] = 1;
+		}
+	}
+}
+
 //bool Channel::checkUpstream()
 //{
 //	bool ready = 1;
@@ -171,46 +311,48 @@ void ChanBase::initial()
 
 	noUpstream = 0;
 	noDownstream = 0;
+
+	chanType = ChanType::Chan_Base;
 }
 
-bool ChanBase::checkUpstream(uint bufferId)
-{
-	bool ready = 1;
-	if (!noUpstream)
-	{
-		//for (auto channel : upstream)
-		//{
-		//	if (!channel->valid)
-		//	{
-		//		ready = 0;
-		//		break;
-		//	}
-		//}
+//bool ChanBase::checkUpstream(uint bufferId)
+//{
+//	bool ready = 1;
+//	if (!noUpstream)
+//	{
+//		//for (auto channel : upstream)
+//		//{
+//		//	if (!channel->valid)
+//		//	{
+//		//		ready = 0;
+//		//		break;
+//		//	}
+//		//}
+//		uint chanId = bufferId;
+//		if (!upstream[chanId]->valid)
+//		{
+//			ready = 0;
+//		}
+//	}
+//	else
+//	{
+//		//if (channel.size() == size)  // When channel is full
+//		//	ready = 0;
+//		if (chanBuffer[bufferId].size() == size)  // When channel is full
+//			ready = 0;
+//	}
+//
+//	return ready;
+//}
 
-		if (!upstream[bufferId]->valid)
-		{
-			ready = 0;
-		}
-	}
-	else
-	{
-		//if (channel.size() == size)  // When channel is full
-		//	ready = 0;
-		if (chanBuffer[bufferId].size() == size)  // When channel is full
-			ready = 0;
-	}
-
-	return ready;
-}
-
-void ChanBase::pushBuffer(int _data, uint _bufferId)
-{
-	uint upstreamId = _bufferId;
-	Data data = upstream[upstreamId]->channel.front();
-	data.value = _data;
-	data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
-	chanBuffer[_bufferId].push_back(data);
-}
+//void ChanBase::pushBuffer(int _data, uint _bufferId)
+//{
+//	uint upstreamId = _bufferId;
+//	Data data = upstream[upstreamId]->channel.front();
+//	data.value = _data;
+//	data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+//	chanBuffer[_bufferId].push_back(data);
+//}
 
 void ChanBase::pushChannel()
 {
@@ -218,6 +360,7 @@ void ChanBase::pushChannel()
 	{
 		//Data data = upstream.front()->channel.front();
 		Data data;
+		data.valid = 1;
 		//data.last = 0;  // Reset last flag
 		//data.value = _data;  // No need data value
 		//data.cycle = data.cycle + cycle;
@@ -471,17 +614,17 @@ vector<int> ChanBase::pop()
 //	}
 //}
 
-vector<int> ChanBase::push(int data, uint bufferId)
-{
-	// Push data in channel
-	if (checkUpstream(bufferId))
-	{
-		pushBuffer(data, bufferId);
-		return { 1, data };
-	}
-	else
-		return { 0, data };
-}
+//vector<int> ChanBase::push(int data, uint bufferId)
+//{
+//	// Push data in channel
+//	if (checkUpstream(bufferId))
+//	{
+//		pushBuffer(data, bufferId);
+//		return { 1, data };
+//	}
+//	else
+//		return { 0, data };
+//}
 
 void ChanBase::statusUpdate()
 {
@@ -544,86 +687,86 @@ void ChanBase::statusUpdate()
 	}
 }
 
-bool ChanBase::checkSend(Data _data, Channel* _upstream)
-{
-	bool sendable = 1;
-	uint bufferId;
-	// Find corresponding bufferId of upstream
-	for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
-	{
-		if (upstream[chanId] == _upstream)
-		{
-			bufferId = chanId;
-			break;
-		}
-	}
+//bool ChanBase::checkSend(Data _data, Channel* _upstream)
+//{
+//	bool sendable = 1;
+//	uint bufferId = getChanId(_upstream);
+//	//// Find corresponding bufferId of upstream
+//	//for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
+//	//{
+//	//	if (upstream[chanId] == _upstream)
+//	//	{
+//	//		bufferId = chanId;
+//	//		break;
+//	//	}
+//	//}
+//
+//	if (bp[bufferId] == 1)
+//	{
+//		sendable = 0;
+//	}
+//	return sendable;
+//}
 
-	if (bp[bufferId] == 1)
-	{
-		sendable = 0;
-	}
-	return sendable;
-}
+//void ChanBase::bpUpdate()
+//{
+//	//if (channel.size() < size)
+//	//	bp = 0;
+//	//else
+//	//	bp = 1;
+//
+//	for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+//	{
+//		if (chanBuffer[bufferId].size() < size)
+//		{
+//			bp[bufferId] = 0;
+//		}
+//		else
+//		{
+//			bp[bufferId] = 1;
+//		}
+//	}
+//}
 
-void ChanBase::bpUpdate()
-{
-	//if (channel.size() < size)
-	//	bp = 0;
-	//else
-	//	bp = 1;
-
-	for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
-	{
-		if (chanBuffer[bufferId].size() < size)
-		{
-			bp[bufferId] = 0;
-		}
-		else
-		{
-			bp[bufferId] = 1;
-		}
-	}
-}
-
-// Channel get data from the program variable 
-vector<int> ChanBase::get(vector<int> data)
-{
-	vector<int> pushState(2);
-	vector<int> popState(2);
-
-	checkConnect();
-	popState = pop(); // Data lifetime in nested loop
-
-	for (size_t i = 0; i < data.size(); ++i)
-	{
-		// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
-		pushState = push(data[i], i);  
-	}
-
-	statusUpdate(); // Set valid according to the downstream channels' status
-	//bpUpdate();
-
-	return { pushState[0], pushState[1], popState[0], popState[1] };
-}
-
-// Assign channel value to program varieties
-int ChanBase::assign(uint bufferId)
-{
-	//if (!this->channel.empty())
-	//{
-	//	Data data = channel.front();
-	//	return data.value;
-	//}
-	//else
-	//	return lastPopVal;
-
-	if (!this->chanBuffer[bufferId].empty())
-	{
-		return chanBuffer[bufferId].front().value;
-	}
-	else
-		return lastPopVal[bufferId];
-}
+//// Channel get data from the program variable 
+//vector<int> ChanBase::get(vector<int> data)
+//{
+//	vector<int> pushState(2);
+//	vector<int> popState(2);
+//
+//	checkConnect();
+//	popState = pop(); // Data lifetime in nested loop
+//
+//	for (size_t i = 0; i < data.size(); ++i)
+//	{
+//		// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+//		pushState = push(data[i], i);  
+//	}
+//
+//	statusUpdate(); // Set valid according to the downstream channels' status
+//	//bpUpdate();
+//
+//	return { pushState[0], pushState[1], popState[0], popState[1] };
+//}
+//
+//// Assign channel value to program varieties
+//int ChanBase::assign(uint bufferId)
+//{
+//	//if (!this->channel.empty())
+//	//{
+//	//	Data data = channel.front();
+//	//	return data.value;
+//	//}
+//	//else
+//	//	return lastPopVal;
+//
+//	if (!this->chanBuffer[bufferId].empty())
+//	{
+//		return chanBuffer[bufferId].front().value;
+//	}
+//	else
+//		return lastPopVal[bufferId];
+//}
 
 
 // class ChanDGSF
@@ -633,6 +776,8 @@ ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
 	//enable = 1;
 	currId = 1; // Id begins at 1
 	sendActiveMode = 0;  // Default set to false
+
+	chanType = ChanType::Chan_DGSF;
 }
 
 ChanDGSF::~ChanDGSF()
@@ -843,6 +988,8 @@ ChanSGMF::~ChanSGMF()
 
 void ChanSGMF::init()
 {
+	chanType = ChanType::Chan_SGMF;
+
 	//chanBundle.resize(chanBundleSize);  // Default channel number(chanBundleSize) = 2;
 	//upstreamBundle.resize(chanBundleSize);
 	//downstream.resize(chanBundleSize);
@@ -1142,7 +1289,8 @@ bool ChanSGMF::checkUpstream(uint bufferId, uint tag)
 	bool ready = 1;
 	if (!noUpstream)
 	{
-		if (!upstream[bufferId]->valid)
+		uint chanId = bufferId;
+		if (!upstream[chanId]->valid)
 		{
 			ready = 0;
 		}
@@ -1161,6 +1309,7 @@ void ChanSGMF::pushChannel(uint tag)
 	if (!noUpstream)
 	{
 		Data data;
+		data.valid = 1;
 		//data.value = _data;
 		//data.cycle = data.cycle + cycle;
 		//uint cycleTemp = data.cycle + cycle;

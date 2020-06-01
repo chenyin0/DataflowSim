@@ -35,8 +35,11 @@ namespace DFSim
 		void tableInit();
 
 	private:
-		void initLastTagQueue();  // Initial last tag vec for keepMode channel
-		void initInputFifo();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
+		void initLastTagQueue(Channel* _chan);  // Initial last tag vec for keepMode channel
+		void initChanBuffer(Channel* _chan);
+		void initBp(Channel* _chan);
+		void initLastPopVal(Channel* _chan);
+		void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
 
 	private:
 		static uint moduleId;

@@ -108,8 +108,9 @@ void MemSystem::sendBack2Lse()
 	{
 		if (req.valid && req.ready)
 		{
-			lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
-			lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;
+			/*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
+			lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
+			lseRegistry[req.lseId]->ackCallback(req);
 			req.valid = 0;  // Clear req
 		}
 	}

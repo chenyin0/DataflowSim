@@ -74,7 +74,7 @@ namespace DFSim
 
 
 	public:
-		Debug_mode debug_mode = Debug_mode::print_detail;
+		Debug_mode debug_mode = Debug_mode::Print_detail;
 
 	private:
 		std::ofstream _output_file;
