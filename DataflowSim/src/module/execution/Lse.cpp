@@ -147,13 +147,19 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 	/*uint cycleTemp = data.cycle + cycle;
 	data.cycle = cycleTemp > clk ? cycleTemp : clk;*/
 
-	// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
-	for (auto channel : upstream)
+	// Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag;
+	for (auto buffer : chanBuffer)
 	{
-		data.last |= channel->channel.front().last;
-		data.lastOuter |= channel->channel.front().lastOuter;
-		data.graphSwitch |= channel->channel.front().graphSwitch;
+		data.last |= buffer.front().last;
+		data.lastOuter |= buffer.front().lastOuter;
+		data.graphSwitch |= buffer.front().graphSwitch;
 	}
+	//for (auto channel : upstream)
+	//{
+	//	data.last |= channel->channel.front().last;
+	//	data.lastOuter |= channel->channel.front().lastOuter;
+	//	data.graphSwitch |= channel->channel.front().graphSwitch;
+	//}
 
 	// Send lastTag to each upstream channel in keepMode
 	if (data.last)

@@ -77,6 +77,7 @@ class Channel usage:
 		virtual void addUpstream(const vector<Channel*>& _upStream);
 		void addDownstream(const vector<Channel*>& _dowmStream);
 		virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
+		virtual vector<int> get();  // Return {pushSuccess, pushData, popSuccess, popData}
 		virtual int assign(uint bufferId);
 		virtual int assign(Channel* chan);  // Suggest use this assign function
 		virtual vector<int> pop() = 0;
@@ -90,6 +91,7 @@ class Channel usage:
 		int getChanId(Channel* chan);  // Get the index of a channel in the upstream vector(It is also the index of chanBuffer, bp, lastPopVal vector)
 
 	protected:
+		//virtual void checkConnect(const vector<int>& inputData);  // Check upstream and downstream can't be empty
 		virtual void checkConnect();  // Check upstream and downstream can't be empty
 		virtual bool checkUpstream(uint bufferId);
 		virtual void pushBuffer(int data, uint bufferId);
@@ -129,6 +131,8 @@ class Channel usage:
 		uint size;	// chanBuffer size
 		vector<int> lastPopVal;  // Record last data poped by each chanBuffer
 		ChanType chanType;
+
+		int value = 0;  // Channel value, for config code
 
 	protected:
 		//uint size;	// chanBuffer size
@@ -232,7 +236,8 @@ class ChanSGMF usage:
 		//void addUpstream(const vector<vector<Channel*>>& _upstreamBundle);
 		//void addUpstream(const vector<Channel*>& _upstream) override;
 		//void addDownstream(const vector<vector<Channel*>>& _downstreamBundle);
-		vector<int> get(vector<int> data);  // vector data for multi-inPort: Din1, Din2, Bin...
+		//vector<int> get(vector<int> data);  // For noUpstream channel, vector data for multi-inPort: Din1, Din2, Bin...
+		vector<int> get();  // vector data for multi-inPort: Din1, Din2, Bin...
 		//vector<int> get(int data);  // For single channel (only Din1)
 		vector<int> get(vector<int> data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
 		int assign(uint bufferId) override;

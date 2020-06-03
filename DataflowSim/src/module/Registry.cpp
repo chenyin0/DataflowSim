@@ -128,29 +128,58 @@ void Registry::initLastTagQueue(Channel* _chan)
 
 void Registry::initChanBuffer(Channel* _chan)
 {
-	uint upstreamSize = _chan->upstream.size();
-	_chan->chanBuffer.resize(upstreamSize);
-
-	// If channel is SGMF, resize each buffer of chanBuffer
-	if (_chan->chanType == ChanType::Chan_SGMF)
+	if (!_chan->noUpstream)
 	{
-		for (auto& buffer : _chan->chanBuffer)
+		uint upstreamSize = _chan->upstream.size();
+		_chan->chanBuffer.resize(upstreamSize);
+
+		// If channel is SGMF, resize each buffer of chanBuffer
+		if (_chan->chanType == ChanType::Chan_SGMF)
 		{
-			buffer.resize(_chan->size);
+			for (auto& buffer : _chan->chanBuffer)
+			{
+				buffer.resize(_chan->size);
+			}
 		}
 	}
+	else
+	{
+		_chan->chanBuffer.resize(1);
+		if (_chan->chanType == ChanType::Chan_SGMF)
+		{
+			for (auto& buffer : _chan->chanBuffer)
+			{
+				buffer.resize(_chan->size);
+			}
+		}
+	}
+
 }
 
 void Registry::initBp(Channel* _chan)
 {
-	uint upstreamSize = _chan->upstream.size();
-	_chan->bp.resize(upstreamSize);
+	if (!_chan->noUpstream)
+	{
+		uint upstreamSize = _chan->upstream.size();
+		_chan->bp.resize(upstreamSize);
+	}
+	else
+	{
+		_chan->bp.resize(1);
+	}
 }
 
 void Registry::initLastPopVal(Channel* _chan)
 {
-	uint upstreamSize = _chan->upstream.size();
-	_chan->lastPopVal.resize(upstreamSize);
+	if (!_chan->noUpstream)
+	{
+		uint upstreamSize = _chan->upstream.size();
+		_chan->lastPopVal.resize(upstreamSize);
+	}
+	else
+	{
+		_chan->lastPopVal.resize(1);
+	}
 }
 
 void Registry::initChannel()

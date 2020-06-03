@@ -44,8 +44,8 @@ void Lc::addPort(vector<Channel*> _getActive, vector<Channel*> _sendActive, vect
 	sendEnd->addDownstream(_sendEnd);
 
 	// Add getActive to LC Mux's trueChan and falseChan
-	mux->trueChan->addUpstream(_getActive);
-	mux->falseChan->addUpstream(_getActive);
+	//mux->trueChan->addUpstream(_getActive);
+	//mux->falseChan->addUpstream(_getActive);
 }
 
 void Lc::addDependence(vector<Channel*> _initDepend, vector<Channel*> _updateDepend)

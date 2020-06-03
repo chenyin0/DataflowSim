@@ -40,7 +40,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 		// Print each chanBuffer
 		for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
 		{
-			_output_file << "chanBuffer_" << i << "(bp=" << channel->bp[i] << "): ";
+			_output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << "): ";
 			for (auto& data : channel->chanBuffer[i])
 			{
 				if (data.valid)
@@ -55,9 +55,10 @@ void Debug::chanPrint(const string name, const Channel* channel)
 			_output_file << std::endl;
 		}
 
+		_output_file << "chan: ";
 		for (auto i : channel->channel)
 		{
-			_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
+			_output_file << "d" << channel->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
 			_output_file << ":" << "g" << i.graphSwitch;
 #endif
@@ -83,7 +84,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		// Print each chanBuffer
 		for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
 		{
-			_output_file << "chanBuffer_" << i << "(bp=" << channel->bp[i] << "): ";
+			_output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << "): ";
 			for (auto& data : channel->chanBuffer[i])
 			{
 				if (data.valid)
@@ -143,7 +144,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 		for (auto data : channel->channel)
 		{
 			_output_file << "t" << data.tag << ":";
-			_output_file <</* "d" << data.value << ":" <<*/ "c" << data.cycle << ":" << "l" << data.last;
+			_output_file << "d" << channel->value << ":" << "c" << data.cycle << ":" << "l" << data.last;
 			_output_file << " ";
 		}
 		_output_file << std::endl;
@@ -235,7 +236,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 		_output_file << "\t";
 		for (auto& i : _lse->channel)
 		{
-			_output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
+			_output_file << "d" << _lse->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
 			_output_file << ":" << "g" << i.graphSwitch;
 #endif

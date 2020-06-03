@@ -199,13 +199,13 @@ int main()
 		switch (arch)
 		{
 		case ArchType::Base:
-			DFSimTest::simpleFlow_Base(debug);
+			//DFSimTest::simpleFlow_Base(debug);
 			break;
 		case ArchType::DGSF:
-			DFSimTest::simpleFlow_DGSF(debug);
+			//DFSimTest::simpleFlow_DGSF(debug);
 			break;
 		case ArchType::SGMF:
-			DFSimTest::simpleFlow_SGMF(debug);
+			//DFSimTest::simpleFlow_SGMF(debug);
 			break;
 		}
 
@@ -216,13 +216,13 @@ int main()
 		switch (arch)
 		{
 		case ArchType::Base:
-			DFSimTest::MemoryTest::memory_test(debug);
+			//DFSimTest::MemoryTest::memory_test(debug);
 			break;
 		case ArchType::DGSF:
-			DFSimTest::MemoryTest::memory_test(debug);
+			//DFSimTest::MemoryTest::memory_test(debug);
 			break;
 		case ArchType::SGMF:
-			DFSimTest::MemoryTest::memory_test(debug);
+			//DFSimTest::MemoryTest::memory_test(debug);
 			break;
 		}
 

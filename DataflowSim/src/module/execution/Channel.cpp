@@ -61,6 +61,11 @@ void Channel::checkConnect()
 	{
 		Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
 	}
+
+	//if (inputData.size() != upstream.size())
+	//{
+	//	Debug::throwError("InputData's size is not equal to upstream's size!", __FILE__, __LINE__);
+	//}
 }
 
 void Channel::parallelize()
@@ -117,6 +122,33 @@ vector<int> Channel::get(vector<int> data)
 	{
 		// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
 		pushState = push(data[i], i);
+	}
+
+	statusUpdate(); // Set valid according to the downstream channels' status
+	//bpUpdate();
+
+	return { pushState[0], pushState[1], popState[0], popState[1] };
+}
+
+// Channel get data from the program variable 
+vector<int> Channel::get()
+{
+	vector<int> pushState(2);
+	vector<int> popState(2);
+
+	checkConnect();
+	popState = pop(); // Data lifetime in nested loop
+
+	//for (size_t i = 0; i < data.size(); ++i)
+	//{
+	//	// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+	//	pushState = push(data[i], i);
+	//}
+
+	for (size_t i = 0; i < upstream.size(); ++i)
+	{
+		// Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+		pushState = push(upstream[i]->value, i);
 	}
 
 	statusUpdate(); // Set valid according to the downstream channels' status
@@ -196,11 +228,32 @@ bool Channel::checkUpstream(uint bufferId)
 
 void Channel::pushBuffer(int _data, uint _bufferId)
 {
-	uint upstreamId = _bufferId;
-	Data data = upstream[upstreamId]->channel.front();
-	data.value = _data;
-	data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
-	chanBuffer[_bufferId].push_back(data);
+	if (!noUpstream)
+	{
+		uint upstreamId = _bufferId;
+		Data data = upstream[upstreamId]->channel.front();
+		data.value = _data;
+		data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+		if (!upstream[_bufferId]->keepMode)
+		{
+			chanBuffer[_bufferId].push_back(data);
+		}
+		else
+		{
+			if (chanBuffer[_bufferId].empty())
+			{
+				chanBuffer[_bufferId].push_back(data);
+			}
+		}
+	}
+	else
+	{
+		Data data;
+		data.valid = 1;
+		data.value = _data;
+		data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+		chanBuffer[_bufferId].push_back(data);
+	}
 }
 
 bool Channel::checkSend(Data _data, Channel* _upstream)
@@ -663,12 +716,15 @@ void ChanBase::statusUpdate()
 		// Check sendable
 		if (!noDownstream)
 		{
-			for (auto& chan : downstream)
+			if (!keepMode)
 			{
-				if (!chan->checkSend(this->channel.front(), this))
+				for (auto& chan : downstream)
 				{
-					valid = 0;
-					break;
+					if (!chan->checkSend(this->channel.front(), this))
+					{
+						valid = 0;
+						break;
+					}
 				}
 			}
 		}
@@ -1057,27 +1113,46 @@ void ChanSGMF::init()
 //}
 void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
 {
-	uint upstreamId = _bufferId;
-	Data data = upstream[upstreamId]->channel.front();
+	Data data;
+	data.valid = 1;
+	if (!noUpstream)
+	{
+		uint upstreamId = _bufferId;
+		Data data = upstream[upstreamId]->channel.front();
+	}
 	data.value = _data;
 	data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
 
 	// Tag 
-	uint tag = _tag;  // For no upstream, tag = _tag; For has upstream, tag will be replace the in the below
-	bool tagBind = 0;
+	uint tag = 0;
+	if (!noUpstream)
+	{
+		if (!upstream[_bufferId]->keepMode)
+		{
+			tag = upstream[_bufferId]->channel.front().tag;
+		}
+	}
+	else
+	{
+		tag = _tag;  // For no upstream, tag = _tag;
+	}
+	/*bool tagBind = 0;
 	for (auto& chan : upstream)
 	{
 		if (!chan->keepMode)
 		{
-			tag = chan->channel.front().tag;
-			tagBind = 1;
-			break;
+			if (!chan->channel.empty())
+			{
+				tag = chan->channel.front().tag;
+				tagBind = 1;
+				break;
+			}
 		}
 	}
 	if (!tagBind)
 	{
 		Debug::throwError("Need more upstream channels except the one in keepMode!", __FILE__, __LINE__);
-	}
+	}*/
 
 	if (tagUpdateMode)
 	{
@@ -1087,10 +1162,45 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
 
 	data.tag = tag;
 
-	chanBuffer[_bufferId][tag] = data;  // chanBuffer index 0 ~ #tag to store received data
+	if (!upstream[_bufferId]->keepMode)
+	{
+		chanBuffer[_bufferId][tag] = data;  // chanBuffer index 0 ~ #tag to store received data
+	}
+	else
+	{
+		if (!chanBuffer[_bufferId][0].valid)
+		{
+			chanBuffer[_bufferId][0] = data;  // If upstream is keepMode, only store data in the [0]; Only store once!
+		}
+	}
 }
 
-vector<int> ChanSGMF::get(vector<int> data)
+//vector<int> ChanSGMF::get(vector<int> data)
+//{
+//	//vector<int> pushState(chanBundleSize * 2);  // Push into Din1 and Din2
+//	vector<int> pushState(chanBuffer.size());  // Push into Din1 and Din2
+//	vector<int> popState(2);
+//
+//	checkConnect();
+//	popState = pop(); // Data lifetime in nested loop
+//	
+//	for (size_t i = 0; i < chanBuffer.size(); ++i)
+//	{
+//		vector<int> tmp(2);
+//		//tmp = push(data[i], i, 0);  // If no upstream, default tag = 0
+//		push(data[i], i, 0);
+//		pushState[i] = tmp[0];
+//		pushState[i + 1] = tmp[1];
+//	}
+//	
+//	statusUpdate(); // Set valid according to the downstream channels' status
+//	//bpUpdate();
+//
+//	pushState.insert(pushState.end(), popState.begin(), popState.end());
+//	return pushState;
+//}
+
+vector<int> ChanSGMF::get()
 {
 	//vector<int> pushState(chanBundleSize * 2);  // Push into Din1 and Din2
 	vector<int> pushState(chanBuffer.size());  // Push into Din1 and Din2
@@ -1098,16 +1208,16 @@ vector<int> ChanSGMF::get(vector<int> data)
 
 	checkConnect();
 	popState = pop(); // Data lifetime in nested loop
-	
-	for (size_t i = 0; i < chanBuffer.size(); ++i)
+
+	for (size_t i = 0; i < upstream.size(); ++i)
 	{
 		vector<int> tmp(2);
 		//tmp = push(data[i], i, 0);  // If no upstream, default tag = 0
-		push(data[i], i, 0);
+		tmp = push(upstream[i]->value, i, 0);
 		pushState[i] = tmp[0];
 		pushState[i + 1] = tmp[1];
 	}
-	
+
 	statusUpdate(); // Set valid according to the downstream channels' status
 	//bpUpdate();
 
@@ -1186,8 +1296,16 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
 		channel.pop_front();  // Pop channel(sendQueue)
 		for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
 		{
-			chanBuffer[bufferId][addr].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
-			lastPopVal[bufferId] = chanBuffer[bufferId][addr].value;  // For LC->cond, record last pop data when the channel pop empty
+			if (!upstream[bufferId]->keepMode)
+			{
+				chanBuffer[bufferId][addr].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
+				lastPopVal[bufferId] = chanBuffer[bufferId][addr].value;  // For LC->cond, record last pop data when the channel pop empty
+			}
+			else
+			{
+				chanBuffer[bufferId][0].valid = 0;
+				lastPopVal[bufferId] = chanBuffer[bufferId][0].value;
+			}
 		}
 
 		//for (auto& data : matchQueue)
@@ -1310,6 +1428,7 @@ void ChanSGMF::pushChannel(uint tag)
 	{
 		Data data;
 		data.valid = 1;
+		data.tag = tag;
 		//data.value = _data;
 		//data.cycle = data.cycle + cycle;
 		//uint cycleTemp = data.cycle + cycle;
@@ -1362,8 +1481,12 @@ void ChanSGMF::pushChannel(uint tag)
 			if (upstream[bufferId]->keepMode == 0)  // upstreamId is equal to bufferId
 			{
 				data.last |= chanBuffer[bufferId][tag].last;
+				data.lastOuter |= chanBuffer[bufferId][tag].lastOuter;
 			}
-			data.lastOuter |= chanBuffer[bufferId][tag].lastOuter;
+			else
+			{
+				data.lastOuter |= chanBuffer[bufferId][0].lastOuter;  // If a buffer's corresponding upstream is in keepMode, only store its data in [0]
+			}
 			//data.graphSwitch |= chanBuffer[bufferId][tag].graphSwitch;
 		}
 
@@ -1435,9 +1558,18 @@ void ChanSGMF::pushChannel(uint tag)
 			else
 			{
 				// Clear data in the chanBuffer directly
-				for (auto& buffer : chanBuffer)
+				for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
 				{
-					buffer[tag].valid = 0;  // Clear data
+					if (!upstream[bufferId]->keepMode)
+					{
+						uint round = size / tagSize;
+						uint addr = (round - 1) * tagSize + tag;
+						chanBuffer[bufferId][addr].valid = 0;  // Clear data
+					}
+					else
+					{
+						chanBuffer[bufferId][0].valid = 0;
+					}
 				}
 			}
 
@@ -1504,19 +1636,22 @@ void ChanSGMF::statusUpdate()
 
 	// Shift data in multi-cycle bufferBuffer
 	uint round = size / tagSize;
-	for (auto& buffer : chanBuffer)  // Traverse each buffernel in bufferBundle
+	for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)  // Traverse each buffernel in bufferBundle
 	{
-		for (size_t tag = 0; tag < tagSize; ++tag)  // Traverse tag
+		if (!upstream[bufferId]->keepMode)  // Only shift buffer whose corresponding upstream is not in keepMode!
 		{
-			for (uint i = 0; i < round - 1; ++i)  // Shift from back to front in chanBuffer
+			for (size_t tag = 0; tag < tagSize; ++tag)  // Traverse tag
 			{
-				uint addrBase = (round - 2 - i) * tagSize;
-				if (!buffer[addrBase + tagSize + tag].valid)  // Next round addr
+				for (uint i = 0; i < round - 1; ++i)  // Shift from back to front in chanBuffer
 				{
-					if (buffer[addrBase + tag].valid)
+					uint addrBase = (round - 2 - i) * tagSize;
+					if (!chanBuffer[bufferId][addrBase + tagSize + tag].valid)  // Next round addr
 					{
-						buffer[addrBase + tagSize + tag] = buffer[addrBase + tag];  // Shift data
-						buffer[addrBase + tag].valid = 0;  // Clear after shift
+						if (chanBuffer[bufferId][addrBase + tag].valid)
+						{
+							chanBuffer[bufferId][addrBase + tagSize + tag] = chanBuffer[bufferId][addrBase + tag];  // Shift data
+							chanBuffer[bufferId][addrBase + tag].valid = 0;  // Clear after shift
+						}
 					}
 				}
 			}
@@ -1532,25 +1667,39 @@ void ChanSGMF::statusUpdate()
 		//uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + i;  // For multi-cycle channel, only check the bottom section's tag
 		uint addr = (round - 1) * tagSize + tag;  // For multi-cycle channel, only check the bottom section's tag
 
-		for (auto& buffer : chanBuffer)
+		for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
 		{
-			if (!buffer[addr].valid)
+			if (!upstream[bufferId]->keepMode)
 			{
-				match = 0;
-				break;
+				if (!chanBuffer[bufferId][addr].valid)
+				{
+					match = 0;
+					break;
+				}
 			}
 			else
 			{
-				//// loopVar not receive last, only receive lastOuter
-				//// Due to a buffernel in keepMode may repeatly send a data with a last for many times
-				//if (!isLoopVar && keepMode == 0)
-				//{
-				//	data.last |= buffer[addr].last;
-				//}
-				//data.lastOuter |= buffer[addr].lastOuter;
-
-				data.cycle = std::max(data.cycle, buffer[addr].cycle);  // Update the cycle as the max among each channel
+				if (!chanBuffer[bufferId][0].valid)
+				{
+					match = 0;
+					break;
+				}
 			}
+
+			data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
+
+			//else
+			//{
+			//	//// loopVar not receive last, only receive lastOuter
+			//	//// Due to a buffernel in keepMode may repeatly send a data with a last for many times
+			//	//if (!isLoopVar && keepMode == 0)
+			//	//{
+			//	//	data.last |= buffer[addr].last;
+			//	//}
+			//	//data.lastOuter |= buffer[addr].lastOuter;
+
+			//	data.cycle = std::max(data.cycle, buffer[addr].cycle);  // Update the cycle as the max among each channel
+			//}
 		}
 
 		if (match)
@@ -1622,7 +1771,7 @@ void ChanSGMF::statusUpdate()
 				if (sendable)
 				{
 					//channel.push_back(data);  // Push data sendable into channel(sendQueue)
-					pushChannel(data.tag);  // Push sendable data into channel(sendQueue)
+					pushChannel(data.tag);  // Only when channel is empty still execute current "for loop", no worry push a data in channel many times
 					//valid = 1;  // Set valid = 1, signify the data in channel(sendQueue) is valid for all the downstream
 					break;  // Only one data can be pushed in each cycle
 				}
@@ -1748,10 +1897,17 @@ int ChanSGMF::assign(uint bufferId)
 {
 	if (!channel.empty())
 	{
-		uint tag = channel.front().tag;
-		uint round = size / tagSize;
-		uint addr = (round - 1) * tagSize + tag;
-		return chanBuffer[bufferId][addr].value;
+		if (!upstream[bufferId]->keepMode)
+		{
+			uint tag = channel.front().tag;
+			uint round = size / tagSize;
+			uint addr = (round - 1) * tagSize + tag;
+			return chanBuffer[bufferId][addr].value;
+		}
+		else
+		{
+			return chanBuffer[bufferId][0].value;
+		}
 	}
 	else
 	{
