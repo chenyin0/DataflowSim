@@ -132,6 +132,7 @@ void Registry::initChanBuffer(Channel* _chan)
 	{
 		uint upstreamSize = _chan->upstream.size();
 		_chan->chanBuffer.resize(upstreamSize);
+		_chan->chanBufferDataCnt.resize(upstreamSize);
 
 		// If channel is SGMF, resize each buffer of chanBuffer
 		if (_chan->chanType == ChanType::Chan_SGMF)
@@ -145,6 +146,7 @@ void Registry::initChanBuffer(Channel* _chan)
 	else
 	{
 		_chan->chanBuffer.resize(1);
+		_chan->chanBufferDataCnt.resize(1);
 		if (_chan->chanType == ChanType::Chan_SGMF)
 		{
 			for (auto& buffer : _chan->chanBuffer)

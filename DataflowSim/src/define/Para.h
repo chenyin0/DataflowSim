@@ -76,13 +76,15 @@ enum class ArchType
 #define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
 
 // SPM
-#define SPM_ENABLE 0
+#define SPM_ENABLE 1
 #define SPM_ACCESS_LATENCY 1
 #define SPM_BANK_NUM 16
 #define SPM_BANK_DEPTH 64
 #define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM
 
 // Cache
-#define CACHE_ENABLE 1
+#define CACHE_ENABLE 0
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 #define REQ_QUEUE_TO_MEM_SIZE 32 
+
+#define CACHE_O3 1  // O3 = 1: Cache OoO; O3 = 0, Cache in order;

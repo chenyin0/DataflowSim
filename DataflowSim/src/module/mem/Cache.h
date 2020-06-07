@@ -43,7 +43,7 @@ namespace DFSim
 	//enum class Cache_write_strategy;
 	//enum class Cache_write_allocate;
 
-	using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict
+	using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
 
 	//写内存方法就默认写回吧。
 	class Cache_Line 
@@ -71,13 +71,14 @@ namespace DFSim
 		// Interface function for MemSystem
 		bool addTransaction(MemReq _req);  // Add transaction to Cache
 		vector<MemReq> callBack();  // Get memory access results from Cache
+		vector<MemReq> callBackInOrder();  // Get memory access results from Cache in order
 
 		// Interface func with DRAM
 		void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
 		void mem_req_complete(MemReq _req);
 
 		void cacheUpdate();
-		void reqQueueUpdate();
+		//void reqQueueUpdate();
 
 	private:
 		void init(/*uint a_cache_size[], uint a_cache_line_size[], uint a_mapping_ways[]*/);
@@ -129,6 +130,7 @@ namespace DFSim
 
 		void updateReqQueueOfCacheLevel();
 		void updateCacheLine();
+		void reqQueueUpdate();
 
 #ifdef DEBUG_MODE  // Get private instance for debug
 	public:
@@ -203,5 +205,7 @@ namespace DFSim
 		vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
 		deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
 		vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
+
+		uint reqCnt = 0;  // Record the sequence of each cacheReq
 	};
 }

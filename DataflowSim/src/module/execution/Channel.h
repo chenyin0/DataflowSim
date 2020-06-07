@@ -133,6 +133,10 @@ class Channel usage:
 		ChanType chanType;
 
 		int value = 0;  // Channel value, for config code
+		
+		// Performance profiling
+		vector<uint> chanBufferDataCnt;  // Record the number of data has been pushed into each chanBuffer
+		uint chanDataCnt = 0;  // Record the number of data has been sent from channel
 
 	protected:
 		//uint size;	// chanBuffer size

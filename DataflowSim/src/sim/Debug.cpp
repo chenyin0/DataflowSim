@@ -40,7 +40,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 		// Print each chanBuffer
 		for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
 		{
-			_output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << "): ";
+			_output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << ")(cnt=" << channel->chanBufferDataCnt[i] << "): ";
 			for (auto& data : channel->chanBuffer[i])
 			{
 				if (data.valid)
@@ -55,7 +55,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
 			_output_file << std::endl;
 		}
 
-		_output_file << "chan: ";
+		_output_file << "chan(cnt=" << channel->chanDataCnt << "): ";
 		for (auto i : channel->channel)
 		{
 			_output_file << "d" << channel->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
@@ -139,7 +139,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
 
 		// Print SGMF channel
 		_output_file << std::endl;
-		_output_file << "channel:" << std::endl;
+		_output_file << "chan(cnt=" << channel->chanDataCnt << "):" << std::endl;
 		_output_file << "\t";
 		for (auto data : channel->channel)
 		{
@@ -167,7 +167,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 		// Print each chanBuffer
 		for (size_t i = 0; i < _lse->chanBuffer.size(); ++i)
 		{
-			_output_file << "chanBuffer_" << i << "(bp=" << _lse->bp[i] << "): ";
+			_output_file << "chanBuffer_" << i << "(bp=" << _lse->bp[i] << "):(cnt=" << _lse->chanBufferDataCnt[i] << "): ";
 			for (auto& data : _lse->chanBuffer[i])
 			{
 				if (data.valid)
@@ -232,7 +232,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 
 		// Print Lse channel
 		_output_file << std::endl;
-		_output_file << "channel:" << std::endl;
+		_output_file << "chan(cnt=" << _lse->chanDataCnt << "): " << std::endl;
 		_output_file << "\t";
 		for (auto& i : _lse->channel)
 		{

@@ -197,7 +197,16 @@ void MemSystem::getFromCache()
 {
 	if (cache != nullptr)
 	{
-		vector<MemReq> _req = cache->callBack();
+		vector<MemReq> _req;
+		if (CACHE_O3)
+		{
+			_req = cache->callBack();  // Cache OoO
+		}
+		else
+		{
+			_req = cache->callBackInOrder();  // Cache in order
+		}
+
 		for (auto req : _req)
 		{
 			reqQueue[req.memSysReqQueueIndex].ready = 1;

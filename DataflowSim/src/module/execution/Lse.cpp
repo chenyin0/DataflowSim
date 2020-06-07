@@ -287,6 +287,11 @@ void Lse::statusUpdate()
 		valid = 0;
 	}
 
+	if (valid)
+	{
+		++chanDataCnt;
+	}
+
 	bpUpdate();
 
 	// Emulate hardware parallel loop unrolling

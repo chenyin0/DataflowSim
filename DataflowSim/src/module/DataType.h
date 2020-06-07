@@ -43,6 +43,7 @@ namespace DFSim
 		bool valid = 0;
 		uint addr = 0;
 		//uint value = 0;
+		uint cnt = 0;  // Record memReq sequence
 
 		bool isWrite = 0;  // Ld or St req
 		bool inflight = 0;  // Signify the req has sent out but hasn't been responsed
@@ -62,6 +63,7 @@ namespace DFSim
 	{
 		bool valid = 0;
 		uint addr = 0;
+		uint cnt = 0;  // Record cacheReq sequence
 		//uint setBase = 0;  // Cacheline Id (equal indicate in the same cacheline)
 		//int hitIndex = -1;  // Cache miss = -1; Cache hit = cacheline index
 		

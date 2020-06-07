@@ -237,12 +237,14 @@ void Channel::pushBuffer(int _data, uint _bufferId)
 		if (!upstream[_bufferId]->keepMode)
 		{
 			chanBuffer[_bufferId].push_back(data);
+			++chanBufferDataCnt[_bufferId];
 		}
 		else
 		{
 			if (chanBuffer[_bufferId].empty())
 			{
 				chanBuffer[_bufferId].push_back(data);
+				++chanBufferDataCnt[_bufferId];
 			}
 		}
 	}
@@ -253,6 +255,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
 		data.value = _data;
 		data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
 		chanBuffer[_bufferId].push_back(data);
+		++chanBufferDataCnt[_bufferId];
 	}
 }
 
@@ -733,6 +736,7 @@ void ChanBase::statusUpdate()
 	if (valid)
 	{
 		channel.front().cycle = clk;  // Update cycle when pop data
+		++chanDataCnt;
 	}
 
 	bpUpdate();
@@ -1165,12 +1169,14 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
 	if (!upstream[_bufferId]->keepMode)
 	{
 		chanBuffer[_bufferId][tag] = data;  // chanBuffer index 0 ~ #tag to store received data
+		++chanBufferDataCnt[_bufferId];
 	}
 	else
 	{
 		if (!chanBuffer[_bufferId][0].valid)
 		{
 			chanBuffer[_bufferId][0] = data;  // If upstream is keepMode, only store data in the [0]; Only store once!
+			++chanBufferDataCnt[_bufferId];
 		}
 	}
 }
@@ -1783,6 +1789,7 @@ void ChanSGMF::statusUpdate()
 	{
 		valid = 1;
 		channel.front().cycle = clk;  // Update cycle when pop data
+		++chanDataCnt;
 	}
 
 	//bpUpdate();
