@@ -143,7 +143,9 @@
     <ClInclude Include="src\module\mem\Spm.h" />
     <ClInclude Include="src\module\Registry.h" />
     <ClInclude Include="src\sim\Debug.h" />
+    <ClInclude Include="src\util\ReadFile.hpp" />
     <ClInclude Include="src\util\util.hpp" />
+    <ClInclude Include="test\bfs\Bfs.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\MemoryTest.h" />
     <ClInclude Include="test\SimpleFlow_Base.cpp" />
@@ -162,19 +164,25 @@
     <ClCompile Include="src\module\mem\Spm.cpp" />
     <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="test\bfs\Bfs.cpp" />
+    <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
+    <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\MemoryTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resource\output\Gemm\Gemm_log_Base.txt" />
-    <Text Include="resource\output\MemoryTest\memory_test.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_Base.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt" />
-    <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt" />
+    <Text Include="resource\Gemm\Gemm_log_Base.txt" />
+    <Text Include="resource\MemoryTest\memory_test.txt" />
+    <Text Include="resource\SimpleFlowTest\log.txt" />
+    <Text Include="resource\SimpleFlowTest\log_Base.txt" />
+    <Text Include="resource\SimpleFlowTest\log_DGSF.txt" />
+    <Text Include="resource\SimpleFlowTest\log_SGMF.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resource\Bfs\input.data" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

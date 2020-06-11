@@ -9,11 +9,11 @@
 
 namespace DFSimTest
 {
-	using namespace DFSim;
+    using namespace DFSim;
 
-	class MemoryTest
-	{
-	public:
-		static void memory_test(Debug* debug);
-	};
+    class MemoryTest
+    {
+    public:
+        static void memory_test(Debug* debug);
+    };
 }

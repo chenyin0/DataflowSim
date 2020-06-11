@@ -4,14 +4,14 @@
 
 /*
 *****************************************************
-*************	Simulation parameters  ***************
+*************    Simulation parameters  ***************
 */
 #define DEBUG_MODE DEBUG_MODE
 
 
 /*
 *****************************************************
-*************	Execution parameters  ***************
+*************    Execution parameters  ***************
 */
 
 // Architecture para
@@ -21,10 +21,10 @@
 
 enum class ArchType
 {
-	Base,
-	DGSF,
-	SGMF,
-	TIA
+    Base,
+    DGSF,
+    SGMF,
+    TIA
 };
 
 #define Base Base
@@ -33,16 +33,16 @@ enum class ArchType
 //#define TIA TIA
 
 #ifdef DGSF
-	#define ARCH DGSF
+    #define ARCH DGSF
 #endif
 #ifdef SGMF
-	#define ARCH SGMF 
+    #define ARCH SGMF 
 #endif
 #ifdef TIA
-	#define ARCH TIA
+    #define ARCH TIA
 #endif
 #ifdef Base
-	#define ARCH Base
+    #define ARCH Base
 #endif
 
 // Array para
@@ -58,16 +58,16 @@ enum class ArchType
 //#define CHANNEL_BUNDLE_SIZE 2  // PE chanBundle size (Din1, Din2...)
 
 #ifdef DGSF
-	#define CHAN_SIZE BRAM_BANK_DEPTH
+    #define CHAN_SIZE BRAM_BANK_DEPTH
 #endif
 #ifdef SGMF
-	#define CHAN_SIZE INPUT_BUFF_SIZE
+    #define CHAN_SIZE INPUT_BUFF_SIZE
 #endif
 
 
 /*
 ************************************************
-*************	Memory parameters  *************
+*************    Memory parameters  *************
 */
 
 // MemSystem
@@ -76,15 +76,15 @@ enum class ArchType
 #define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
 
 // SPM
-#define SPM_ENABLE 1
+#define SPM_ENABLE 0
 #define SPM_ACCESS_LATENCY 1
 #define SPM_BANK_NUM 16
 #define SPM_BANK_DEPTH 64
 #define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM
 
 // Cache
-#define CACHE_ENABLE 0
+#define CACHE_ENABLE 1
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
-#define CACHE_O3 1  // O3 = 1: Cache OoO; O3 = 0, Cache in order;
+#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0, Cache in order;

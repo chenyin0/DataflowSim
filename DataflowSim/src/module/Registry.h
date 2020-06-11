@@ -15,35 +15,35 @@ TODO:
 
 namespace DFSim
 {
-	struct RegistryTable
-	{
-		Channel* chanPtr = nullptr;
-		Lc* lcPtr = nullptr;
-		Mux* muxPtr = nullptr;
-		uint moduleId = 0;
-		ModuleType moduleType;
-	};
+    struct RegistryTable
+    {
+        Channel* chanPtr = nullptr;
+        Lc* lcPtr = nullptr;
+        Mux* muxPtr = nullptr;
+        uint moduleId = 0;
+        ModuleType moduleType;
+    };
 
-	class Registry
-	{
-	public:
-		Registry();
-		~Registry();
-		static int registerChan(Channel* chan);
-		static int registerLc(Lc* lc);
-		static int registerMux(Mux* mux);
-		void tableInit();
+    class Registry
+    {
+    public:
+        Registry();
+        ~Registry();
+        static int registerChan(Channel* chan);
+        static int registerLc(Lc* lc);
+        static int registerMux(Mux* mux);
+        void tableInit();
 
-	private:
-		void initLastTagQueue(Channel* _chan);  // Initial last tag vec for keepMode channel
-		void initChanBuffer(Channel* _chan);
-		void initBp(Channel* _chan);
-		void initLastPopVal(Channel* _chan);
-		void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
+    private:
+        void initLastTagQueue(Channel* _chan);  // Initial last tag vec for keepMode channel
+        void initChanBuffer(Channel* _chan);
+        void initBp(Channel* _chan);
+        void initLastPopVal(Channel* _chan);
+        void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
 
-	private:
-		static uint moduleId;
-		static vector<RegistryTable> registryTable;
-	};
+    private:
+        static uint moduleId;
+        static vector<RegistryTable> registryTable;
+    };
 
 }

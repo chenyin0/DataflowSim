@@ -20,15 +20,6 @@
     <Filter Include="resource">
       <UniqueIdentifier>{c3cb4b9b-54ed-43c5-8499-b3ca25c681d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resource\input">
-      <UniqueIdentifier>{5782b88e-f2fe-4da2-8e1c-da2aab616c34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\output">
-      <UniqueIdentifier>{7f2c43b9-d312-40e6-8123-3ea8478389c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\output\SimpleFlowTest">
-      <UniqueIdentifier>{2bcfa195-bd21-4294-b674-9fc1d8639d15}</UniqueIdentifier>
-    </Filter>
     <Filter Include="test">
       <UniqueIdentifier>{083d42ff-9f9f-4bb9-ac07-2736d2579662}</UniqueIdentifier>
     </Filter>
@@ -41,17 +32,23 @@
     <Filter Include="src\module\connection">
       <UniqueIdentifier>{f7cf56cd-75f0-45d3-85e9-e9ffb6a0faeb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resource\output\MemoryTest">
-      <UniqueIdentifier>{45935b0d-d59b-4ba2-86b5-4557cd3dde11}</UniqueIdentifier>
-    </Filter>
     <Filter Include="test\gemm">
       <UniqueIdentifier>{be6a0389-df79-48b9-a2f7-f24a5875f1a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="test\bfs">
       <UniqueIdentifier>{cb976672-f379-4342-9590-b86638b2583a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resource\output\Gemm">
+    <Filter Include="resource\SimpleFlowTest">
+      <UniqueIdentifier>{2bcfa195-bd21-4294-b674-9fc1d8639d15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\MemoryTest">
+      <UniqueIdentifier>{45935b0d-d59b-4ba2-86b5-4557cd3dde11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\Gemm">
       <UniqueIdentifier>{64aae03b-8412-4afa-9b50-7f42875185f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\Bfs">
+      <UniqueIdentifier>{5ea00ce2-2f4d-4ad9-adfa-014edd16889e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +113,12 @@
     <ClInclude Include="src\module\Registry.h">
       <Filter>src\module</Filter>
     </ClInclude>
+    <ClInclude Include="test\bfs\Bfs.h">
+      <Filter>test\bfs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\ReadFile.hpp">
+      <Filter>src\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -157,28 +160,42 @@
     <ClCompile Include="src\module\Registry.cpp">
       <Filter>src\module</Filter>
     </ClCompile>
+    <ClCompile Include="test\bfs\Bfs.cpp">
+      <Filter>test\bfs</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gemm\Gemm.cpp">
+      <Filter>test\gemm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\bfs\Bfs_SGMF.cpp">
+      <Filter>test\bfs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resource\output\SimpleFlowTest\log.txt">
-      <Filter>resource\output\SimpleFlowTest</Filter>
+    <Text Include="resource\Gemm\Gemm_log_Base.txt">
+      <Filter>resource\Gemm</Filter>
     </Text>
-    <Text Include="resource\output\SimpleFlowTest\log_DGSF.txt">
-      <Filter>resource\output\SimpleFlowTest</Filter>
+    <Text Include="resource\MemoryTest\memory_test.txt">
+      <Filter>resource\MemoryTest</Filter>
     </Text>
-    <Text Include="resource\output\SimpleFlowTest\log_SGMF.txt">
-      <Filter>resource\output\SimpleFlowTest</Filter>
+    <Text Include="resource\SimpleFlowTest\log.txt">
+      <Filter>resource\SimpleFlowTest</Filter>
     </Text>
-    <Text Include="resource\output\SimpleFlowTest\log_Base.txt">
-      <Filter>resource\output\SimpleFlowTest</Filter>
+    <Text Include="resource\SimpleFlowTest\log_Base.txt">
+      <Filter>resource\SimpleFlowTest</Filter>
     </Text>
-    <Text Include="resource\output\MemoryTest\memory_test.txt">
-      <Filter>resource\output\MemoryTest</Filter>
+    <Text Include="resource\SimpleFlowTest\log_DGSF.txt">
+      <Filter>resource\SimpleFlowTest</Filter>
     </Text>
-    <Text Include="resource\output\Gemm\Gemm_log_Base.txt">
-      <Filter>resource\output\Gemm</Filter>
+    <Text Include="resource\SimpleFlowTest\log_SGMF.txt">
+      <Filter>resource\SimpleFlowTest</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resource\Bfs\input.data">
+      <Filter>resource\Bfs</Filter>
+    </None>
   </ItemGroup>
 </Project>
