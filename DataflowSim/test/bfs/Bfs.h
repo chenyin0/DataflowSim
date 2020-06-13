@@ -78,13 +78,18 @@ namespace DFSimTest
     class BfsTest
     {
     public:
-        static void bfs_sgmf(Debug* debug);
+        static void bfs_SGMF(Debug* debug);
         static void generateData();
 
     private:
         static const uint initialNode;  // Traverse from this node
         static const uint edgeNum;
         static const uint nodeNum;
+
+        static const uint edgeBaseAddr;
+        static const uint nodeBaseAddr;
+        static const uint levelBaseAddr;
+
         static vector<int> memData;
         static vector<Edge_t> edges;
         static vector<Node_t> nodes;

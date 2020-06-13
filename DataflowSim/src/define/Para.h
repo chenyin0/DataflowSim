@@ -21,14 +21,14 @@
 
 enum class ArchType
 {
-    Base,
-    DGSF,
-    SGMF,
-    TIA
+    Base,  // Plasticine 64 pe
+    DGSF,  // 48 pe
+    SGMF,  // 32 pe
+    TIA    // 12 pe
 };
 
-#define Base Base
-//#define DGSF DGSF
+//#define Base Base
+#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -49,21 +49,33 @@ enum class ArchType
 #define MAX (std::numeric_limits<int>::max)()
 #define FREQ 500 // System freq 500MHz
 
+// Base
+#define BASE_INPUT_BUFF_SIZE 1
+
 // DGSF
+#define DGSF_INPUT_BUFF_SIZE 1
 #define BRAM_BANK_DEPTH 32  // SPM bank depth
 
 // SGMF
-#define INPUT_BUFF_SIZE 16  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
-#define TAG_SIZE 16  // Channel data tag size
-//#define CHANNEL_BUNDLE_SIZE 2  // PE chanBundle size (Din1, Din2...)
+#define SGMF_INPUT_BUFF_SIZE 16  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
+#define TAG_SIZE SGMF_INPUT_BUFF_SIZE  // Channel data tag size
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH
 #endif
 #ifdef SGMF
-    #define CHAN_SIZE INPUT_BUFF_SIZE
+    #define CHAN_SIZE SGMF_INPUT_BUFF_SIZE
 #endif
 
+
+/*
+*****************************************************
+*************    ALU parameters  ***************
+*/
+
+// ALU delay cycle
+#define ADD 1
+#define MUL 4
 
 /*
 ************************************************
@@ -87,4 +99,4 @@ enum class ArchType
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
-#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0, Cache in order;
+#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;

@@ -434,6 +434,7 @@ void ChanBase::pushChannel()
         //Data data = upstream.front()->channel.front();
         Data data;
         data.valid = 1;
+        data.tag = chanBuffer[0].front().tag;  // Inherit tag
         //data.last = 0;  // Reset last flag
         //data.value = _data;  // No need data value
         //data.cycle = data.cycle + cycle;
@@ -1040,11 +1041,11 @@ ChanSGMF::ChanSGMF(uint _size, uint _cycle) :
     init();
 }
 
-ChanSGMF::ChanSGMF(uint _size, uint _cycle, uint _bundleSize) : 
-    ChanBase(_size, _cycle)/*, chanSize(_size)*//*, chanBundleSize(_bundleSize)*/
-{
-    init();
-}
+//ChanSGMF::ChanSGMF(uint _size, uint _cycle, uint _bundleSize) : 
+//    ChanBase(_size, _cycle)/*, chanSize(_size)*//*, chanBundleSize(_bundleSize)*/
+//{
+//    init();
+//}
 
 ChanSGMF::~ChanSGMF()
 {
@@ -1183,18 +1184,18 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
 
     data.tag = tag;
 
-    if (!upstream[_bufferId]->keepMode)
-    {
-        chanBuffer[_bufferId][tag] = data;  // chanBuffer index 0 ~ #tag to store received data
-        ++chanBufferDataCnt[_bufferId];
-    }
-    else
+    if (!noUpstream && upstream[_bufferId]->keepMode)
     {
         if (!chanBuffer[_bufferId][0].valid)
         {
             chanBuffer[_bufferId][0] = data;  // If upstream is keepMode, only store data in the [0]; Only store once!
             ++chanBufferDataCnt[_bufferId];
         }
+    }
+    else
+    {
+        chanBuffer[_bufferId][tag] = data;  // chanBuffer index 0 ~ #tag to store received data
+        ++chanBufferDataCnt[_bufferId];
     }
 }
 
@@ -1237,8 +1238,8 @@ vector<int> ChanSGMF::get()
         vector<int> tmp(2);
         //tmp = push(data[i], i, 0);  // If no upstream, default tag = 0
         tmp = push(upstream[i]->value, i, 0);
-        pushState[i] = tmp[0];
-        pushState[i + 1] = tmp[1];
+        //pushState[i] = tmp[0];
+        //pushState[i + 1] = tmp[1];
     }
 
     statusUpdate(); // Set valid according to the downstream channels' status
@@ -1319,15 +1320,15 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
         channel.pop_front();  // Pop channel(sendQueue)
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
         {
-            if (!upstream[bufferId]->keepMode)
-            {
-                chanBuffer[bufferId][addr].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
-                lastPopVal[bufferId] = chanBuffer[bufferId][addr].value;  // For LC->cond, record last pop data when the channel pop empty
-            }
-            else
+            if (!noUpstream && upstream[bufferId]->keepMode)
             {
                 chanBuffer[bufferId][0].valid = 0;
                 lastPopVal[bufferId] = chanBuffer[bufferId][0].value;
+            }
+            else
+            {
+                chanBuffer[bufferId][addr].valid = 0;  // Pop corrsponding data in each channel, set valid to 0
+                lastPopVal[bufferId] = chanBuffer[bufferId][addr].value;  // For LC->cond, record last pop data when the channel pop empty
             }
         }
 
@@ -1661,7 +1662,8 @@ void ChanSGMF::statusUpdate()
     uint round = size / tagSize;
     for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)  // Traverse each buffernel in bufferBundle
     {
-        if (!upstream[bufferId]->keepMode)  // Only shift buffer whose corresponding upstream is not in keepMode!
+        // Only shift buffer whose corresponding upstream is not in keepMode! or not has any upstream
+        if (noUpstream || (!noUpstream && !upstream[bufferId]->keepMode))  
         {
             for (size_t tag = 0; tag < tagSize; ++tag)  // Traverse tag
             {
@@ -1686,30 +1688,35 @@ void ChanSGMF::statusUpdate()
     {
         //uint tag = i;
         Data data;
+        data.valid = 1;
         bool match = 1;
         //uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + i;  // For multi-cycle channel, only check the bottom section's tag
         uint addr = (round - 1) * tagSize + tag;  // For multi-cycle channel, only check the bottom section's tag
 
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
         {
-            if (!upstream[bufferId]->keepMode)
-            {
-                if (!chanBuffer[bufferId][addr].valid)
-                {
-                    match = 0;
-                    break;
-                }
-            }
-            else
+            if (!noUpstream && upstream[bufferId]->keepMode)
             {
                 if (!chanBuffer[bufferId][0].valid)
                 {
                     match = 0;
                     break;
                 }
+
+                data.cycle = std::max(data.cycle, chanBuffer[bufferId][0].cycle);  // Update the cycle as the max among each channel
+            }
+            else
+            {
+                if (!chanBuffer[bufferId][addr].valid)
+                {
+                    match = 0;
+                    break;
+                }
+
+                data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
             }
 
-            data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
+            //data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
 
             //else
             //{
@@ -1828,7 +1835,8 @@ bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
                 tag = (tag + 1) % tagSize;  // Update tag in tagUpdateMode
             }
 
-            if (!chanBuffer[chanId][tag].valid)
+            // If this tag's data is invalid, or this tag's data will be poped out in the next cycle, it is sendable;
+            if (!chanBuffer[chanId][tag].valid || (valid && channel.front().tag == tag))
             {
                 sendable = 1;
             }
@@ -1938,4 +1946,11 @@ int ChanSGMF::assign(uint bufferId)
         //return MAX;  // Indicate current value is invalid
         return lastPopVal[bufferId];
     }
+}
+
+int ChanSGMF::assign(Channel* chan)
+{
+    uint bufferId = getChanId(chan);
+
+    return this->assign(bufferId);  
 }

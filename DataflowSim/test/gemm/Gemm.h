@@ -8,7 +8,7 @@
 #include "../../src/sim/Debug.h"
 #include "../../src/module/Registry.h"
 
-/*  gemm src code 
+/*  Gemm src code 
     from MachSuite, blocked
 
 void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
@@ -35,6 +35,38 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 
 */
 
+/*
+//************************
+DFG analyze:
+    DFG: no unrolling 
+
+    Pe_lc = 10; (Lc = 2pe)
+    PE_comp = 11;
+        loop_4 pe = 5;
+        loop_5 pe = 6;
+
+    Ld = 3;
+    St = 1;
+
+    No-unroll:
+        total pe = 21;
+
+//*************************
+Config parameter:
+    Base: 
+        Unroll loop_5 8 times:
+        total pe = 63;
+
+    SGMF:
+        Unroll loop_5 2 times:
+        total pe = 27;
+
+    DGSF:
+        loop_4: unroll 7 times;  (48pe - 4lc * 2)/5 = 8 times
+        loop_5: unroll 8 times;
+
+*/
+
 namespace DFSimTest
 {
     using namespace DFSim;
@@ -42,7 +74,8 @@ namespace DFSimTest
     class GemmTest
     {
     public:
-        static void gemm_base(Debug* debug);
+        static void gemm_Base(Debug* debug);
+        static void gemm_DGSF(Debug* debug);
     
     private:
         static void generateData();  // Generate benchmark data
@@ -55,25 +88,4 @@ namespace DFSimTest
         static vector<vector<int>> m2;
         static vector<vector<int>> result;
     };
-
-//    void GemmTest::generateData() 
-//    {
-//        uint size = matrix_width * matrix_height;
-//        m1.resize(matrix_height);
-//        m2.resize(matrix_height);
-//        result.resize(matrix_height);
-//
-//        for (size_t i = 0; i < matrix_height; ++i)
-//        {
-//            m1[i].resize(matrix_width);
-//            m2[i].resize(matrix_width);
-//            result.resize(matrix_width);
-//
-//            for (size_t j = 0; j < matrix_width; ++i)
-//            {
-//                m1[i][j] = i * matrix_width + j;
-//                m2[i][j] = i * matrix_width + j;
-//            }
-//        }
-//    }
 }

@@ -50,6 +50,12 @@
     <Filter Include="resource\Bfs">
       <UniqueIdentifier>{5ea00ce2-2f4d-4ad9-adfa-014edd16889e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\SimpleFlowTest">
+      <UniqueIdentifier>{586477ed-7e65-4bcd-9b1e-485051795c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\MemoryTest">
+      <UniqueIdentifier>{285e521b-da57-44b1-8dfa-fffec004b6d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -89,18 +95,6 @@
     <ClInclude Include="src\module\mem\Spm.h">
       <Filter>src\module\memory</Filter>
     </ClInclude>
-    <ClInclude Include="test\SimpleFlow_DGSF.cpp">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_SGMF.cpp">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_Base.cpp">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="test\MemoryTest.h">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="src\module\mem\Cache.h">
       <Filter>src\module\memory</Filter>
     </ClInclude>
@@ -118,6 +112,18 @@
     </ClInclude>
     <ClInclude Include="src\util\ReadFile.hpp">
       <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_Base.cpp">
+      <Filter>test\SimpleFlowTest</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_DGSF.cpp">
+      <Filter>test\SimpleFlowTest</Filter>
+    </ClInclude>
+    <ClInclude Include="test\SimpleFlow_SGMF.cpp">
+      <Filter>test\SimpleFlowTest</Filter>
+    </ClInclude>
+    <ClInclude Include="test\MemoryTest.h">
+      <Filter>test\MemoryTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,9 +154,6 @@
     <ClCompile Include="src\module\mem\Spm.cpp">
       <Filter>src\module\memory</Filter>
     </ClCompile>
-    <ClCompile Include="test\MemoryTest.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
     <ClCompile Include="src\module\mem\Cache.cpp">
       <Filter>src\module\memory</Filter>
     </ClCompile>
@@ -168,6 +171,12 @@
     </ClCompile>
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp">
       <Filter>test\bfs</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gemm\Gemm_DGSF.cpp">
+      <Filter>test\gemm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\MemoryTest.cpp">
+      <Filter>test\MemoryTest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +197,12 @@
     </Text>
     <Text Include="resource\SimpleFlowTest\log_SGMF.txt">
       <Filter>resource\SimpleFlowTest</Filter>
+    </Text>
+    <Text Include="resource\Bfs\Bfs_log_SGMF.txt">
+      <Filter>resource\Bfs</Filter>
+    </Text>
+    <Text Include="resource\Gemm\Gemm_log_DGSF.txt">
+      <Filter>resource\Gemm</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

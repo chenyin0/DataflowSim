@@ -168,10 +168,13 @@
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
+    <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
     <ClCompile Include="test\MemoryTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="resource\Bfs\Bfs_log_SGMF.txt" />
     <Text Include="resource\Gemm\Gemm_log_Base.txt" />
+    <Text Include="resource\Gemm\Gemm_log_DGSF.txt" />
     <Text Include="resource\MemoryTest\memory_test.txt" />
     <Text Include="resource\SimpleFlowTest\log.txt" />
     <Text Include="resource\SimpleFlowTest\log_Base.txt" />

@@ -97,7 +97,7 @@
 //        i_lc1->sendActiveMode = 1;
 //        i_lc1->activeStream = {i_tmp/*, begin*/};
 //
-//        // Disable channel: set all the in activeMode channels' enable = 0, except the first channel(usual the most outer loop->cond)
+//        // Disable channel: set all the in activeMode channels' enable = 0, except the first channel(usual the most outer loopVar)
 //        i_lc1->enable = 0;
 //
 //

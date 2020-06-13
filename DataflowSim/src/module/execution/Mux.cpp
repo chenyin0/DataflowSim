@@ -360,7 +360,7 @@ MuxSGMF::~MuxSGMF()
 
 void MuxSGMF::bpUpdate()
 {
-    /*    In SGMF mode, backpressure mechanism is realized by same tag check rather than BP.
+    /*  In SGMF mode, backpressure mechanism is realized by same tag check rather than BP.
         So in the MuxSGMF, each cycle trueChan & falseChan update their channel status by outChan's downstream.
         In other words, when trueChan/falseChan's upstreams execute checkSend(), they actually are checking the outChan's downstream.
     */
@@ -489,15 +489,31 @@ void MuxSGMF::pushOutChan()
     //}
     //outChan->get(tmp);
 
-    uint tag = upstreamDataStatus.tag;
-    outChan->get({ 1 }, tag);  // outChan is a single & noUpstream channel
+    if (outChan->downstream[0]->isLoopVar)  // LoopVar is always the first element in downstream of a outChan
+    {
+        // outChan is a single & noUpstream channel
+        outChan->get({ 1 }, 0);  // LoopVar not inherits tag
+    }
+    else
+    {
+        uint tag = upstreamDataStatus.tag;
+        // outChan is a single & noUpstream channel
+        outChan->get({ 1 }, tag);  // Non-loopVar inherits tag
+    }
 
     // Update data status
     // Note: due to pass checkUpstream, the data received by outChan must been pushed into the outChan's channel in the same cycle, 
-    //         so update the channel.back() with upstreamDataStatus is OK.
-    outChan->channel.back().last = upstreamDataStatus.last;
-    outChan->channel.back().lastOuter = upstreamDataStatus.lastOuter;
-    outChan->channel.back().graphSwitch = upstreamDataStatus.graphSwitch;
+    //       so update the channel.back() with upstreamDataStatus is OK.
+    if (!outChan->channel.empty())
+    {
+        outChan->channel.back().last = upstreamDataStatus.last;
+        outChan->channel.back().lastOuter = upstreamDataStatus.lastOuter;
+        outChan->channel.back().graphSwitch = upstreamDataStatus.graphSwitch;
+    }
+    //outChan->channel.back().last = upstreamDataStatus.last;
+    //outChan->channel.back().lastOuter = upstreamDataStatus.lastOuter;
+    //outChan->channel.back().graphSwitch = upstreamDataStatus.graphSwitch;
+
     //outChan->channel.back().tag = upstreamDataStatus.tag;  // Inherit tag from upstream
 }
 

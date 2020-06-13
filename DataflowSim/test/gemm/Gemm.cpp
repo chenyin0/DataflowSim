@@ -2,9 +2,9 @@
 
 using namespace DFSimTest;
 
-const uint GemmTest::matrix_width = 10;
+const uint GemmTest::matrix_width = 20;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 5;
+const uint GemmTest::block_size = 10;
 
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;

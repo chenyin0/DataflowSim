@@ -748,7 +748,7 @@ vector<MemReq> Cache::callBackInOrder()
                 for (size_t entryId = 0; entryId < reqQueueBank.size(); ++entryId)
                 {
                     auto req = reqQueueBank[entryId].first;
-                    if (req.valid)
+                    if (req.valid && req.ready)
                     {
                         getValid = 1;
                         if (req.cnt < cnt)

@@ -8,7 +8,8 @@ namespace DFSim
     {
         SimpleFlowTest,
         MemoryTest,
-        Gemm
+        Gemm,
+        Bfs
     };
 
     class tb_name_convert
@@ -22,6 +23,8 @@ namespace DFSim
                 return "MemoryTest";
             if (type_ == TestBench_name::Gemm)
                 return "Gemm";
+            if (type_ == TestBench_name::Bfs)
+                return "Bfs";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

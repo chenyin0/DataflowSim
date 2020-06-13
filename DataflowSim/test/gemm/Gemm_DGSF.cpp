@@ -40,7 +40,7 @@ Config tips:
 
 */
 
-void GemmTest::gemm_Base(Debug* debug)
+void GemmTest::gemm_DGSF(Debug* debug)
 {
     // Generate benchmark data
     generateData();
@@ -64,73 +64,73 @@ void GemmTest::gemm_Base(Debug* debug)
 
     //*** Declare Lc
     // Loop jj
-    ChanBase* lc_jj_loopVar = new ChanBase(2, 0, 1);
-    ChanBase* lc_jj_getEnd = new ChanBase(2, 0, 1);
-    ChanBase* lc_jj_sendEnd = new ChanBase(2, 0, 1);
+    ChanDGSF* lc_jj_loopVar = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_jj_getEnd = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_jj_sendEnd = new ChanDGSF(2, 0, 1);
 
     ChanBase* lc_jj_mux_trueChan = new ChanBase(2, 0, 1);
     ChanBase* lc_jj_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_jj_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanBase* chan_jj_lc = new ChanBase(2, 0, 1);
+    ChanDGSF* chan_jj_lc = new ChanDGSF(2, 0, 1);
     chan_jj_lc->keepMode = 1;
 
     Mux* lc_jj_mux = new Mux(lc_jj_mux_trueChan, lc_jj_mux_falseChan, lc_jj_mux_outChan);
     lc_jj_mux->addPort({ lc_jj_loopVar }, { }, { lc_jj_loopVar });
-    Lc* lc_jj = new Lc(lc_jj_loopVar, lc_jj_getEnd, lc_jj_sendEnd, lc_jj_mux);
+    LcDGSF* lc_jj = new LcDGSF(lc_jj_loopVar, lc_jj_getEnd, lc_jj_sendEnd, lc_jj_mux, BRAM_BANK_DEPTH);
 
     // Loop kk
-    ChanBase* lc_kk_loopVar = new ChanBase(2, 0, 1);
-    ChanBase* lc_kk_getEnd = new ChanBase(2, 0, 1);
-    ChanBase* lc_kk_sendEnd = new ChanBase(2, 0, 1);
+    ChanDGSF* lc_kk_loopVar = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_kk_getEnd = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_kk_sendEnd = new ChanDGSF(2, 0, 1);
 
     ChanBase* lc_kk_mux_trueChan = new ChanBase(2, 0, 1);
     ChanBase* lc_kk_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_kk_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanBase* chan_kk_lc = new ChanBase(2, 0, 1);
+    ChanDGSF* chan_kk_lc = new ChanDGSF(2, 0, 1);
     chan_kk_lc->keepMode = 1;
 
     Mux* lc_kk_mux = new Mux(lc_kk_mux_trueChan, lc_kk_mux_falseChan, lc_kk_mux_outChan);
     lc_kk_mux->addPort({ lc_kk_loopVar }, { }, { lc_kk_loopVar });
-    Lc* lc_kk = new Lc(lc_kk_loopVar, lc_kk_getEnd, lc_kk_sendEnd, lc_kk_mux);
+    LcDGSF* lc_kk = new LcDGSF(lc_kk_loopVar, lc_kk_getEnd, lc_kk_sendEnd, lc_kk_mux, BRAM_BANK_DEPTH);
 
     // Loop i
-    ChanBase* lc_i_loopVar = new ChanBase(2, 0, 1);
-    ChanBase* lc_i_getEnd = new ChanBase(2, 0, 1);
-    ChanBase* lc_i_sendEnd = new ChanBase(2, 0, 1);
+    ChanDGSF* lc_i_loopVar = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_i_getEnd = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_i_sendEnd = new ChanDGSF(2, 0, 1);
 
     ChanBase* lc_i_mux_trueChan = new ChanBase(2, 0, 1);
     ChanBase* lc_i_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_i_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanBase* chan_i_lc = new ChanBase(2, 0, 1);
+    ChanDGSF* chan_i_lc = new ChanDGSF(2, 0, 1);
     chan_i_lc->keepMode = 1;
 
     Mux* lc_i_mux = new Mux(lc_i_mux_trueChan, lc_i_mux_falseChan, lc_i_mux_outChan);
     lc_i_mux->addPort({ lc_i_loopVar }, { }, { lc_i_loopVar });
-    Lc* lc_i = new Lc(lc_i_loopVar, lc_i_getEnd, lc_i_sendEnd, lc_i_mux);
+    LcDGSF* lc_i = new LcDGSF(lc_i_loopVar, lc_i_getEnd, lc_i_sendEnd, lc_i_mux, BRAM_BANK_DEPTH);
 
     // Loop k
-    ChanBase* lc_k_loopVar = new ChanBase(2, 0, 1);
-    ChanBase* lc_k_getEnd = new ChanBase(2, 0, 1);
-    ChanBase* lc_k_sendEnd = new ChanBase(2, 0, 1);
+    ChanDGSF* lc_k_loopVar = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_k_getEnd = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_k_sendEnd = new ChanDGSF(2, 0, 1);
 
     ChanBase* lc_k_mux_trueChan = new ChanBase(2, 0, 1);
     ChanBase* lc_k_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_k_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanBase* chan_k_lc = new ChanBase(2, 0, 1);
+    ChanDGSF* chan_k_lc = new ChanDGSF(BRAM_BANK_DEPTH, 0, 1);
     chan_k_lc->keepMode = 1;
 
     Mux* lc_k_mux = new Mux(lc_k_mux_trueChan, lc_k_mux_falseChan, lc_k_mux_outChan);
     lc_k_mux->addPort({ lc_k_loopVar }, { }, { lc_k_loopVar });
-    Lc* lc_k = new Lc(lc_k_loopVar, lc_k_getEnd, lc_k_sendEnd, lc_k_mux);
+    LcDGSF* lc_k = new LcDGSF(lc_k_loopVar, lc_k_getEnd, lc_k_sendEnd, lc_k_mux, BRAM_BANK_DEPTH);
 
     // Loop j
-    ChanBase* lc_j_loopVar = new ChanBase(2, 0, 1);
-    ChanBase* lc_j_getEnd = new ChanBase(2, 0, 1);
-    ChanBase* lc_j_sendEnd = new ChanBase(2, 0, 1);
+    ChanDGSF* lc_j_loopVar = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_j_getEnd = new ChanDGSF(2, 0, 1);
+    ChanDGSF* lc_j_sendEnd = new ChanDGSF(2, 0, 1);
 
     ChanBase* lc_j_mux_trueChan = new ChanBase(2, 0, 1);
     ChanBase* lc_j_mux_falseChan = new ChanBase(2, 0, 1);
@@ -142,7 +142,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
     Mux* lc_j_mux = new Mux(lc_j_mux_trueChan, lc_j_mux_falseChan, lc_j_mux_outChan);
     lc_j_mux->addPort({ lc_j_loopVar }, { }, { lc_j_loopVar });
-    Lc* lc_j = new Lc(lc_j_loopVar, lc_j_getEnd, lc_j_sendEnd, lc_j_mux);
+    LcDGSF* lc_j = new LcDGSF(lc_j_loopVar, lc_j_getEnd, lc_j_sendEnd, lc_j_mux, BRAM_BANK_DEPTH);
 
 
     //*** Declare channel
@@ -152,40 +152,40 @@ void GemmTest::gemm_Base(Debug* debug)
     end->noDownstream = 1;
 
     // loop kk
-    ChanBase* chan_jj_relay_loop_kk = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop kk for chan_jj_lc
+    ChanDGSF* chan_jj_relay_loop_kk = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop kk for chan_jj_lc
     chan_jj_relay_loop_kk->keepMode = 1;
 
     // loop i
-    ChanBase* chan_i_row = new ChanBase(BASE_INPUT_BUFF_SIZE, MUL, 1);
+    ChanDGSF* chan_i_row = new ChanDGSF(DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, MUL, 1);
     chan_i_row->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_i = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
+    ChanDGSF* chan_jj_relay_loop_i = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
     chan_jj_relay_loop_i->keepMode = 1;
 
-    ChanBase* chan_kk_relay_loop_i = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
+    ChanDGSF* chan_kk_relay_loop_i = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
     chan_kk_relay_loop_i->keepMode = 1;
 
     // loop k
-    ChanBase* chan_m1_addr = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2 * ADD, 1);
+    ChanDGSF* chan_m1_addr = new ChanDGSF(2 * DGSF_INPUT_BUFF_SIZE, 2 * ADD, 8);
 
-    ChanBase* chan_k_row = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, ADD + MUL, 1);
+    ChanDGSF* chan_k_row = new ChanDGSF(2 * DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, ADD + MUL, 8);
     chan_k_row->keepMode = 1;
 
-    ChanBase* chan_m1_getData = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);
+    ChanDGSF* chan_m1_getData = new ChanDGSF(DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, 0, 8);
     chan_m1_getData->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
+    ChanDGSF* chan_jj_relay_loop_k = new ChanDGSF(DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, 0, 8);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k->keepMode = 1;
 
     // loop j
-    ChanBase* chan_m2_addr = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2 * ADD, 8);
+    ChanDGSF* chan_m2_addr = new ChanDGSF(2 * DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, 2 * ADD, 8);
 
-    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE, MUL, 8);
+    ChanDGSF* chan_mul = new ChanDGSF(DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, MUL, 8);
 
-    ChanBase* chan_partialSum_addr = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2 * ADD, 8);
-    /*ChanBase* chan_partialSum_getData = new ChanBase(16, 4);*/
+    ChanDGSF* chan_partialSum_addr = new ChanDGSF(2 * DGSF_INPUT_BUFF_SIZE * BRAM_BANK_DEPTH, 2 * ADD, 8);
+    /*ChanDGSF* chan_partialSum_getData = new ChanDGSF(16, 4);*/
 
-    ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE, ADD, 8);
+    ChanDGSF* chan_partialSum = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, ADD, 8);
 
 
     //*** Define interconnect
@@ -272,11 +272,24 @@ void GemmTest::gemm_Base(Debug* debug)
     lc_k->addPort({ chan_i_lc }, { chan_k_lc, chan_k_row, chan_m1_addr, chan_jj_relay_loop_k }, { lc_j->sendEnd }, { lc_i->getEnd });
     lc_k->addDependence({}, {});  // No loop dependence
 
-    lc_j->addPort({ chan_k_lc }, { chan_m2_addr, chan_partialSum_addr}, { chan_partialSum }, { lc_k->getEnd });
+    lc_j->addPort({ chan_k_lc }, { chan_m2_addr, chan_partialSum_addr }, { chan_partialSum }, { lc_k->getEnd });
     lc_j->addDependence({}, {});  // No loop dependence
 
 
-    ////*** Generate gold results
+    // Define activeChannel
+    chan_jj_lc->sendActiveMode = 1;
+    chan_jj_lc->activeStream = { chan_k_lc, chan_jj_relay_loop_k, chan_m1_getData };
+
+    chan_k_lc->sendActiveMode = 1;
+    chan_k_lc->activeStream = { chan_jj_lc };
+
+    // Disable channel: set all the in activeMode channels' enable = 0, except the first channel(usual the most outer loopVar)
+    chan_k_lc->enable = 0;
+    chan_jj_relay_loop_k->enable = 0;
+    chan_m1_getData->enable = 0;
+
+
+    ////************* Generate gold results ***************
     //for (size_t i = 0; i < matrix_height; ++i)
     //{
     //    for (size_t j = 0; j < matrix_width; ++j)
@@ -305,7 +318,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 500000;
+    uint max_iter = 5000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -404,7 +417,7 @@ void GemmTest::gemm_Base(Debug* debug)
         uint m1_colId = chan_m1_getData->assign(lse_ld_m1) % matrix_width;
         int m1_data = m1[m1_rowId][m1_colId];
         chan_m1_getData->value = m1_data;
-        
+
         chan_jj_relay_loop_k->get();
         chan_jj_relay_loop_k->value = chan_jj_relay_loop_k->assign(chan_jj_relay_loop_i);
 
@@ -458,7 +471,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
         //** Print log
         // Set debug mode
-        debug->debug_mode = Debug_mode::Turn_off;
+        //debug->debug_mode = Debug_mode::Turn_off;
 
         if (iter >= 0)
         {

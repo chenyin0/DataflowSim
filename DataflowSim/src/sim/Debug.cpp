@@ -236,7 +236,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         _output_file << "\t";
         for (auto& i : _lse->channel)
         {
-            _output_file << "d" << _lse->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
+            _output_file << "d" << i.value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
             _output_file << ":" << "g" << i.graphSwitch;
 #endif

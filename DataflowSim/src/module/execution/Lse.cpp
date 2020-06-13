@@ -231,7 +231,7 @@ void Lse::statusUpdate()
         }
     }
 
-    if (match && channel.empty())  // Channel size is 1
+    if (match/* && channel.empty()*/)  // Channel size is 1
     {
         pushReqQ();
     }
@@ -256,13 +256,16 @@ void Lse::statusUpdate()
     }
 
     // Send ready data to channel
-    for (auto& req : reqQueue)
+    if (channel.size() < size)
     {
-        if (req.first.valid && req.first.ready && !req.first.hasPushChan)
+        for (auto& req : reqQueue)
         {
-            req.second.cycle = clk;  // Update cycle
-            channel.push_back(req.second);
-            req.first.hasPushChan = 1;
+            if (req.first.valid && req.first.ready && !req.first.hasPushChan)
+            {
+                req.second.cycle = clk;  // Update cycle
+                channel.push_back(req.second);
+                req.first.hasPushChan = 1;
+            }
         }
     }
 

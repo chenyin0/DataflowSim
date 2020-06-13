@@ -149,8 +149,8 @@ namespace DFSim
         //const char OPERATION_LOCK = 'k';
         //const char OPERATION_UNLOCK = 'u';
 
-        vector<uint> a_cache_size = {1*1024, 8*1024};  // 多级cache的大小设置 (byte)
-        vector<uint> a_cache_line_size = {32, 32};  // 多级cache的line size（block size）大小 (byte)
+        vector<uint> a_cache_size = {64*1024, 786*1024};  // 多级cache的大小设置 (byte)
+        vector<uint> a_cache_line_size = {32, 8};  // 多级cache的line size（block size）大小 (byte)
         vector<uint> a_mapping_ways = {4, 4};  // 组相连的链接方式 (几路组相连)
 
         vector<uint> cache_access_latency = { 1, 4 };  // L1 cycle = 1; L2 cycle = 4;

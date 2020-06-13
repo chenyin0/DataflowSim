@@ -8,8 +8,8 @@
 #include "../test/SimpleFlow_SGMF.cpp"
 
 #include "../test/MemoryTest.h"
-
 #include "../test/gemm/Gemm.h"
+#include "../test/bfs/Bfs.h"
 
 #include "./module/execution/Channel.h"
 
@@ -178,7 +178,7 @@ int main()
     Gemm
     */
     TestBench_name tb_name = TestBench_name::Gemm;
-    ArchType arch = ArchType::Base;
+    ArchType arch = ArchType::DGSF;
 
     DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
@@ -233,13 +233,30 @@ int main()
         switch (arch)
         {
         case ArchType::Base:
-            DFSimTest::GemmTest::gemm_base(debug);
+            DFSimTest::GemmTest::gemm_Base(debug);
+            break;
+        case ArchType::DGSF:
+            DFSimTest::GemmTest::gemm_DGSF(debug);
+            break;
+        case ArchType::SGMF:
+            //DFSimTest::MemoryTest::memory_test(debug);
+            break;
+        }
+
+        break;
+    }
+    case TestBench_name::Bfs:
+    {
+        switch (arch)
+        {
+        case ArchType::Base:
+            //DFSimTest::GemmTest::gemm_base(debug);
             break;
         case ArchType::DGSF:
             //DFSimTest::MemoryTest::memory_test(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            DFSimTest::BfsTest::bfs_SGMF(debug);
             break;
         }
 

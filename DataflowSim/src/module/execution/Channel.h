@@ -238,7 +238,7 @@ class ChanSGMF usage:
     {
     public:
         ChanSGMF(uint _size, uint _cycle);
-        ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
+        //ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
         void init();
         ~ChanSGMF();
         //void checkConnect() override;
@@ -250,6 +250,7 @@ class ChanSGMF usage:
         //vector<int> get(int data);  // For single channel (only Din1)
         vector<int> get(vector<int> data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
         int assign(uint bufferId) override;
+        int assign(Channel* chan) override;
         vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void updateCycle(bool popReady, bool popLastReady) override;
         vector<int> push(int data, uint bufferId, uint tag);  // Push data into corresponding channel
