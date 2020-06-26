@@ -63,7 +63,7 @@ namespace DFSim
     {
         bool valid = 0;
         uint addr = 0;
-        uint cnt = 0;  // Record cacheReq sequence
+        //uint cnt = 0;  // Record cacheReq sequence
         //uint setBase = 0;  // Cacheline Id (equal indicate in the same cacheline)
         //int hitIndex = -1;  // Cache miss = -1; Cache hit = cacheline index
         

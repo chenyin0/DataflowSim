@@ -135,6 +135,7 @@
     <ClInclude Include="src\module\DataType.h" />
     <ClInclude Include="src\module\EnumType.h" />
     <ClInclude Include="src\module\execution\Channel.h" />
+    <ClInclude Include="src\module\execution\GraphScheduler.h" />
     <ClInclude Include="src\module\execution\Lc.h" />
     <ClInclude Include="src\module\execution\Lse.h" />
     <ClInclude Include="src\module\execution\Mux.h" />
@@ -156,6 +157,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\module\ClkSys.cpp" />
     <ClCompile Include="src\module\execution\Channel.cpp" />
+    <ClCompile Include="src\module\execution\GraphScheduler.cpp" />
     <ClCompile Include="src\module\execution\Lc.cpp" />
     <ClCompile Include="src\module\execution\Lse.cpp" />
     <ClCompile Include="src\module\execution\Mux.cpp" />

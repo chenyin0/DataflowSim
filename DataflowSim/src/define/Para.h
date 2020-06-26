@@ -53,12 +53,17 @@ enum class ArchType
 #define BASE_INPUT_BUFF_SIZE 1
 
 // DGSF
-#define DGSF_INPUT_BUFF_SIZE 1
 #define BRAM_BANK_DEPTH 32  // SPM bank depth
+#define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
+#define BRAM_ACCESS_DELAY 3  // Access BRAM delay
 
 // SGMF
 #define SGMF_INPUT_BUFF_SIZE 16  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
 #define TAG_SIZE SGMF_INPUT_BUFF_SIZE  // Channel data tag size
+
+// Lse
+#define LSE_QUEUE_SIZE 16
+#define LSE_O3 0
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH
@@ -89,7 +94,7 @@ enum class ArchType
 
 // SPM
 #define SPM_ENABLE 0
-#define SPM_ACCESS_LATENCY 1
+#define SPM_ACCESS_LATENCY 2
 #define SPM_BANK_NUM 16
 #define SPM_BANK_DEPTH 64
 #define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM
@@ -99,4 +104,4 @@ enum class ArchType
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
-#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;
+//#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;

@@ -178,6 +178,8 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
         if (!reqQueue[i].first.valid)
         {
             req.lseReqQueueIndex = i;  // Record reqQueue Id, for callback from memory
+            req.cnt = orderId;
+            ++orderId;
             data.lseReqQueueIndex = i;  // Record reqQueue Id, for delete from channel
             reqQueue[i].first = req;
             reqQueue[i].second = data;
@@ -256,18 +258,7 @@ void Lse::statusUpdate()
     }
 
     // Send ready data to channel
-    if (channel.size() < size)
-    {
-        for (auto& req : reqQueue)
-        {
-            if (req.first.valid && req.first.ready && !req.first.hasPushChan)
-            {
-                req.second.cycle = clk;  // Update cycle
-                channel.push_back(req.second);
-                req.first.hasPushChan = 1;
-            }
-        }
-    }
+    pushChannel();
 
     if (!channel.empty())
     {
@@ -301,6 +292,67 @@ void Lse::statusUpdate()
     if (speedup > 1)
     {
         parallelize();
+    }
+}
+
+void Lse::pushChannel()
+{
+    uint clk = ClkDomain::getInstance()->getClk();
+    uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
+    bool getValid = 0;
+
+    if (channel.size() < size)
+    {
+        if (LSE_O3)  // If lse OoO
+        {
+            for (auto& req : reqQueue)
+            {
+                if (req.first.valid && req.first.ready && !req.first.hasPushChan)
+                {
+                    req.second.cycle = clk;  // Update cycle
+                    channel.push_back(req.second);
+                    req.first.hasPushChan = 1;
+                }
+            }
+        }
+        else  // If Lse in order
+        {
+            //while (1)
+            //{
+            //    // Find the earliest valid req
+            //    for (size_t i = 0; i < reqQueue.size(); ++i)
+            //    {
+            //        if (reqQueue[i].first.valid && !reqQueue[i].first.hasPushChan)
+            //        {
+            //            if (reqQueue[i].first.cnt < cnt)
+            //            {
+            //                getValid = 1;
+            //                cnt = reqQueue[i].first.cnt;
+            //            }
+            //        }
+            //    }
+
+            //    // If find out the earliest valid rea
+            //    if (getValid)
+            //    {
+            //        if()
+            //    }
+            //}
+
+            for(auto& req:reqQueue)
+            {
+                if (req.first.cnt == currReqId)
+                {
+                    if (req.first.valid && req.first.ready && !req.first.hasPushChan)
+                    {
+                        req.second.cycle = clk;  // Update cycle
+                        channel.push_back(req.second);
+                        req.first.hasPushChan = 1;
+                        ++currReqId;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -348,4 +400,5 @@ void Lse::ackCallback(MemReq _req)
     uint index = _req.lseReqQueueIndex;
     reqQueue[index].first.ready = 1;
     reqQueue[index].first.inflight = 0;
+    //reqQueue[index].first.cnt = _req.cnt;
 }

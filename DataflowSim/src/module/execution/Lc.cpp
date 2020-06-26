@@ -59,7 +59,9 @@ void Lc::getEndUpdate()
     getEnd->get({ 1 });
 
     if (!getEnd->channel.empty() && getEnd->channel.back().lastOuter)
+    {
         getLastOuter.push_back(1);
+    }
 
     if (!getEnd->channel.empty())
     {

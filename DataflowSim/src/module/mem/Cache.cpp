@@ -572,6 +572,7 @@ CacheReq Cache::transMemReq2CacheReq(const MemReq& memReq)
     cacheReq.inflight = memReq.inflight;
     cacheReq.ready = memReq.ready;
     cacheReq.memSysReqQueueIndex = memReq.memSysReqQueueIndex;
+    //cacheReq.cnt = memReq.cnt;
 
     if (memReq.isWrite)
     {
@@ -595,6 +596,7 @@ MemReq Cache::transCacheReq2MemReq(const CacheReq& cacheReq)
     memReq.inflight = cacheReq.inflight;
     memReq.ready = cacheReq.ready;
     memReq.memSysReqQueueIndex = cacheReq.memSysReqQueueIndex;
+    //memReq.cnt = cacheReq.cnt;
 
     if (cacheReq.cacheOp == Cache_operation::WRITE)
     {
@@ -630,8 +632,8 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
             if (!req.first.valid)
             {
                 req = make_pair(cacheReq, cache_access_latency[level]);
-                req.first.cnt = reqCnt;  // Record this req's sequence
-                ++reqCnt;  // Update req counter
+                //req.first.cnt = reqCnt;  // Record this req's sequence
+                //++reqCnt;  // Update req counter
                 //std::cout << req.first.inflight << std::endl;  // Debug
                 return true;  // Send successfully
             }
@@ -729,62 +731,62 @@ vector<MemReq> Cache::callBack()
     return readyReq;
 }
 
-vector<MemReq> Cache::callBackInOrder()
-{
-    vector<MemReq> readyReq;
-    uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
-    uint _bankId = 0;
-    uint _entryId = 0;
-    bool getValid = 0;
-    bool getReq = 0;
-
-    if (reqQueue.size() >= 1)
-    {
-        while (1)
-        {
-            for (size_t bankId = 0; bankId < reqQueue[0].size(); ++bankId)
-            {
-                auto reqQueueBank = reqQueue[0][bankId];
-                for (size_t entryId = 0; entryId < reqQueueBank.size(); ++entryId)
-                {
-                    auto req = reqQueueBank[entryId].first;
-                    if (req.valid && req.ready)
-                    {
-                        getValid = 1;
-                        if (req.cnt < cnt)
-                        {
-                            cnt = req.cnt;
-                            _entryId = entryId;
-                            _bankId = bankId;
-                            getReq = 1;
-                        }
-                    }
-                }
-            }
-
-            if (getValid)
-            {
-                auto& req = reqQueue[0][_bankId][_entryId];
-                readyReq.push_back(transCacheReq2MemReq(req.first));
-                req.first.valid = 0;
-            }
-
-            if (!getReq)
-            {
-                break;
-            }
-
-            getValid = 0;
-            getReq = 0;
-        }
-    }
-    else
-    {
-        Debug::throwError("Not configure L1 cache!", __FILE__, __LINE__);
-    }
-
-    return readyReq;
-}
+//vector<MemReq> Cache::callBackInOrder()
+//{
+//    vector<MemReq> readyReq;
+//    uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
+//    uint _bankId = 0;
+//    uint _entryId = 0;
+//    bool getValid = 0;
+//    bool getReq = 0;
+//
+//    if (reqQueue.size() >= 1)
+//    {
+//        while (1)
+//        {
+//            for (size_t bankId = 0; bankId < reqQueue[0].size(); ++bankId)
+//            {
+//                auto reqQueueBank = reqQueue[0][bankId];
+//                for (size_t entryId = 0; entryId < reqQueueBank.size(); ++entryId)
+//                {
+//                    auto req = reqQueueBank[entryId].first;
+//                    if (req.valid && req.ready)
+//                    {
+//                        getValid = 1;
+//                        if (req.cnt < cnt)
+//                        {
+//                            cnt = req.cnt;
+//                            _entryId = entryId;
+//                            _bankId = bankId;
+//                            getReq = 1;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (getValid)
+//            {
+//                auto& req = reqQueue[0][_bankId][_entryId];
+//                readyReq.push_back(transCacheReq2MemReq(req.first));
+//                req.first.valid = 0;
+//            }
+//
+//            if (!getReq)
+//            {
+//                break;
+//            }
+//
+//            getValid = 0;
+//            getReq = 0;
+//        }
+//    }
+//    else
+//    {
+//        Debug::throwError("Not configure L1 cache!", __FILE__, __LINE__);
+//    }
+//
+//    return readyReq;
+//}
 
 bool Cache::sendReq2reqQueue2Mem(const CacheReq cacheReq)
 {

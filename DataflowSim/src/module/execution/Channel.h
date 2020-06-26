@@ -85,7 +85,7 @@ class Channel usage:
         virtual int assign(uint bufferId);
         virtual int assign(Channel* chan);  // Suggest use this assign function
         virtual vector<int> pop() = 0;
-        vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
+        virtual vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //virtual bool checkSend(Data _data, Channel* upstream) = 0;
         virtual bool checkSend(Data data, Channel* upstream);
         //virtual bool checkSend(Data _data, Channel* _upstream) { return 0; }
@@ -210,18 +210,26 @@ class ChanDGSF usage:
     public:
         ChanDGSF(uint _size, uint _cycle, uint _speedup);
         ~ChanDGSF();
-        //void statusUpdate() override;
 
     private:
-        vector<int> popChannel(bool popReady, bool popLastReady) override;
-        void sendActive();
-        void parallelize() override;
+        vector<int> push(int data, uint bufferId) override;
+        void bpUpdate() override;
+        //vector<int> popChannel(bool popReady, bool popLastReady) override;
+        //void statusUpdate() override;
+        //void checkGraphSwitch();
+        //void sendActive();
+        //void parallelize() override;
 
     public:
         //uint speedup;  // Parallelism parameter
         //int currId;    // Current threadID
-        bool sendActiveMode = 0;  // Current channel need to active others
+        //bool sendActiveMode = 0;  // Current channel need to active others
+        bool pushBufferEnable;
+        bool& popChannelEnable = enable;
         vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
+
+    private:
+        //vector<uint> chanBufferDataCntLast;  // Record last data cnt for each chanBuffer
 
         //ArchType archType = ArchType::DGSF;
     };

@@ -125,6 +125,9 @@
     <ClInclude Include="test\MemoryTest.h">
       <Filter>test\MemoryTest</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\execution\GraphScheduler.h">
+      <Filter>src\module\execution</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -177,6 +180,9 @@
     </ClCompile>
     <ClCompile Include="test\MemoryTest.cpp">
       <Filter>test\MemoryTest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\execution\GraphScheduler.cpp">
+      <Filter>src\module\execution</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

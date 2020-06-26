@@ -242,27 +242,27 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         }
         else
         {
-            if (!chanBuffer[_bufferId].empty() && data.cycle == chanBuffer[_bufferId].back().cycle)
-            {
-                // Count the number of same cycle data has been received from a keepMode upstream
-                ++keepModeDataCnt[_bufferId];  
-            }
-            else
-            {
-                keepModeDataCnt[_bufferId] = 0;
-            }
+            //if (!chanBuffer[_bufferId].empty() && data.cycle == chanBuffer[_bufferId].back().cycle)
+            //{
+            //    // Count the number of same cycle data has been received from a keepMode upstream
+            //    ++keepModeDataCnt[_bufferId];  
+            //}
+            //else
+            //{
+            //    keepModeDataCnt[_bufferId] = 0;
+            //}
 
-            if (keepModeDataCnt[_bufferId] < speedup)
-            {
-                chanBuffer[_bufferId].push_back(data);
-                ++chanBufferDataCnt[_bufferId];
-            }
-
-            //if (chanBuffer[_bufferId].empty())
+            //if (keepModeDataCnt[_bufferId] < speedup)
             //{
             //    chanBuffer[_bufferId].push_back(data);
             //    ++chanBufferDataCnt[_bufferId];
             //}
+
+            if (chanBuffer[_bufferId].empty())
+            {
+                chanBuffer[_bufferId].push_back(data);
+                ++chanBufferDataCnt[_bufferId];
+            }
         }
     }
     else
@@ -853,7 +853,10 @@ ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
 {
     //enable = 1;
     currId = 1; // Id begins at 1
-    sendActiveMode = 0;  // Default set to false
+    //sendActiveMode = 0;  // Default set to false
+
+    pushBufferEnable = 0;
+    popChannelEnable = 0;
 
     chanType = ChanType::Chan_DGSF;
 }
@@ -867,92 +870,212 @@ ChanDGSF::~ChanDGSF()
     }
 }
 
-vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
+vector<int> ChanDGSF::push(int data, uint bufferId)
 {
-    int popSuccess = 0;
-    int popData = 0;
-
-    if (popReady && (!keepMode || popLastReady)) // If keepMode = 0, popLastReady is irrelevant
+    // Push data in channel
+    if (pushBufferEnable)
     {
-        Data data = channel.front();
-        channel.pop_front();
-        popSuccess = 1;
-        //popData = data.value;
+        if (checkUpstream(bufferId))
+        {
+            pushBuffer(data, bufferId);
+            return { 1, data };
+        }
+    }
+
+    return { 0, data };
+}
+
+void ChanDGSF::bpUpdate()
+{
+    if (pushBufferEnable)
+    {
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
         {
-            lastPopVal[bufferId] = chanBuffer[bufferId].front().value;  // For LC->loopVar, record last pop data when the channel pop empty
-            chanBuffer[bufferId].pop_front();
-        }
-        //lastPopVal = data.value;
-
-        //// Clear the last flags of downstreams
-        //if (keepMode)
-        //{
-        //    for (auto& channel : downstream)
-        //    {
-        //        // lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
-        //        if (/*!channel->isCond*/ !channel->isLoopVar)
-        //        {
-        //            channel->getLast.pop_front();
-        //        }
-        //        else
-        //        {
-        //            // If it is a loopVar, pop produceLast queue
-        //            if (!channel->produceLast.empty())
-        //            {
-        //                channel->produceLast.pop_front();
-        //            }
-        //        }
-        //    }
-        //}
-
-        // Clear the last tag of lastTagQueue
-        if (keepMode)
-        {
-            for (auto& queue : lastTagQueue)
+            if (chanBuffer[bufferId].size() < size)
             {
-                queue.second.pop_front();  // Pop out a lastTag
+                bp[bufferId] = 0;
             }
-        }
-
-        // Active downstream and disable itself
-        if (data.graphSwitch == 1 && sendActiveMode == 1)
-        {
-            sendActive();
-            enable = 0;  // Disable current channel for graph switch
-        }
-    }
-
-    return { popSuccess , popData };
-}
-
-void ChanDGSF::sendActive()
-{
-    if (sendActiveMode)
-    {
-        if (activeStream.empty())
-        {
-            Debug::throwError("ActiveStream is empty!", __FILE__, __LINE__);
-        }
-        else
-        {
-            for (auto& channel : activeStream)
+            else
             {
-                channel->enable = 1;
+                bp[bufferId] = 1;
             }
         }
     }
+    else
+    {
+        for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+        {
+            bp[bufferId] = 1;  // When pushBufferDisable, set all the bp to 1
+        }
+    }
 }
 
-void ChanDGSF::parallelize()
-{
-    // Push clkStall in parallel execution mode
-    if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
-    {
-        ClkDomain::getInstance()->addClkStall();
-    }
-    currId = currId % speedup + 1;
-}
+//vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
+//{
+//    int popSuccess = 0;
+//    int popData = 0;
+//
+//    if (popReady && (!keepMode || popLastReady)) // If keepMode = 0, popLastReady is irrelevant
+//    {
+//        Data data = channel.front();
+//        channel.pop_front();
+//        popSuccess = 1;
+//        //popData = data.value;
+//        for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+//        {
+//            lastPopVal[bufferId] = chanBuffer[bufferId].front().value;  // For LC->loopVar, record last pop data when the channel pop empty
+//            chanBuffer[bufferId].pop_front();
+//        }
+//        //lastPopVal = data.value;
+//
+//        //// Clear the last flags of downstreams
+//        //if (keepMode)
+//        //{
+//        //    for (auto& channel : downstream)
+//        //    {
+//        //        // lc->loopVar produces last tag rather than get last tag, so ignore lc->loopVar!
+//        //        if (/*!channel->isCond*/ !channel->isLoopVar)
+//        //        {
+//        //            channel->getLast.pop_front();
+//        //        }
+//        //        else
+//        //        {
+//        //            // If it is a loopVar, pop produceLast queue
+//        //            if (!channel->produceLast.empty())
+//        //            {
+//        //                channel->produceLast.pop_front();
+//        //            }
+//        //        }
+//        //    }
+//        //}
+//
+//        // Clear the last tag of lastTagQueue
+//        if (keepMode)
+//        {
+//            for (auto& queue : lastTagQueue)
+//            {
+//                queue.second.pop_front();  // Pop out a lastTag
+//            }
+//        }
+//
+//        // Active downstream and disable itself
+//        if (data.graphSwitch == 1 && sendActiveMode == 1)
+//        {
+//            sendActive();
+//            enable = 0;  // Disable current channel for graph switch
+//        }
+//    }
+//
+//    return { popSuccess , popData };
+//}
+
+//void ChanDGSF::statusUpdate()
+//{
+//    uint clk = ClkDomain::getInstance()->getClk();
+//    // Set valid
+//    valid = 1;
+//
+//    bool match = 1;
+//    for (auto& buffer : chanBuffer)
+//    {
+//        if (buffer.empty() || buffer.front().cycle > clk)
+//        {
+//            match = 0;
+//        }
+//    }
+//
+//    if (match && channel.empty())  // Channel size is 1
+//    {
+//        pushChannel();
+//    }
+//
+//    if (channel.empty() || !enable)
+//    {
+//        valid = 0;
+//    }
+//    else
+//    {
+//        ////uint clk = ClkDomain::getInstance()->getClk();
+//        //Data data = channel.front();
+//
+//        //if (data.cycle > clk)
+//        //{
+//        //    valid = 0;
+//        //}
+//
+//        // Check sendable
+//        if (!noDownstream)
+//        {
+//            if (!keepMode)
+//            {
+//                for (auto& chan : downstream)
+//                {
+//                    if (!chan->checkSend(this->channel.front(), this))
+//                    {
+//                        valid = 0;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    if (valid)
+//    {
+//        channel.front().cycle = clk;  // Update cycle when pop data
+//        ++chanDataCnt;
+//    }
+//
+//    bpUpdate();
+//
+//    if (speedup > 1)
+//    {
+//        parallelize();
+//    }
+//
+//    checkGraphSwitch();
+//}
+
+//void ChanDGSF::checkGraphSwitch()
+//{
+//    bool graphSwitch = 1;
+//    for (size_t i = 0; i < chanBuffer.size(); ++i)
+//    {
+//        if (chanBufferDataCnt[i] - chanBufferDataCntLast[i] < size)
+//        {
+//            graphSwitch = 0;
+//            break;
+//        }
+//    }
+//}
+
+//void ChanDGSF::sendActive()
+//{
+//    if (sendActiveMode)
+//    {
+//        if (activeStream.empty())
+//        {
+//            Debug::throwError("ActiveStream is empty!", __FILE__, __LINE__);
+//        }
+//        else
+//        {
+//            for (auto& channel : activeStream)
+//            {
+//                channel->enable = 1;
+//            }
+//        }
+//    }
+//}
+
+//void ChanDGSF::parallelize()
+//{
+//    // Push clkStall in parallel execution mode
+//    if (currId != speedup && !channel.empty() && channel.front().graphSwitch == 0)  // If the parallel execution dosen't finish, stall the system clock;
+//    {
+//        ClkDomain::getInstance()->addClkStall();
+//    }
+//    currId = currId % speedup + 1;
+//}
 
 //void ChanDGSF::statusUpdate()
 //{

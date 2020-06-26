@@ -56,6 +56,7 @@ namespace DFSim
         void pushReqQ();  // chanBuffer[0] must store addr!!!
         vector<int> pop() override;  // Pop memory request from reqQueue when the data has sent to the downstream channel
         void statusUpdate() override;
+        void pushChannel();
         bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
         void popChanBuffer();
         //void bpUpdate() override;
@@ -70,6 +71,8 @@ namespace DFSim
         uint lastPopVal = 0;
         uint sendPtr = 0;
         bool isWrite;
+        uint orderId = 0;  // Record request sequence
+        uint currReqId = 0;  // Used in Lse in order
         MemSystem* memSys = nullptr;
     };
 }

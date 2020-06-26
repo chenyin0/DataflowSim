@@ -62,7 +62,7 @@ Config parameter:
         total pe = 27;
 
     DGSF:
-        loop_4: unroll 7 times;  (48pe - 4lc * 2)/5 = 8 times
+        loop_4: unroll 8 times;  (48pe - 4lc * 2)/5 = 8 times
         loop_5: unroll 8 times;
 
 */
@@ -83,6 +83,10 @@ namespace DFSimTest
         static const uint matrix_width;
         static const uint matrix_height;
         static const uint block_size;
+
+        static const uint m1_BaseAddr;
+        static const uint m2_BaseAddr;
+        static const uint partialSum_BaseAddr;
 
         static vector<vector<int>> m1;
         static vector<vector<int>> m2;

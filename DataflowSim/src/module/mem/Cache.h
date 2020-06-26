@@ -71,7 +71,7 @@ namespace DFSim
         // Interface function for MemSystem
         bool addTransaction(MemReq _req);  // Add transaction to Cache
         vector<MemReq> callBack();  // Get memory access results from Cache
-        vector<MemReq> callBackInOrder();  // Get memory access results from Cache in order
+        //vector<MemReq> callBackInOrder();  // Get memory access results from Cache in order
 
         // Interface func with DRAM
         void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
@@ -206,6 +206,6 @@ namespace DFSim
         deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
         vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
 
-        uint reqCnt = 0;  // Record the sequence of each cacheReq
+        //uint reqCnt = 0;  // Record the sequence of each cacheReq
     };
 }

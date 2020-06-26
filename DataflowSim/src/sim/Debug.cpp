@@ -230,6 +230,16 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
             }
         }
 
+        _output_file << std::endl;
+        _output_file << std::setw(12) << "OrderId:";
+        for (auto req : _lse->reqQueue)
+        {
+            if (req.first.valid)
+            {
+                _output_file << std::setw(5) << req.first.cnt;
+            }
+        }
+
         // Print Lse channel
         _output_file << std::endl;
         _output_file << "chan(cnt=" << _lse->chanDataCnt << "): " << std::endl;
@@ -292,6 +302,16 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             if (req.valid)
             {
                 _output_file << std::setw(5) << req.ready;
+            }
+        }
+
+        _output_file << std::endl;
+        _output_file << std::setw(12) << "orderId:";
+        for (auto& req : _memSys->getReqQueue())
+        {
+            if (req.valid)
+            {
+                _output_file << std::setw(5) << req.cnt;
             }
         }
 
@@ -417,6 +437,16 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                             _output_file << std::setw(5) << req.first.ready;
                         }
                     }
+
+                    //_output_file << std::endl;
+                    //_output_file << std::setw(12) << "OrderId:";
+                    //for (auto& req : reqQueue[level][bankId])
+                    //{
+                    //    if (req.first.valid)
+                    //    {
+                    //        _output_file << std::setw(5) << req.first.cnt;
+                    //    }
+                    //}
 
                     _output_file << std::endl;
                 }
