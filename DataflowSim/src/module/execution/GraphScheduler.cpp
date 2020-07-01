@@ -27,34 +27,18 @@ void GraphScheduler::graphUpdate()
     {
         for (auto& chan : subgraphTable[currSubgraphId].first)
         {
-            //if (!chan->chanBuffer[0].empty())
-            //{
-            //    producerChanFinish = 0;
-            //    break;
-            //}
-
             for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                //if (!chan->upstream[bufferId]->keepMode)
-                //{
-                //    if (chan->chanBuffer[bufferId].empty())
-                //    {
-                //        producerChanFinish = 1;
-                //        break;
-                //    }
-                //}
-
-                //if (chan->chanBuffer[bufferId].empty())
-                //{
-                //    producerChanFinish = 1;
-                //    break;
-                //}
-
                 if (!chan->chanBuffer[bufferId].empty())
                 {
                     producerChanFinish = 0;
                     break;
                 }
+            }
+
+            if (!producerChanFinish)
+            {
+                break;
             }
         }
     }
@@ -66,46 +50,40 @@ void GraphScheduler::graphUpdate()
     // Check whether all the comsumerChan is full
     if (!subgraphTable[currSubgraphId].second.empty())
     {
+        bool getLast = 1;
+
         for (auto& chan : subgraphTable[currSubgraphId].second)
         {
-            //if (chan->chanBuffer[0].size() != chan->size)
-            //{
-            //    consumerChanFinish = 0;
-            //    break;
-            //}
-
-            //if (!chan->keepMode)
-            //{
-            //    for (auto& buffer : chan->chanBuffer)
-            //    {
-            //        if (buffer.size() >= chan->size)
-            //        {
-            //            consumerChanFinish = 1;
-            //            break;
-            //        }
-            //    }
-            //}
-
-            //for (auto& buffer : chan->chanBuffer)
-            //{
-            //    if (buffer.size() >= chan->size)
-            //    {
-            //        consumerChanFinish = 1;
-            //        break;
-            //    }
-            //}
-
             for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                if (!chan->upstream[bufferId]->keepMode)
+                if (/*!chan->getTheLastData[bufferId] && */chan->chanBuffer[bufferId].size() < chan->size)
                 {
-                    if (chan->chanBuffer[bufferId].size() < chan->size)
+                    consumerChanFinish = 0;
+                    //break;
+                }
+
+                if (!chan->chanBuffer[bufferId].empty())
+                {
+                    if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))
                     {
-                        consumerChanFinish = 0;
-                        break;
+                        getLast = 0;  // Check whether all the channel has received the last data
                     }
                 }
+                else
+                {
+                    getLast = 0;
+                }
             }
+
+            if (getLast == 0 && consumerChanFinish == 0)
+            {
+                break;
+            }
+        }
+
+        if (getLast)
+        {
+            consumerChanFinish = 1;
         }
     }
     else
@@ -113,7 +91,7 @@ void GraphScheduler::graphUpdate()
         consumerChanFinish = 0;
     }
 
-    if (producerChanFinish || consumerChanFinish)
+    if (/*producerChanFinish && */consumerChanFinish || (subgraphTable[currSubgraphId].second.empty() && producerChanFinish))
     {
         currSubgraphId = (++currSubgraphId) % subgraphTable.size();
         configChan(currSubgraphId);

@@ -58,7 +58,7 @@ namespace DFSim
         uint loopEnd = 0; // the number of finished loop
         uint currLoopId = 0; // If current loop Id == loop number, loop end
         deque<uint> loopNumQ; // Store each loop number
-        deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
+        //deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
     public:
         ChanBase* getEnd;
@@ -75,18 +75,18 @@ LcDGSF usage:
 1. set graphSize after declaring; (graphSize is equal to BRAM bank depth) 
 
 */
-    // LC for DGSF
-    class LcDGSF : public Lc
-    {
-    public:
-        LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint _graphSize);
-        ~LcDGSF();
-        void loopUpdate() override;
-        uint graphSize;
+    //// LC for DGSF
+    //class LcDGSF : public Lc
+    //{
+    //public:
+    //    LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint _graphSize);
+    //    ~LcDGSF();
+    //    void loopUpdate() override;
+    //    uint graphSize;
 
-    public:
-        ChanDGSF* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
-    };
+    //public:
+    //    ChanDGSF* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
+    //};
 
 
 /*

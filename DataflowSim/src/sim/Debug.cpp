@@ -27,8 +27,8 @@ void Debug::chanPrint(const string name, const Channel* channel)
         _output_file << "  ";
         //_output_file << "bp: " << channel->bp/* << std::endl*/;
         //_output_file << "  ";
-        _output_file << "getLast: " << !channel->getLast.empty();
-        _output_file << "  ";
+        /*_output_file << "getLast: " << !channel->getLast.empty();
+        _output_file << "  ";*/
         _output_file << "en: " << channel->enable; /*<< std::endl;*/
         //if (channel->isLoopVar)
         //{
@@ -47,7 +47,8 @@ void Debug::chanPrint(const string name, const Channel* channel)
                 {
                     _output_file << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
 #ifdef DGSF
-                    _output_file << ":" << "g" << data.graphSwitch;
+                    /*_output_file << ":" << "g" << data.graphSwitch;*/
+                    _output_file << ":" << "lo" << data.lastOuter;
 #endif
                     _output_file << " ";
                 }
@@ -60,7 +61,8 @@ void Debug::chanPrint(const string name, const Channel* channel)
         {
             _output_file << "d" << channel->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
-            _output_file << ":" << "g" << i.graphSwitch;
+            //_output_file << ":" << "g" << i.graphSwitch;
+            _output_file << ":" << "lo" << i.lastOuter;
 #endif
             _output_file << " ";
         }
@@ -77,8 +79,8 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
         _output_file << "  ";
         //_output_file << "bp: " << channel->bp/* << std::endl*/;
         //_output_file << "  ";
-        _output_file << "getLast: " << !channel->getLast.empty();
-        _output_file << "  ";
+        /*_output_file << "getLast: " << !channel->getLast.empty();
+        _output_file << "  ";*/
         _output_file << "en: " << channel->enable << std::endl;
 
         // Print each chanBuffer
@@ -160,8 +162,8 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         _output_file << "  ";
         //_output_file << "bp: " << _lse->bp/* << std::endl*/;
         //_output_file << "  ";
-        _output_file << "getLast: " << !_lse->getLast.empty();
-        _output_file << "  ";
+        /*_output_file << "getLast: " << !_lse->getLast.empty();
+        _output_file << "  ";*/
         _output_file << "en: " << _lse->enable << std::endl;
 
         // Print each chanBuffer

@@ -40,6 +40,7 @@ namespace DFSim
         void initBp(Channel* _chan);
         void initLastPopVal(Channel* _chan);
         void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
+        void checkConnect();  // Check the connection of all the channels 
 
     private:
         static uint moduleId;

@@ -66,6 +66,25 @@ void Mux::addPort(vector<Channel*> _trueChanUpstream, vector<Channel*> _falseCha
     {
         chan->addUpstream({ outChan });
     }
+
+    // Update trueChan/falseChan upstream status
+    if (trueChan->upstream.empty())
+    {
+        trueChan->noUpstream = 1;
+    }
+    else
+    {
+        trueChan->noUpstream = 0;
+    }
+
+    if (falseChan->upstream.empty())
+    {
+        falseChan->noUpstream = 1;
+    }
+    else
+    {
+        falseChan->noUpstream = 0;
+    }
 }
 
 bool Mux::checkUpstream(vector<Channel*>& upstream)

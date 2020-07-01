@@ -41,7 +41,7 @@ DFG analyze:
     DFG: no unrolling 
 
     Pe_lc = 10; (Lc = 2pe)
-    PE_comp = 11;
+    PE_compute = 11;
         loop_4 pe = 5;
         loop_5 pe = 6;
 

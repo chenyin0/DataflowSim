@@ -92,6 +92,7 @@ int Registry::registerMux(Mux* mux)
 void Registry::tableInit()
 {
     initChannel();
+    checkConnect();
 }
 
 void Registry::initLastTagQueue(Channel* _chan)
@@ -128,9 +129,10 @@ void Registry::initLastTagQueue(Channel* _chan)
 
 void Registry::initChanBuffer(Channel* _chan)
 {
+    uint upstreamSize = _chan->upstream.size();
+
     if (!_chan->noUpstream)
     {
-        uint upstreamSize = _chan->upstream.size();
         _chan->chanBuffer.resize(upstreamSize);
         _chan->chanBufferDataCnt.resize(upstreamSize);
         _chan->keepModeDataCnt.resize(upstreamSize);
@@ -150,6 +152,16 @@ void Registry::initChanBuffer(Channel* _chan)
             buffer.resize(_chan->size);
         }
     }
+
+    //// If channel is DGSF, resize deque getTheLastData
+    //if (_chan->chanType == ChanType::Chan_DGSF)
+    //{
+    //    _chan->getTheLastData.resize(upstreamSize);
+    //    for (auto& i : _chan->getTheLastData)
+    //    {
+    //        i = 0;
+    //    }
+    //}
 }
 
 void Registry::initBp(Channel* _chan)
@@ -188,6 +200,21 @@ void Registry::initChannel()
             initLastTagQueue(entry.chanPtr);
             initBp(entry.chanPtr);
             initLastPopVal(entry.chanPtr);
+        }
+    }
+}
+
+void Registry::checkConnect()
+{
+    for (auto& entry : registryTable)
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            Channel* chan = entry.chanPtr;
+            if ((!chan->noUpstream && chan->upstream.empty()) || (!chan->noDownstream && chan->downstream.empty()))
+            {
+                Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
+            }
         }
     }
 }
