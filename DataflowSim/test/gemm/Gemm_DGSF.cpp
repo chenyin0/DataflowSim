@@ -17,7 +17,7 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
                 i_row = i * row_size;  // Chan_i_row
                 loopk:for (k = 0; k < block_size; ++k){
                     k_row = (k  + kk) * row_size;  // Chan_k_row
-                    temp_x = m1[i_row + k + kk];  // Chan_m1_addr, Lse_ld_m1, Chan_m1_getData
+                    temp_x = m1[i_row + k + kk];  // Chan_m1_addr, Lse_ld_m1, chan_m1_getData_DGSF_LOOP
                     loopj:for (j = 0; j < block_size; ++j){
                         mul = temp_x * m2[k_row + j + jj];  // Chan_m2_addr, Lse_ld_m2
                         prod[i_row + j + jj] += mul;  // Chan_partialSum_addr, Lse_ld_partialSum, Chan_partialSum, Lse_st_partialSum
@@ -121,8 +121,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanBase* lc_k_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_k_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanDGSF* chan_k_lc = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
-    chan_k_lc->keepMode = 1;
+    ChanDGSF* chan_k_lc_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    chan_k_lc_DGSF_LOOP->keepMode = 1;
 
     Mux* lc_k_mux = new Mux(lc_k_mux_trueChan, lc_k_mux_falseChan, lc_k_mux_outChan);
     lc_k_mux->addPort({ lc_k_loopVar }, { }, { lc_k_loopVar });
@@ -173,27 +173,32 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanBase* chan_k_row = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
     ChanBase* chan_k_row_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, ADD + MUL, 8);
 
-    ChanDGSF* chan_k_row_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
-    chan_k_row_DGSF->keepMode = 1;
+    ChanDGSF* chan_k_row_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    chan_k_row_DGSF_LOOP->keepMode = 1;
 
-    ChanDGSF* chan_m1_getData = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
-    chan_m1_getData->keepMode = 1;
+    ChanDGSF* chan_m1_getData_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    chan_m1_getData_DGSF_LOOP->keepMode = 1;
 
     ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);  // Relay channel in loop k for chan_jj_lc
     //chan_jj_relay_loop_k->keepMode = 1;
 
-    ChanDGSF* chan_jj_relay_loop_k_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // Relay channel in loop k for chan_jj_lc
-    chan_jj_relay_loop_k_DGSF->keepMode = 1;
+    ChanDGSF* chan_jj_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // Relay channel in loop k for chan_jj_lc
+    chan_jj_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
     ChanBase* chan_i_row_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);
     //chan_i_row_relay_loop_k->keepMode = 1;
 
-    ChanDGSF* chan_i_row_relay_loop_k_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
-    chan_i_row_relay_loop_k_DGSF->keepMode = 1;
+    ChanDGSF* chan_i_row_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    chan_i_row_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
     // loop j
     ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
     ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+
+    ChanBase* chan_m1_getData_DGSF_DAE_temp = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);  // Separate Channel in DGSF & channel in keepMode 
+    ChanDGSF* chan_m1_getData_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // DAE dual-buffer
+
+    ChanDGSF* lse_ld_m2_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // DAE dual-buffer
 
     ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
     ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, MUL, 8);
@@ -219,8 +224,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
     chan_i_lc->addUpstream({ lc_i->loopVar });
     chan_i_lc->addDownstream({ lc_k->loopVar });
 
-    chan_k_lc->addUpstream({ lc_k->loopVar });
-    chan_k_lc->addDownstream({ lc_j->loopVar });  // Only add inner loop channels as downstream; As for same loop channel, added as loopVar's downstream
+    chan_k_lc_DGSF_LOOP->addUpstream({ lc_k->loopVar });
+    chan_k_lc_DGSF_LOOP->addDownstream({ lc_j->loopVar });  // Only add inner loop channels as downstream; As for same loop channel, added as loopVar's downstream
 
     // loop kk
     chan_jj_relay_loop_kk->addUpstream({ chan_jj_lc, lc_kk->loopVar });
@@ -244,49 +249,58 @@ void GemmTest::gemm_DGSF(Debug* debug)
     chan_m1_addr_delay->addDownstream({ lse_ld_m1 });
 
     lse_ld_m1->addUpstream({ chan_m1_addr_delay });
-    lse_ld_m1->addDownstream({ chan_m1_getData });
+    lse_ld_m1->addDownstream({ chan_m1_getData_DGSF_LOOP });
 
-    chan_m1_getData->addUpstream({ lse_ld_m1 });
-    chan_m1_getData->addDownstream({ chan_mul });
+    chan_m1_getData_DGSF_LOOP->addUpstream({ lse_ld_m1 });
+    chan_m1_getData_DGSF_LOOP->addDownstream({ chan_m1_getData_DGSF_DAE_temp });
 
     chan_k_row->addUpstream({ lc_k->loopVar, chan_kk_relay_loop_i });
     chan_k_row->addDownstream({ chan_k_row_delay });
 
     chan_k_row_delay->addUpstream({ chan_k_row });
-    chan_k_row_delay->addDownstream({ chan_k_row_DGSF });
+    chan_k_row_delay->addDownstream({ chan_k_row_DGSF_LOOP });
 
-    chan_k_row_DGSF->addUpstream({ chan_k_row_delay });
-    chan_k_row_DGSF->addDownstream({ chan_m2_addr });
+    chan_k_row_DGSF_LOOP->addUpstream({ chan_k_row_delay });
+    chan_k_row_DGSF_LOOP->addDownstream({ chan_m2_addr });
 
     chan_jj_relay_loop_k->addUpstream({ chan_jj_relay_loop_i, lc_k->loopVar });
-    chan_jj_relay_loop_k->addDownstream({ chan_jj_relay_loop_k_DGSF });
+    chan_jj_relay_loop_k->addDownstream({ chan_jj_relay_loop_k_DGSF_LOOP });
 
-    chan_jj_relay_loop_k_DGSF->addUpstream({ chan_jj_relay_loop_k });
-    chan_jj_relay_loop_k_DGSF->addDownstream({ chan_m2_addr, chan_partialSum_addr });
+    chan_jj_relay_loop_k_DGSF_LOOP->addUpstream({ chan_jj_relay_loop_k });
+    chan_jj_relay_loop_k_DGSF_LOOP->addDownstream({ chan_m2_addr, chan_partialSum_addr });
 
     chan_i_row_relay_loop_k->addUpstream({ lc_k->loopVar, chan_i_row });
-    chan_i_row_relay_loop_k->addDownstream({ chan_i_row_relay_loop_k_DGSF });
+    chan_i_row_relay_loop_k->addDownstream({ chan_i_row_relay_loop_k_DGSF_LOOP });
 
-    chan_i_row_relay_loop_k_DGSF->addUpstream({ chan_i_row_relay_loop_k });
-    chan_i_row_relay_loop_k_DGSF->addDownstream({ chan_partialSum_addr });
+    chan_i_row_relay_loop_k_DGSF_LOOP->addUpstream({ chan_i_row_relay_loop_k });
+    chan_i_row_relay_loop_k_DGSF_LOOP->addDownstream({ chan_partialSum_addr });
 
     // loop j
-    chan_m2_addr->addUpstream({ chan_k_row_DGSF, lc_j->loopVar, chan_jj_relay_loop_k_DGSF });
+    chan_m2_addr->addUpstream({ chan_k_row_DGSF_LOOP, lc_j->loopVar, chan_jj_relay_loop_k_DGSF_LOOP });
     chan_m2_addr->addDownstream({ chan_m2_addr_delay });
 
     chan_m2_addr_delay->addUpstream({ chan_m2_addr });
     chan_m2_addr_delay->addDownstream({ lse_ld_m2 });
 
     lse_ld_m2->addUpstream({ chan_m2_addr_delay });
-    lse_ld_m2->addDownstream({ chan_mul });
+    lse_ld_m2->addDownstream({ lse_ld_m2_DGSF_DAE });
 
-    chan_mul->addUpstream({ chan_m1_getData, lse_ld_m2 });
+    lse_ld_m2_DGSF_DAE->addUpstream({ lse_ld_m2 });
+    lse_ld_m2_DGSF_DAE->addDownstream({ chan_mul });
+
+    chan_m1_getData_DGSF_DAE_temp->addUpstream({ lc_j->loopVar, chan_m1_getData_DGSF_LOOP });
+    chan_m1_getData_DGSF_DAE_temp->addDownstream({ chan_m1_getData_DGSF_DAE });
+
+    chan_m1_getData_DGSF_DAE->addUpstream({ chan_m1_getData_DGSF_DAE_temp });
+    chan_m1_getData_DGSF_DAE->addDownstream({ chan_mul });
+
+    chan_mul->addUpstream({ chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE });
     chan_mul->addDownstream({ chan_mul_delay });
 
     chan_mul_delay->addUpstream({ chan_mul });
     chan_mul_delay->addDownstream({ chan_partialSum });
 
-    chan_partialSum_addr->addUpstream({ /*chan_i_row*/ chan_i_row_relay_loop_k_DGSF, lc_j->loopVar, chan_jj_relay_loop_k_DGSF });
+    chan_partialSum_addr->addUpstream({ /*chan_i_row*/ chan_i_row_relay_loop_k_DGSF_LOOP, lc_j->loopVar, chan_jj_relay_loop_k_DGSF_LOOP });
     chan_partialSum_addr->addDownstream({ chan_partialSum_addr_delay });
 
     chan_partialSum_addr_delay->addUpstream({ chan_partialSum_addr });
@@ -312,19 +326,21 @@ void GemmTest::gemm_DGSF(Debug* debug)
     lc_i->addPort({ chan_kk_lc }, { chan_i_lc, chan_i_row, chan_kk_relay_loop_i, chan_jj_relay_loop_i }, { lc_k->sendEnd }, { lc_kk->getEnd });
     lc_i->addDependence({}, {});  // No loop dependence
 
-    lc_k->addPort({ chan_i_lc }, { chan_k_lc, chan_k_row, chan_m1_addr, chan_jj_relay_loop_k, chan_i_row_relay_loop_k }, { lc_j->sendEnd }, { lc_i->getEnd });
+    lc_k->addPort({ chan_i_lc }, { chan_k_lc_DGSF_LOOP, chan_k_row, chan_m1_addr, chan_jj_relay_loop_k, chan_i_row_relay_loop_k }, { lc_j->sendEnd }, { lc_i->getEnd });
     lc_k->addDependence({}, {});  // No loop dependence
 
-    lc_j->addPort({ chan_k_lc }, { chan_m2_addr, chan_partialSum_addr }, { chan_partialSum }, { lc_k->getEnd });
+    lc_j->addPort({ chan_k_lc_DGSF_LOOP }, { chan_m2_addr, chan_partialSum_addr, chan_m1_getData_DGSF_DAE_temp }, { chan_partialSum }, { lc_k->getEnd });
     lc_j->addDependence({}, {});  // No loop dependence
 
 
     //*** Define subgraph
     GraphScheduler* graphScheduler = new GraphScheduler();
     // Subgraph 0
-    graphScheduler->addSubgraph(0, {}, {chan_k_lc, chan_jj_relay_loop_k_DGSF, chan_i_row_relay_loop_k_DGSF, chan_k_row_DGSF, chan_m1_getData});
+    graphScheduler->addSubgraph(0, {}, {chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP});
     // Subgraph 1
-    graphScheduler->addSubgraph(1, { chan_k_lc, chan_jj_relay_loop_k_DGSF, chan_i_row_relay_loop_k_DGSF, chan_k_row_DGSF, chan_m1_getData }, {});
+    graphScheduler->addSubgraph(1, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP }, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE });
+    // Subgraph 2
+    graphScheduler->addSubgraph(2, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE }, {});
 
 
     ////*** Generate gold results
@@ -357,7 +373,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 20000;
+    uint max_iter = 15000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -439,8 +455,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lc_k->lcUpdate(k < block_size);
 
         // loop interface: var k
-        chan_k_lc->get();
-        chan_k_lc->value = chan_k_lc->assign(lc_k->loopVar);
+        chan_k_lc_DGSF_LOOP->get();
+        chan_k_lc_DGSF_LOOP->value = chan_k_lc_DGSF_LOOP->assign(lc_k->loopVar);
 
         chan_k_row->get();
         chan_k_row->value = chan_k_row->assign(lc_k->loopVar) + chan_k_row->assign(chan_kk_relay_loop_i);
@@ -448,8 +464,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_k_row_delay->get();
         chan_k_row_delay->value = chan_k_row_delay->assign(chan_k_row);
 
-        chan_k_row_DGSF->get();
-        chan_k_row_DGSF->value = chan_k_row_DGSF->assign(chan_k_row_delay);
+        chan_k_row_DGSF_LOOP->get();
+        chan_k_row_DGSF_LOOP->value = chan_k_row_DGSF_LOOP->assign(chan_k_row_delay);
 
         chan_m1_addr->get();
         chan_m1_addr->value = chan_m1_addr->assign(chan_i_row) + chan_m1_addr->assign(lc_k->loopVar) + chan_m1_addr->assign(chan_kk_relay_loop_i) + m1_BaseAddr;
@@ -460,23 +476,23 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lse_ld_m1->get();
         lse_ld_m1->value = lse_ld_m1->assign() - m1_BaseAddr;
 
-        chan_m1_getData->get();
-        uint m1_rowId = chan_m1_getData->assign(lse_ld_m1) / matrix_width;
-        uint m1_colId = chan_m1_getData->assign(lse_ld_m1) % matrix_width;
+        chan_m1_getData_DGSF_LOOP->get();
+        uint m1_rowId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) / matrix_width;
+        uint m1_colId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) % matrix_width;
         int m1_data = m1[m1_rowId][m1_colId];
-        chan_m1_getData->value = m1_data;
+        chan_m1_getData_DGSF_LOOP->value = m1_data;
 
         chan_jj_relay_loop_k->get();
         chan_jj_relay_loop_k->value = chan_jj_relay_loop_k->assign(chan_jj_relay_loop_i);
 
-        chan_jj_relay_loop_k_DGSF->get();
-        chan_jj_relay_loop_k_DGSF->value = chan_jj_relay_loop_k_DGSF->assign(chan_jj_relay_loop_k);
+        chan_jj_relay_loop_k_DGSF_LOOP->get();
+        chan_jj_relay_loop_k_DGSF_LOOP->value = chan_jj_relay_loop_k_DGSF_LOOP->assign(chan_jj_relay_loop_k);
 
         chan_i_row_relay_loop_k->get();
         chan_i_row_relay_loop_k->value = chan_i_row_relay_loop_k->assign(chan_i_row);
 
-        chan_i_row_relay_loop_k_DGSF->get();
-        chan_i_row_relay_loop_k_DGSF->value = chan_i_row_relay_loop_k_DGSF->assign(chan_i_row_relay_loop_k);
+        chan_i_row_relay_loop_k_DGSF_LOOP->get();
+        chan_i_row_relay_loop_k_DGSF_LOOP->value = chan_i_row_relay_loop_k_DGSF_LOOP->assign(chan_i_row_relay_loop_k);
 
         //** Loop Lc_j
         j = lc_j->mux->mux(j, 0, lc_j->sel);
@@ -489,7 +505,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         // loop interface: var j
         chan_m2_addr->get();
-        chan_m2_addr->value = chan_m2_addr->assign(chan_k_row_DGSF) + chan_m2_addr->assign(lc_j->loopVar) + chan_m2_addr->assign(chan_jj_relay_loop_k_DGSF) + m2_BaseAddr;
+        chan_m2_addr->value = chan_m2_addr->assign(chan_k_row_DGSF_LOOP) + chan_m2_addr->assign(lc_j->loopVar) + chan_m2_addr->assign(chan_jj_relay_loop_k_DGSF_LOOP) + m2_BaseAddr;
 
         chan_m2_addr_delay->get();
         chan_m2_addr_delay->value = chan_m2_addr_delay->assign(chan_m2_addr);
@@ -497,18 +513,27 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lse_ld_m2->get();
         lse_ld_m2->value = lse_ld_m2->assign() - m2_BaseAddr;
 
+        lse_ld_m2_DGSF_DAE->get();
+        lse_ld_m2_DGSF_DAE->value = lse_ld_m2_DGSF_DAE->assign(lse_ld_m2);
+
+        chan_m1_getData_DGSF_DAE_temp->get();
+        chan_m1_getData_DGSF_DAE_temp->value = chan_m1_getData_DGSF_DAE_temp->assign(chan_m1_getData_DGSF_LOOP);
+
+        chan_m1_getData_DGSF_DAE->get();
+        chan_m1_getData_DGSF_DAE->value = chan_m1_getData_DGSF_DAE->assign(chan_m1_getData_DGSF_DAE_temp);
+
         chan_mul->get();
-        uint m2_addr_ack = chan_mul->assign(lse_ld_m2);
+        uint m2_addr_ack = chan_mul->assign(lse_ld_m2_DGSF_DAE);
         uint m2_rowId = m2_addr_ack / matrix_width;
         uint m2_colId = m2_addr_ack % matrix_width;
         int m2_data = m2[m2_rowId][m2_colId];
-        chan_mul->value = chan_mul->assign(chan_m1_getData) * m2_data;
+        chan_mul->value = chan_mul->assign(chan_m1_getData_DGSF_DAE) * m2_data;
 
         chan_mul_delay->get();
         chan_mul_delay->value = chan_mul_delay->assign(chan_mul);
 
         chan_partialSum_addr->get();
-        chan_partialSum_addr->value = chan_partialSum_addr->assign(chan_i_row_relay_loop_k_DGSF) + chan_partialSum_addr->assign(lc_j->loopVar) + chan_partialSum_addr->assign(chan_jj_relay_loop_k_DGSF) + partialSum_BaseAddr;
+        chan_partialSum_addr->value = chan_partialSum_addr->assign(chan_i_row_relay_loop_k_DGSF_LOOP) + chan_partialSum_addr->assign(lc_j->loopVar) + chan_partialSum_addr->assign(chan_jj_relay_loop_k_DGSF_LOOP) + partialSum_BaseAddr;
 
         chan_partialSum_addr_delay->get();
         chan_partialSum_addr_delay->value = chan_partialSum_addr_delay->assign(chan_partialSum_addr);
@@ -538,11 +563,11 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         end->get();
 
-        if (clk > 1218)
-        {
-            graphScheduler->currSubgraphId = 1;
-            graphScheduler->configChan(graphScheduler->currSubgraphId);
-        }
+        //if (clk > 1218)
+        //{
+        //    graphScheduler->currSubgraphId = 1;
+        //    graphScheduler->configChan(graphScheduler->currSubgraphId);
+        //}
 
         //** Print log
         // Set debug mode
@@ -556,7 +581,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel
             debug->getFile() << "Loop index kk: " << chan_kk_relay_loop_i->value << std::endl;  // Inner most relay channel
             debug->getFile() << "Loop index i: " << chan_i_lc->value << std::endl;
-            debug->getFile() << "Loop index k: " << chan_k_lc->value << std::endl;
+            debug->getFile() << "Loop index k: " << chan_k_lc_DGSF_LOOP->value << std::endl;
             debug->getFile() << "Loop index j: " << lc_j->loopVar->value << std::endl;
 
             debug->vecPrint("Result", res, 15);
@@ -587,18 +612,18 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId  << "\t" << " Clk:" << clk << std::endl;
             debug->getFile() << "*****************  k  *****************" << std::endl;
             debug->chanPrint("lc_k->loopVar", lc_k->loopVar);
-            debug->chanPrint("chan_k_lc", chan_k_lc);
+            debug->chanPrint("chan_k_lc_DGSF_LOOP", chan_k_lc_DGSF_LOOP);
             //debug->chanPrint("chan_m1_addr", chan_m1_addr);
             //debug->chanPrint("chan_m1_addr_delay", chan_m1_addr_delay);
             //debug->chanPrint("chan_k_row", chan_k_row);
             //debug->chanPrint("chan_k_row_delay", chan_k_row_delay);
-            debug->chanPrint("chan_k_row_DGSF", chan_k_row_DGSF);
+            debug->chanPrint("chan_k_row_DGSF_LOOP", chan_k_row_DGSF_LOOP);
             //debug->lsePrint("lse_ld_m1", lse_ld_m1);
-            debug->chanPrint("chan_m1_getData", chan_m1_getData);
+            debug->chanPrint("chan_m1_getData_DGSF_LOOP", chan_m1_getData_DGSF_LOOP);
             //debug->chanPrint("chan_jj_relay_loop_k", chan_jj_relay_loop_k);
-            debug->chanPrint("chan_jj_relay_loop_k_DGSF", chan_jj_relay_loop_k_DGSF);
+            debug->chanPrint("chan_jj_relay_loop_k_DGSF_LOOP", chan_jj_relay_loop_k_DGSF_LOOP);
             //debug->chanPrint("chan_i_row_relay_loop_k", chan_i_row_relay_loop_k);
-            debug->chanPrint("chan_i_row_relay_loop_k_DGSF", chan_i_row_relay_loop_k_DGSF);
+            debug->chanPrint("chan_i_row_relay_loop_k_DGSF_LOOP", chan_i_row_relay_loop_k_DGSF_LOOP);
             // loop j
             debug->getFile() << std::endl;
             debug->getFile() << "*****************  j  *****************" << std::endl;
@@ -606,6 +631,9 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->chanPrint("chan_m2_addr", chan_m2_addr);
             debug->chanPrint("chan_m2_addr_delay", chan_m2_addr_delay);
             debug->lsePrint("lse_ld_m2", lse_ld_m2);
+            debug->chanPrint("lse_ld_m2_DGSF_DAE", lse_ld_m2_DGSF_DAE);
+            debug->chanPrint("chan_m1_getData_DGSF_DAE_temp", chan_m1_getData_DGSF_DAE_temp);
+            debug->chanPrint("chan_m1_getData_DGSF_DAE", chan_m1_getData_DGSF_DAE);
             debug->chanPrint("chan_mul", chan_mul);
             debug->chanPrint("chan_mul_delay", chan_mul_delay);
             debug->chanPrint("chan_partialSum_addr", chan_partialSum_addr);
@@ -672,6 +700,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
 }
 
+// Backup
 
 //void GemmTest::gemm_DGSF(Debug* debug)
 //{
@@ -1216,7 +1245,6 @@ void GemmTest::gemm_DGSF(Debug* debug)
 //    delete memSys;
 //
 //}
-
 
 //void GemmTest::gemm_DGSF(Debug* debug)
 //{

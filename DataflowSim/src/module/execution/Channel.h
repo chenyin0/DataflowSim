@@ -96,7 +96,7 @@ class Channel usage:
 
     protected:
         //virtual void checkConnect(const vector<int>& inputData);  // Check upstream and downstream can't be empty
-        virtual void checkConnect();  // Check upstream and downstream can't be empty
+        //virtual void checkConnect();  // Check upstream and downstream can't be empty
         virtual bool checkUpstream(uint bufferId);
         virtual void pushBuffer(int data, uint bufferId);
         virtual void bpUpdate();
@@ -111,7 +111,8 @@ class Channel usage:
         //bool bp = 0;
         deque<bool> bp;  // Each inputFifo's bp (replace vector<bool>)
         vector<pair<uint, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
-        deque<bool> getLast; // Signify has gotten a data with last tag;
+        //deque<bool> getLast; // Signify has gotten a data with last tag;
+        //deque<bool> getTheLastData;  // Signify this channel has received the last data, and won't receive a data anymore(Only used in DGSF now)
         //deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
         bool valid = 0; // Only if all the consumer channels is not full, channel is valid
         bool enable = 1;  // Active channel
@@ -228,7 +229,7 @@ class ChanDGSF usage:
         bool& popChannelEnable = enable;
         vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
 
-    private:
+    //private:
         //vector<uint> chanBufferDataCntLast;  // Record last data cnt for each chanBuffer
 
         //ArchType archType = ArchType::DGSF;

@@ -55,18 +55,18 @@ void Channel::addDownstream(const vector<Channel*>& _downStream)
     }
 }
 
-void Channel::checkConnect()
-{
-    if ((!noUpstream && upstream.empty()) || (!noDownstream && downstream.empty()))
-    {
-        Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
-    }
-
-    //if (inputData.size() != upstream.size())
-    //{
-    //    Debug::throwError("InputData's size is not equal to upstream's size!", __FILE__, __LINE__);
-    //}
-}
+//void Channel::checkConnect()
+//{
+//    if ((!noUpstream && upstream.empty()) || (!noDownstream && downstream.empty()))
+//    {
+//        Debug::throwError("Upstream/Downstream is empty!", __FILE__, __LINE__);
+//    }
+//
+//    //if (inputData.size() != upstream.size())
+//    //{
+//    //    Debug::throwError("InputData's size is not equal to upstream's size!", __FILE__, __LINE__);
+//    //}
+//}
 
 void Channel::parallelize()
 {
@@ -115,7 +115,7 @@ vector<int> Channel::get(vector<int> data)
     vector<int> pushState(2);
     vector<int> popState(2);
 
-    checkConnect();
+    //checkConnect();
     popState = pop(); // Data lifetime in nested loop
 
     for (size_t i = 0; i < data.size(); ++i)
@@ -136,7 +136,7 @@ vector<int> Channel::get()
     vector<int> pushState(2);
     vector<int> popState(2);
 
-    checkConnect();
+    //checkConnect();
     popState = pop(); // Data lifetime in nested loop
 
     //for (size_t i = 0; i < data.size(); ++i)
@@ -467,8 +467,17 @@ void ChanBase::pushChannel()
             if (upstream[bufferId]->keepMode == 0)  // upstreamId is equal to bufferId
             {
                 data.last |= chanBuffer[bufferId].front().last;
+                data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
             }
-            data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
+            else
+            {
+                if (chanBuffer[bufferId].front().last && isLoopVar)
+                {
+                    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
+                }
+            }
+
+            //data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
             data.graphSwitch |= chanBuffer[bufferId].front().graphSwitch;
         }
 
@@ -479,15 +488,17 @@ void ChanBase::pushChannel()
         // Send lastTag to each upstream channel in keepMode
         if (data.last)
         {
-            if (isLoopVar)
-            {
-                data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
-                getLast.push_back(1);
-            }
-            else
-            {
-                sendLastTag();
-            }
+            //if (isLoopVar)
+            //{
+            //    data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
+            //    getLast.push_back(1);
+            //}
+            //else
+            //{
+            //    sendLastTag();
+            //}
+
+            sendLastTag();
         }    
 
         if (branchMode)
@@ -1353,7 +1364,7 @@ vector<int> ChanSGMF::get()
     vector<int> pushState(chanBuffer.size());  // Push into Din1 and Din2
     vector<int> popState(2);
 
-    checkConnect();
+    //checkConnect();
     popState = pop(); // Data lifetime in nested loop
 
     for (size_t i = 0; i < upstream.size(); ++i)
@@ -1409,7 +1420,7 @@ vector<int> ChanSGMF::get(vector<int> data, uint tag)
     vector<int> pushState(chanBuffer.size() * 2);  // Push into Din1 and Din2
     vector<int> popState(2);
 
-    checkConnect();
+    //checkConnect();
     popState = pop(); // Data lifetime in nested loop
 
     for (size_t i = 0; i < chanBuffer.size(); ++i)
@@ -1632,7 +1643,12 @@ void ChanSGMF::pushChannel(uint tag)
             }
             else
             {
-                data.lastOuter |= chanBuffer[bufferId][0].lastOuter;  // If a buffer's corresponding upstream is in keepMode, only store its data in [0]
+                if (chanBuffer[bufferId].front().last && isLoopVar)
+                {
+                    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
+                }
+
+                //data.lastOuter |= chanBuffer[bufferId][0].lastOuter;  // If a buffer's corresponding upstream is in keepMode, only store its data in [0]
             }
             //data.graphSwitch |= chanBuffer[bufferId][tag].graphSwitch;
         }
@@ -1648,15 +1664,17 @@ void ChanSGMF::pushChannel(uint tag)
         // Send lastTag to each upstream channel in keepMode
         if (data.last)
         {
-            if (isLoopVar)
-            {
-                data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
-                getLast.push_back(1);
-            }
-            else
-            {
-                sendLastTag();
-            }
+            //if (isLoopVar)
+            //{
+            //    data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
+            //    getLast.push_back(1);
+            //}
+            //else
+            //{
+            //    sendLastTag();
+            //}
+
+            sendLastTag();
         }
 
         //if (branchMode)
