@@ -33,7 +33,8 @@ namespace DFSim
     enum class Debug_mode
     {
         Turn_off,
-        Print_detail
+        Print_detail,
+        Print_brief
     };
 
     enum class ModuleType

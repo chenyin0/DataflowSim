@@ -127,6 +127,12 @@ void Lc::loopUpdate()
     {
         loopVar->channel.front().last = 1;  // If loop 3 times, there will be i = 0, 1, 2(last = 1!)
         //loopVar->produceLast.push_back(1);
+
+        // Set lastOuter for the outer-most loop
+        if (isOuterMostLoop)
+        {
+            loopVar->channel.front().lastOuter = 1;
+        }
     }
 
     // Only when a loopVar pops out a data with last tag, send lastTag to each upstream channel in keepMode

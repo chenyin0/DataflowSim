@@ -206,16 +206,24 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 
 bool Lse::sendReq(MemReq _req)
 {
-    if (memSys->addTransaction(_req))
+    if (!NO_MEMORY)
     {
-        uint index = _req.lseReqQueueIndex;
-        reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+        if (memSys->addTransaction(_req))
+        {
+            uint index = _req.lseReqQueueIndex;
+            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
 
-        return true;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
+    else  // No memory (memory latency = 0)
     {
-        return false;
+        ackCallback(_req);  // Send back ack directly(Not send reqs to memSys)
+        return true;
     }
 }
 
@@ -248,7 +256,7 @@ void Lse::statusUpdate()
             {
                 if (!sendReq(req))  // Send req to MemSystem, if send failed (reqQueue is full) -> break;
                 {
-                    sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+                    //sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
                     break;
                 }
             }

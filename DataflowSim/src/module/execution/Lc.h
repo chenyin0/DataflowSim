@@ -49,7 +49,6 @@ namespace DFSim
         void sendEndUpdate();
         virtual void loopUpdate();
 
-    private:
     public:
         ModuleType moduleTypr = ModuleType::Lc;
         uint moduleId;
@@ -58,6 +57,7 @@ namespace DFSim
         uint loopEnd = 0; // the number of finished loop
         uint currLoopId = 0; // If current loop Id == loop number, loop end
         deque<uint> loopNumQ; // Store each loop number
+        bool isOuterMostLoop = 0;  // Signify this is the outer-most loop, used in assigning "lastOuter" to the outer-most loop 
         //deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
     public:

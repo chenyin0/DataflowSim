@@ -93,6 +93,7 @@ void Registry::tableInit()
 {
     initChannel();
     checkConnect();
+    checkLc();
 }
 
 void Registry::initLastTagQueue(Channel* _chan)
@@ -216,6 +217,32 @@ void Registry::checkConnect()
                 Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
             }
         }
+    }
+}
+
+void Registry::checkLc()
+{
+    uint outerMostLoopNum = 0;
+
+    for (auto& entry : registryTable)
+    {
+        if (entry.moduleType == ModuleType::Lc)
+        {
+            if (entry.lcPtr->isOuterMostLoop)
+            {
+                ++outerMostLoopNum;
+            }
+        }
+    }
+
+    if (outerMostLoopNum == 0)
+    {
+        std::cout << "Warning: Not configure any outer-most Lc, make sure there is no loop in this application!" << std::endl;
+    }
+
+    if (outerMostLoopNum > 1)
+    {
+        std::cout << "Warning: Configure more than one outer-most Lc, make sure there are more than one outer-most loop in this application!" << std::endl;
     }
 }
 

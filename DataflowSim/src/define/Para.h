@@ -88,6 +88,8 @@ enum class ArchType
 */
 
 // MemSystem
+#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
+
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
 #define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
@@ -101,7 +103,25 @@ enum class ArchType
 
 // Cache
 #define CACHE_ENABLE 1
-#define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
+//#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
-//#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;
+#define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
+
+#define CACHE_SIZE_L1 16*1024  // byte
+#define CACHE_SIZE_L2 256*1024  // byte
+
+#define CACHE_LINE_SIZE_L1 32  // byte
+#define CACHE_LINE_SIZE_L2 32  // byte
+
+#define CACHE_MAPPING_WAY_L1 4
+#define CACHE_MAPPING_WAY_L2 4
+
+#define CACHE_ACCESS_LATENCY_L1 1  // Cycle
+#define CACHE_ACCESS_LATENCY_L2 4  // Cycle
+
+#define CACHE_BANK_NUM_L1 4
+#define CACHE_BANK_NUM_L2 8
+
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 8
+#define CACHE_REQ_Q_SIZE_PER_BANK_L2 8

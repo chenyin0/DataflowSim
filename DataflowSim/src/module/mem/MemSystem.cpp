@@ -259,18 +259,24 @@ void MemSystem::MemSystemUpdate()
     if (SPM_ENABLE)
     {
         send2Spm();  // Send req to SPM
-        spm->spmUpdate();
+        if (ClkDomain::getInstance()->checkClkAdd())
+        {
+            spm->spmUpdate();
+        }
         spm->sendReq2Mem(mem);
     }
 
     if (CACHE_ENABLE)
     {
         send2Cache();
-        cache->cacheUpdate();
+        if (ClkDomain::getInstance()->checkClkAdd())
+        {
+            cache->cacheUpdate();
+        }
         cache->sendReq2Mem(mem);
     }
 
-    if (ClkDomain::getInstance()->checkClkAdd())  // Update DRAM only when system clk update (Synchronize clk domain, in DGSF speedup mode)
+    if (ClkDomain::getInstance()->checkClkAdd())  // Update DRAM only when system clk update (Synchronize clk domain, in speedup mode)
     {
         mem->update();
         getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
