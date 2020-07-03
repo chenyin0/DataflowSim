@@ -149,13 +149,13 @@ namespace DFSim
         //const char OPERATION_LOCK = 'k';
         //const char OPERATION_UNLOCK = 'u';
 
-        vector<uint> a_cache_size = {64*1024, 786*1024};  // 多级cache的大小设置 (byte)
-        vector<uint> a_cache_line_size = {32, 8};  // 多级cache的line size（block size）大小 (byte)
-        vector<uint> a_mapping_ways = {4, 4};  // 组相连的链接方式 (几路组相连)
+        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // 多级cache的大小设置 (byte)
+        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // 多级cache的line size（block size）大小 (byte)
+        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // 组相连的链接方式 (几路组相连)
 
-        vector<uint> cache_access_latency = { 1, 4 };  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { 8, 4 };  // L1 each bank's reqQueueSize = 2; L2 = 2;
-        vector<uint> bankNum = { 4, 4 };  // L1 = 8, L2 = 16
+        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  // L1 each bank's reqQueueSize = 2; L2 = 2;
+        vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };

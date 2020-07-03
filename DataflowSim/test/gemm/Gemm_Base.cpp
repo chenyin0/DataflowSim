@@ -56,9 +56,9 @@ void GemmTest::gemm_Base(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, 1);  // Load M1
-    Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * 8, 0, false, memSys, 8);  // Load M2
-    Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * 8, 0, false, memSys, 8);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * 8, 0, true, memSys, 8);  // Store back partial sum
+    Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
+    Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
+    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
     lse_st_partialSum->noDownstream = 1;
 
 
@@ -78,6 +78,8 @@ void GemmTest::gemm_Base(Debug* debug)
     Mux* lc_jj_mux = new Mux(lc_jj_mux_trueChan, lc_jj_mux_falseChan, lc_jj_mux_outChan);
     lc_jj_mux->addPort({ lc_jj_loopVar }, { }, { lc_jj_loopVar });
     Lc* lc_jj = new Lc(lc_jj_loopVar, lc_jj_getEnd, lc_jj_sendEnd, lc_jj_mux);
+    // Set outer-most loop
+    lc_jj->isOuterMostLoop = 1;
 
     // Loop kk
     ChanBase* lc_kk_loopVar = new ChanBase(2, 0, 1);
@@ -190,16 +192,16 @@ void GemmTest::gemm_Base(Debug* debug)
     // 
     //ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, ADD, 8);
 
-    ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+    ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
 
-    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, MUL, 8);
+    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, MUL, Base_loop_j_speedup);
 
-    ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+    ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
 
-    ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, ADD, 8);
+    ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, ADD, Base_loop_j_speedup);
 
 
     //*** Define interconnect
@@ -331,7 +333,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 20000;
+    uint max_iter = 2000000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -586,6 +588,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
         if (!end->channel.empty())
         {
+            debug->debug_mode = Debug_mode::Print_detail;
             std::cout << std::endl;
             std::cout << "Arch: " << xstr(ARCH) << std::endl;
             std::cout << "*******************************" << std::endl;

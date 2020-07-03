@@ -56,10 +56,10 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
 
     //*** Declare Lse
-    Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * 8, 0, false, memSys, 8);  // Load M1
-    Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * 8, 0, false, memSys, 8);  // Load M2
-    Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * 8, 0, false, memSys, 8);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * 8, 0, true, memSys, 8);  // Store back partial sum
+    Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
+    Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
+    Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
+    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
     lse_st_partialSum->noDownstream = 1;
 
 
@@ -79,6 +79,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
     Mux* lc_jj_mux = new Mux(lc_jj_mux_trueChan, lc_jj_mux_falseChan, lc_jj_mux_outChan);
     lc_jj_mux->addPort({ lc_jj_loopVar }, { }, { lc_jj_loopVar });
     Lc* lc_jj = new Lc(lc_jj_loopVar, lc_jj_getEnd, lc_jj_sendEnd, lc_jj_mux);
+    // Set outer-most loop
+    lc_jj->isOuterMostLoop = 1; 
 
     // Loop kk
     ChanBase* lc_kk_loopVar = new ChanBase(2, 0, 1);
@@ -167,46 +169,46 @@ void GemmTest::gemm_DGSF(Debug* debug)
     chan_kk_relay_loop_i->keepMode = 1;
 
     // loop k
-    ChanBase* chan_m1_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_m1_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+    ChanBase* chan_m1_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 0, DGSF_loop_k_speedup);
+    ChanBase* chan_m1_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 2 * ADD, DGSF_loop_k_speedup);
 
-    ChanBase* chan_k_row = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_k_row_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, ADD + MUL, 8);
+    ChanBase* chan_k_row = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 0, DGSF_loop_k_speedup);
+    ChanBase* chan_k_row_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, ADD + MUL, DGSF_loop_k_speedup);
 
-    ChanDGSF* chan_k_row_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    ChanDGSF* chan_k_row_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_k_row_DGSF_LOOP->keepMode = 1;
 
-    ChanDGSF* chan_m1_getData_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    ChanDGSF* chan_m1_getData_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_m1_getData_DGSF_LOOP->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);  // Relay channel in loop k for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);  // Relay channel in loop k for chan_jj_lc
     //chan_jj_relay_loop_k->keepMode = 1;
 
-    ChanDGSF* chan_jj_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // Relay channel in loop k for chan_jj_lc
+    ChanDGSF* chan_jj_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
-    ChanBase* chan_i_row_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);
+    ChanBase* chan_i_row_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);
     //chan_i_row_relay_loop_k->keepMode = 1;
 
-    ChanDGSF* chan_i_row_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    ChanDGSF* chan_i_row_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_i_row_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
     // loop j
-    ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+    ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
 
-    ChanBase* chan_m1_getData_DGSF_DAE_temp = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 8);  // Separate Channel in DGSF & channel in keepMode 
-    ChanDGSF* chan_m1_getData_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // DAE dual-buffer
+    ChanBase* chan_m1_getData_DGSF_DAE_temp = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_j_speedup);  // Separate Channel in DGSF & channel in keepMode 
+    ChanDGSF* chan_m1_getData_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_j_speedup);  // DAE dual-buffer
 
-    ChanDGSF* lse_ld_m2_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);  // DAE dual-buffer
+    ChanDGSF* lse_ld_m2_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_j_speedup);  // DAE dual-buffer
 
-    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, MUL, 8);
+    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, MUL, DGSF_loop_j_speedup);
 
-    ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, 0, 8);
-    ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * 8, 2 * ADD, 8);
+    ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
 
-    ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, ADD, 8);
+    ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, ADD, DGSF_loop_j_speedup);
 
 
     //*** Define interconnect
@@ -373,7 +375,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 15000;
+    uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -563,15 +565,10 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         end->get();
 
-        //if (clk > 1218)
-        //{
-        //    graphScheduler->currSubgraphId = 1;
-        //    graphScheduler->configChan(graphScheduler->currSubgraphId);
-        //}
-
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Turn_off;
+        //debug->debug_mode = Debug_mode::Print_brief;
+        debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*14000 > iter && iter > 13000*/ iter >= 0)
         {
@@ -673,6 +670,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         if (!end->channel.empty())
         {
+            debug->debug_mode = Debug_mode::Print_detail;
             std::cout << std::endl;
             std::cout << "Arch: " << xstr(ARCH) << std::endl;
             std::cout << "*******************************" << std::endl;

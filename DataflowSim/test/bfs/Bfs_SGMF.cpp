@@ -45,6 +45,8 @@ void BfsTest::bfs_SGMF(Debug* debug)
     MuxSGMF* lc_i_mux = new MuxSGMF(lc_i_mux_trueChan, lc_i_mux_falseChan, lc_i_mux_outChan);
     lc_i_mux->addPort({ lc_i_loopVar }, { }, { lc_i_loopVar });
     LcSGMF* lc_i = new LcSGMF(lc_i_loopVar, lc_i_getEnd, lc_i_sendEnd, lc_i_mux);
+    // Set outer-most loop
+    lc_i->isOuterMostLoop = 1;
 
     // Loop j
     ChanSGMF* lc_j_loopVar = new ChanSGMF(SGMF_INPUT_BUFF_SIZE, 0);
@@ -316,6 +318,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
 
         if (!end->channel.empty())
         {
+            debug->debug_mode = Debug_mode::Print_detail;
             std::cout << std::endl;
             std::cout << "Arch: " << xstr(ARCH) << std::endl;
             std::cout << "*******************************" << std::endl;

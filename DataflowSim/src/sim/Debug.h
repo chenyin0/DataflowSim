@@ -15,7 +15,14 @@ namespace DFSim
 
         std::ofstream& getFile()
         {
-            return _output_file;
+            if (debug_mode != Debug_mode::Turn_off)
+            {
+                return _output_file;
+            }
+            else
+            {
+                return _null_file;
+            }
         }
 
         void chanPrint(const string name, const Channel* channel);
@@ -31,13 +38,16 @@ namespace DFSim
         template <>
         void vecPrint<int>(const string name, const vector<int>& data)
         {
-            _output_file << std::endl;
-            _output_file << name <<": "<< std::endl;
-            for (auto i : data)
+            if (debug_mode != Debug_mode::Turn_off)
             {
-                _output_file << i << " ";
+                _output_file << std::endl;
+                _output_file << name << ": " << std::endl;
+                for (auto i : data)
+                {
+                    _output_file << i << " ";
+                }
+                _output_file << std::endl;
             }
-            _output_file << std::endl;
         }
 
         // Only print the last "num" elements
@@ -49,25 +59,28 @@ namespace DFSim
         template <>
         void vecPrint<int>(const string name, const vector<int>& data, const uint num)  
         {
-            _output_file << std::endl;
-            _output_file << name << ": " << std::endl;
-            uint size = data.size();
-            if (size > 0)
+            if (debug_mode != Debug_mode::Turn_off)
             {
-                uint init_index = size - 1;
-                for (size_t i = 0; i < num; ++i)
+                _output_file << std::endl;
+                _output_file << name << ": " << std::endl;
+                uint size = data.size();
+                if (size > 0)
                 {
-                    if (init_index >= i)
+                    uint init_index = size - 1;
+                    for (size_t i = 0; i < num; ++i)
                     {
-                        _output_file << data[init_index - i] << " ";
-                    }
-                    else
-                    {
-                        break;
+                        if (init_index >= i)
+                        {
+                            _output_file << data[init_index - i] << " ";
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
+                _output_file << std::endl;
             }
-            _output_file << std::endl;
         }
 
         static void throwError(const string errorDescrip, const string fileName, const uint lineNum);
@@ -78,5 +91,6 @@ namespace DFSim
 
     private:
         std::ofstream _output_file;
+        std::ofstream _null_file;  // Used in Print_off, not print to log_file
     };
 }

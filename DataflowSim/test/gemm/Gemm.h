@@ -42,7 +42,8 @@ DFG analyze:
 
     Pe_lc = 10; (Lc = 2pe)
     PE_compute = 11;
-        loop_4 pe = 5;
+        loop_3 pe = 1;
+        loop_4 pe = 4;
         loop_5 pe = 6;
 
     Ld = 3;
@@ -55,7 +56,7 @@ DFG analyze:
 Config parameter:
     Base: 
         Unroll loop_5 8 times:
-        total pe = 63;
+        total pe = 5 * 2lc + 1 + 4 + 6 * 8 = 63;
 
     SGMF:
         Unroll loop_5 2 times:
@@ -63,7 +64,7 @@ Config parameter:
 
     DGSF:
         loop_4: unroll 8 times;  (48pe - 4lc * 2)/5 = 8 times
-        loop_5: unroll 8 times;
+        loop_5: unroll 8 times;  48pe / 6 = 8 times
 
 */
 
@@ -91,5 +92,13 @@ namespace DFSimTest
         static vector<vector<int>> m1;
         static vector<vector<int>> m2;
         static vector<vector<int>> result;
+
+        // Performance parameter
+        // Base
+        static uint Base_loop_j_speedup;
+
+        // DGSF
+        static uint DGSF_loop_k_speedup;
+        static uint DGSF_loop_j_speedup;
     };
 }

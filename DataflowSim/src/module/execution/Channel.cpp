@@ -471,7 +471,12 @@ void ChanBase::pushChannel()
             }
             else
             {
-                if (chanBuffer[bufferId].front().last && isLoopVar)
+                //if (chanBuffer[bufferId].front().last && isLoopVar)
+                //{
+                //    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
+                //}
+
+                if (chanBuffer[bufferId].front().last && chanBuffer[bufferId].front().lastOuter && isLoopVar)
                 {
                     data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
                 }
@@ -1643,7 +1648,12 @@ void ChanSGMF::pushChannel(uint tag)
             }
             else
             {
-                if (chanBuffer[bufferId].front().last && isLoopVar)
+                //if (chanBuffer[bufferId].front().last && isLoopVar)
+                //{
+                //    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
+                //}
+
+                if (chanBuffer[bufferId].front().last && chanBuffer[bufferId].front().lastOuter && isLoopVar)
                 {
                     data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
                 }

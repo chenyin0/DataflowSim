@@ -2,9 +2,9 @@
 
 using namespace DFSimTest;
 
-const uint GemmTest::matrix_width = 10;
+const uint GemmTest::matrix_width = 20;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 5;
+const uint GemmTest::block_size = 10;
 
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
@@ -15,6 +15,14 @@ const uint GemmTest::partialSum_BaseAddr = matrix_width * matrix_height * 2;
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;
 vector<vector<int>> GemmTest::result;
+
+// Performance parameter
+// Base
+uint GemmTest::Base_loop_j_speedup = 20;
+
+// DGSF
+uint GemmTest::DGSF_loop_k_speedup = 20;
+uint GemmTest::DGSF_loop_j_speedup = 20;
 
 
 void GemmTest::generateData()
