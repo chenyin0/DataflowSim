@@ -64,7 +64,8 @@ namespace DFSim
     public:
         // Store memory request; As for load back data, push the corresponding reqQueueIndex into the deque<Data> channel;
         // MemReq: keep req; Data: keep status;
-        vector<pair<MemReq, Data>> reqQueue;  
+        vector<pair<MemReq, Data>> reqQueue;
+        bool noLatencyMode = 0;  // Emulate no latency memory access
 
     protected:
         uint lseId;

@@ -206,7 +206,13 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 
 bool Lse::sendReq(MemReq _req)
 {
-    if (!NO_MEMORY)
+    // No memory (memory latency = 0)
+    if (NO_MEMORY || noLatencyMode)
+    {
+        ackCallback(_req);  // Send back ack directly(Not send reqs to memSys)
+        return true;
+    }
+    else
     {
         if (memSys->addTransaction(_req))
         {
@@ -219,11 +225,6 @@ bool Lse::sendReq(MemReq _req)
         {
             return false;
         }
-    }
-    else  // No memory (memory latency = 0)
-    {
-        ackCallback(_req);  // Send back ack directly(Not send reqs to memSys)
-        return true;
     }
 }
 

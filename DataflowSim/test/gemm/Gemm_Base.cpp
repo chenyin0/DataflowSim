@@ -56,6 +56,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, 1);  // Load M1
+    //lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
     Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
@@ -333,7 +334,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 2000000;
+    uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -498,6 +499,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
         //** Print log
         // Set debug mode
+        //debug->debug_mode = Debug_mode::Print_brief;
         debug->debug_mode = Debug_mode::Turn_off;
 
         if (iter > 0)
@@ -539,6 +541,7 @@ void GemmTest::gemm_Base(Debug* debug)
             debug->chanPrint("chan_k_lc", chan_k_lc);
             debug->chanPrint("chan_m1_addr", chan_m1_addr);
             debug->chanPrint("chan_k_row", chan_k_row);
+            debug->chanPrint("chan_i_row_relay_loop_k", chan_i_row_relay_loop_k);
             debug->lsePrint("lse_ld_m1", lse_ld_m1);
             debug->chanPrint("chan_m1_getData", chan_m1_getData);
             debug->chanPrint("chan_jj_relay_loop_k", chan_jj_relay_loop_k);

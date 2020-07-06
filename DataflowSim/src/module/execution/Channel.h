@@ -112,7 +112,7 @@ class Channel usage:
         deque<bool> bp;  // Each inputFifo's bp (replace vector<bool>)
         vector<pair<uint, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
         //deque<bool> getLast; // Signify has gotten a data with last tag;
-        //deque<bool> getTheLastData;  // Signify this channel has received the last data, and won't receive a data anymore(Only used in DGSF now)
+        deque<bool> getTheLastData;  // Signify whether each chanBuffer has received the last data, and won't receive a data anymore(Only used in DGSF now)
         //deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
         bool valid = 0; // Only if all the consumer channels is not full, channel is valid
         bool enable = 1;  // Active channel
