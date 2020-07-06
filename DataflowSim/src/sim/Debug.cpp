@@ -40,7 +40,9 @@ void Debug::chanPrint(const string name, const Channel* channel)
         // Print each chanBuffer
         for (size_t i = 0; i < channel->chanBuffer.size(); ++i)
         {
-            _output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << ")(cnt=" << channel->chanBufferDataCnt[i] << "): ";
+            _output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << ")";
+            _output_file << "(cnt=" << channel->chanBufferDataCnt[i] << ",";
+            _output_file << "num=" << channel->chanBuffer[i].size() << "): ";
             for (auto& data : channel->chanBuffer[i])
             {
                 if (data.valid)

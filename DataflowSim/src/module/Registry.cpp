@@ -137,12 +137,14 @@ void Registry::initChanBuffer(Channel* _chan)
         _chan->chanBuffer.resize(upstreamSize);
         _chan->chanBufferDataCnt.resize(upstreamSize);
         _chan->keepModeDataCnt.resize(upstreamSize);
+        _chan->getTheLastData.resize(upstreamSize);
     }
     else
     {
         _chan->chanBuffer.resize(1);
         _chan->chanBufferDataCnt.resize(1);
         _chan->keepModeDataCnt.resize(1);
+        _chan->getTheLastData.resize(1);
     }
 
     // If channel is SGMF, resize each buffer of chanBuffer

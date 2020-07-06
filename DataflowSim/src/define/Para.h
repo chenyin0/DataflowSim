@@ -53,7 +53,7 @@ enum class ArchType
 #define BASE_INPUT_BUFF_SIZE 1
 
 // DGSF
-#define BRAM_BANK_DEPTH 32  // SPM bank depth
+#define BRAM_BANK_DEPTH 16  // SPM bank depth
 #define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
 #define BRAM_ACCESS_DELAY 3  // Access BRAM delay
 
@@ -92,7 +92,7 @@ enum class ArchType
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
-#define BUS_DELAY 15  // Bus delay (between DRAM and Cache/SPM)
+#define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 
 // SPM
 #define SPM_ENABLE 0
@@ -104,7 +104,7 @@ enum class ArchType
 // Cache
 #define CACHE_ENABLE 1
 //#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;
-#define REQ_QUEUE_TO_MEM_SIZE 32 
+#define REQ_QUEUE_TO_MEM_SIZE 16 
 
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 
@@ -120,8 +120,8 @@ enum class ArchType
 #define CACHE_ACCESS_LATENCY_L1 1  // Cycle
 #define CACHE_ACCESS_LATENCY_L2 4  // Cycle
 
-#define CACHE_BANK_NUM_L1 4
+#define CACHE_BANK_NUM_L1 8
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 8
-#define CACHE_REQ_Q_SIZE_PER_BANK_L2 8
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 4
+#define CACHE_REQ_Q_SIZE_PER_BANK_L2 4

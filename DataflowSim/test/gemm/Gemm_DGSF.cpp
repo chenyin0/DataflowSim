@@ -57,6 +57,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
+    lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
     Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
@@ -628,6 +629,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->chanPrint("chan_m2_addr", chan_m2_addr);
             debug->chanPrint("chan_m2_addr_delay", chan_m2_addr_delay);
             debug->lsePrint("lse_ld_m2", lse_ld_m2);
+            debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId << "\t" << " Clk:" << clk << std::endl;
             debug->chanPrint("lse_ld_m2_DGSF_DAE", lse_ld_m2_DGSF_DAE);
             debug->chanPrint("chan_m1_getData_DGSF_DAE_temp", chan_m1_getData_DGSF_DAE_temp);
             debug->chanPrint("chan_m1_getData_DGSF_DAE", chan_m1_getData_DGSF_DAE);

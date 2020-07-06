@@ -764,6 +764,15 @@ void ChanBase::statusUpdate()
                     }
                 }
             }
+
+            //for (auto& chan : downstream)
+            //{
+            //    if (!chan->checkSend(this->channel.front(), this))
+            //    {
+            //        valid = 0;
+            //        break;
+            //    }
+            //}
         }
     }
 
