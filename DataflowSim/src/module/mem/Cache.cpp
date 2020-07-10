@@ -182,10 +182,13 @@ int Cache::check_cache_hit(uint set_base, uint addr, int level)
 {
     /**循环查找当前set的所有way（line），通过tag匹配，查看当前地址是否在cache中*/
     uint i;
+    uint _tag = getCacheTag(addr, level);  // Debug_yin
+
     for (i = 0; i < cache_mapping_ways[level]; ++i) 
     {
+        uint taggg = caches[level][set_base + i].tag;  // Debug_yin
         if ((caches[level][set_base + i].flag & CACHE_FLAG_VALID) &&
-            (caches[level][set_base + i].tag == getCacheTag(addr, level) /*(addr >> (cache_set_shifts[level] + cache_line_shifts[level]))*/)) 
+            (caches[level][set_base + i].tag == _tag /*(addr >> (cache_set_shifts[level] + cache_line_shifts[level]))*/)) 
         {
             return set_base + i;
         }
@@ -316,6 +319,7 @@ void Cache::set_cache_line(uint index, uint addr, int level)
     line->flag = (_u8)~CACHE_FLAG_MASK;
     line->flag |= CACHE_FLAG_VALID;
     line->count = tick_count;
+    ++tick_count;
 }
 
 bool Cache::setCacheBlock(uint addr, uint level)
@@ -329,6 +333,7 @@ bool Cache::setCacheBlock(uint addr, uint level)
         if (cacheLineIndex != -1)
         {
             set_cache_line(cacheLineIndex, addr, level);
+            //std::cout << "addr:" << addr << " cacheLineIndex: " << cacheLineIndex << " level:" << level << " cnt:" << (caches[level] + cacheLineIndex)->count << std::endl;  // Debug_yin
             return true;
         }
         else
@@ -341,154 +346,6 @@ bool Cache::setCacheBlock(uint addr, uint level)
         return true;
     }
 }
-
-///**不需要分level*/
-//void Cache::do_cache_op(uint addr, Cache_operation oper_style) 
-//{
-//    uint set_l1, set_l2, set_base_l1, set_base_l2;
-//    long long hit_index_l1, hit_index_l2, free_index_l1, free_index_l2;
-//    tick_count++;
-//    if (oper_style == Cache_operation::READ)
-//        cache_r_count++;
-//    if (oper_style == Cache_operation::WRITE)
-//        cache_w_count++;
-//    set_l2 = (addr >> cache_line_shifts[1]) % cache_set_size[1];
-//    set_base_l2 = set_l2 * cache_mapping_ways[1];
-//    hit_index_l2 = check_cache_hit(set_base_l2, addr, 1);
-//    set_l1 = (addr >> cache_line_shifts[0]) % cache_set_size[0];
-//    set_base_l1 = set_l1 * cache_mapping_ways[0];
-//    hit_index_l1 = check_cache_hit(set_base_l1, addr, 0);
-//
-//    // lock操作现在只关心L2的。(L2 is shared)
-//    if (oper_style == Cache_operation::LOCK || oper_style == Cache_operation::UNLOCK)
-//    {
-//        if (hit_index_l2 >= 0) 
-//        {
-//            if (oper_style == Cache_operation::LOCK)
-//            {
-//                cache_hit_count[1]++;
-//                if (Cache_swap_style::CACHE_SWAP_LRU == swap_style[1])
-//                {
-//                    caches[1][hit_index_l2].lru_count = tick_count;
-//                }
-//                lock_cache_line((uint)hit_index_l2, 1);
-//                // TODO: 不加载到L1上
-//                // 如果L1miss，则一定需要加载上去
-////                if( hit_index_l1 < 0 ){
-////                    free_index_l1 = get_cache_free_line(set_base_l1, 0);
-////                    if(free_index_l1 >= 0){
-////                        set_cache_line((uint)free_index_l1, addr, 0);
-////                        //需要miss++吗？
-////                    }else{
-////                        printf("I should not be here");
-////                    }
-////                }
-//            }
-//            else if(oper_style == Cache_operation::UNLOCK)
-//            {
-//                unlock_cache_line((uint)hit_index_l2, 1);
-//            }
-//        }
-//        else 
-//        {
-//            // lock miss
-//            if (oper_style == Cache_operation::LOCK)
-//            {
-//                cache_miss_count[1]++;
-//                free_index_l2 = get_cache_free_line(set_base_l2, 1);
-//                if (free_index_l2 >= 0) 
-//                {
-//                    set_cache_line((uint)free_index_l2, addr, 1);
-//                    lock_cache_line((uint)free_index_l2, 1);
-//                    // TODO: 不管L1
-//                    // 同时需要查看L1是否hit
-////                    if(hit_index_l1 < 0){
-////                        free_index_l1 = get_cache_free_line(set_base_l1, 0);
-////                        if(free_index_l1 >= 0){
-////                            set_cache_line((uint)free_index_l1, addr, 0);
-////                            //需要miss++吗？
-////                        }else{
-////                            printf("I should not be here.");
-////                        }
-////                    }
-//                }
-//                else 
-//                {
-//                    //返回值应该确保是>=0的
-//                    printf("I should not be here.");
-//                }
-//            }
-//            else 
-//            {
-//                // miss的unlock 先不管
-//            }
-//        }
-//    }
-//    else 
-//    {
-//        // L1命中了
-//        if (hit_index_l1 >= 0) 
-//        {
-//            // 一定是read或者write。lock的已经在前面处理过了。
-//            cache_hit_count[0]++;
-//            //只有在LRU的时候才更新时间戳，第一次设置时间戳是在被放入数据的时候。所以符合FIFO
-//            if (Cache_swap_style::CACHE_SWAP_LRU == swap_style[0])
-//                caches[0][hit_index_l1].lru_count = tick_count;
-//            //直接默认配置为写回法，即要替换或者数据脏了的时候才写回。
-//            //命中了，如果是改数据，不直接写回，而是等下次，即没有命中，但是恰好匹配到了当前line的时候，这时的标记就起作用了，将数据写回内存
-//            //TODO: error :先不用考虑写回的问题，这里按设想，不应该直接从L1写回到内存
-//            if (oper_style == Cache_operation::WRITE)
-//            {
-//                // 修正上面的问题
-////                caches[0][hit_index_l1].flag |= CACHE_FLAG_DIRTY;
-//                // L2命中，则将新数据写入到L2
-//                if (hit_index_l2 >= 0) 
-//                {
-//                    cache_hit_count[1]++;
-//                    caches[1][hit_index_l2].flag |= CACHE_FLAG_DIRTY;
-//                    if (Cache_swap_style::CACHE_SWAP_LRU == swap_style[1])
-//                    {
-//                        caches[1][hit_index_l2].lru_count = tick_count;
-//                    }
-//                    //如果L2miss，那么找到一个新块，将数据写入L2
-//                }
-//                else 
-//                {
-//                    //需要添加cache2 miss count吗？先不加了
-//                    cache_miss_count[1]++;
-//                    free_index_l2 = get_cache_free_line(set_base_l2, 1);
-//                    set_cache_line((uint)free_index_l2, addr, 1);
-//                    caches[1][free_index_l2].flag |= CACHE_FLAG_DIRTY;
-//                }
-//            }
-//        }
-//        else 
-//        {
-//            // L1 miss
-//            cache_miss_count[0]++;
-//            // 先查看L2是否hit，如果hit，直接取数据上来，否则
-//            if (hit_index_l2 >= 0) 
-//            {
-//                // 在L2中hit, 需要写回到L1中
-//                cache_hit_count[1]++;
-//                free_index_l1 = get_cache_free_line(set_base_l1, 0);
-//                set_cache_line((uint)free_index_l1, addr, 0);
-//            }
-//            else 
-//            {
-//                // not in L2,从内存中取
-//                cache_miss_count[1]++;
-//                free_index_l2 = get_cache_free_line(set_base_l2, 1);
-//                set_cache_line((uint)free_index_l2, addr, 1);
-//                free_index_l1 = get_cache_free_line(set_base_l1, 0);
-//                set_cache_line((uint)free_index_l1, addr, 0);
-//            }
-//        }
-//        //Fix BUG:在将Cachesim应用到其他应用中时，发现tickcount没有增加，这里修正下。不然会导致替换算法失效。
-//        // Bug Fix: 在hm中，需要通过外部单独调用tickcount++,现在还不明白为什么。
-////    tick_count++;
-//    }
-//}
 
 ///**从文件读取trace，在我最后的修改目标里，为了适配项目，这里需要改掉*/
 //void Cache::load_trace(const char* filename) 
@@ -572,7 +429,7 @@ CacheReq Cache::transMemReq2CacheReq(const MemReq& memReq)
     cacheReq.inflight = memReq.inflight;
     cacheReq.ready = memReq.ready;
     cacheReq.memSysReqQueueIndex = memReq.memSysReqQueueIndex;
-    //cacheReq.cnt = memReq.cnt;
+    cacheReq.cnt = memReq.cnt;  // For debug
 
     if (memReq.isWrite)
     {
@@ -681,7 +538,9 @@ bool Cache::addrCoaleseCheck(const uint addr, const uint level)
 
     for (auto& req : reqQueueBank)
     {
-        if (req.first.valid && ((addr >> cache_line_shifts[level]) == (req.first.addr >> cache_line_shifts[level])))
+        if (req.first.valid 
+            && req.first.cacheOp != Cache_operation::WRITEBACK_DIRTY_BLOCK 
+            && ((addr >> cache_line_shifts[level]) == (req.first.addr >> cache_line_shifts[level])))
         {
             return true;  // Coalese successfully
         }
@@ -866,13 +725,92 @@ void Cache::updateReqQueueOfCacheLevel()
             for (size_t i = 0; i < reqQueueSizePerBank[level]; ++i)  // Traverse each req of bank
             {
                 auto& req = reqQueueBank[_sendPtr];
-                if (req.second == 0 && req.first.valid && !req.first.ready)
+                if (req.second == 0 && req.first.valid && !req.first.ready)  // Req.second is latency counter
                 {
                     uint addr = req.first.addr;
                     //uint set = (addr >> cache_line_shifts[i]) % cache_set_size[i];  // Set index
                     uint set = getCacheSetIndex(addr, level);  // Set index
                     uint set_base = set * cache_mapping_ways[level];  // Cacheline index
                     int setIndex = check_cache_hit(set_base, addr, level);
+
+                    //// debug_yin !!!!!!!!!!!!!!!!!!!!!!!
+                    //if (addr == 4020 && req.first.cnt == 2363)
+                    //{
+                    //    std::cout << ">>>" << std::endl;
+                    //    
+                    //    for (size_t level = 0; level < reqQueue.size(); ++level)
+                    //    {
+                    //        std::cout << std::setw(8) << "Cache_L" << level + 1 << "_reqQueue:" << std::endl;
+
+                    //        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
+                    //        {
+                    //            std::cout << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
+
+                    //            // Print each req
+                    //            std::cout << std::setw(12) << "addr:";
+                    //            for (auto& req : reqQueue[level][bankId])
+                    //            {
+                    //                if (req.first.valid)
+                    //                {
+                    //                    std::cout << std::setw(5) << req.first.addr;
+                    //                }
+                    //            }
+
+                    //            std::cout << std::endl;
+                    //            std::cout << std::setw(12) << "isWt:";
+                    //            for (auto& req : reqQueue[level][bankId])
+                    //            {
+                    //                if (req.first.valid)
+                    //                {
+                    //                    if (req.first.cacheOp == Cache_operation::WRITE)
+                    //                    {
+                    //                        std::cout << std::setw(5) << "1";
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        std::cout << std::setw(5) << "0";
+                    //                    }
+                    //                }
+                    //            }
+
+                    //            std::cout << std::endl;
+                    //            std::cout << std::setw(12) << "inflg:";
+                    //            for (auto& req : reqQueue[level][bankId])
+                    //            {
+                    //                if (req.first.valid)
+                    //                {
+                    //                    std::cout << std::setw(5) << req.first.inflight;
+                    //                }
+                    //            }
+
+                    //            std::cout << std::endl;
+                    //            std::cout << std::setw(12) << "rdy:";
+                    //            for (auto& req : reqQueue[level][bankId])
+                    //            {
+                    //                if (req.first.valid)
+                    //                {
+                    //                    std::cout << std::setw(5) << req.first.ready;
+                    //                }
+                    //            }
+
+                    //            std::cout << std::endl;
+                    //            std::cout << std::setw(12) << "OrderId:";
+                    //            for (auto& req : reqQueue[level][bankId])
+                    //            {
+                    //                if (req.first.valid)
+                    //                {
+                    //                    std::cout << std::setw(5) << req.first.cnt;
+                    //                }
+                    //            }
+
+                    //            std::cout << std::endl;
+                    //        }
+
+                    //        std::cout << std::endl;
+                    //    }
+                    //    std::cout << std::endl;
+                    //}
+
                     if (setIndex != -1)  // Cache hit
                     {
                         if (req.first.cacheOp == Cache_operation::WRITE || req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
@@ -910,7 +848,7 @@ void Cache::updateReqQueueOfCacheLevel()
                         }
                     }
                     else  // Cache miss
-                    {
+                    {   
                         if (!req.first.inflight)  // This req hasn't been sent to the next level cache
                         {
                             if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache

@@ -75,9 +75,9 @@ void BfsTest::bfs_SGMF(Debug* debug)
     // Loop i
     ChanBase* chan_queue = new ChanBase(200, 0);  // chan_queue is a fifo
     
-    //ChanBase* chan_node = new ChanBase(16, 0);
-    ChanSGMF* chan_node = new ChanSGMF(SGMF_INPUT_BUFF_SIZE, 0);
-    chan_node->keepMode = 1;
+    ChanBase* chan_peek = new ChanBase(16, 0);
+    //ChanSGMF* chan_peek = new ChanSGMF(SGMF_INPUT_BUFF_SIZE, 0);
+    chan_peek->keepMode = 1;
 
     // Loop j
     ChanSGMF* chan_edge_addr = new ChanSGMF(SGMF_INPUT_BUFF_SIZE, 0);
@@ -99,10 +99,10 @@ void BfsTest::bfs_SGMF(Debug* debug)
     chan_queue->addDownstream({ lse_ld_node });
 
     lse_ld_node->addUpstream({ chan_queue });
-    lse_ld_node->addDownstream({ chan_node });
+    lse_ld_node->addDownstream({ chan_peek });
 
-    chan_node->addUpstream({ lse_ld_node });
-    chan_node->addDownstream({ /*lc_j->mux->falseChan*/lc_j->loopVar/*, lc_j->mux->falseChan*/ });
+    chan_peek->addUpstream({ lse_ld_node });
+    chan_peek->addDownstream({ /*lc_j->mux->falseChan*/lc_j->loopVar/*, lc_j->mux->falseChan*/ });
 
     // Loop j
     chan_edge_addr->addUpstream({ lc_j->loopVar });
@@ -125,8 +125,8 @@ void BfsTest::bfs_SGMF(Debug* debug)
     lc_i->addPort({ }, { chan_i_lc, chan_queue }, { lc_j->sendEnd }, { end });
     lc_i->addDependence({ begin }, {});  // No loop dependence
 
-    lc_j->addPort({ chan_i_lc, chan_node }, { chan_edge_addr }, { chan_check_mark }, { lc_i->getEnd });
-    lc_j->addDependence({ chan_node }, {});  // Loop initial from chan_node (New node)
+    lc_j->addPort({ chan_i_lc, chan_peek }, { chan_edge_addr }, { chan_check_mark }, { lc_i->getEnd });
+    lc_j->addDependence({ chan_peek }, {});  // Loop initial from chan_peek (New node)
 
 
     //*** Simulate
@@ -148,7 +148,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
 
     uint nodeCnt = 0;
 
-    uint max_iter = 50000;
+    uint max_iter = 200000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -188,12 +188,12 @@ void BfsTest::bfs_SGMF(Debug* debug)
         lse_ld_node->get();
         lse_ld_node->value = lse_ld_node->assign();
 
-        chan_node->get();
-        chan_node->value = chan_node->assign(lse_ld_node) - nodeBaseAddr;  // Addr -> index
+        chan_peek->get();
+        chan_peek->value = chan_peek->assign(lse_ld_node) - nodeBaseAddr;  // Addr -> index
 
         //** Loop Lc_j
-        uint edgeBegin = nodes[chan_node->value].begin;
-        uint edgeEnd = nodes[chan_node->value].end;
+        uint edgeBegin = nodes[chan_peek->value].begin;
+        uint edgeEnd = nodes[chan_peek->value].end;
 
         j = lc_j->mux->mux(j, edgeBegin, lc_j->sel);
         //std::cout << j << std::endl;
@@ -206,8 +206,8 @@ void BfsTest::bfs_SGMF(Debug* debug)
 
         //if (lc_j->loopVar->valid && lc_j->loopVar->channel.front().last)
         //{
-        //    chan_node->popChannel(1, 1);
-        //    chan_node->valid = 0;
+        //    chan_peek->popChannel(1, 1);
+        //    chan_peek->valid = 0;
         //}
 
         chan_edge_addr->get();
@@ -231,8 +231,8 @@ void BfsTest::bfs_SGMF(Debug* debug)
             chan_check_mark->value = levelIndex;
             level[levelIndex] = 0;
             ++nodeCnt;
-            std::cout << nodeCnt << "\t" << levelIndex << std::endl;
-            std::cout << nodes[levelIndex].begin << "\t" << nodes[levelIndex].end << std::endl;
+            std::cout << "nodeCnt:" << nodeCnt << "\t" << "levelIndex: " << levelIndex << std::endl;
+            std::cout << "Ind_begin: " << nodes[levelIndex].begin << "\t" << "Ind_end: " << nodes[levelIndex].end << std::endl;
         }
         else
         {
@@ -290,7 +290,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
             debug->chanPrint("chan_i_lc", chan_i_lc);
             debug->chanPrint("chan_queue", chan_queue);
             debug->lsePrint("lse_ld_node", lse_ld_node);
-            debug->chanPrint("chan_node", chan_node);
+            debug->chanPrint("chan_peek", chan_peek);
             // loop j
             debug->getFile() << std::endl;
             debug->getFile() << "*****************  j  *****************" << std::endl;

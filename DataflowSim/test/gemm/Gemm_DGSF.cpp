@@ -57,10 +57,10 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
-    lse_ld_m1->noLatencyMode = 1;
+    //lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
+    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 1, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
     lse_st_partialSum->noDownstream = 1;
 
 

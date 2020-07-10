@@ -18,11 +18,11 @@ vector<vector<int>> GemmTest::result;
 
 // Performance parameter
 // Base
-uint GemmTest::Base_loop_j_speedup = 8;
+uint GemmTest::Base_loop_j_speedup = 6;
 
 // DGSF
-uint GemmTest::DGSF_loop_k_speedup = 6;
-uint GemmTest::DGSF_loop_j_speedup = 6;
+uint GemmTest::DGSF_loop_k_speedup = 8;
+uint GemmTest::DGSF_loop_j_speedup = 8;
 
 
 void GemmTest::generateData()

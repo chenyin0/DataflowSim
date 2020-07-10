@@ -59,7 +59,8 @@ void GemmTest::gemm_Base(Debug* debug)
     //lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
+    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 1, true, memSys, Base_loop_j_speedup);  // Store back partial sum
+    //lse_st_partialSum->noLatencyMode = 1;
     lse_st_partialSum->noDownstream = 1;
 
 
@@ -334,7 +335,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;
+    uint max_iter = 500000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -586,7 +587,7 @@ void GemmTest::gemm_Base(Debug* debug)
             debug->chanPrint("end", end);
 
             // Print MemorySystem
-            //debug->memSysPrint(memSys);
+            debug->memSysPrint(memSys);
         }
 
         if (!end->channel.empty())
