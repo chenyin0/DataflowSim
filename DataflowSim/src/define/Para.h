@@ -28,8 +28,8 @@ enum class ArchType
 };
 
 //#define Base Base
-#define DGSF DGSF
-//#define SGMF SGMF
+//#define DGSF DGSF
+#define SGMF SGMF
 //#define TIA TIA
 
 #ifdef DGSF
@@ -58,12 +58,12 @@ enum class ArchType
 #define BRAM_ACCESS_DELAY 3  // Access BRAM delay
 
 // SGMF
-#define SGMF_INPUT_BUFF_SIZE 16  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
+#define SGMF_INPUT_BUFF_SIZE 32  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
 #define TAG_SIZE SGMF_INPUT_BUFF_SIZE  // Channel data tag size
 
 // Lse
 #define LSE_QUEUE_SIZE 16
-#define LSE_O3 0
+#define LSE_O3 1
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH
@@ -111,6 +111,10 @@ enum class ArchType
 #define CACHE_SIZE_L1 16*1024  // byte
 #define CACHE_SIZE_L2 256*1024  // byte
 
+//// SGMF paper parameter
+//#define CACHE_SIZE_L1 64*1024  // byte
+//#define CACHE_SIZE_L2 786*1024  // byte
+
 #define CACHE_LINE_SIZE_L1 32  // byte
 #define CACHE_LINE_SIZE_L2 32  // byte
 
@@ -120,8 +124,8 @@ enum class ArchType
 #define CACHE_ACCESS_LATENCY_L1 1  // Cycle
 #define CACHE_ACCESS_LATENCY_L2 4  // Cycle
 
-#define CACHE_BANK_NUM_L1 8
+#define CACHE_BANK_NUM_L1 16
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 4
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 8
 #define CACHE_REQ_Q_SIZE_PER_BANK_L2 4

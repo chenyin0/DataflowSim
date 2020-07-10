@@ -1996,7 +1996,7 @@ bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
             }
 
             // If this tag's data is invalid, or this tag's data will be poped out in the next cycle, it is sendable;
-            if (!chanBuffer[chanId][tag].valid || (valid && channel.front().tag == tag))
+            if (!chanBuffer[chanId][tag].valid || (!keepMode && valid && channel.front().tag == tag))
             {
                 sendable = 1;
             }

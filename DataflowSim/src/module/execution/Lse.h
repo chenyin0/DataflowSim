@@ -61,6 +61,11 @@ namespace DFSim
         void popChanBuffer();
         //void bpUpdate() override;
 
+#ifdef DEBUG_MODE  // Get private instance for debug
+    public:
+        const uint& getCurrReqId() const;
+#endif // DEBUG_MODE
+
     public:
         // Store memory request; As for load back data, push the corresponding reqQueueIndex into the deque<Data> channel;
         // MemReq: keep req; Data: keep status;

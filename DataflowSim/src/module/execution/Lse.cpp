@@ -411,3 +411,10 @@ void Lse::ackCallback(MemReq _req)
     reqQueue[index].first.inflight = 0;
     //reqQueue[index].first.cnt = _req.cnt;
 }
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+const uint& Lse::getCurrReqId() const
+{
+    return currReqId;
+}
+#endif // DEBUG_MODE

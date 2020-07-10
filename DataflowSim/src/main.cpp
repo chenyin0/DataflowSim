@@ -26,8 +26,8 @@ int main()
     Gemm
     Bfs
     */
-    TestBench_name tb_name = TestBench_name::Gemm;
-    ArchType arch = ArchType::DGSF;
+    TestBench_name tb_name = TestBench_name::Bfs;
+    ArchType arch = ArchType::SGMF;
 
     DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 

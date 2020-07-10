@@ -166,7 +166,9 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         //_output_file << "  ";
         /*_output_file << "getLast: " << !_lse->getLast.empty();
         _output_file << "  ";*/
-        _output_file << "en: " << _lse->enable << std::endl;
+        _output_file << "en: " << _lse->enable;
+        _output_file << "  ";
+        _output_file << "currReqId: " << _lse->getCurrReqId() << std::endl;
 
         // Print each chanBuffer
         for (size_t i = 0; i < _lse->chanBuffer.size(); ++i)
