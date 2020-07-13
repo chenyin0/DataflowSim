@@ -73,7 +73,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
     end->noDownstream = 1;
 
     // Loop i
-    ChanBase* chan_queue = new ChanBase(200, 0);  // chan_queue is a fifo
+    ChanBase* chan_queue = new ChanBase(120, 0);  // chan_queue is a fifo
     
     ChanBase* chan_peek = new ChanBase(16, 0);
     //ChanSGMF* chan_peek = new ChanSGMF(SGMF_INPUT_BUFF_SIZE, 0);

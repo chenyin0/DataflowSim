@@ -146,6 +146,7 @@
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\ReadFile.hpp" />
     <ClInclude Include="src\util\util.hpp" />
+    <ClInclude Include="test\aes\Aes.h" />
     <ClInclude Include="test\bfs\Bfs.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\MemoryTest.h" />
@@ -166,6 +167,8 @@
     <ClCompile Include="src\module\mem\Spm.cpp" />
     <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="test\aes\Aes.cpp" />
+    <ClCompile Include="test\aes\Aes_Base.cpp" />
     <ClCompile Include="test\bfs\Bfs.cpp" />
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
