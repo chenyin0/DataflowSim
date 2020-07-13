@@ -118,8 +118,8 @@ class Channel usage:
         bool enable = 1;  // Active channel
 
         // Channel in branch
-        bool branchMode = 0; // Signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
         bool isCond = 0; // Signify current channel stores condition value of the branch (e.g. channel.element.cond)
+        bool branchMode = 0; // Signify current channel is in branch divergency head (e.g. data -> T channel or F channel)
         bool channelCond = 1; // Current channel is True channel or False channel
 
         bool isFeedback = 0;  // Signify current channel is in a feedback loop (e.g. loopVar, or sum[i+1] = sum[1] + a)

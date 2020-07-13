@@ -56,6 +56,9 @@
     <Filter Include="test\MemoryTest">
       <UniqueIdentifier>{285e521b-da57-44b1-8dfa-fffec004b6d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\aes">
+      <UniqueIdentifier>{e65f8a17-0351-4275-b7aa-b2d10279fb50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -128,6 +131,9 @@
     <ClInclude Include="src\module\execution\GraphScheduler.h">
       <Filter>src\module\execution</Filter>
     </ClInclude>
+    <ClInclude Include="test\aes\Aes.h">
+      <Filter>test\aes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -183,6 +189,12 @@
     </ClCompile>
     <ClCompile Include="src\module\execution\GraphScheduler.cpp">
       <Filter>src\module\execution</Filter>
+    </ClCompile>
+    <ClCompile Include="test\aes\Aes_Base.cpp">
+      <Filter>test\aes</Filter>
+    </ClCompile>
+    <ClCompile Include="test\aes\Aes.cpp">
+      <Filter>test\aes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
