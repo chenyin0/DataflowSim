@@ -255,10 +255,18 @@ void Lse::statusUpdate()
         {
             if (reqQueue[sendPtr].second.cycle < clk)  // Satisfy clk restriction
             {
-                if (!sendReq(req))  // Send req to MemSystem, if send failed (reqQueue is full) -> break;
+                // If Lse in the false path, not send req to memory and sendback ack directly
+                if (branchMode && reqQueue[sendPtr].second.cond != channelCond)
                 {
-                    //sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
-                    break;
+                    ackCallback(req);
+                }
+                else
+                {
+                    if (!sendReq(req))  // Send req to MemSystem, if send failed (reqQueue is full) -> break;
+                    {
+                        //sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+                        break;
+                    }
                 }
             }
         }

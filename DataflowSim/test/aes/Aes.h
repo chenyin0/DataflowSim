@@ -42,7 +42,7 @@ Config parameter:
     DGSF:
         non_branch_pe_num = 48
         truePath = (128 - 48)/16 = 5
-        truePath = (128 - 48)/16 = 2
+        falsePath = (128 - 48)/16 = 2
 
 */
 
@@ -54,6 +54,7 @@ namespace DFSimTest
     {
     public:
         static void aes_Base(Debug* debug);
+        static void aes_DGSF(Debug* debug);
 
     private:
         // Performance parameter
@@ -61,6 +62,7 @@ namespace DFSimTest
         static uint Base_speedup;
 
         //DGSF
+        static uint DGSF_non_branch_speedup;
         static uint DGSF_truePath_speedup;
         static uint DGSF_falsePath_speedup;
     };
