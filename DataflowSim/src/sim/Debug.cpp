@@ -48,6 +48,10 @@ void Debug::chanPrint(const string name, const Channel* channel)
                 if (data.valid)
                 {
                     _output_file << "d" << data.value << ":" << "c" << data.cycle << ":" << "l" << data.last;
+                    if (channel->branchMode)
+                    {
+                        _output_file << ":" << "b" << data.cond;
+                    }
 #ifdef DGSF
                     /*_output_file << ":" << "g" << data.graphSwitch;*/
                     _output_file << ":" << "lo" << data.lastOuter;
@@ -62,6 +66,10 @@ void Debug::chanPrint(const string name, const Channel* channel)
         for (auto i : channel->channel)
         {
             _output_file << "d" << channel->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
+            if (channel->branchMode || channel->isCond)
+            {
+                _output_file << ":" << "b" << i.cond;
+            }
 #ifdef DGSF
             //_output_file << ":" << "g" << i.graphSwitch;
             _output_file << ":" << "lo" << i.lastOuter;

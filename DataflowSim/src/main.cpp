@@ -3,13 +3,14 @@
 #include "../src/module/ClkSys.h"
 #include "../src/sim/Debug.h"
 
-#include "../test/SimpleFlow_Base.cpp"
-#include "../test/SimpleFlow_DGSF.cpp"
-#include "../test/SimpleFlow_SGMF.cpp"
+#include "../test/simpleflow/SimpleFlow_Base.cpp"
+#include "../test/simpleflow/SimpleFlow_DGSF.cpp"
+#include "../test/simpleflow/SimpleFlow_SGMF.cpp"
 
-#include "../test/MemoryTest.h"
+#include "../test/memory_test/MemoryTest.h"
 #include "../test/gemm/Gemm.h"
 #include "../test/bfs/Bfs.h"
+#include "../test/aes/Aes.h"
 
 #include "./module/execution/Channel.h"
 
@@ -26,8 +27,8 @@ int main()
     Gemm
     Bfs
     */
-    TestBench_name tb_name = TestBench_name::Bfs;
-    ArchType arch = ArchType::SGMF;
+    TestBench_name tb_name = TestBench_name::Aes;
+    ArchType arch = ArchType::Base;
 
     DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
@@ -106,6 +107,23 @@ int main()
             break;
         case ArchType::SGMF:
             DFSimTest::BfsTest::bfs_SGMF(debug);
+            break;
+        }
+
+        break;
+    }
+    case TestBench_name::Aes:
+    {
+        switch (arch)
+        {
+        case ArchType::Base:
+            DFSimTest::AesTest::aes_Base(debug);
+            break;
+        case ArchType::DGSF:
+            DFSimTest::AesTest::aes_DGSF(debug);
+            break;
+        case ArchType::SGMF:
+            //DFSimTest::BfsTest::bfs_SGMF(debug);
             break;
         }
 

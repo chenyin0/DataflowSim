@@ -233,7 +233,22 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         uint upstreamId = _bufferId;
         Data data = upstream[upstreamId]->channel.front();
         data.value = _data;
-        data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+        //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+        if (branchMode)
+        {
+            if (data.cond == channelCond)
+            {
+                data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+            }
+            else
+            {
+                data.cycle = ClkDomain::getInstance()->getClk();  // If in the falsePath, no need to update cycle
+            }
+        }
+        else
+        {
+            data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+        }
 
         if (!upstream[_bufferId]->keepMode)
         {
@@ -509,6 +524,7 @@ void ChanBase::pushChannel()
         if (branchMode)
         {
             bool getCond = 0;  // Signify has got a cond
+            // Update data cond
             for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
             {
                 if (upstream[chanId]->isCond)
@@ -522,24 +538,24 @@ void ChanBase::pushChannel()
                     }
                     else
                     {
-                        data.cond |= chanBuffer[chanId].front().cond;
+                        data.cond = chanBuffer[chanId].front().cond;
                         getCond = 1;
                     }
                 }
             }
 
-            if (data.cond == channelCond)
-            {
-                channel.push_back(data);
-            }
-            else
-            {
-                // Pop out data in the chanBuffer directly
-                for (auto& buffer : chanBuffer)
-                {
-                    buffer.pop_front();
-                }
-            }
+            //if (data.cond == channelCond)
+            //{
+            //    channel.push_back(data);
+            //}
+            //else
+            //{
+            //    // Pop out data in the chanBuffer directly
+            //    for (auto& buffer : chanBuffer)
+            //    {
+            //        buffer.pop_front();
+            //    }
+            //}
 
             //if (!upstream.front()->isCond)
             //{
@@ -551,15 +567,17 @@ void ChanBase::pushChannel()
             //    channel.push_back(data);
             //}
 
-            if (data.graphSwitch)
-            {
-                channel.back().graphSwitch = 1;  // In branch mode, if upstream send a graphSwitch flag, all the downstreams(branch paths) must receive it.
-            }
+            //if (data.graphSwitch)
+            //{
+            //    channel.back().graphSwitch = 1;  // In branch mode, if upstream send a graphSwitch flag, all the downstreams(branch paths) must receive it.
+            //}
         }
-        else
-        {
-            channel.push_back(data);
-        }
+        //else
+        //{
+        //    channel.push_back(data);
+        //}
+
+        channel.push_back(data);
     }
     else
     {
@@ -1291,7 +1309,22 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
         Data data = upstream[upstreamId]->channel.front();
     }
     data.value = _data;
-    data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+    //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
+    if (branchMode)
+    {
+        if (data.cond == channelCond)
+        {
+            data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+        }
+        else
+        {
+            data.cycle = ClkDomain::getInstance()->getClk();  // If in the falsePath, no need to update cycle
+        }
+    }
+    else
+    {
+        data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+    }
 
     // Tag 
     uint tag = 0;
@@ -1716,6 +1749,7 @@ void ChanSGMF::pushChannel(uint tag)
         if (branchMode)
         {
             bool getCond = 0;  // Signify has got a cond
+            // Update data cond
             for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
             {
                 if (upstream[chanId]->isCond)
@@ -1729,33 +1763,33 @@ void ChanSGMF::pushChannel(uint tag)
                     }
                     else
                     {
-                        data.cond |= chanBuffer[chanId].front().cond;
+                        data.cond = chanBuffer[chanId].front().cond;
                         getCond = 1;
                     }
                 }
             }
 
-            if (data.cond == channelCond)
-            {
-                channel.push_back(data);
-            }
-            else
-            {
-                // Clear data in the chanBuffer directly
-                for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
-                {
-                    if (!upstream[bufferId]->keepMode)
-                    {
-                        uint round = size / tagSize;
-                        uint addr = (round - 1) * tagSize + tag;
-                        chanBuffer[bufferId][addr].valid = 0;  // Clear data
-                    }
-                    else
-                    {
-                        chanBuffer[bufferId][0].valid = 0;
-                    }
-                }
-            }
+            //if (data.cond == channelCond)
+            //{
+            //    channel.push_back(data);
+            //}
+            //else
+            //{
+            //    // Clear data in the chanBuffer directly
+            //    for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+            //    {
+            //        if (!upstream[bufferId]->keepMode)
+            //        {
+            //            uint round = size / tagSize;
+            //            uint addr = (round - 1) * tagSize + tag;
+            //            chanBuffer[bufferId][addr].valid = 0;  // Clear data
+            //        }
+            //        else
+            //        {
+            //            chanBuffer[bufferId][0].valid = 0;
+            //        }
+            //    }
+            //}
 
             //if (!upstream.front()->isCond)
             //{
@@ -1767,10 +1801,12 @@ void ChanSGMF::pushChannel(uint tag)
             //    channel.push_back(data);
             //}
         }
-        else
-        {
-            channel.push_back(data);
-        }
+        //else
+        //{
+        //    channel.push_back(data);
+        //}
+
+        channel.push_back(data);
     }
     else
     {

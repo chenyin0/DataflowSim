@@ -50,14 +50,17 @@
     <Filter Include="resource\Bfs">
       <UniqueIdentifier>{5ea00ce2-2f4d-4ad9-adfa-014edd16889e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="test\SimpleFlowTest">
-      <UniqueIdentifier>{586477ed-7e65-4bcd-9b1e-485051795c6e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="test\MemoryTest">
-      <UniqueIdentifier>{285e521b-da57-44b1-8dfa-fffec004b6d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="test\aes">
       <UniqueIdentifier>{e65f8a17-0351-4275-b7aa-b2d10279fb50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\Aes">
+      <UniqueIdentifier>{7e9db1e6-7725-4dfe-bb48-2ff6971d954e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\memory_test">
+      <UniqueIdentifier>{285e521b-da57-44b1-8dfa-fffec004b6d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\simpleflow">
+      <UniqueIdentifier>{586477ed-7e65-4bcd-9b1e-485051795c6e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -116,23 +119,14 @@
     <ClInclude Include="src\util\ReadFile.hpp">
       <Filter>src\util</Filter>
     </ClInclude>
-    <ClInclude Include="test\SimpleFlow_Base.cpp">
-      <Filter>test\SimpleFlowTest</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_DGSF.cpp">
-      <Filter>test\SimpleFlowTest</Filter>
-    </ClInclude>
-    <ClInclude Include="test\SimpleFlow_SGMF.cpp">
-      <Filter>test\SimpleFlowTest</Filter>
-    </ClInclude>
-    <ClInclude Include="test\MemoryTest.h">
-      <Filter>test\MemoryTest</Filter>
-    </ClInclude>
     <ClInclude Include="src\module\execution\GraphScheduler.h">
       <Filter>src\module\execution</Filter>
     </ClInclude>
     <ClInclude Include="test\aes\Aes.h">
       <Filter>test\aes</Filter>
+    </ClInclude>
+    <ClInclude Include="test\memory_test\MemoryTest.h">
+      <Filter>test\memory_test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -184,9 +178,6 @@
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp">
       <Filter>test\gemm</Filter>
     </ClCompile>
-    <ClCompile Include="test\MemoryTest.cpp">
-      <Filter>test\MemoryTest</Filter>
-    </ClCompile>
     <ClCompile Include="src\module\execution\GraphScheduler.cpp">
       <Filter>src\module\execution</Filter>
     </ClCompile>
@@ -194,6 +185,21 @@
       <Filter>test\aes</Filter>
     </ClCompile>
     <ClCompile Include="test\aes\Aes.cpp">
+      <Filter>test\aes</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory_test\MemoryTest.cpp">
+      <Filter>test\memory_test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp">
+      <Filter>test\simpleflow</Filter>
+    </ClCompile>
+    <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp">
+      <Filter>test\simpleflow</Filter>
+    </ClCompile>
+    <ClCompile Include="test\simpleflow\SimpleFlow_SGMF.cpp">
+      <Filter>test\simpleflow</Filter>
+    </ClCompile>
+    <ClCompile Include="test\aes\Aes_DGSF.cpp">
       <Filter>test\aes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -221,6 +227,9 @@
     </Text>
     <Text Include="resource\Gemm\Gemm_log_DGSF.txt">
       <Filter>resource\Gemm</Filter>
+    </Text>
+    <Text Include="resource\Aes\Aes_log_Base.txt">
+      <Filter>resource\Aes</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

@@ -149,10 +149,7 @@
     <ClInclude Include="test\aes\Aes.h" />
     <ClInclude Include="test\bfs\Bfs.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
-    <ClInclude Include="test\MemoryTest.h" />
-    <ClInclude Include="test\SimpleFlow_Base.cpp" />
-    <ClInclude Include="test\SimpleFlow_DGSF.cpp" />
-    <ClInclude Include="test\SimpleFlow_SGMF.cpp" />
+    <ClInclude Include="test\memory_test\MemoryTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -169,14 +166,19 @@
     <ClCompile Include="src\sim\Debug.cpp" />
     <ClCompile Include="test\aes\Aes.cpp" />
     <ClCompile Include="test\aes\Aes_Base.cpp" />
+    <ClCompile Include="test\aes\Aes_DGSF.cpp" />
     <ClCompile Include="test\bfs\Bfs.cpp" />
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
-    <ClCompile Include="test\MemoryTest.cpp" />
+    <ClCompile Include="test\memory_test\MemoryTest.cpp" />
+    <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp" />
+    <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp" />
+    <ClCompile Include="test\simpleflow\SimpleFlow_SGMF.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="resource\Aes\Aes_log_Base.txt" />
     <Text Include="resource\Bfs\Bfs_log_SGMF.txt" />
     <Text Include="resource\Gemm\Gemm_log_Base.txt" />
     <Text Include="resource\Gemm\Gemm_log_DGSF.txt" />
