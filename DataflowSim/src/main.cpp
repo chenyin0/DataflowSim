@@ -28,7 +28,7 @@ int main()
     Bfs
     */
     TestBench_name tb_name = TestBench_name::Aes;
-    ArchType arch = ArchType::Base;
+    ArchType arch = ArchType::DGSF;
 
     DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 

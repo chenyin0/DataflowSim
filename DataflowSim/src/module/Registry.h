@@ -40,7 +40,10 @@ namespace DFSim
         void initBp(Channel* _chan);
         void initLastPopVal(Channel* _chan);
         void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
-        void checkConnect();  // Check the connection of all the channels 
+
+        void checkConnectRule();  // Check connection rules
+        void checkChanConnect(Channel* _chan);  // Check the connection of all the channels
+        void checkChanPartialMux(Channel* _chan);  // Check the connection rule of PartialMux
         void checkLc();  // Check whether set outer-most loop
 
     private:

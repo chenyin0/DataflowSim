@@ -40,9 +40,15 @@ Config parameter:
         total_pe = 102
 
     DGSF:
-        non_branch_pe_num = 48
+        non_branch_pe_num = 95
         truePath = (128 - 48)/16 = 5
         falsePath = (128 - 48)/16 = 2
+
+
+Tips:
+    To Make DGSF outperform than Base more:
+        1. Make non-branch cycle less
+        2. Make branch cycle more
 
 */
 
@@ -57,6 +63,7 @@ namespace DFSimTest
         static void aes_DGSF(Debug* debug);
 
     private:
+        static uint segment_size;  // Plaintext must be integer multiple of the size of the aes group(16bits)
         // Performance parameter
         // Base
         static uint Base_speedup;

@@ -54,39 +54,47 @@ void AesTest::aes_DGSF(Debug* debug)
     end->noDownstream = 1;
 
     // loop i
-    ChanBase* chan_aes_subByte = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 16, DGSF_non_branch_speedup);
+    ChanBase* chan_aes_subByte = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, DGSF_non_branch_speedup);
     ChanBase* chan_aes_shiftRows = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2, DGSF_non_branch_speedup);
-    ChanBase* chan_aes_mixColumns = new ChanBase(6 * BASE_INPUT_BUFF_SIZE, 24, DGSF_non_branch_speedup);
+    ChanBase* chan_aes_mixColumns = new ChanBase(12 * BASE_INPUT_BUFF_SIZE, 12, DGSF_non_branch_speedup);
 
-    ChanBase* chan_cond = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, DGSF_non_branch_speedup);
+    ChanBase* chan_cond = new ChanBase(16 * BASE_INPUT_BUFF_SIZE, 1, DGSF_non_branch_speedup);
     chan_cond->isCond = 1;
 
     ChanDGSF* chan_cond_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_non_branch_speedup);
-    ChanDGSF* chan_truePathData_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_non_branch_speedup);
-    //chan_truePathData_DGSF->branchMode = 1;
-    //chan_truePathData_DGSF->channelCond = 1;
-    ChanDGSF* chan_falsePathData_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_non_branch_speedup);
-    //chan_falsePathData_DGSF->branchMode = 1;
-    //chan_falsePathData_DGSF->channelCond = 0;
+    chan_cond_DGSF->isCond = 1;
+
+    ChanDGSF* chan_truePathData_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_truePath_speedup);
+    chan_truePathData_DGSF->branchMode = 1;
+    chan_truePathData_DGSF->channelCond = 1;
+
+    ChanDGSF* chan_falsePathData_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_falsePath_speedup);
+    chan_falsePathData_DGSF->branchMode = 1;
+    chan_falsePathData_DGSF->channelCond = 0;
 
     // True path
-    ChanBase* chan_truePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, 1);
+    ChanBase* chan_truePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, DGSF_truePath_speedup);
     chan_truePath_aes_addRoundKey->branchMode = 1;
     chan_truePath_aes_addRoundKey->channelCond = 1;
 
     // False path
-    ChanBase* chan_falsePath_aes_expandEncKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, 1);
+    ChanBase* chan_falsePath_aes_expandEncKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 8, DGSF_falsePath_speedup);
     chan_falsePath_aes_expandEncKey->branchMode = 1;
     chan_falsePath_aes_expandEncKey->channelCond = 0;
 
-    ChanBase* chan_falsePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, 1);
+    ChanBase* chan_falsePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, DGSF_falsePath_speedup);
     chan_falsePath_aes_addRoundKey->branchMode = 1;
     chan_falsePath_aes_addRoundKey->channelCond = 0;
 
-    ChanDGSF* chan_truePathOutput_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_non_branch_speedup);
-    ChanDGSF* chan_falsePathOutput_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_non_branch_speedup);
+    ChanDGSF* chan_truePathOutput_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_truePath_speedup);
+    chan_truePathOutput_DGSF->branchMode = 1;
+    chan_truePathOutput_DGSF->channelCond = 1;
 
-    ChanBase* chan_branch_merge = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, 1);
+    ChanDGSF* chan_falsePathOutput_DGSF = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_falsePath_speedup);
+    chan_falsePathOutput_DGSF->branchMode = 1;
+    chan_falsePathOutput_DGSF->channelCond = 0;
+
+    ChanPartialMux* chan_branch_merge = new ChanPartialMux(1 * BASE_INPUT_BUFF_SIZE, 1, DGSF_non_branch_speedup);
 
 
     //*** Define interconnect
@@ -117,13 +125,13 @@ void AesTest::aes_DGSF(Debug* debug)
     chan_falsePathData_DGSF->addDownstream({ chan_falsePath_aes_expandEncKey });
 
     chan_truePath_aes_addRoundKey->addUpstream({ chan_truePathData_DGSF });
-    chan_truePath_aes_addRoundKey->addDownstream({ chan_branch_merge });
+    chan_truePath_aes_addRoundKey->addDownstream({ chan_truePathOutput_DGSF });
 
     chan_falsePath_aes_expandEncKey->addUpstream({ chan_falsePathData_DGSF });
     chan_falsePath_aes_expandEncKey->addDownstream({ chan_falsePath_aes_addRoundKey });
 
     chan_falsePath_aes_addRoundKey->addUpstream({ chan_falsePath_aes_expandEncKey });
-    chan_falsePath_aes_addRoundKey->addDownstream({ chan_branch_merge });
+    chan_falsePath_aes_addRoundKey->addDownstream({ chan_falsePathOutput_DGSF });
 
     chan_truePathOutput_DGSF->addUpstream({ chan_truePath_aes_addRoundKey });
     chan_truePathOutput_DGSF->addDownstream({ chan_branch_merge });
@@ -143,16 +151,20 @@ void AesTest::aes_DGSF(Debug* debug)
     //*** Define subgraph
     GraphScheduler* graphScheduler = new GraphScheduler();
     // Subgraph 0
-    graphScheduler->addSubgraph(0, {}, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP });
+    graphScheduler->addSubgraph(0, {}, { chan_cond_DGSF, chan_truePathData_DGSF, chan_falsePathData_DGSF });
+    graphScheduler->addDivergenceSubgraph(0, { chan_cond_DGSF }, { chan_truePathData_DGSF }, { chan_falsePathData_DGSF });
     // Subgraph 1
-    graphScheduler->addSubgraph(1, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP }, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE });
+    graphScheduler->addSubgraph(1, { chan_truePathData_DGSF }, { chan_truePathOutput_DGSF });
     // Subgraph 2
-    graphScheduler->addSubgraph(2, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE }, {});
+    graphScheduler->addSubgraph(2, { chan_falsePathData_DGSF }, { chan_falsePathOutput_DGSF });
+    // Subgraph 3
+    graphScheduler->addSubgraph(3, { chan_cond_DGSF, chan_truePathOutput_DGSF, chan_falsePathOutput_DGSF }, { });
 
 
     //*** Simulate
     // Initiation
     registry->tableInit();  // Update registry and initial all the module in registry
+    graphScheduler->schedulerInit();  // Initial graph scheduler
 
     begin->get({ 1 });
     uint iter = 0;
@@ -184,7 +196,7 @@ void AesTest::aes_DGSF(Debug* debug)
         lc_i->loopVar->get();
         lc_i->loopVar->value = lc_i->loopVar->assign(lc_i->mux->outChan);  // After get(), must update chan's value
         i = lc_i->loopVar->value + 1;
-        lc_i->lcUpdate(i < 14);
+        lc_i->lcUpdate(i < 14 * segment_size);
 
         // Clear begin
         begin->valid = 0;
@@ -239,12 +251,15 @@ void AesTest::aes_DGSF(Debug* debug)
         //** MemorySystem update
         memSys->MemSystemUpdate();
 
+        //** GraphScheduler update
+        graphScheduler->graphUpdate();
+
         end->get();
 
         //** Print log
         // Set debug mode
         //debug->debug_mode = Debug_mode::Print_brief;
-        //debug->debug_mode = Debug_mode::Turn_off;
+        debug->debug_mode = Debug_mode::Turn_off;
 
         if (iter > 0)
         {
@@ -254,6 +269,7 @@ void AesTest::aes_DGSF(Debug* debug)
 
             // loop i
             debug->getFile() << std::endl;
+            debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId << "\t" << " Clk:" << clk << std::endl;
             debug->getFile() << "*****************  i  *****************" << std::endl;
             debug->chanPrint("lc_i->loopVar", lc_i->loopVar);
             debug->chanPrint("chan_aes_subByte", chan_aes_subByte);
@@ -284,7 +300,7 @@ void AesTest::aes_DGSF(Debug* debug)
             debug->chanPrint("end", end);
 
             // Print MemorySystem
-            //debug->memSysPrint(memSys);
+            debug->memSysPrint(memSys);
         }
 
         if (!end->channel.empty())

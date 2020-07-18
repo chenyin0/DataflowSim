@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-#define Base Base
-//#define DGSF DGSF
+//#define Base Base
+#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -63,7 +63,7 @@ enum class ArchType
 
 // Lse
 #define LSE_QUEUE_SIZE 16
-#define LSE_O3 1
+#define LSE_O3 0
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH

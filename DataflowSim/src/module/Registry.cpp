@@ -92,7 +92,7 @@ int Registry::registerMux(Mux* mux)
 void Registry::tableInit()
 {
     initChannel();
-    checkConnect();
+    checkConnectRule();
     checkLc();
 }
 
@@ -207,17 +207,38 @@ void Registry::initChannel()
     }
 }
 
-void Registry::checkConnect()
+void Registry::checkConnectRule()
 {
     for (auto& entry : registryTable)
     {
         if (entry.moduleType == ModuleType::Channel)
         {
             Channel* chan = entry.chanPtr;
-            if ((!chan->noUpstream && chan->upstream.empty()) || (!chan->noDownstream && chan->downstream.empty()))
-            {
-                Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
-            }
+            //if ((!chan->noUpstream && chan->upstream.empty()) || (!chan->noDownstream && chan->downstream.empty()))
+            //{
+            //    Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
+            //}
+            checkChanConnect(chan);
+            checkChanPartialMux(chan);
+        }
+    }
+}
+
+void Registry::checkChanConnect(Channel* _chan)
+{
+    if ((!_chan->noUpstream && _chan->upstream.empty()) || (!_chan->noDownstream && _chan->downstream.empty()))
+    {
+        Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
+    }
+}
+
+void Registry::checkChanPartialMux(Channel* _chan)
+{
+    if (_chan->chanType == ChanType::Chan_PartialMux)
+    {
+        if (_chan->upstream[0]->isCond != 1)
+        {
+            Debug::throwError("The first upstream channel of this ChanParitialMux is not in isCond mode!", __FILE__, __LINE__);
         }
     }
 }

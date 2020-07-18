@@ -231,6 +231,9 @@
     <Text Include="resource\Aes\Aes_log_Base.txt">
       <Filter>resource\Aes</Filter>
     </Text>
+    <Text Include="resource\Aes\Aes_log_DGSF.txt">
+      <Filter>resource\Aes</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />

@@ -188,6 +188,8 @@ class Channel usage:
         //bool checkUpstream(uint bufferId) override;
         //virtual void pushBuffer(int data, uint bufferId);
         virtual void pushChannel();
+        virtual void updateDataStatus(Data& data);
+        virtual bool checkDataMatch();
         //vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //void bpUpdate() override;
 
@@ -262,15 +264,18 @@ class ChanSGMF usage:
         int assign(Channel* chan) override;
         vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void updateCycle(bool popReady, bool popLastReady) override;
+
+    protected:
         vector<int> push(int data, uint bufferId, uint tag);  // Push data into corresponding channel
         bool checkUpstream(uint bufferId, uint tag);
         void pushBuffer(int data, uint bufferId, uint tag);
         //void pushChannel(int data, uint chanId, uint tag);
         void pushChannel(uint tag);
-
         void statusUpdate() override;
+        void shiftDataInChanBuffer();
+        void checkTagMatch();
         bool checkSend(Data _data, Channel* _upstream) override;
-        virtual void sendLastTag() override;
+        //virtual void sendLastTag() override;
 
     public:
         //vector<deque<Data>> chanBundle;  // channel[0]: Din1, channel[1]: Din2
@@ -287,5 +292,28 @@ class ChanSGMF usage:
         //uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
         //uint tagSize = TAG_SIZE;  // Number of tags
         //bool isLoopVar = 0;  // If the chanSGMF is loopVar, it need to update tag when a data is pushed.
+    };
+
+
+/* ChanPartialMux
+
+    Support partial data 
+
+class ChanPartialMux usage:
+    
+    1. The first channel of upstream must in isCond mode
+    2. Only check active path's data status in checkDataMatch()
+*/
+    class ChanPartialMux : public ChanBase
+    {
+    public:
+        ChanPartialMux(uint _size, uint _cycle);
+        ChanPartialMux(uint _size, uint _cycle, uint _speedup);
+
+    private:
+        void initial();
+        virtual bool checkDataMatch() override;
+        virtual void updateDataStatus(Data& data) override;
+        virtual vector<int> popChannel(bool popReady, bool popLastReady) override;
     };
 }
