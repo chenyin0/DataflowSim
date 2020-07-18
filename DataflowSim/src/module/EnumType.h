@@ -52,7 +52,8 @@ namespace DFSim
         Chan_Base,
         Chan_DGSF,
         Chan_SGMF,
-        Chan_Lse
+        Chan_Lse,
+        Chan_PartialMux
     };
 
     // Cache replacement algorithm

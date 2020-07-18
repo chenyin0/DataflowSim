@@ -55,22 +55,22 @@ void AesTest::aes_Base(Debug* debug)
     // loop i
     ChanBase* chan_aes_subByte = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, Base_speedup);
     ChanBase* chan_aes_shiftRows = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2, Base_speedup);
-    ChanBase* chan_aes_mixColumns = new ChanBase(6 * BASE_INPUT_BUFF_SIZE, 24, Base_speedup);
+    ChanBase* chan_aes_mixColumns = new ChanBase(12 * BASE_INPUT_BUFF_SIZE, 12, Base_speedup);
 
-    ChanBase* chan_cond = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, Base_speedup);
+    ChanBase* chan_cond = new ChanBase(16 * BASE_INPUT_BUFF_SIZE, 1, Base_speedup);
     chan_cond->isCond = 1;
 
     // True path
-    ChanBase* chan_truePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 16, Base_speedup);
+    ChanBase* chan_truePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, Base_speedup);
     chan_truePath_aes_addRoundKey->branchMode = 1;
     chan_truePath_aes_addRoundKey->channelCond = 1;
 
     // False path
-    ChanBase* chan_falsePath_aes_expandEncKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, Base_speedup);
+    ChanBase* chan_falsePath_aes_expandEncKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 8, Base_speedup);
     chan_falsePath_aes_expandEncKey->branchMode = 1;
     chan_falsePath_aes_expandEncKey->channelCond = 0;
 
-    ChanBase* chan_falsePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 16, Base_speedup);
+    ChanBase* chan_falsePath_aes_addRoundKey = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 4, Base_speedup);
     chan_falsePath_aes_addRoundKey->branchMode = 1;
     chan_falsePath_aes_addRoundKey->channelCond = 0;
 
@@ -147,7 +147,7 @@ void AesTest::aes_Base(Debug* debug)
         lc_i->loopVar->get();
         lc_i->loopVar->value = lc_i->loopVar->assign(lc_i->mux->outChan);  // After get(), must update chan's value
         i = lc_i->loopVar->value + 1;
-        lc_i->lcUpdate(i < 14);
+        lc_i->lcUpdate(i < 14 * segment_size);
 
         // Clear begin
         begin->valid = 0;

@@ -11,6 +11,7 @@ namespace DFSim
         void schedulerInit();
         void graphUpdate();
         void addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan, vector<ChanDGSF*> consumerChan);
+        void addDivergenceSubgraph(uint subgraphId, vector<ChanDGSF*> commonChan, vector<ChanDGSF*> truePathChan, vector<ChanDGSF*> falsePathChan);
 
     private:
         void configChan(uint subgraphId);
@@ -18,9 +19,12 @@ namespace DFSim
         uint selectSubgraphO3(uint _currSubgraphId);
         void resetSubgraph(uint _subgraphId);  // Clear chanDataCnt in each producer channel
         bool checkSubgraphIsOver(uint _subgraphId);  // Check whether this subgraph is over
-        bool checkProducerChanIsFull(uint _subgraphId);
-        bool checkProducerChanNotEmpty(uint _subgraphId);
-        bool checkConsumerChanNotFull(uint _subgraphId);
+        bool checkProducerChanIsFull(vector<ChanDGSF*> producerChans);
+        bool checkProducerChanNotEmpty(vector<ChanDGSF*> producerChans);
+        bool checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans);
+        bool checkProducerChanFinish(vector<ChanDGSF*> producerChans);
+        //bool checkConsumerChanFinish(vector<ChanDGSF*> consumerChans);
+        bool checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans);
 
     public:
         uint currSubgraphId = 0;  // Current subgraph Id, default start at 0;
@@ -28,6 +32,7 @@ namespace DFSim
     private:
         // <subgraphId, pair<producer channels, consumer channels>>
         unordered_map<uint, pair<vector<ChanDGSF*>, vector<ChanDGSF*>>> subgraphTable;
+        unordered_map<uint, vector<vector<ChanDGSF*>>> divergenceGraph;  // Store branch-divergence subgraph
         deque<bool> subgraphIsOver;
     };
 }

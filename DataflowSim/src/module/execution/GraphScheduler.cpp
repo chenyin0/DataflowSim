@@ -18,6 +18,12 @@ void GraphScheduler::addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan
     subgraphTable.insert(make_pair(subgraphId, make_pair(producerChan, consumerChan)));
 }
 
+void GraphScheduler::addDivergenceSubgraph(uint subgraphId, vector<ChanDGSF*> commonChan, vector<ChanDGSF*> truePathChan, vector<ChanDGSF*> falsePathChan)
+{
+    vector<vector<ChanDGSF*>> diverGraph = { commonChan, truePathChan, falsePathChan };
+    divergenceGraph.insert(make_pair(subgraphId, diverGraph));
+}
+
 void GraphScheduler::graphUpdate()
 {
     uint graphSize = subgraphTable.size();
@@ -27,35 +33,37 @@ void GraphScheduler::graphUpdate()
     // Check whether all the producerChan is empty
     if (!subgraphTable[currSubgraphId].first.empty())
     {
-        for (auto& chan : subgraphTable[currSubgraphId].first)
-        {
-            for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
-            {
-                //// If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
-                //if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt == DGSF_INPUT_BUFF_SIZE))
-                //{
-                //    producerChanFinish = 0;
-                //    break;
-                //}
+        producerChanFinish = checkProducerChanFinish(subgraphTable[currSubgraphId].first);
 
-                // If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
-                if (!subgraphTable[currSubgraphId].second.empty() && chan->chanDataCnt >= DGSF_INPUT_BUFF_SIZE)
-                {
-                    // If producer channel has sent enough data, disable popChannel
-                    chan->popChannelEnable = 0;
-                }
-                else if (!chan->chanBuffer[bufferId].empty())
-                {
-                    producerChanFinish = 0;
-                    break;
-                }
-            }
+        //for (auto& chan : subgraphTable[currSubgraphId].first)
+        //{
+        //    for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+        //    {
+        //        //// If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
+        //        //if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt == DGSF_INPUT_BUFF_SIZE))
+        //        //{
+        //        //    producerChanFinish = 0;
+        //        //    break;
+        //        //}
 
-            if (!producerChanFinish)
-            {
-                break;
-            }
-        }
+        //        // If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
+        //        if (!subgraphTable[currSubgraphId].second.empty() && chan->chanDataCnt >= DGSF_INPUT_BUFF_SIZE)
+        //        {
+        //            // If producer channel has sent enough data, disable popChannel
+        //            chan->popChannelEnable = 0;
+        //        }
+        //        else if (!chan->chanBuffer[bufferId].empty())
+        //        {
+        //            producerChanFinish = 0;
+        //            break;
+        //        }
+        //    }
+
+        //    if (!producerChanFinish)
+        //    {
+        //        break;
+        //    }
+        //}
     }
     else
     {
@@ -65,77 +73,37 @@ void GraphScheduler::graphUpdate()
     // Check whether all the comsumerChan is full
     if (!subgraphTable[currSubgraphId].second.empty())
     {
-        //bool getLast = 1;
-
-        for (auto& chan : subgraphTable[currSubgraphId].second)
+        // If not a branch divergence subgraph
+        if (divergenceGraph.count(currSubgraphId) == 0)
         {
-            for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
-            {
-                //if (/*!chan->getTheLastData[bufferId] && */chan->chanBuffer[bufferId].size() < chan->size)
-                //{
-                //    consumerChanFinish = 0;
-                //    //break;
-                //}
+            bool consumerChanIsFull = !checkConsumerChanNotFull(subgraphTable[currSubgraphId].second);
+            bool consumerChanGetLastData = checkConsumerChanGetLastData(subgraphTable[currSubgraphId].second);
 
-                //if (!chan->chanBuffer[bufferId].empty())
-                //{
-                //    if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))
-                //    {
-                //        getLast = 0;  // Check whether all the channel has received the last data
-                //    }
-                //}
-                //else
-                //{
-                //    getLast = 0;
-                //}
-
-                if (!chan->chanBuffer[bufferId].empty())
-                {
-                    if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))  // Check whether all the channel has received the last data
-                    {
-                        if (chan->chanBuffer[bufferId].size() < chan->size)
-                        {
-                            consumerChanFinish = 0;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
-                    }
-                }
-                else
-                {
-                    consumerChanFinish = 0;
-                }
-            }
-
-            if (consumerChanFinish == 0)
-            {
-                break;
-            }
-
-            //if (getLast == 0 && consumerChanFinish == 0)
-            //{
-            //    break;
-            //}
+            consumerChanFinish = consumerChanIsFull || consumerChanGetLastData;
         }
+        else
+        {
+            bool commonChanIsFull = !checkConsumerChanNotFull(divergenceGraph[currSubgraphId][0]);
+            bool commonChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]);
 
-        //if (getLast)
-        //{
-        //    consumerChanFinish = 1;
-        //}
+            bool truePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
+            bool falsePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
+
+            consumerChanFinish = commonChanIsFull || (commonChanGetLastData && (truePathChanGetLastData || falsePathChanGetLastData));
+        }
     }
     else
     {
         consumerChanFinish = 0;
     }
 
-    // Check whether current sub-graph is over
-    subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
+    //// Check whether current sub-graph is over
+    //subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
 
     if (producerChanFinish || consumerChanFinish)
     {
+        // Check whether current sub-graph is over
+        subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
         // Select a new subgraph
         //currSubgraphId = selectSubgraphInOrder(currSubgraphId);
         currSubgraphId = selectSubgraphO3(currSubgraphId);
@@ -237,7 +205,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     {
         if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
         {
-            if (checkProducerChanIsFull(subgraphId) && checkConsumerChanNotFull(subgraphId))
+            if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
                 return subgraphId;
             }
@@ -248,7 +216,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     {
         if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
         {
-            if (checkProducerChanNotEmpty(subgraphId) && checkConsumerChanNotFull(subgraphId))
+            if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
                 return subgraphId;
             }
@@ -272,17 +240,30 @@ bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
 
     if (!subgraphTable[_subgraphId].second.empty())
     {
-        for (auto& chan : subgraphTable[_subgraphId].second)
+        if (divergenceGraph.count(currSubgraphId) == 0)
         {
-            for (auto& i : chan->getTheLastData)
-            {
-                if (i != true)  // Hasn't received the last data
-                {
-                    isOver = 0;
-                    return isOver;
-                }
-            }
+            isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second);
         }
+        else
+        {
+            bool commonChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]);
+            bool truePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
+            bool falsePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
+
+            isOver = commonChanIsOver && (truePathChanIsOver || falsePathChanIsOver);
+        }
+
+        //for (auto& chan : subgraphTable[_subgraphId].second)
+        //{
+        //    for (auto& i : chan->getTheLastData)
+        //    {
+        //        if (i != true)  // Hasn't received the last data
+        //        {
+        //            isOver = 0;
+        //            return isOver;
+        //        }
+        //    }
+        //}
     }
     else
     {
@@ -292,11 +273,11 @@ bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
     return isOver;
 }
 
-bool GraphScheduler::checkProducerChanIsFull(uint _subgraphId)
+bool GraphScheduler::checkProducerChanIsFull(vector<ChanDGSF*> producerChans)
 {
     bool isFull = 1;
 
-    for (auto& chan : subgraphTable[_subgraphId].first)
+    for (auto& chan : producerChans)
     {
         for (auto& buffer : chan->chanBuffer)
         {
@@ -311,11 +292,11 @@ bool GraphScheduler::checkProducerChanIsFull(uint _subgraphId)
     return isFull;
 }
 
-bool GraphScheduler::checkProducerChanNotEmpty(uint _subgraphId)
+bool GraphScheduler::checkProducerChanNotEmpty(vector<ChanDGSF*> producerChans)
 {
     bool notEmpty = 1;
 
-    for (auto& chan : subgraphTable[_subgraphId].first)
+    for (auto& chan : producerChans)
     {
         for (auto& buffer : chan->chanBuffer)
         {
@@ -330,7 +311,7 @@ bool GraphScheduler::checkProducerChanNotEmpty(uint _subgraphId)
     return notEmpty;
 }
 
-bool GraphScheduler::checkConsumerChanNotFull(uint _subgraphId)
+bool GraphScheduler::checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans)
 {
     //bool notFull = 1;
 
@@ -350,9 +331,9 @@ bool GraphScheduler::checkConsumerChanNotFull(uint _subgraphId)
 
     bool notFull = 0;
 
-    if (!subgraphTable[_subgraphId].second.empty())
+    if (!consumerChans.empty())
     {
-        for (auto& chan : subgraphTable[_subgraphId].second)
+        for (auto& chan : consumerChans)
         {
             for (auto& buffer : chan->chanBuffer)
             {
@@ -383,4 +364,139 @@ void GraphScheduler::resetSubgraph(uint _subgraphId)
     {
         chan->chanDataCnt = 0;
     }
+}
+
+bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
+{
+    bool finish = 1;
+
+    for (auto& chan : producerChans)
+    {
+        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+        {
+            //// If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
+            //if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt == DGSF_INPUT_BUFF_SIZE))
+            //{
+            //    producerChanFinish = 0;
+            //    break;
+            //}
+
+            // If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
+            if (!subgraphTable[currSubgraphId].second.empty() && chan->chanDataCnt >= DGSF_INPUT_BUFF_SIZE)
+            {
+                // If producer channel has sent enough data, disable popChannel
+                chan->popChannelEnable = 0;
+            }
+            else if (!chan->chanBuffer[bufferId].empty())
+            {
+                finish = 0;
+                break;
+            }
+        }
+
+        if (!finish)
+        {
+            break;
+        }
+    }
+
+    return finish;
+}
+
+//bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
+//{
+//    bool finish = 1;
+//
+//    for (auto& chan : consumerChans)
+//    {
+//        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+//        {
+//            //if (/*!chan->getTheLastData[bufferId] && */chan->chanBuffer[bufferId].size() < chan->size)
+//            //{
+//            //    consumerChanFinish = 0;
+//            //    //break;
+//            //}
+//
+//            //if (!chan->chanBuffer[bufferId].empty())
+//            //{
+//            //    if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))
+//            //    {
+//            //        getLast = 0;  // Check whether all the channel has received the last data
+//            //    }
+//            //}
+//            //else
+//            //{
+//            //    getLast = 0;
+//            //}
+//
+//            if (!chan->chanBuffer[bufferId].empty())
+//            {
+//                if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))  // Check whether all the channel has received the last data
+//                {
+//                    if (chan->chanBuffer[bufferId].size() < chan->size)
+//                    {
+//                        finish = 0;
+//                        break;
+//                    }
+//                }
+//                else
+//                {
+//                    chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
+//                }
+//            }
+//            else
+//            {
+//                finish = 0;
+//            }
+//        }
+//
+//        if (finish == 0)
+//        {
+//            break;
+//        }
+//
+//        //if (getLast == 0 && consumerChanFinish == 0)
+//        //{
+//        //    break;
+//        //}
+//    }
+//
+//    //if (getLast)
+//    //{
+//    //    consumerChanFinish = 1;
+//    //}
+//
+//    return finish;
+//}
+
+bool GraphScheduler::checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans)
+{
+    for (auto& chan : consumerChans)
+    {
+        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+        {
+            if (!chan->chanBuffer[bufferId].empty())
+            {
+                if (chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last)  // Check whether all the channel has received the last data
+                {
+                    chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
+                }
+            }
+        }
+    }
+
+    bool getLast = 1;
+    for (auto& chan : consumerChans)
+    {
+        for (auto& i : chan->getTheLastData)
+        {
+            if (i != true)  // Hasn't received the last data
+            {
+                getLast = 0;
+                return getLast;
+            }
+        }
+    }
+
+    return getLast;
 }
