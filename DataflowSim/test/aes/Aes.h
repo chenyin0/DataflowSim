@@ -9,11 +9,8 @@
 #include "../../src/module/Registry.h"
 
 /*
-    Aes src code
-    from MachSuite
-
+    Aes src code from MachSuite benchmark suite
     Only mapping the kernel of Aes(the loop of the encryption)
-
 */
 
 /*

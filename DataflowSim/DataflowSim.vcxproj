@@ -149,6 +149,7 @@
     <ClInclude Include="test\aes\Aes.h" />
     <ClInclude Include="test\bfs\Bfs.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
+    <ClInclude Include="test\lud\Lud.h" />
     <ClInclude Include="test\memory_test\MemoryTest.h" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,8 @@
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
+    <ClCompile Include="test\lud\Lud.cpp" />
+    <ClCompile Include="test\lud\Lud_Base.cpp" />
     <ClCompile Include="test\memory_test\MemoryTest.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp" />

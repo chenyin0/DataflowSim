@@ -75,7 +75,8 @@ void Lc::addDependence(vector<Channel*> _initDepend, vector<Channel*> _updateDep
 
 void Lc::getEndUpdate()
 {
-    getEnd->get({ 1 });
+    //getEnd->get({ 1 });
+    getEnd->get();
 
     //if (!getEnd->channel.empty() && getEnd->channel.back().lastOuter)
     //{

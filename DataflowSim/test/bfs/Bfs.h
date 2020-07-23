@@ -9,6 +9,8 @@
 #include "../../src/module/Registry.h"
 
 /*
+Bfs src code from MachSuite benchmark suite
+
 Src code:
 
 #define Q_PUSH(node) { queue[q_in==0?N_NODES-1:q_in-1]=node; q_in=(q_in+1)%N_NODES; }
