@@ -8,8 +8,7 @@
 #include "../../src/sim/Debug.h"
 #include "../../src/module/Registry.h"
 
-/*  Gemm src code 
-    from MachSuite, blocked
+/*  Gemm src code from MachSuite benchmark suite (blocked)
 
 void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
     int i, k, j, jj, kk;

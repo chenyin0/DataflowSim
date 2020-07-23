@@ -10,7 +10,8 @@ namespace DFSim
         MemoryTest,
         Gemm,
         Bfs,
-        Aes
+        Aes,
+        Lud
     };
 
     class tb_name_convert
@@ -28,6 +29,8 @@ namespace DFSim
                 return "Bfs";
             if (type_ == TestBench_name::Aes)
                 return "Aes";
+            if (type_ == TestBench_name::Lud)
+                return "Lud";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

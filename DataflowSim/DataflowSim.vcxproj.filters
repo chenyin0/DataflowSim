@@ -62,6 +62,12 @@
     <Filter Include="test\simpleflow">
       <UniqueIdentifier>{586477ed-7e65-4bcd-9b1e-485051795c6e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\lud">
+      <UniqueIdentifier>{b97ad591-1837-4e9e-858e-43d6e5f6ec4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\Lud">
+      <UniqueIdentifier>{7bfcbddf-13a2-4bf0-97c5-15b3cb12cc4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -127,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="test\memory_test\MemoryTest.h">
       <Filter>test\memory_test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\lud\Lud.h">
+      <Filter>test\lud</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +210,12 @@
     </ClCompile>
     <ClCompile Include="test\aes\Aes_DGSF.cpp">
       <Filter>test\aes</Filter>
+    </ClCompile>
+    <ClCompile Include="test\lud\Lud.cpp">
+      <Filter>test\lud</Filter>
+    </ClCompile>
+    <ClCompile Include="test\lud\Lud_Base.cpp">
+      <Filter>test\lud</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

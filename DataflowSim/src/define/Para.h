@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-//#define Base Base
-#define DGSF DGSF
+#define Base Base
+//#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -80,7 +80,9 @@ enum class ArchType
 
 // ALU delay cycle
 #define ADD 1
+#define SUB 1
 #define MUL 4
+#define DIV 20
 
 /*
 ************************************************
