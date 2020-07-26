@@ -27,5 +27,14 @@ namespace DFSimTest
 
         static vector<int> matrix;
         static uint matrix_size;
+
+        // Performance parameter
+        // Base
+        static uint Base_outer_loop_speedup;
+        static uint Base_inner_loop_speedup;
+
+        //DGSF
+        static uint DGSF_outer_loop_speedup;
+        static uint DGSF_inner_loop_speedup;
     };
 }

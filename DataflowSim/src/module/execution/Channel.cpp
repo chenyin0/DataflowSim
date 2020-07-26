@@ -214,6 +214,15 @@ bool Channel::checkUpstream(uint bufferId)
         {
             ready = 0;
         }
+        else if (drainMode)
+        {
+            // In drainMode, outer-loop channels only receive the last data of the inner-loop; 
+            // Other data will be drained by the outer-loop channel
+            if (!upstream[chanId]->channel.front().last)
+            {
+                ready = 0;
+            }
+        }
     }
     else
     {
@@ -599,7 +608,8 @@ void ChanBase::updateDataStatus(Data& data)
     for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
     {
         // Due to a channel in keepMode may repeatly send a data with a last for many times
-        if (upstream[bufferId]->keepMode == 0)  // upstreamId is equal to bufferId
+        // The data received by a drainMode channel is always with a last flag, so ignore it
+        if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
         {
             data.last |= chanBuffer[bufferId].front().last;
             data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
@@ -1673,6 +1683,15 @@ bool ChanSGMF::checkUpstream(uint bufferId, uint tag)
         {
             ready = 0;
         }
+        else if (drainMode)
+        {
+            // In drainMode, outer-loop channels only receive the last data of the inner-loop; 
+            // Other data will be drained by the outer-loop channel
+            if (!upstream[chanId]->channel.front().last)
+            {
+                ready = 0;
+            }
+        }
     }
     else
     {
@@ -1739,7 +1758,8 @@ void ChanSGMF::pushChannel(uint tag)
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
         {
             // Due to a channel in keepMode may repeatly send a data with a last for many times
-            if (upstream[bufferId]->keepMode == 0)  // upstreamId is equal to bufferId
+            // The data received by a drainMode channel is always with a last flag, so ignore it
+            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
             {
                 data.last |= chanBuffer[bufferId][tag].last;
                 data.lastOuter |= chanBuffer[bufferId][tag].lastOuter;
@@ -2303,7 +2323,8 @@ void ChanPartialMux::updateDataStatus(Data& data)
         if ((upstream[bufferId]->branchMode && upstream[bufferId]->channelCond == cond) || !upstream[bufferId]->branchMode)
         {
             // Due to a channel in keepMode may repeatly send a data with a last for many times
-            if (upstream[bufferId]->keepMode == 0)  // upstreamId is equal to bufferId
+            // The data received by a drainMode channel is always with a last flag, so ignore it
+            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
             {
                 data.last |= chanBuffer[bufferId].front().last;
                 data.lastOuter |= chanBuffer[bufferId].front().lastOuter;

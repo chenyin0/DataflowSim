@@ -219,6 +219,7 @@ void Registry::checkConnectRule()
             //    Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
             //}
             checkChanConnect(chan);
+            checkChanMode(chan);
             checkChanPartialMux(chan);
         }
     }
@@ -229,6 +230,14 @@ void Registry::checkChanConnect(Channel* _chan)
     if ((!_chan->noUpstream && _chan->upstream.empty()) || (!_chan->noDownstream && _chan->downstream.empty()))
     {
         Debug::throwError("Upstream or Downstream of this channel is empty!", __FILE__, __LINE__);
+    }
+}
+
+void Registry::checkChanMode(Channel* _chan)
+{
+    if (_chan->keepMode && _chan->drainMode)
+    {
+        Debug::throwError("A channel can't be in keepMode and drainMode in the same time!", __FILE__, __LINE__);
     }
 }
 

@@ -61,6 +61,7 @@ namespace DFSimTest
 
     private:
         static uint segment_size;  // Plaintext must be integer multiple of the size of the aes group(16bits)
+
         // Performance parameter
         // Base
         static uint Base_speedup;

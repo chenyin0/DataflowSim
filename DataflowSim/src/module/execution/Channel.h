@@ -130,6 +130,7 @@ class Channel usage:
 
         bool keepMode = 0;  // Keep data lifetime in the interface of inner and outer loop, data invalid only when inner loop over
         vector<uint> keepModeDataCnt;  // Record the number of same cycle data has been received from a keepMode upstream
+        bool drainMode = 0;  // Outer-loop channels in drainMode push data in chanBuffer only when inner-loop is over(the data is with last flag)
 
         vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
         vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
