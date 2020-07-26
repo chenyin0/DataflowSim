@@ -217,6 +217,9 @@
     <ClCompile Include="test\lud\Lud_Base.cpp">
       <Filter>test\lud</Filter>
     </ClCompile>
+    <ClCompile Include="test\lud\Lud_DGSF.cpp">
+      <Filter>test\lud</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\Gemm\Gemm_log_Base.txt">
@@ -248,6 +251,12 @@
     </Text>
     <Text Include="resource\Aes\Aes_log_DGSF.txt">
       <Filter>resource\Aes</Filter>
+    </Text>
+    <Text Include="resource\Lud\Lud_log_Base.txt">
+      <Filter>resource\Lud</Filter>
+    </Text>
+    <Text Include="resource\Lud\Lud_log_DGSF.txt">
+      <Filter>resource\Lud</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

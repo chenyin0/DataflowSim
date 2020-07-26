@@ -43,6 +43,7 @@ namespace DFSim
 
         void checkConnectRule();  // Check connection rules
         void checkChanConnect(Channel* _chan);  // Check the connection of all the channels
+        void checkChanMode(Channel* _chan);  // Check the mode of all the channels
         void checkChanPartialMux(Channel* _chan);  // Check the connection rule of PartialMux
         void checkLc();  // Check whether set outer-most loop
 

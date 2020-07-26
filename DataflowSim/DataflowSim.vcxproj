@@ -175,6 +175,7 @@
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
     <ClCompile Include="test\lud\Lud.cpp" />
     <ClCompile Include="test\lud\Lud_Base.cpp" />
+    <ClCompile Include="test\lud\Lud_DGSF.cpp" />
     <ClCompile Include="test\memory_test\MemoryTest.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp" />
@@ -186,6 +187,8 @@
     <Text Include="resource\Bfs\Bfs_log_SGMF.txt" />
     <Text Include="resource\Gemm\Gemm_log_Base.txt" />
     <Text Include="resource\Gemm\Gemm_log_DGSF.txt" />
+    <Text Include="resource\Lud\Lud_log_Base.txt" />
+    <Text Include="resource\Lud\Lud_log_DGSF.txt" />
     <Text Include="resource\MemoryTest\memory_test.txt" />
     <Text Include="resource\SimpleFlowTest\log.txt" />
     <Text Include="resource\SimpleFlowTest\log_Base.txt" />
