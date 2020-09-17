@@ -131,36 +131,36 @@ void LudTest::lud_DGSF(Debug* debug)
     chan_j2_fifo_keepMode->keepMode = 1;
 
     // loop j1
-    ChanBase* chan_i_relay_loop_j1 = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_i_relay_loop_j1 = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_i_relay_loop_j1->keepMode = 1;
 
-    ChanBase* chan_j1_fifo = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);  // Emulate operations in loop j1
+    ChanBase* chan_j1_fifo = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);  // Emulate operations in loop j1
 
-    ChanBase* chan_j1_fifo_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, ADD + MUL, DGSF_outer_loop_speedup);
+    ChanBase* chan_j1_fifo_delay = new ChanBase(2 * DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, ADD + MUL, DGSF_outer_loop_speedup);
 
-    ChanBase* chan_k1_fifo_keepMode = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_k1_fifo_keepMode = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_k1_fifo_keepMode->keepMode = 1;
 
-    ChanBase* chan_sum_loop_j1_drainMode = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_sum_loop_j1_drainMode = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_sum_loop_j1_drainMode->drainMode = 1;
 
-    ChanBase* chan_j1_store_fifo = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_j1_store_fifo = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
 
     // loop j2
-    ChanBase* chan_i_relay_loop_j2 = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_i_relay_loop_j2 = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_i_relay_loop_j2->keepMode = 1;
 
-    ChanBase* chan_j2_fifo = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);  // Emulate operations in loop j2
+    ChanBase* chan_j2_fifo = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);  // Emulate operations in loop j2
 
-    ChanBase* chan_j2_fifo_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, ADD + MUL, DGSF_outer_loop_speedup);
+    ChanBase* chan_j2_fifo_delay = new ChanBase(2 * DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, ADD + MUL, DGSF_outer_loop_speedup);
 
-    ChanBase* chan_k2_fifo_keepMode = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_k2_fifo_keepMode = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_k2_fifo_keepMode->keepMode = 1;
 
-    ChanBase* chan_sum_loop_j2_drainMode = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_sum_loop_j2_drainMode = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
     chan_sum_loop_j2_drainMode->drainMode = 1;
 
-    ChanBase* chan_j2_store_fifo = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
+    ChanBase* chan_j2_store_fifo = new ChanBase(DGSF_outer_loop_buffer_size * BASE_INPUT_BUFF_SIZE * DGSF_outer_loop_speedup, 0, DGSF_outer_loop_speedup);
 
     // loop k1
     ChanBase* chan_k1_fifo = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_inner_loop_speedup, 0, DGSF_inner_loop_speedup);

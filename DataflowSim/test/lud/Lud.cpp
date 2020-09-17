@@ -9,7 +9,9 @@ uint LudTest::Base_outer_loop_speedup = 1;
 uint LudTest::Base_inner_loop_speedup = 4;
 
 uint LudTest::DGSF_outer_loop_speedup = 2;
-uint LudTest::DGSF_inner_loop_speedup = 2;
+uint LudTest::DGSF_inner_loop_speedup = 4;
+
+uint LudTest::DGSF_outer_loop_buffer_size = 2;
 
 void LudTest::generateData()
 {
