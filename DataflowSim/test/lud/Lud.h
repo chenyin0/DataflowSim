@@ -36,5 +36,7 @@ namespace DFSimTest
         //DGSF
         static uint DGSF_outer_loop_speedup;
         static uint DGSF_inner_loop_speedup;
+
+        static uint DGSF_outer_loop_buffer_size;
     };
 }

@@ -473,7 +473,9 @@ void ChanBase::pushChannel()
         //    getLast.push_back(1);
 
         // Send lastTag to each upstream channel in keepMode
-        if (data.last)
+        // 1) Normal channel send last tag to upstream channels in keepMode when pushChannel;
+        // 2) But LoopVar channel send last tag when popChannel!
+        if (data.last && !isLoopVar)
         {
             //if (isLoopVar)
             //{
