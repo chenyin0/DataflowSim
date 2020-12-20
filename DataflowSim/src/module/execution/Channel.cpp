@@ -70,12 +70,27 @@ void Channel::addDownstream(const vector<Channel*>& _downStream)
 
 void Channel::parallelize()
 {
+    //// Push clkStall in parallel execution mode
+    //if (currId != speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
+    //{
+    //    ClkDomain::getInstance()->addClkStall();
+    //}
+    //currId = currId % speedup + 1;
+
     // Push clkStall in parallel execution mode
     if (currId != speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
     {
         ClkDomain::getInstance()->addClkStall();
+        currId = currId % speedup + 1;
     }
-    currId = currId % speedup + 1;
+    else
+    {
+        if (chanClk != ClkDomain::getClk())  // If system clk has updated
+        {
+            currId = 1;  // Reset currId
+            chanClk = ClkDomain::getClk();
+        }
+    }
 }
 
 void Channel::sendLastTag()
@@ -282,7 +297,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
             //    ++chanBufferDataCnt[_bufferId];
             //}
 
-            if (chanBuffer[_bufferId].empty())
+            if (chanBuffer[_bufferId].empty())  // Debug_yin_12.20
             {
                 chanBuffer[_bufferId].push_back(data);
                 ++chanBufferDataCnt[_bufferId];
@@ -2081,7 +2096,7 @@ void ChanSGMF::checkTagMatch()
             bool tagConflict = 0;
 
             // Avoid a same data being pushed into matchQueue twice
-            for (auto _data : matchQueue)
+            for (auto& _data : matchQueue)
             {
                 if (_data.tag == tag)
                 {

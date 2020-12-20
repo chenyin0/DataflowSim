@@ -142,6 +142,7 @@
     <ClInclude Include="src\module\mem\Cache.h" />
     <ClInclude Include="src\module\mem\MemSystem.h" />
     <ClInclude Include="src\module\mem\Spm.h" />
+    <ClInclude Include="src\module\Profiler.h" />
     <ClInclude Include="src\module\Registry.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\util\ReadFile.hpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="src\module\mem\Cache.cpp" />
     <ClCompile Include="src\module\mem\MemSystem.cpp" />
     <ClCompile Include="src\module\mem\Spm.cpp" />
+    <ClCompile Include="src\module\Profiler.cpp" />
     <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
     <ClCompile Include="test\aes\Aes.cpp" />

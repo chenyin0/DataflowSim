@@ -123,7 +123,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanBase* lc_k_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_k_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanDGSF* chan_k_lc_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, 8);
+    ChanDGSF* chan_k_lc_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_k_lc_DGSF_LOOP->keepMode = 1;
 
     Mux* lc_k_mux = new Mux(lc_k_mux_trueChan, lc_k_mux_falseChan, lc_k_mux_outChan);
@@ -173,7 +173,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanBase* chan_m1_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 2 * ADD, DGSF_loop_k_speedup);
 
     ChanBase* chan_k_row = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 0, DGSF_loop_k_speedup);
-    ChanBase* chan_k_row_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, ADD + MUL, DGSF_loop_k_speedup);
+    ChanBase* chan_k_row_delay = new ChanBase((1 + MUL) * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, ADD + MUL, DGSF_loop_k_speedup);
 
     ChanDGSF* chan_k_row_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_k_row_DGSF_LOOP->keepMode = 1;
@@ -203,7 +203,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanDGSF* lse_ld_m2_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_j_speedup);  // DAE dual-buffer
 
     ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
-    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, MUL, DGSF_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(MUL * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, MUL, DGSF_loop_j_speedup);
 
     ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
     ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
@@ -345,6 +345,14 @@ void GemmTest::gemm_DGSF(Debug* debug)
     graphScheduler->addSubgraph(2, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE }, {});
 
 
+    //// Debug_yin
+    //GraphScheduler* graphScheduler = new GraphScheduler();
+    //// Subgraph 0
+    //graphScheduler->addSubgraph(0, {}, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP });
+    //// Subgraph 1
+    //graphScheduler->addSubgraph(1, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP }, {});
+
+
     ////*** Generate gold results
     //for (size_t i = 0; i < matrix_height; ++i)
     //{
@@ -374,6 +382,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     vector<int> res;  // Result
     vector<int> temp; // temp_result
+
+    uint graphId = 0; // Debug_yin
 
     uint max_iter = 5000000;
     uint segment = max_iter / 100;
@@ -461,7 +471,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_k_lc_DGSF_LOOP->value = chan_k_lc_DGSF_LOOP->assign(lc_k->loopVar);
 
         chan_k_row->get();
-        chan_k_row->value = chan_k_row->assign(lc_k->loopVar) + chan_k_row->assign(chan_kk_relay_loop_i);
+        chan_k_row->value = (chan_k_row->assign(lc_k->loopVar) + chan_k_row->assign(chan_kk_relay_loop_i)) * matrix_width;
 
         chan_k_row_delay->get();
         chan_k_row_delay->value = chan_k_row_delay->assign(chan_k_row);
@@ -563,11 +573,19 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //** GraphScheduler update
         graphScheduler->graphUpdate();
 
+        //// Debug_yin
+        //if (graphId != graphScheduler->currSubgraphId)
+        //{
+        //    debug->debug_mode = Debug_mode::Print_brief;
+        //    debug->getFile() << "graphId: " << graphId << "\tclk: " << clk << std::endl;
+        //    graphId = graphScheduler->currSubgraphId;
+        //}
+
         end->get();
 
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Print_brief;
+        //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*14000 > iter && iter > 13000*/ iter >= 0)

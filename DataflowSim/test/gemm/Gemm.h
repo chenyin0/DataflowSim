@@ -52,10 +52,10 @@ DFG analyze:
         total pe = 21;
 
 //*************************
-Config parameter:
+Config parameter: (Lc = 2 pe)
     Base: 
         Unroll loop_5 8 times:
-        total pe = 5 * 2lc + 1 + 4 + 6 * 8 = 63;
+        total pe = 5 * 2lc + 1 + 4 + 6 * (6 + 2(lc)) = 64; // Inner unrolls 6
 
     SGMF:
         Unroll loop_5 2 times:
@@ -63,7 +63,7 @@ Config parameter:
 
     DGSF:
         loop_4: unroll 8 times;  (48pe - 4lc * 2)/5 = 8 times
-        loop_5: unroll 8 times;  48pe / 6 = 8 times
+        loop_5: unroll 8 times;  48pe / (6 + 2(lc)) = 6 times
 
 */
 

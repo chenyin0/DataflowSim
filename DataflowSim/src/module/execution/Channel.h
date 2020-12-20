@@ -35,7 +35,7 @@ Module Channel:
 Develop log:
     
 TODO:
-    20.05.15:
+    20.05.15: (Done: Add drainMode for outer-loop channel)
     1. Channel need add trigger signal/trigMode, this mode is complementary with keepMode!
     (e.g. inner loop executes many times then trigger outer loop execute once)
 
@@ -150,6 +150,7 @@ class Channel usage:
         uint cycle; // Channel execute cycle
         uint speedup;  // Parallelism parameter
         int currId = 1;    // Current threadID, start at 1
+        uint chanClk = 0;  // Used for func parallelize()
         //vector<int> lastPopVal;  // Record last data poped by each chanBuffer
     };
 

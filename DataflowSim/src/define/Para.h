@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-//#define Base Base
-#define DGSF DGSF
+#define Base Base
+//#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -55,7 +55,7 @@ enum class ArchType
 // DGSF
 #define BRAM_BANK_DEPTH 16  // SPM bank depth
 #define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
-#define BRAM_ACCESS_DELAY 3  // Access BRAM delay
+#define BRAM_ACCESS_DELAY 1  // Access BRAM delay
 
 // SGMF
 #define SGMF_INPUT_BUFF_SIZE 32  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
@@ -90,7 +90,7 @@ enum class ArchType
 */
 
 // MemSystem
-#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
+#define NO_MEMORY 1  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
