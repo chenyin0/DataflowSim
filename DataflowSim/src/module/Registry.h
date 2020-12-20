@@ -35,6 +35,8 @@ namespace DFSim
         void tableInit();
 
     private:
+        friend class Profiler;
+
         void initLastTagQueue(Channel* _chan);  // Initial last tag vec for keepMode channel
         void initChanBuffer(Channel* _chan);
         void initBp(Channel* _chan);

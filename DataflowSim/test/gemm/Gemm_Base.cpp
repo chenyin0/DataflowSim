@@ -122,7 +122,7 @@ void GemmTest::gemm_Base(Debug* debug)
     ChanBase* lc_k_mux_falseChan = new ChanBase(2, 0, 1);
     ChanBase* lc_k_mux_outChan = new ChanBase(2, 0, 1);
 
-    ChanBase* chan_k_lc = new ChanBase(2, 0, 1);
+    ChanBase* chan_k_lc = new ChanBase(20, 0, 1);   // Debug_yin_12.20
     chan_k_lc->keepMode = 1;
 
     Mux* lc_k_mux = new Mux(lc_k_mux_trueChan, lc_k_mux_falseChan, lc_k_mux_outChan);
@@ -158,7 +158,7 @@ void GemmTest::gemm_Base(Debug* debug)
     chan_jj_relay_loop_kk->keepMode = 1;
 
     // loop i
-    ChanBase* chan_i_row = new ChanBase(BASE_INPUT_BUFF_SIZE, MUL, 1);
+    ChanBase* chan_i_row = new ChanBase(MUL * BASE_INPUT_BUFF_SIZE, MUL, 1);
     chan_i_row->keepMode = 1;
 
     ChanBase* chan_jj_relay_loop_i = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
@@ -170,16 +170,16 @@ void GemmTest::gemm_Base(Debug* debug)
     // loop k
     ChanBase* chan_m1_addr = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2 * ADD, 1);
 
-    ChanBase* chan_k_row = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, ADD + MUL, 1);
+    ChanBase* chan_k_row = new ChanBase((1 + MUL) * BASE_INPUT_BUFF_SIZE, ADD + MUL, 1);
     chan_k_row->keepMode = 1;
 
     ChanBase* chan_m1_getData = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);
     chan_m1_getData->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_k = new ChanBase(100*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k->keepMode = 1;
 
-    ChanBase* chan_i_row_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);
+    ChanBase* chan_i_row_relay_loop_k = new ChanBase(100*BASE_INPUT_BUFF_SIZE, 0, 1); // Debug_yin_12.20
     chan_i_row_relay_loop_k->keepMode = 1;
 
     // loop j
@@ -196,7 +196,7 @@ void GemmTest::gemm_Base(Debug* debug)
     ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
 
     ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
-    ChanBase* chan_mul_delay = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, MUL, Base_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(MUL * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, MUL, Base_loop_j_speedup);
 
     ChanBase* chan_partialSum_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
     ChanBase* chan_partialSum_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
@@ -333,7 +333,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 500000;
+    uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
     // Execute
@@ -419,7 +419,7 @@ void GemmTest::gemm_Base(Debug* debug)
         chan_k_lc->value = chan_k_lc->assign(lc_k->loopVar);
 
         chan_k_row->get();
-        chan_k_row->value = chan_k_row->assign(lc_k->loopVar) + chan_k_row->assign(chan_kk_relay_loop_i);
+        chan_k_row->value = (chan_k_row->assign(lc_k->loopVar) + chan_k_row->assign(chan_kk_relay_loop_i)) * matrix_width;
 
         chan_m1_addr->get();
         chan_m1_addr->value = chan_m1_addr->assign(chan_i_row) + chan_m1_addr->assign(lc_k->loopVar) + chan_m1_addr->assign(chan_kk_relay_loop_i) + m1_BaseAddr;
@@ -498,7 +498,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Print_brief;
+        //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
         if (iter > 0)
@@ -585,7 +585,7 @@ void GemmTest::gemm_Base(Debug* debug)
             debug->chanPrint("end", end);
 
             // Print MemorySystem
-            debug->memSysPrint(memSys);
+            //debug->memSysPrint(memSys);
         }
 
         if (!end->channel.empty())

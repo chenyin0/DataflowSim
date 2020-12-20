@@ -137,6 +137,9 @@
     <ClInclude Include="test\lud\Lud.h">
       <Filter>test\lud</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\Profiler.h">
+      <Filter>src\module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -219,6 +222,9 @@
     </ClCompile>
     <ClCompile Include="test\lud\Lud_DGSF.cpp">
       <Filter>test\lud</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\Profiler.cpp">
+      <Filter>src\module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
