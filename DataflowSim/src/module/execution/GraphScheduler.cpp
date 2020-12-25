@@ -199,11 +199,47 @@ uint GraphScheduler::selectSubgraphInOrder(uint _currSubgraphId)
     return (++_currSubgraphId) % subgraphTable.size();
 }
 
+//uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
+//{
+//    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+//    {
+//        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+//        {
+//            if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+//            {
+//                return subgraphId;
+//            }
+//        }
+//    }
+//
+//    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+//    {
+//        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+//        {
+//            if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+//            {
+//                return subgraphId;
+//            }
+//        }
+//    }
+//
+//    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+//    {
+//        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+//        {
+//            return subgraphId;  // Return a subgraph randomly
+//        }
+//    }
+//
+//    Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
+//}
+
 uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
 {
-    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
     {
-        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
         {
             if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
@@ -212,9 +248,10 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         }
     }
 
-    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
     {
-        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
         {
             if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
@@ -223,15 +260,16 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         }
     }
 
-    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
+    for (size_t subgraphCnt = 0; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
     {
-        if (!subgraphIsOver[subgraphId] && subgraphId != _currSubgraphId)
+        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
         {
             return subgraphId;  // Return a subgraph randomly
         }
     }
 
-    Debug::throwError("Can't find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
+    Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
 }
 
 bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)

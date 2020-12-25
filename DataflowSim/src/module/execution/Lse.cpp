@@ -315,7 +315,7 @@ void Lse::statusUpdate()
 void Lse::pushChannel()
 {
     uint clk = ClkDomain::getInstance()->getClk();
-    uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
+    //uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
     bool getValid = 0;
 
     if (channel.size() < size)

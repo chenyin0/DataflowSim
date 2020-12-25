@@ -258,22 +258,31 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         Data data = upstream[upstreamId]->channel.front();
         data.value = _data;
         //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
-        if (branchMode)
+        
+        if (upstream[upstreamId]->keepMode)
         {
-            if (data.cond == channelCond)
-            {
-                data.cycle = ClkDomain::getInstance()->getClk() + cycle;
-            }
-            else
-            {
-                data.cycle = ClkDomain::getInstance()->getClk();  // If in the falsePath, no need to update cycle
-            }
+            data.cycle = ClkDomain::getInstance()->getClk();
         }
         else
         {
-            data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+            if (branchMode)
+            {
+                if (data.cond == channelCond)
+                {
+                    data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+                }
+                else
+                {
+                    data.cycle = ClkDomain::getInstance()->getClk();  // If in the falsePath, no need to update cycle
+                }
+            }
+            else
+            {
+                data.cycle = ClkDomain::getInstance()->getClk() + cycle;
+            }
         }
 
+        // Avoid receive extra poison data when upstream is in keepMode
         if (!upstream[_bufferId]->keepMode)
         {
             chanBuffer[_bufferId].push_back(data);
@@ -281,23 +290,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         }
         else
         {
-            //if (!chanBuffer[_bufferId].empty() && data.cycle == chanBuffer[_bufferId].back().cycle)
-            //{
-            //    // Count the number of same cycle data has been received from a keepMode upstream
-            //    ++keepModeDataCnt[_bufferId];  
-            //}
-            //else
-            //{
-            //    keepModeDataCnt[_bufferId] = 0;
-            //}
-
-            //if (keepModeDataCnt[_bufferId] < speedup)
-            //{
-            //    chanBuffer[_bufferId].push_back(data);
-            //    ++chanBufferDataCnt[_bufferId];
-            //}
-
-            if (chanBuffer[_bufferId].empty())  // Debug_yin_12.20
+            if (chanBuffer[_bufferId].empty())
             {
                 chanBuffer[_bufferId].push_back(data);
                 ++chanBufferDataCnt[_bufferId];

@@ -7,6 +7,7 @@
 #include "../../src/module/ClkSys.h"
 #include "../../src/sim/Debug.h"
 #include "../../src/module/Registry.h"
+#include "../../src/module/Profiler.h"
 
 /*  Gemm src code from MachSuite benchmark suite (blocked)
 

@@ -2,7 +2,7 @@
 
 using namespace DFSimTest;
 
-const uint GemmTest::matrix_width = 20;
+const uint GemmTest::matrix_width = 40;
 const uint GemmTest::matrix_height = matrix_width;
 const uint GemmTest::block_size = 5;
 
@@ -18,10 +18,10 @@ vector<vector<int>> GemmTest::result;
 
 // Performance parameter
 // Base
-uint GemmTest::Base_loop_j_speedup = 20;
+uint GemmTest::Base_loop_j_speedup = 5;
 
 // DGSF
-uint GemmTest::DGSF_loop_k_speedup = 5;
+uint GemmTest::DGSF_loop_k_speedup = 1;
 uint GemmTest::DGSF_loop_j_speedup = 5;
 
 

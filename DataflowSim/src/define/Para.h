@@ -50,10 +50,10 @@ enum class ArchType
 #define FREQ 500 // System freq 500MHz
 
 // Base
-#define BASE_INPUT_BUFF_SIZE 1
+#define BASE_INPUT_BUFF_SIZE 2
 
 // DGSF
-#define BRAM_BANK_DEPTH 16  // SPM bank depth
+#define BRAM_BANK_DEPTH 128  // SPM bank depth
 #define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
 #define BRAM_ACCESS_DELAY 1  // Access BRAM delay
 
@@ -62,7 +62,7 @@ enum class ArchType
 #define TAG_SIZE SGMF_INPUT_BUFF_SIZE  // Channel data tag size
 
 // Lse
-#define LSE_QUEUE_SIZE 16
+#define LSE_QUEUE_SIZE 160
 #define LSE_O3 0
 
 #ifdef DGSF

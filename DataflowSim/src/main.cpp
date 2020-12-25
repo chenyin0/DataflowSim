@@ -29,7 +29,18 @@ int main()
     Bfs
     */
     TestBench_name tb_name = TestBench_name::Gemm;
+
+    //** Define Arch
+#ifdef Base
     ArchType arch = ArchType::Base;
+#endif
+#ifdef DGSF
+    ArchType arch = ArchType::DGSF;
+#endif
+#ifdef SGMF
+    ArchType arch = ArchType::SGMF;
+#endif
+    //**
 
     DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
