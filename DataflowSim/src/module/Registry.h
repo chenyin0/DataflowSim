@@ -33,6 +33,7 @@ namespace DFSim
         static int registerLc(Lc* lc);
         static int registerMux(Mux* mux);
         void tableInit();
+        void pathBalance();  // Resize channel buffer size to avoid path imbalance
 
     private:
         friend class Profiler;
@@ -41,7 +42,7 @@ namespace DFSim
         void initChanBuffer(Channel* _chan);
         void initBp(Channel* _chan);
         void initLastPopVal(Channel* _chan);
-        void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream 
+        void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream
 
         void checkConnectRule();  // Check connection rules
         void checkChanConnect(Channel* _chan);  // Check the connection of all the channels

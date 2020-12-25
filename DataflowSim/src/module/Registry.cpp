@@ -96,6 +96,19 @@ void Registry::tableInit()
     checkLc();
 }
 
+void Registry::pathBalance()
+{
+    // Ensure each channel buffer size greater than 2
+    for (auto& entry : registryTable)
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            Channel* chan = entry.chanPtr;
+            chan->size = (chan->size >= 2) ? chan->size : 2;
+        }
+    }
+}
+
 void Registry::initLastTagQueue(Channel* _chan)
 {
     //for (auto& entry : registryTable)
@@ -277,4 +290,5 @@ void Registry::checkLc()
         std::cout << "Warning: Configure more than one outer-most Lc, make sure there are more than one outer-most loop in this application!" << std::endl;
     }
 }
+
 

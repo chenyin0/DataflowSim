@@ -186,7 +186,7 @@ int Cache::check_cache_hit(uint set_base, uint addr, int level)
 
     for (i = 0; i < cache_mapping_ways[level]; ++i) 
     {
-        uint taggg = caches[level][set_base + i].tag;  // Debug_yin
+        //uint taggg = caches[level][set_base + i].tag;  // Debug_yin
         if ((caches[level][set_base + i].flag & CACHE_FLAG_VALID) &&
             (caches[level][set_base + i].tag == _tag /*(addr >> (cache_set_shifts[level] + cache_line_shifts[level]))*/)) 
         {
