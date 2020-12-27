@@ -218,7 +218,9 @@ class ChanDGSF usage:
 
     private:
         vector<int> push(int data, uint bufferId) override;
+        void pushBuffer(int data, uint bufferId) override;
         void bpUpdate() override;
+        virtual bool checkGetLastData(uint bufferId);
         //vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void statusUpdate() override;
         //void checkGraphSwitch();

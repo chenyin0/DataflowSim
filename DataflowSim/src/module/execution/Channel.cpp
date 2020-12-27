@@ -258,7 +258,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         Data data = upstream[upstreamId]->channel.front();
         data.value = _data;
         //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
-        
+
         if (upstream[upstreamId]->keepMode)
         {
             data.cycle = ClkDomain::getInstance()->getClk();
@@ -1004,6 +1004,16 @@ vector<int> ChanDGSF::push(int data, uint bufferId)
     return { 0, data };
 }
 
+void ChanDGSF::pushBuffer(int data, uint _bufferId)
+{
+    // Push chanBuffer only when this buffer has not gotten the last data
+    if (!getTheLastData[_bufferId])
+    {
+        Channel::pushBuffer(data, _bufferId);
+        getTheLastData[_bufferId] = checkGetLastData(_bufferId);  // Update getTheLastData
+    }
+}
+
 void ChanDGSF::bpUpdate()
 {
     if (pushBufferEnable)
@@ -1027,6 +1037,20 @@ void ChanDGSF::bpUpdate()
             bp[bufferId] = 1;  // When pushBufferDisable, set all the bp to 1
         }
     }
+}
+
+bool ChanDGSF::checkGetLastData(uint bufferId)
+{
+    bool getLastData = 0;
+    if (!chanBuffer[bufferId].empty())
+    {
+        if (chanBuffer[bufferId].back().lastOuter && chanBuffer[bufferId].back().last)
+        {
+            getLastData = 1;
+        }
+    }
+
+    return getLastData;
 }
 
 //vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
