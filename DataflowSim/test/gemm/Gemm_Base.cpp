@@ -341,6 +341,11 @@ void GemmTest::gemm_Base(Debug* debug)
     uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
+
+    //*** Record run time
+    clock_t startTime, endTime;
+    startTime = clock();
+
     // Execute
     while (iter < max_iter)
     {
@@ -650,7 +655,15 @@ void GemmTest::gemm_Base(Debug* debug)
     profiler->printBufferMaxDataNum("chan_partialSum", chan_partialSum);
     profiler->printBufferMaxDataNum("lse_st_partialSum", lse_st_partialSum);
 
+
+    //*** Record run time
+    endTime = clock();
+    std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+
+
     delete registry;  // All the Module pointers have been deleted when destruct registry
     delete memSys;
-
 }

@@ -21,9 +21,10 @@ namespace DFSim
         bool checkSubgraphIsOver(uint _subgraphId);  // Check whether this subgraph is over
         bool checkProducerChanIsFull(vector<ChanDGSF*> producerChans);
         bool checkProducerChanNotEmpty(vector<ChanDGSF*> producerChans);
+        bool checkProducerChanAllEmpty(vector<ChanDGSF*> producerChans);
         bool checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans);
         bool checkProducerChanFinish(vector<ChanDGSF*> producerChans);
-        //bool checkConsumerChanFinish(vector<ChanDGSF*> consumerChans);
+        bool checkConsumerChanFinish(vector<ChanDGSF*> consumerChans);
         bool checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans);
 
     public:
@@ -34,5 +35,10 @@ namespace DFSim
         unordered_map<uint, pair<vector<ChanDGSF*>, vector<ChanDGSF*>>> subgraphTable;
         unordered_map<uint, vector<vector<ChanDGSF*>>> divergenceGraph;  // Store branch-divergence subgraph
         deque<bool> subgraphIsOver;
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+    public:
+        const deque<bool>& getSubgraphStatus() const;
+#endif // DEBUG_MODE 
     };
 }

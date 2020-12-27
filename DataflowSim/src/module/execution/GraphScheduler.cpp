@@ -76,20 +76,29 @@ void GraphScheduler::graphUpdate()
         // If not a branch divergence subgraph
         if (divergenceGraph.count(currSubgraphId) == 0)
         {
-            bool consumerChanIsFull = !checkConsumerChanNotFull(subgraphTable[currSubgraphId].second);
-            bool consumerChanGetLastData = checkConsumerChanGetLastData(subgraphTable[currSubgraphId].second);
+            //bool consumerChanIsFull = !checkConsumerChanNotFull(subgraphTable[currSubgraphId].second);
+            //bool consumerChanGetLastData = checkConsumerChanGetLastData(subgraphTable[currSubgraphId].second);
 
-            consumerChanFinish = consumerChanIsFull || consumerChanGetLastData;
+            //consumerChanFinish = consumerChanIsFull || consumerChanGetLastData;
+
+            consumerChanFinish = checkConsumerChanFinish(subgraphTable[currSubgraphId].second);  // Debug_yin_12.26
         }
         else
         {
-            bool commonChanIsFull = !checkConsumerChanNotFull(divergenceGraph[currSubgraphId][0]);
-            bool commonChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]);
+            //bool commonChanIsFull = !checkConsumerChanNotFull(divergenceGraph[currSubgraphId][0]);
+            //bool commonChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]);
 
-            bool truePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
-            bool falsePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
+            //bool truePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
+            //bool falsePathChanGetLastData = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
 
-            consumerChanFinish = commonChanIsFull || (commonChanGetLastData && (truePathChanGetLastData || falsePathChanGetLastData));
+            //consumerChanFinish = commonChanIsFull || (commonChanGetLastData && (truePathChanGetLastData || falsePathChanGetLastData));
+
+            // Debug_yin_12.26
+            bool commonChanIsFinish = checkConsumerChanFinish(divergenceGraph[currSubgraphId][0]);
+            bool truePathChanIsFinish = checkConsumerChanFinish(divergenceGraph[currSubgraphId][1]);
+            bool falsePathChanGetIsFinish = checkConsumerChanFinish(divergenceGraph[currSubgraphId][2]);
+
+            consumerChanFinish = commonChanIsFinish && (truePathChanIsFinish || falsePathChanGetIsFinish);
         }
     }
     else
@@ -260,7 +269,8 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         }
     }
 
-    for (size_t subgraphCnt = 0; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
+    // Select a subgraph to execute in round-robin 
+    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
     {
         uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
         if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
@@ -280,7 +290,10 @@ bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
     {
         if (divergenceGraph.count(currSubgraphId) == 0)
         {
-            isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second);
+            //isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second);
+
+            // Debug_yin_12.26
+            isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second) && checkProducerChanAllEmpty(subgraphTable[_subgraphId].first);
         }
         else
         {
@@ -347,6 +360,25 @@ bool GraphScheduler::checkProducerChanNotEmpty(vector<ChanDGSF*> producerChans)
     }
 
     return notEmpty;
+}
+
+bool GraphScheduler::checkProducerChanAllEmpty(vector<ChanDGSF*> producerChans)
+{
+    bool allEmpty = 1;
+
+    for (auto& chan : producerChans)
+    {
+        for (auto& buffer : chan->chanBuffer)
+        {
+            if (!buffer.empty())
+            {
+                allEmpty = 0;
+                return allEmpty;
+            }
+        }
+    }
+
+    return allEmpty;
 }
 
 bool GraphScheduler::checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans)
@@ -441,100 +473,88 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
     return finish;
 }
 
-//bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
-//{
-//    bool finish = 1;
-//
-//    for (auto& chan : consumerChans)
-//    {
-//        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
-//        {
-//            //if (/*!chan->getTheLastData[bufferId] && */chan->chanBuffer[bufferId].size() < chan->size)
-//            //{
-//            //    consumerChanFinish = 0;
-//            //    //break;
-//            //}
-//
-//            //if (!chan->chanBuffer[bufferId].empty())
-//            //{
-//            //    if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))
-//            //    {
-//            //        getLast = 0;  // Check whether all the channel has received the last data
-//            //    }
-//            //}
-//            //else
-//            //{
-//            //    getLast = 0;
-//            //}
-//
-//            if (!chan->chanBuffer[bufferId].empty())
-//            {
-//                if (!(chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last))  // Check whether all the channel has received the last data
-//                {
-//                    if (chan->chanBuffer[bufferId].size() < chan->size)
-//                    {
-//                        finish = 0;
-//                        break;
-//                    }
-//                }
-//                else
-//                {
-//                    chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
-//                }
-//            }
-//            else
-//            {
-//                finish = 0;
-//            }
-//        }
-//
-//        if (finish == 0)
-//        {
-//            break;
-//        }
-//
-//        //if (getLast == 0 && consumerChanFinish == 0)
-//        //{
-//        //    break;
-//        //}
-//    }
-//
-//    //if (getLast)
-//    //{
-//    //    consumerChanFinish = 1;
-//    //}
-//
-//    return finish;
-//}
-
-bool GraphScheduler::checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans)
+bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
 {
+    bool finish = 1;
+
     for (auto& chan : consumerChans)
     {
         for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
         {
             if (!chan->chanBuffer[bufferId].empty())
             {
-                if (chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last)  // Check whether all the channel has received the last data
+                // When 1)the chanBuffer has received the last data; or 2)the chanBuffer is full, this consumer channel is finish
+                if (!((chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last) || 
+                    chan->chanBuffer[bufferId].size() >= chan->size))  
                 {
-                    chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
+                    finish = 0;
+                    break;
                 }
             }
+            else
+            {
+                finish = 0;
+            }
+        }
+
+        if (finish == 0)
+        {
+            break;
         }
     }
+
+    return finish;
+}
+
+bool GraphScheduler::checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans)
+{
+    //for (auto& chan : consumerChans)
+    //{
+    //    for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+    //    {
+    //        if (!chan->chanBuffer[bufferId].empty())
+    //        {
+    //            if (chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last)  // Check whether all the channel has received the last data
+    //            {
+    //                chan->getTheLastData[bufferId] = 1;  // Signify this chanBuffer has received the last data
+    //            }
+    //        }
+    //    }
+    //}
+
+    //bool getLast = 1;
+    //for (auto& chan : consumerChans)
+    //{
+    //    for (auto& i : chan->getTheLastData)
+    //    {
+    //        if (i != true)  // Hasn't received the last data
+    //        {
+    //            getLast = 0;
+    //            return getLast;
+    //        }
+    //    }
+    //}
+
+    //return getLast;
 
     bool getLast = 1;
     for (auto& chan : consumerChans)
     {
         for (auto& i : chan->getTheLastData)
         {
-            if (i != true)  // Hasn't received the last data
+            if (i == 0)
             {
-                getLast = 0;
-                return getLast;
+                return getLast = 0;
             }
         }
     }
 
     return getLast;
 }
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+const deque<bool>& GraphScheduler::getSubgraphStatus() const
+{
+    return subgraphIsOver;
+}
+#endif // DEBUG_MODE 

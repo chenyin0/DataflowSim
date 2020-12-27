@@ -75,7 +75,11 @@ namespace DFSim
     protected:
         uint lseId;
         uint lastPopVal = 0;
-        uint sendPtr = 0;
+        // reqQueue ptr
+        uint pushQueuePtr = 0;  // Push req to reqQueue
+        uint sendChanPtr = 0;  // Send ready req to channel
+        uint sendMemPtr = 0;  // Send req to memory system
+        
         bool isWrite;
         uint orderId = 0;  // Record request sequence
         uint currReqId = 0;  // Used in Lse in order

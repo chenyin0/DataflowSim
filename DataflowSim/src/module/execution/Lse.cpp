@@ -1,5 +1,6 @@
 #include "./Lse.h"
 #include "../ClkSys.h"
+#include "../../sim/Debug.h"
 
 using namespace DFSim;
 
@@ -154,12 +155,6 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
         data.lastOuter |= buffer.front().lastOuter;
         data.graphSwitch |= buffer.front().graphSwitch;
     }
-    //for (auto channel : upstream)
-    //{
-    //    data.last |= channel->channel.front().last;
-    //    data.lastOuter |= channel->channel.front().lastOuter;
-    //    data.graphSwitch |= channel->channel.front().graphSwitch;
-    //}
 
     // Send lastTag to each upstream channel in keepMode
     if (data.last)
@@ -173,20 +168,34 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
     req.isWrite = isWrite;
     req.lseId = lseId;
 
-    for (size_t i = 0; i < reqQueue.size(); ++i)
-    {
-        if (!reqQueue[i].first.valid)
-        {
-            req.lseReqQueueIndex = i;  // Record reqQueue Id, for callback from memory
-            req.cnt = orderId;
-            ++orderId;
-            data.lseReqQueueIndex = i;  // Record reqQueue Id, for delete from channel
-            reqQueue[i].first = req;
-            reqQueue[i].second = data;
+    //for (size_t i = 0; i < reqQueue.size(); ++i)
+    //{
+    //    pushQueuePtr = (pushQueuePtr++) % reqQueue.size();
+    //    if (!reqQueue[pushQueuePtr].first.valid)
+    //    {
+    //        req.lseReqQueueIndex = pushQueuePtr;  // Record reqQueue Id, for callback from memory
+    //        req.cnt = orderId;
+    //        ++orderId;
+    //        data.lseReqQueueIndex = pushQueuePtr;  // Record reqQueue Id, for delete from channel
+    //        reqQueue[pushQueuePtr].first = req;
+    //        reqQueue[pushQueuePtr].second = data;
 
-            popChanBuffer();
-            break;
-        }
+    //        popChanBuffer();
+    //        break;
+    //    }
+    //}
+
+    if (!reqQueue[pushQueuePtr].first.valid)
+    {
+        req.lseReqQueueIndex = pushQueuePtr;  // Record reqQueue Id, for callback from memory
+        req.cnt = orderId;
+        ++orderId;
+        data.lseReqQueueIndex = pushQueuePtr;  // Record reqQueue Id, for delete from channel
+        reqQueue[pushQueuePtr].first = req;
+        reqQueue[pushQueuePtr].second = data;
+
+        popChanBuffer();
+        pushQueuePtr = (++pushQueuePtr) % reqQueue.size();
     }
 }
 
@@ -250,13 +259,13 @@ void Lse::statusUpdate()
     // Send req to memSystem
     for (size_t i = 0; i < reqQueue.size(); ++i)
     {
-        MemReq& req = reqQueue[sendPtr].first;
+        auto req = reqQueue[sendMemPtr].first;
         if (req.valid && !req.inflight && !req.ready)
         {
-            if (reqQueue[sendPtr].second.cycle < clk)  // Satisfy clk restriction
+            if (reqQueue[sendMemPtr].second.cycle < clk)  // Satisfy clk restriction
             {
                 // If Lse in the false path, not send req to memory and sendback ack directly
-                if (branchMode && reqQueue[sendPtr].second.cond != channelCond)
+                if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
                 {
                     ackCallback(req);
                 }
@@ -268,10 +277,12 @@ void Lse::statusUpdate()
                         break;
                     }
                 }
+
+                sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
+                break;
             }
         }
-
-        sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+        //sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
     }
 
     // Send ready data to channel
@@ -322,52 +333,64 @@ void Lse::pushChannel()
     {
         if (LSE_O3)  // If lse OoO
         {
-            for (auto& req : reqQueue)
+            for (size_t i = 0; i < reqQueue.size(); ++i)
             {
+                sendChanPtr = (sendChanPtr++) % reqQueue.size();
+                auto req = reqQueue[sendChanPtr];
                 if (req.first.valid && req.first.ready && !req.first.hasPushChan)
                 {
                     req.second.cycle = clk;  // Update cycle
                     channel.push_back(req.second);
                     req.first.hasPushChan = 1;
                 }
+
+                if (channel.size() >= size)
+                {
+                    break;
+                }
             }
         }
         else  // If Lse in order
         {
-            //while (1)
+            //for(size_t i = 0; i < reqQueue.size(); ++i)
             //{
-            //    // Find the earliest valid req
-            //    for (size_t i = 0; i < reqQueue.size(); ++i)
+            //    sendChanPtr = (sendChanPtr++) % reqQueue.size();
+            //    auto req = reqQueue[sendChanPtr];
+            //    if (req.first.cnt == currReqId)
             //    {
-            //        if (reqQueue[i].first.valid && !reqQueue[i].first.hasPushChan)
+            //        if (req.first.valid && req.first.ready && !req.first.hasPushChan)
             //        {
-            //            if (reqQueue[i].first.cnt < cnt)
-            //            {
-            //                getValid = 1;
-            //                cnt = reqQueue[i].first.cnt;
-            //            }
+            //            req.second.cycle = clk;  // Update cycle
+            //            channel.push_back(req.second);
+            //            req.first.hasPushChan = 1;
+            //            ++currReqId;
             //        }
             //    }
-
-            //    // If find out the earliest valid rea
-            //    if (getValid)
+            //    else
             //    {
-            //        if()
+            //        break;
+            //    }
+
+            //    if (channel.size() >= size)
+            //    {
+            //        break;
             //    }
             //}
 
-            for(auto& req:reqQueue)
+            auto req = reqQueue[sendChanPtr];
+            if (req.first.valid && req.first.ready && !req.first.hasPushChan)
             {
-                if (req.first.cnt == currReqId)
+                // Double check, ensure in order
+                if (req.first.cnt != currReqId)
                 {
-                    if (req.first.valid && req.first.ready && !req.first.hasPushChan)
-                    {
-                        req.second.cycle = clk;  // Update cycle
-                        channel.push_back(req.second);
-                        req.first.hasPushChan = 1;
-                        ++currReqId;
-                    }
+                    Debug::throwError("Lse sendChanPtr not consist with currReqId!", __FILE__, __LINE__);
                 }
+
+                req.second.cycle = clk;  // Update cycle
+                channel.push_back(req.second);
+                req.first.hasPushChan = 1;
+                ++currReqId;
+                sendChanPtr = (++sendChanPtr) % reqQueue.size();
             }
         }
     }

@@ -60,7 +60,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
-    //lse_ld_m1->noLatencyMode = 1;
+    lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
     Lse* lse_st_partialSum = new Lse(200*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
@@ -388,11 +388,17 @@ void GemmTest::gemm_DGSF(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint graphId = 0; // Debug_yin
+    uint graphId = 0; // For debug
+    vector<pair<uint, uint>> subgraphRecord;  // For debug
 
     uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
+
+    //*** Record run time
+    clock_t startTime, endTime;
+    startTime = clock();
+
     // Execute
     while (iter < max_iter)
     {
@@ -575,11 +581,17 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //** MemorySystem update
         memSys->MemSystemUpdate();
 
+        //** GraphScheduler update
+        graphScheduler->graphUpdate();
+
         //** Profiler update
         profiler->updateBufferMaxDataNum();
 
-        //** GraphScheduler update
-        graphScheduler->graphUpdate();
+        if (graphId != graphScheduler->currSubgraphId)
+        {
+            graphId = graphScheduler->currSubgraphId;
+            subgraphRecord.push_back(make_pair(graphId, clk));
+        }
 
         //// Debug_yin
         //if (graphId != graphScheduler->currSubgraphId)
@@ -593,10 +605,11 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         //** Print log
         // Set debug mode
+        //debug->debug_mode = Debug_mode::Print_brief;
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (/*14000 > iter && iter > 13000*/ iter >= 0)
+        if (130000 > iter && iter > 110000 /*iter >= 0*/)
         {
             //std::cout << "table_size:" << graphScheduler->subgraphTable.size() << std::endl;
 
@@ -635,17 +648,20 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId  << "\t" << " Clk:" << clk << std::endl;
             debug->getFile() << "*****************  k  *****************" << std::endl;
             debug->chanPrint("lc_k->loopVar", lc_k->loopVar);
+
             debug->chanPrint("chan_k_lc_DGSF_LOOP", chan_k_lc_DGSF_LOOP);
-            //debug->chanPrint("chan_m1_addr", chan_m1_addr);
-            //debug->chanPrint("chan_m1_addr_delay", chan_m1_addr_delay);
-            //debug->chanPrint("chan_k_row", chan_k_row);
-            //debug->chanPrint("chan_k_row_delay", chan_k_row_delay);
+            debug->chanPrint("chan_m1_addr", chan_m1_addr);
+            debug->chanPrint("chan_m1_addr_delay", chan_m1_addr_delay);
+            debug->chanPrint("chan_k_row", chan_k_row);
+            debug->chanPrint("chan_k_row_delay", chan_k_row_delay);
+            debug->lsePrint("lse_ld_m1", lse_ld_m1);
+            debug->chanPrint("chan_jj_relay_loop_k", chan_jj_relay_loop_k);
+            debug->chanPrint("chan_i_row_relay_loop_k", chan_i_row_relay_loop_k);
+            debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId << "\t" << " Clk:" << clk << std::endl;
+
             debug->chanPrint("chan_k_row_DGSF_LOOP", chan_k_row_DGSF_LOOP);
-            //debug->lsePrint("lse_ld_m1", lse_ld_m1);
             debug->chanPrint("chan_m1_getData_DGSF_LOOP", chan_m1_getData_DGSF_LOOP);
-            //debug->chanPrint("chan_jj_relay_loop_k", chan_jj_relay_loop_k);
             debug->chanPrint("chan_jj_relay_loop_k_DGSF_LOOP", chan_jj_relay_loop_k_DGSF_LOOP);
-            //debug->chanPrint("chan_i_row_relay_loop_k", chan_i_row_relay_loop_k);
             debug->chanPrint("chan_i_row_relay_loop_k_DGSF_LOOP", chan_i_row_relay_loop_k_DGSF_LOOP);
             // loop j
             debug->getFile() << std::endl;
@@ -655,6 +671,15 @@ void GemmTest::gemm_DGSF(Debug* debug)
             debug->chanPrint("chan_m2_addr_delay", chan_m2_addr_delay);
             debug->lsePrint("lse_ld_m2", lse_ld_m2);
             debug->getFile() << "Current subgraphId: " << graphScheduler->currSubgraphId << "\t" << " Clk:" << clk << std::endl;
+
+            auto subgraphStatus = graphScheduler->getSubgraphStatus();
+            debug->getFile() << "Subgraph isOver: ";
+            for (auto& status : subgraphStatus)
+            {
+                debug->getFile() << status << " ";
+            }
+            debug->getFile() << std::endl;
+
             debug->chanPrint("lse_ld_m2_DGSF_DAE", lse_ld_m2_DGSF_DAE);
             debug->chanPrint("chan_m1_getData_DGSF_DAE_temp", chan_m1_getData_DGSF_DAE_temp);
             debug->chanPrint("chan_m1_getData_DGSF_DAE", chan_m1_getData_DGSF_DAE);
@@ -755,6 +780,34 @@ void GemmTest::gemm_DGSF(Debug* debug)
     profiler->printBufferMaxDataNum("lse_ld_partialSum", lse_ld_partialSum);
     profiler->printBufferMaxDataNum("chan_partialSum", chan_partialSum);
     profiler->printBufferMaxDataNum("lse_st_partialSum", lse_st_partialSum);
+
+
+    //*** Record subgraph switch
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Subgraph switch record: " << std::endl;
+    uint deltaTime = 0;
+    for (size_t i = 0; i < subgraphRecord.size(); ++i)
+    {
+        auto item = subgraphRecord[i];
+        if (i < subgraphRecord.size() - 1)
+        {
+            deltaTime = subgraphRecord[i + 1].second - subgraphRecord[i].second;
+        }
+        else
+        {
+            deltaTime = 0;
+        }
+        debug->getFile() << "Cnt: " << i+1 << "\tId: " << item.first << "\t@clk: " << item.second << "\t\tDelta: " << deltaTime << std::endl;
+    }
+
+
+    //*** Record run time
+    endTime = clock();
+    std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

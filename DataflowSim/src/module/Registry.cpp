@@ -43,9 +43,9 @@ int Registry::registerChan(Channel* chan)
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Channel;
         registryTable.push_back(entry);
-        ++Registry::moduleId;
+        //Registry::moduleId++;
 
-        return Registry::moduleId;
+        return Registry::moduleId++;
     }
 }
 
@@ -63,9 +63,9 @@ int Registry::registerLc(Lc* lc)
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Lc;
         registryTable.push_back(entry);
-        ++Registry::moduleId;
+        //Registry::moduleId++;
 
-        return Registry::moduleId;
+        return Registry::moduleId++;
     }
 }
 
@@ -83,9 +83,9 @@ int Registry::registerMux(Mux* mux)
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Mux;
         registryTable.push_back(entry);
-        ++Registry::moduleId;
+        //Registry::moduleId++;
 
-        return Registry::moduleId;
+        return Registry::moduleId++;
     }
 }
 

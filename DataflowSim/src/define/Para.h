@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-#define Base Base
-//#define DGSF DGSF
+//#define Base Base
+#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -50,7 +50,7 @@ enum class ArchType
 #define FREQ 500 // System freq 500MHz
 
 // Base
-#define BASE_INPUT_BUFF_SIZE 2
+#define BASE_INPUT_BUFF_SIZE 100
 
 // DGSF
 #define BRAM_BANK_DEPTH 128  // SPM bank depth
@@ -90,7 +90,7 @@ enum class ArchType
 */
 
 // MemSystem
-#define NO_MEMORY 1  // Emulate ideal memory(latency = 0)
+#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
@@ -110,8 +110,11 @@ enum class ArchType
 
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 16*1024  // byte
-#define CACHE_SIZE_L2 256*1024  // byte
+//#define CACHE_SIZE_L1 16*1024  // byte
+//#define CACHE_SIZE_L2 256*1024  // byte
+
+#define CACHE_SIZE_L1 1*1024  // byte
+#define CACHE_SIZE_L2 16*1024  // byte
 
 //// SGMF paper parameter
 //#define CACHE_SIZE_L1 64*1024  // byte
