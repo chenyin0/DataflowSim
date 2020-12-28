@@ -151,7 +151,7 @@ void MemSystem::getFromSpm()
     if (spm != nullptr)
     {
         vector<MemReq> _req = spm->callBack();
-        for (auto req : _req)
+        for (auto& req : _req)
         {
             reqQueue[req.memSysReqQueueIndex].ready = 1;
             reqQueue[req.memSysReqQueueIndex].inflight = 0;
@@ -210,7 +210,7 @@ void MemSystem::getFromCache()
 
         _req = cache->callBack();
 
-        for (auto req : _req)
+        for (auto& req : _req)
         {
             reqQueue[req.memSysReqQueueIndex].ready = 1;
             reqQueue[req.memSysReqQueueIndex].inflight = 0;
@@ -350,17 +350,31 @@ vector<MemReq> MemoryDataBus::MemoryDataBusUpdate()
 
     // Send ready req from memoryDataBus to reqStack in memSystem
     vector<MemReq> _reqAckStack;
-    bool traverse = 1;
-    while (traverse)
+
+    //bool traverse = 1;
+    //while (traverse)
+    //{
+    //    if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
+    //    {
+    //        _reqAckStack.push_back(busDelayFifo.front().first);
+    //        busDelayFifo.pop_front();
+    //    }
+    //    else
+    //    {
+    //        traverse = 0;
+    //    }
+    //}
+
+    for (auto iter = busDelayFifo.begin(); iter != busDelayFifo.end(); )
     {
-        if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
+        if (iter->second == 0)
         {
-            _reqAckStack.push_back(busDelayFifo.front().first);
-            busDelayFifo.pop_front();
+            _reqAckStack.push_back(iter->first);
+            iter = busDelayFifo.erase(iter);
         }
         else
         {
-            traverse = 0;
+            break;
         }
     }
 

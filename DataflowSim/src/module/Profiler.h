@@ -3,6 +3,7 @@
 #include "../define/Define.hpp"
 #include "./Registry.h"
 #include "../sim/Debug.h"
+#include "./mem/MemSystem.h"
 
 namespace DFSim
 {
@@ -17,11 +18,15 @@ namespace DFSim
     class Profiler
     {
     public:
-        Profiler(Registry* _registry, Debug* _debugger);
+        Profiler(Registry* _registry, MemSystem* _memSys, Debug* _debugger);
         ~Profiler();
         void init();
+        // System performance
         static void recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk);
+        // Memory access
         static void recordMemoryAccessNum(uint _moduleId, ChanType _chanType, uint _clk);
+        void printCacheMissRate();
+        // Channel status
         void updateBufferMaxDataNum();  // Statistic the peak data number in buffer for path balancing
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
 
@@ -30,5 +35,6 @@ namespace DFSim
         vector<uint> maxDataNum;  // Record each buffer's peak data number
         Registry* registry = nullptr;
         Debug* debugger = nullptr;
+        MemSystem* memSys = nullptr;
     };
 }

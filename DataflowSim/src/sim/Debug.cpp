@@ -65,7 +65,7 @@ void Debug::chanPrint(const string name, const Channel* channel)
         }
 
         _output_file << "chan(cnt=" << channel->chanDataCnt << "): ";
-        for (auto i : channel->channel)
+        for (auto& i : channel->channel)
         {
             _output_file << "d" << channel->value << ":" << "c" << i.cycle << ":" << "l" << i.last;
 #ifdef DGSF
@@ -143,7 +143,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
         _output_file << std::endl;
         _output_file << "matchQ:" << std::endl;
         _output_file << "\t";
-        for (auto data : channel->matchQueue)
+        for (auto& data : channel->matchQueue)
         {
             if (data.valid)
             {
@@ -157,7 +157,7 @@ void Debug::chanPrint(const string name, const ChanSGMF* channel)
         _output_file << std::endl;
         _output_file << "chan(cnt=" << channel->chanDataCnt << "):" << std::endl;
         _output_file << "\t";
-        for (auto data : channel->channel)
+        for (auto& data : channel->channel)
         {
             _output_file << "t" << data.tag << ":";
             _output_file << "d" << channel->value << ":" << "c" << data.cycle << ":" << "l" << data.last;
@@ -240,7 +240,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 
         _output_file << std::endl;
         _output_file << std::setw(12) << "hasPush:";
-        for (auto req : _lse->reqQueue)
+        for (auto& req : _lse->reqQueue)
         {
             if (req.first.valid)
             {
@@ -250,7 +250,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 
         _output_file << std::endl;
         _output_file << std::setw(12) << "OrderId:";
-        for (auto req : _lse->reqQueue)
+        for (auto& req : _lse->reqQueue)
         {
             if (req.first.valid)
             {

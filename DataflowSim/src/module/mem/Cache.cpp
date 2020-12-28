@@ -75,6 +75,10 @@ void Cache::init(/*uint a_cache_size[3], uint a_cache_line_size[3], uint a_mappi
     cache_w_memory_count = 0;
     // 指令数，主要用来在替换策略的时候提供比较的key，在命中或者miss的时候，相应line会更新自己的count为当时的tick_count;
     tick_count = 0;
+
+    memset(cache_hit_count, 0, sizeof(cache_hit_count));
+    memset(cache_miss_count, 0, sizeof(cache_miss_count));
+
     //    cache_buf = (_u8 *) malloc(cache_size);
     //    memset(cache_buf, 0, this->cache_size);
         // 为每一行分配空间
@@ -86,7 +90,7 @@ void Cache::init(/*uint a_cache_size[3], uint a_cache_line_size[3], uint a_mappi
     ////测试时的默认配置
     //swap_style[0] = Cache_swap_style::CACHE_SWAP_LRU;
     //swap_style[1] = Cache_swap_style::CACHE_SWAP_LRU;
-    re_init();
+    //re_init();
     srand((unsigned)time(NULL));
 }
 
@@ -124,25 +128,25 @@ void Cache::config_check()
 
 }
 
-/**顶部的初始化放在最一开始，如果中途需要对tick_count进行清零和caches的清空，执行此。主要因为tick_count的自增可能会超过unsigned long long，而且一旦tick_count清零，caches里的count数据也就出现了错误。*/
-void Cache::re_init() 
-{
-    tick_count = 0;
-    memset(cache_hit_count, 0, sizeof(cache_hit_count));
-    memset(cache_miss_count, 0, sizeof(cache_miss_count));
-
-    for (_u8 i = 0; i < CACHE_MAXLEVEL; ++i)
-    {
-        cache_free_num[i] = cache_line_num[i];
-        memset(caches[i], 0, sizeof(Cache_Line) * cache_line_num[i]);
-    }
-
-    /*cache_free_num[0] = cache_line_num[0];
-    cache_free_num[1] = cache_line_num[1];
-    memset(caches[0], 0, sizeof(Cache_Line) * cache_line_num[0]);
-    memset(caches[1], 0, sizeof(Cache_Line) * cache_line_num[1]);*/
-    //    memset(cache_buf, 0, this->cache_size);
-}
+///**顶部的初始化放在最一开始，如果中途需要对tick_count进行清零和caches的清空，执行此。主要因为tick_count的自增可能会超过unsigned long long，而且一旦tick_count清零，caches里的count数据也就出现了错误。*/
+//void Cache::re_init() 
+//{
+//    tick_count = 0;
+//    memset(cache_hit_count, 0, sizeof(cache_hit_count));
+//    memset(cache_miss_count, 0, sizeof(cache_miss_count));
+//
+//    for (_u8 i = 0; i < CACHE_MAXLEVEL; ++i)
+//    {
+//        cache_free_num[i] = cache_line_num[i];
+//        memset(caches[i], 0, sizeof(Cache_Line) * cache_line_num[i]);
+//    }
+//
+//    /*cache_free_num[0] = cache_line_num[0];
+//    cache_free_num[1] = cache_line_num[1];
+//    memset(caches[0], 0, sizeof(Cache_Line) * cache_line_num[0]);
+//    memset(caches[1], 0, sizeof(Cache_Line) * cache_line_num[1]);*/
+//    //    memset(cache_buf, 0, this->cache_size);
+//}
 
 Cache::~Cache() 
 {
