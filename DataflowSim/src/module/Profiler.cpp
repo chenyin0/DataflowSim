@@ -2,9 +2,10 @@
 
 using namespace DFSim;
 
-Profiler::Profiler(Registry* _registry, Debug* _debugger)
+Profiler::Profiler(Registry* _registry, MemSystem* _memSys, Debug* _debugger)
 {
     registry = _registry;
+    memSys = _memSys;
     debugger = _debugger;
 }
 
@@ -12,6 +13,7 @@ Profiler::~Profiler()
 {
     delete registry;
     delete debugger;
+    delete memSys;
 }
 
 void Profiler::init()
@@ -23,6 +25,11 @@ void Profiler::init()
 void Profiler::recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk)
 {
 
+}
+
+void Profiler::printCacheMissRate()
+{
+    uint cacheLevel = 
 }
 
 void Profiler::updateBufferMaxDataNum()

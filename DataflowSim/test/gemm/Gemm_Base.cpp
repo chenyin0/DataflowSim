@@ -50,11 +50,11 @@ void GemmTest::gemm_Base(Debug* debug)
     //*** Declare registry
     Registry* registry = new Registry();
 
-    //*** Declare Profiler
-    Profiler* profiler = new Profiler(registry, debug);
-
     //*** Declare memory
     MemSystem* memSys = new MemSystem();
+
+    //*** Declare Profiler
+    Profiler* profiler = new Profiler(registry, memSys, debug);
 
 
     //*** Declare Lse

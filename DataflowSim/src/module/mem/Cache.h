@@ -112,7 +112,7 @@ namespace DFSim
             return 100.0 * cache_miss_count[level] / (cache_miss_count[level] + cache_hit_count[level]);
         }
 
-        void re_init();
+        //void re_init();
 
         CacheReq transMemReq2CacheReq(const MemReq& memReq);
         MemReq transCacheReq2MemReq(const CacheReq& cacheReq);
