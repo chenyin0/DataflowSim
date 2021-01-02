@@ -471,6 +471,17 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
                 _output_file << std::endl;
             }
+
+            //// Print cache reqQueue2Mem
+            //_output_file << "reqQueue2Mem:" << std::endl;
+            //auto req2Mem = _memSys->cache->getReqQueue2Mem();
+            //for (auto& req : req2Mem)
+            //{
+            //    if (req.valid)
+            //    {
+            //        _output_file << std::setw(MemSys_SetWidth) << req.addr;
+            //    }
+            //}
         }
 
         _output_file << std::endl;

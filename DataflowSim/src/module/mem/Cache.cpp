@@ -978,4 +978,8 @@ const vector<vector<ReqQueueBank>>& Cache::getReqQueue() const
     return reqQueue;
 }
 
+const deque<MemReq>& Cache::getReqQueue2Mem() const
+{
+    return reqQueue2Mem;
+}
 #endif

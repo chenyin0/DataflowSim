@@ -60,9 +60,10 @@ void GemmTest::gemm_Base(Debug* debug)
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, 1);  // Load M1
     //lse_ld_m1->noLatencyMode = 1;
-    Lse* lse_ld_m2 = new Lse(10*LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
+    Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
+    //lse_ld_m2->noLatencyMode = 1;
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(10*LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
+    Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
     //lse_st_partialSum->noLatencyMode = 1;
 
 
@@ -541,7 +542,7 @@ void GemmTest::gemm_Base(Debug* debug)
         debug->debug_mode = Debug_mode::Print_detail;
         //debug->debug_mode = Debug_mode::Turn_off;
 
-        if (20000 > iter && iter > 19900 /*iter > 0*/)
+        if (200000 > iter && iter > 199000 /*iter > 0*/)
         {
             debug->getFile() << std::endl;
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel

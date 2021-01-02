@@ -52,8 +52,8 @@ Lse::~Lse()
 void Lse::initial()
 {
     reqQueue.resize(size);
-
     lseId = memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
+    suspendReq.first = 0;  // Reset valid
 
     chanType = ChanType::Chan_Lse;
 }
@@ -213,32 +213,32 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 //    }
 //}
 
-bool Lse::sendReq(MemReq _req)
-{
-    // No memory (memory latency = 0)
-    if (NO_MEMORY || noLatencyMode)
-    {
-        ackCallback(_req);  // Send back ack directly(Not send reqs to memSys)
-        return true;
-    }
-    else
-    {
-        memReqCnt++;
-
-        if (memSys->addTransaction(_req))
-        {
-            uint index = _req.lseReqQueueIndex;
-            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
-
-            return true;
-        }
-        else
-        {
-            memReqBlockCnt++;
-            return false;
-        }
-    }
-}
+//bool Lse::sendReq(MemReq _req)
+//{
+//    // No memory (memory latency = 0)
+//    if (NO_MEMORY || noLatencyMode)
+//    {
+//        ackCallback(_req);  // Send back ack directly(Not send reqs to memSys)
+//        return true;
+//    }
+//    else
+//    {
+//        memReqCnt++;
+//
+//        if (memSys->addTransaction(_req))
+//        {
+//            uint index = _req.lseReqQueueIndex;
+//            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+//
+//            return true;
+//        }
+//        else
+//        {
+//            memReqBlockCnt++;
+//            return false;
+//        }
+//    }
+//}
 
 void Lse::statusUpdate()
 {
@@ -259,33 +259,39 @@ void Lse::statusUpdate()
         pushReqQ();
     }
 
-    // Send req to memSystem
-    for (size_t i = 0; i < reqQueue.size(); ++i)
+    // Select a ready req
+    if (!suspendReq.first)  // If suspendReq is invalid
     {
-        auto req = reqQueue[sendMemPtr].first;
-        if (req.valid && !req.inflight && !req.ready)
+        for (size_t i = 0; i < reqQueue.size(); ++i)
         {
-            if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
+            auto req = reqQueue[sendMemPtr].first;
+            if (req.valid && !req.inflight && !req.ready)
             {
-                // If Lse in the false path, not send req to memory and sendback ack directly
-                if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
+                if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
                 {
-                    ackCallback(req);
-                }
-                else
-                {
-                    if (!sendReq(req))  // Send req to MemSystem, if send failed (reqQueue is full) -> break;
+                    if (NO_MEMORY || noLatencyMode)
                     {
-                        //sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
-                        break;
+                        ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
                     }
-                }
+                    else
+                    {
+                        // If Lse in the false path, not send req to memory and sendback ack directly
+                        if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
+                        {
+                            ackCallback(req);
+                        }
+                        else
+                        {
+                            suspendReq = make_pair(true, req);
+                        }
+                    }
 
-                sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
-                break;
+                    sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
+                    break;
+                }
             }
+            //sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
         }
-        //sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
     }
 
     // Send ready data to channel
@@ -338,19 +344,20 @@ void Lse::pushChannel()
         {
             for (size_t i = 0; i < reqQueue.size(); ++i)
             {
-                sendChanPtr = (sendChanPtr++) % reqQueue.size();
                 auto& req = reqQueue[sendChanPtr];
                 if (req.first.valid && req.first.ready && !req.first.hasPushChan)
                 {
                     req.second.cycle = clk;  // Update cycle
                     channel.push_back(req.second);
                     req.first.hasPushChan = 1;
-                }
-
-                if (channel.size() >= size)
-                {
+                    sendChanPtr = (++sendChanPtr) % reqQueue.size();
                     break;
                 }
+
+                //if (channel.size() >= size)
+                //{
+                //    break;
+                //}
             }
         }
         else  // If Lse in order
@@ -448,6 +455,40 @@ void Lse::ackCallback(MemReq _req)
 #ifdef DEBUG_MODE 
     updateMemAccessRecord(index);  // Profiling
 #endif // DEBUG_MODE
+}
+
+bool Lse::sendReq2Mem()
+{
+    bool sendSuccess = 0;
+    bool reqInvalid = 0;
+
+    if (suspendReq.first)
+    {
+#ifdef DEBUG_MODE 
+        memReqCnt++;
+#endif // DEBUG_MODE
+
+        auto& req = suspendReq.second;
+        if (memSys->addTransaction(req))
+        {
+            uint index = req.lseReqQueueIndex;
+            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+            suspendReq.first = 0;  // Clear current suspendReq
+            sendSuccess = 1;
+        }
+#ifdef DEBUG_MODE 
+        else
+        {
+            memReqBlockCnt++;
+        }
+#endif // DEBUG_MODE
+    }
+    else
+    {
+        reqInvalid = 1;
+    }
+
+    return sendSuccess || reqInvalid;
 }
 
 void Lse::updateMemAccessRecord(uint index)

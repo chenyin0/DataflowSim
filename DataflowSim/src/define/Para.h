@@ -62,8 +62,8 @@ enum class ArchType
 #define TAG_SIZE SGMF_INPUT_BUFF_SIZE  // Channel data tag size
 
 // Lse
-#define LSE_QUEUE_SIZE 160
-#define LSE_O3 0
+#define LSE_QUEUE_SIZE 16
+#define LSE_O3 1
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH
@@ -105,15 +105,15 @@ enum class ArchType
 
 // Cache
 #define CACHE_ENABLE 1
-#define REQ_QUEUE_TO_MEM_SIZE 16 
+#define REQ_QUEUE_TO_MEM_SIZE 128 
 
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
 
-//#define CACHE_SIZE_L1 16*1024  // byte
-//#define CACHE_SIZE_L2 256*1024  // byte
+#define CACHE_SIZE_L1 16*1024  // byte
+#define CACHE_SIZE_L2 256*1024  // byte
 
-#define CACHE_SIZE_L1 1*1024  // byte
-#define CACHE_SIZE_L2 16*1024  // byte
+//#define CACHE_SIZE_L1 1*1024  // byte
+//#define CACHE_SIZE_L2 16*1024  // byte
 
 //// SGMF paper parameter
 //#define CACHE_SIZE_L1 64*1024  // byte
@@ -131,5 +131,5 @@ enum class ArchType
 #define CACHE_BANK_NUM_L1 16
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 16
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 32
 #define CACHE_REQ_Q_SIZE_PER_BANK_L2 4
