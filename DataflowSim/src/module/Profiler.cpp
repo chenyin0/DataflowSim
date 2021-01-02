@@ -27,9 +27,28 @@ void Profiler::recordComputingCycle(uint _moduleId, ChanType _chanType, uint _cl
 
 }
 
+void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
+{
+    double reqBlockRate = 100.0 * _lsePtr->memReqBlockCnt / _lsePtr->memReqCnt;
+    //std::cout << _lsePtr->memReqBlockCnt << "\t" << _lsePtr->memReqCnt << std::endl;
+
+    debugger->getFile() << std::setw(20) << lseName 
+        << "\taccessCnt: " << std::setw(5) << _lsePtr->memAccessCnt
+        << "\tAvgLat: " << std::setw(5) << _lsePtr->avgMemAccessLat
+        << "\treqBlockRate: " << std::fixed << setprecision(1) << std::setw(5) << reqBlockRate << "%"
+        << "\treqBlockCnt: " << std::setw(5) << _lsePtr->memReqBlockCnt
+        << "\treqCnt: " << std::setw(5) << _lsePtr->memReqCnt
+        << std::endl;
+}
+
 void Profiler::printCacheMissRate()
 {
-    uint cacheLevel = 
+    uint cacheLevel = CACHE_MAXLEVEL;
+    for (size_t level = 0; level < cacheLevel; ++level)
+    {
+        double missRate = memSys->cache->get_miss_rate(level);
+        debugger->getFile() << "L" << level + 1 << "_miss_rate: " << std::fixed << setprecision(1) << missRate << "%" << std::endl;
+    }
 }
 
 void Profiler::updateBufferMaxDataNum()

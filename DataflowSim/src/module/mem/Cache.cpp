@@ -76,8 +76,8 @@ void Cache::init(/*uint a_cache_size[3], uint a_cache_line_size[3], uint a_mappi
     // 指令数，主要用来在替换策略的时候提供比较的key，在命中或者miss的时候，相应line会更新自己的count为当时的tick_count;
     tick_count = 0;
 
-    memset(cache_hit_count, 0, sizeof(cache_hit_count));
-    memset(cache_miss_count, 0, sizeof(cache_miss_count));
+    //memset(cache_hit_count, 0, sizeof(cache_hit_count));
+    //memset(cache_miss_count, 0, sizeof(cache_miss_count));
 
     //    cache_buf = (_u8 *) malloc(cache_size);
     //    memset(cache_buf, 0, this->cache_size);
@@ -850,6 +850,9 @@ void Cache::updateReqQueueOfCacheLevel()
                             req.first.ready = 1;
                             req.first.inflight = 0;
                         }
+
+                        // Profiling
+                        cache_hit_count[level]++;
                     }
                     else  // Cache miss
                     {   
@@ -887,6 +890,9 @@ void Cache::updateReqQueueOfCacheLevel()
                                     }
                                 }
                             }
+
+                            // Profiling
+                            cache_miss_count[level]++;
                         }
                     }
 
@@ -957,12 +963,12 @@ void Cache::updateCacheLine()
 // Cache update
 void Cache::cacheUpdate()
 {
-    // Update reqQueue latency
-    reqQueueUpdate();
     // Send req from reqQueue to each cache level
     updateReqQueueOfCacheLevel();
     // Update each cache level according to next level req's status (e.g. If L2 hit, update L1 cacheline status)
     updateCacheLine();
+    // Update reqQueue latency
+    reqQueueUpdate();
 }
 
 // For debug

@@ -61,6 +61,8 @@ namespace DFSim
         void popChanBuffer();
         //void bpUpdate() override;
 
+        void updateMemAccessRecord(uint _reqIndex);
+
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
         const uint& getCurrReqId() const;
@@ -71,6 +73,15 @@ namespace DFSim
         // MemReq: keep req; Data: keep status;
         vector<pair<MemReq, Data>> reqQueue;
         bool noLatencyMode = 0;  // Emulate no latency memory access
+
+        // Profiling
+        uint memAccessLat = 0;
+        uint avgMemAccessLat = 0;
+        uint memAccessCnt = 0;
+        uint latTotal = 0;
+
+        uint memReqCnt = 0;  // Send req to memSystem reqQueue
+        uint memReqBlockCnt = 0;  // Send unsuccessfully due memSystem reqQueue is full
 
     protected:
         uint lseId;

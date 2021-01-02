@@ -63,6 +63,7 @@ void GemmTest::gemm_Base(Debug* debug)
     Lse* lse_ld_m2 = new Lse(10*LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
     Lse* lse_st_partialSum = new Lse(10*LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
+    //lse_st_partialSum->noLatencyMode = 1;
 
 
     //*** Declare Lc
@@ -338,9 +339,15 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;
+    uint max_iter = 200000;
     uint segment = max_iter / 100;
     uint percent = 0;
+
+    // Debug_yin_12.29
+    uint ldm1Cnt =0;
+    uint ldm2Cnt =0;
+    uint ldPartialCnt =0;
+
 
     //*** Record run time
     clock_t startTime, endTime;
@@ -509,12 +516,32 @@ void GemmTest::gemm_Base(Debug* debug)
 
         end->get();
 
+
+       /* std::cout << std::endl;
+        if (ldm1Cnt != lse_ld_m1->memAccessCnt)
+        {
+            std::cout << "ldm1 " << "cnt: " << lse_ld_m1->memAccessCnt << " avg: " << lse_ld_m1->avgMemAccessLat << std::endl;
+        }
+        if (ldm2Cnt != lse_ld_m2->memAccessCnt)
+        {
+            std::cout << "ldm2 " << "cnt: " << lse_ld_m2->memAccessCnt << " avg: " << lse_ld_m2->avgMemAccessLat << std::endl;
+        }
+        
+        if (ldPartialCnt != lse_ld_partialSum->memAccessCnt)
+        {
+            std::cout << "ldSum " << "cnt: " << lse_ld_partialSum->memAccessCnt << " avg: " << lse_ld_partialSum->avgMemAccessLat << std::endl;
+        }
+
+        ldm1Cnt = lse_ld_m1->memAccessCnt;
+        ldm2Cnt = lse_ld_m2->memAccessCnt;
+        ldPartialCnt = lse_ld_partialSum->memAccessCnt;*/
+
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Print_detail;
-        debug->debug_mode = Debug_mode::Turn_off;
+        debug->debug_mode = Debug_mode::Print_detail;
+        //debug->debug_mode = Debug_mode::Turn_off;
 
-        if (iter > 0)
+        if (20000 > iter && iter > 19900 /*iter > 0*/)
         {
             debug->getFile() << std::endl;
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel
@@ -599,6 +626,22 @@ void GemmTest::gemm_Base(Debug* debug)
 
             // Print MemorySystem
             debug->memSysPrint(memSys);
+
+
+            // Debug_yin_12.30
+            if (iter % 500 == 0)
+            {
+                debug->debug_mode = Debug_mode::Print_detail;
+
+                debug->getFile() << endl;
+                debug->getFile() << "*******************************" << endl;
+                debug->getFile() << "Lse profiling: " << std::endl;
+                debug->getFile() << std::endl;
+                profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
+                profiler->printLseProfiling("lse_ld_m2", lse_ld_m2);
+                profiler->printLseProfiling("lse_ld_partialSum", lse_ld_partialSum);
+                profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
+            }
         }
 
         if (!end->channel.empty())
@@ -655,6 +698,23 @@ void GemmTest::gemm_Base(Debug* debug)
     profiler->printBufferMaxDataNum("chan_partialSum", chan_partialSum);
     profiler->printBufferMaxDataNum("lse_st_partialSum", lse_st_partialSum);
 
+
+    //*** Print Lse access 
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Lse profiling: " << std::endl;
+    debug->getFile() << std::endl;
+    profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
+    profiler->printLseProfiling("lse_ld_m2", lse_ld_m2);
+    profiler->printLseProfiling("lse_ld_partialSum", lse_ld_partialSum);
+    profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
+
+    //*** Print cache 
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Cache miss rate: " << std::endl;
+    debug->getFile() << std::endl;
+    profiler->printCacheMissRate();
 
     //*** Record run time
     endTime = clock();

@@ -289,7 +289,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         {
             if (req.valid)
             {
-                _output_file << std::setw(5) << req.addr;
+                _output_file << std::setw(MemSys_SetWidth) << req.addr;
             }
         }
 
@@ -299,7 +299,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         {
             if (req.valid)
             {
-                _output_file << std::setw(5) << req.isWrite;
+                _output_file << std::setw(MemSys_SetWidth) << req.isWrite;
             }
         }
 
@@ -309,7 +309,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         {
             if (req.valid)
             {
-                _output_file << std::setw(5) << req.inflight;
+                _output_file << std::setw(MemSys_SetWidth) << req.inflight;
             }
         }
 
@@ -319,7 +319,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         {
             if (req.valid)
             {
-                _output_file << std::setw(5) << req.ready;
+                _output_file << std::setw(MemSys_SetWidth) << req.ready;
             }
         }
 
@@ -329,7 +329,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         {
             if (req.valid)
             {
-                _output_file << std::setw(5) << req.cnt;
+                _output_file << std::setw(MemSys_SetWidth) << req.cnt;
             }
         }
 
@@ -356,7 +356,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             {
                 if (req.first.valid)
                 {
-                    _output_file << std::setw(5) << req.first.addr;
+                    _output_file << std::setw(MemSys_SetWidth) << req.first.addr;
                 }
             }
 
@@ -366,7 +366,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             {
                 if (req.first.valid)
                 {
-                    _output_file << std::setw(5) << req.first.isWrite;
+                    _output_file << std::setw(MemSys_SetWidth) << req.first.isWrite;
                 }
             }
 
@@ -376,7 +376,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             {
                 if (req.first.valid)
                 {
-                    _output_file << std::setw(5) << req.first.inflight;
+                    _output_file << std::setw(MemSys_SetWidth) << req.first.inflight;
                 }
             }
 
@@ -386,7 +386,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             {
                 if (req.first.valid)
                 {
-                    _output_file << std::setw(5) << req.first.ready;
+                    _output_file << std::setw(MemSys_SetWidth) << req.first.ready;
                 }
             }
         }
@@ -415,7 +415,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     {
                         if (req.first.valid)
                         {
-                            _output_file << std::setw(5) << req.first.addr;
+                            _output_file << std::setw(MemSys_SetWidth) << req.first.addr;
                         }
                     }
 
@@ -427,11 +427,11 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                         {
                             if (req.first.cacheOp == Cache_operation::WRITE)
                             {
-                                _output_file << std::setw(5) << "1";
+                                _output_file << std::setw(MemSys_SetWidth) << "1";
                             }
                             else
                             {
-                                _output_file << std::setw(5) << "0";
+                                _output_file << std::setw(MemSys_SetWidth) << "0";
                             }
                         }
                     }
@@ -442,7 +442,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     {
                         if (req.first.valid)
                         {
-                            _output_file << std::setw(5) << req.first.inflight;
+                            _output_file << std::setw(MemSys_SetWidth) << req.first.inflight;
                         }
                     }
 
@@ -452,7 +452,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     {
                         if (req.first.valid)
                         {
-                            _output_file << std::setw(5) << req.first.ready;
+                            _output_file << std::setw(MemSys_SetWidth) << req.first.ready;
                         }
                     }
 

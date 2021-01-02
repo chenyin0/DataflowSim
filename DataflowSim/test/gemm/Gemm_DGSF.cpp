@@ -60,10 +60,11 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
-    lse_ld_m1->noLatencyMode = 1;
+    //lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
     Lse* lse_st_partialSum = new Lse(200*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
+    lse_st_partialSum->noLatencyMode = 1;
 
 
     //*** Declare Lc
@@ -786,6 +787,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     debug->getFile() << endl;
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Subgraph switch record: " << std::endl;
+    debug->getFile() << std::endl;
     uint deltaTime = 0;
     for (size_t i = 0; i < subgraphRecord.size(); ++i)
     {
@@ -801,6 +803,23 @@ void GemmTest::gemm_DGSF(Debug* debug)
         debug->getFile() << "Cnt: " << i+1 << "\tId: " << item.first << "\t@clk: " << item.second << "\t\tDelta: " << deltaTime << std::endl;
     }
 
+
+    //*** Print Lse access 
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Lse profiling: " << std::endl;
+    debug->getFile() << std::endl;
+    profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
+    profiler->printLseProfiling("lse_ld_m2", lse_ld_m2);
+    profiler->printLseProfiling("lse_ld_partialSum", lse_ld_partialSum);
+    profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
+
+    //*** Print cache 
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Cache miss rate: " << std::endl;
+    debug->getFile() << std::endl;
+    profiler->printCacheMissRate();
 
     //*** Record run time
     endTime = clock();
