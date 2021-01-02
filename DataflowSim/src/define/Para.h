@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-//#define Base Base
-#define DGSF DGSF
+#define Base Base
+//#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -105,7 +105,6 @@ enum class ArchType
 
 // Cache
 #define CACHE_ENABLE 1
-//#define CACHE_O3 0  // O3 = 1: Cache OoO; O3 = 0: Cache in order;
 #define REQ_QUEUE_TO_MEM_SIZE 16 
 
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
@@ -120,8 +119,8 @@ enum class ArchType
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 32  // byte
-#define CACHE_LINE_SIZE_L2 32  // byte
+#define CACHE_LINE_SIZE_L1 64  // byte
+#define CACHE_LINE_SIZE_L2 64  // byte
 
 #define CACHE_MAPPING_WAY_L1 4
 #define CACHE_MAPPING_WAY_L2 4
@@ -132,5 +131,5 @@ enum class ArchType
 #define CACHE_BANK_NUM_L1 16
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 8
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 16
 #define CACHE_REQ_Q_SIZE_PER_BANK_L2 4

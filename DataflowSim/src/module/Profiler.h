@@ -25,9 +25,10 @@ namespace DFSim
         static void recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk);
         // Memory access
         static void recordMemoryAccessNum(uint _moduleId, ChanType _chanType, uint _clk);
+        void printLseProfiling(string lseName, Lse* _lsePtr);
         void printCacheMissRate();
         // Channel status
-        void updateBufferMaxDataNum();  // Statistic the peak data number in buffer for path balancing
+        void updateBufferMaxDataNum();  // Record the peak data number in chanBuffer for path balancing
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
 
     private:

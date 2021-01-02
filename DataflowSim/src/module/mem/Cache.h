@@ -79,6 +79,11 @@ namespace DFSim
 
         void cacheUpdate();
         //void reqQueueUpdate();
+        // Profiling
+        double get_miss_rate(int level)
+        {
+            return 100.0 * cache_miss_count[level] / (cache_miss_count[level] + cache_hit_count[level]);
+        }
 
     private:
         void init(/*uint a_cache_size[], uint a_cache_line_size[], uint a_mapping_ways[]*/);
@@ -107,10 +112,6 @@ namespace DFSim
         /**unlock a cache line*/
         int unlock_cache_line(uint addr, int level);
         /**@return 返回miss率*/
-        double get_miss_rate(int level) 
-        {
-            return 100.0 * cache_miss_count[level] / (cache_miss_count[level] + cache_hit_count[level]);
-        }
 
         //void re_init();
 
@@ -161,45 +162,45 @@ namespace DFSim
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
 
         /**cache的总大小，单位byte*/
-        uint cache_size[CACHE_MAXLEVEL];
+        vector<uint> cache_size = vector<uint>(CACHE_MAXLEVEL);
         /**cache line(Cache block)cache块的大小*/
-        uint cache_line_size[CACHE_MAXLEVEL];
+        vector<uint> cache_line_size = vector<uint>(CACHE_MAXLEVEL);
         /**总的行数*/
-        uint cache_line_num[CACHE_MAXLEVEL];
+        vector<uint> cache_line_num = vector<uint>(CACHE_MAXLEVEL);
         /**Bank number*/
-        uint cache_bank_num[CACHE_MAXLEVEL];
+        vector<uint> cache_bank_num = vector<uint>(CACHE_MAXLEVEL);
         /**2的多少次方是bank的数量，用于匹配地址时，进行位移比较*/
-        uint cache_bank_shifts[CACHE_MAXLEVEL];
+        vector<uint> cache_bank_shifts = vector<uint>(CACHE_MAXLEVEL);
         /**每个set有多少way*/
-        uint cache_mapping_ways[CACHE_MAXLEVEL];
+        vector<uint> cache_mapping_ways = vector<uint>(CACHE_MAXLEVEL);
         /**整个cache有多少组*/
-        uint cache_set_size[CACHE_MAXLEVEL];
+        vector<uint> cache_set_size = vector<uint>(CACHE_MAXLEVEL);
         /**2的多少次方是set的数量，用于匹配地址时，进行位移比较*/
-        uint cache_set_shifts[CACHE_MAXLEVEL];
+        vector<uint> cache_set_shifts = vector<uint>(CACHE_MAXLEVEL);
         /**2的多少次方是line的长度，用于匹配地址*/
-        uint cache_line_shifts[CACHE_MAXLEVEL];
+        vector<uint> cache_line_shifts = vector<uint>(CACHE_MAXLEVEL);
         /**真正的cache地址列。指针数组*/
-        Cache_Line* caches[CACHE_MAXLEVEL];
+        vector<Cache_Line*> caches = vector<Cache_Line*>(CACHE_MAXLEVEL);
 
         /**指令计数器*/
         uint tick_count;
         /**cache缓冲区,由于并没有数据*/
-    //    _u8 *cache_buf[CACHE_MAXLEVEL];
+        //_u8 *cache_buf[CACHE_MAXLEVEL];
         /**缓存替换算法*/
-        Cache_swap_style swap_style[CACHE_MAXLEVEL];
+        vector<Cache_swap_style> swap_style = vector<Cache_swap_style>(CACHE_MAXLEVEL);
         // Write strategy
-        Cache_write_strategy write_strategy[CACHE_MAXLEVEL];
+        vector<Cache_write_strategy> write_strategy = vector<Cache_write_strategy>(CACHE_MAXLEVEL);
         // Write allocate
-        Cache_write_allocate write_allocate[CACHE_MAXLEVEL];
+        vector<Cache_write_allocate> write_allocate = vector<Cache_write_allocate>(CACHE_MAXLEVEL);
         /**读写内存的计数*/
         uint cache_r_count, cache_w_count;
         /**实际写内存的计数，cache --> memory */
         uint cache_w_memory_count;
         /**cache hit和miss的计数*/
-        uint cache_hit_count[CACHE_MAXLEVEL];
-        uint cache_miss_count[CACHE_MAXLEVEL];
+        vector<uint> cache_hit_count = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint> cache_miss_count = vector<uint>(CACHE_MAXLEVEL);
         /**空闲cache line的index记录，在寻找时，返回空闲line的index*/
-        uint cache_free_num[CACHE_MAXLEVEL];
+        vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
 
         //vector<vector<pair<CacheReq, uint>>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
         vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)

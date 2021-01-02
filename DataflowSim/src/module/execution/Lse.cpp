@@ -144,7 +144,7 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
     Data data = chanBuffer[0].front();  // Inherit cond status
     data.valid = 1;
     data.last = 0;  // Reset last flag
-    //data.cycle = data.cycle + cycle;
+    data.cycle = ClkDomain::getClk();  // Update cycle to current clk for measuring memory access latency
     /*uint cycleTemp = data.cycle + cycle;
     data.cycle = cycleTemp > clk ? cycleTemp : clk;*/
 
@@ -223,6 +223,8 @@ bool Lse::sendReq(MemReq _req)
     }
     else
     {
+        memReqCnt++;
+
         if (memSys->addTransaction(_req))
         {
             uint index = _req.lseReqQueueIndex;
@@ -232,6 +234,7 @@ bool Lse::sendReq(MemReq _req)
         }
         else
         {
+            memReqBlockCnt++;
             return false;
         }
     }
@@ -262,7 +265,7 @@ void Lse::statusUpdate()
         auto req = reqQueue[sendMemPtr].first;
         if (req.valid && !req.inflight && !req.ready)
         {
-            if (reqQueue[sendMemPtr].second.cycle < clk)  // Satisfy clk restriction
+            if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
             {
                 // If Lse in the false path, not send req to memory and sendback ack directly
                 if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
@@ -336,7 +339,7 @@ void Lse::pushChannel()
             for (size_t i = 0; i < reqQueue.size(); ++i)
             {
                 sendChanPtr = (sendChanPtr++) % reqQueue.size();
-                auto req = reqQueue[sendChanPtr];
+                auto& req = reqQueue[sendChanPtr];
                 if (req.first.valid && req.first.ready && !req.first.hasPushChan)
                 {
                     req.second.cycle = clk;  // Update cycle
@@ -377,7 +380,7 @@ void Lse::pushChannel()
             //    }
             //}
 
-            auto req = reqQueue[sendChanPtr];
+            auto& req = reqQueue[sendChanPtr];
             if (req.first.valid && req.first.ready && !req.first.hasPushChan)
             {
                 // Double check, ensure in order
@@ -441,6 +444,18 @@ void Lse::ackCallback(MemReq _req)
     reqQueue[index].first.ready = 1;
     reqQueue[index].first.inflight = 0;
     //reqQueue[index].first.cnt = _req.cnt;
+
+#ifdef DEBUG_MODE 
+    updateMemAccessRecord(index);  // Profiling
+#endif // DEBUG_MODE
+}
+
+void Lse::updateMemAccessRecord(uint index)
+{
+    uint latency = ClkDomain::getClk() - reqQueue[index].second.cycle;
+    latTotal += latency;
+    avgMemAccessLat = latTotal / (++memAccessCnt);
+    /*std::cout << "lat: " << latency << " cnt: " << memAccessCnt << " avg: " << avgMemAccessLat << std::endl;*/
 }
 
 #ifdef DEBUG_MODE  // Get private instance for debug

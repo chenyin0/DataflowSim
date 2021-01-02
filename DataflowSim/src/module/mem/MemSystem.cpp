@@ -199,15 +199,6 @@ void MemSystem::getFromCache()
     {
         vector<MemReq> _req;
 
-        //if (CACHE_O3)
-        //{
-        //    _req = cache->callBack();  // Cache OoO
-        //}
-        //else
-        //{
-        //    _req = cache->callBackInOrder();  // Cache in order
-        //}
-
         _req = cache->callBack();
 
         for (auto& req : _req)

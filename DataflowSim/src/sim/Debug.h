@@ -92,5 +92,8 @@ namespace DFSim
     private:
         std::ofstream _output_file;
         std::ofstream _null_file;  // Used in Print_off, not print to log_file
+
+        // Format parameter
+        uint MemSys_SetWidth = 7;
     };
 }
