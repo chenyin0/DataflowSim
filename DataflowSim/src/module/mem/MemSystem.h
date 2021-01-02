@@ -37,6 +37,7 @@ namespace DFSim
         static void power_callback(double a, double b, double c, double d) {}  // Unused
 
     private:
+        void getLseReq();
         void sendBack2Lse();
         uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr
 
@@ -55,7 +56,9 @@ namespace DFSim
 
     private:
         uint sendPtr = 0;  // SendPtr for reqQueue, round-robin
+        uint reqQueueWritePtr = 0;  // Push Lse req to reqQueue, round-robin
         vector<Lse*> lseRegistry;
+        vector<Lse*> lseReqTable;  // Record each lse_ptr (Note: if a Lse unrolls N times, it occupies N entries of this table)
         vector<MemReq> reqQueue;
         deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
     };

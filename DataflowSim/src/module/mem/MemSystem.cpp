@@ -47,6 +47,10 @@ uint MemSystem::registerLse(Lse* _lse)
     lseRegistry.push_back(_lse);
     uint lseId = lseRegistry.size() - 1;  // Index in LseRegistry
 
+    // Add lseReqTable
+    vector<Lse*> lseVec( _lse->speedup, _lse );
+    lseReqTable.insert(lseReqTable.end(), lseVec.begin(), lseVec.end());
+
     return lseId;
 }
 
@@ -100,6 +104,22 @@ bool MemSystem::addTransaction(MemReq _req)
     }
 
     return addSuccess;
+}
+
+void MemSystem::getLseReq()
+{
+    for (size_t i = 0; i < lseReqTable.size(); ++i)
+    {
+        Lse* _lse = lseReqTable[reqQueueWritePtr];
+        if (_lse->sendReq2Mem())
+        {
+            reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 void MemSystem::sendBack2Lse()
@@ -247,6 +267,8 @@ void MemSystem::returnReqAck()
 
 void MemSystem::MemSystemUpdate()
 {
+    getLseReq();
+
     if (SPM_ENABLE)
     {
         send2Spm();  // Send req to SPM

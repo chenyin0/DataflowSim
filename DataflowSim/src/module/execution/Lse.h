@@ -46,6 +46,7 @@ namespace DFSim
         uint assign();  // Return corresponding addr
         //bool checkSend(Data _data, Channel* upstream) override;
         void ackCallback(MemReq _req);  // Callback func for MemSys
+        bool sendReq2Mem();  // Send req to memSystem, callback func for MemSys
 
     protected:
         void initial();
@@ -57,7 +58,7 @@ namespace DFSim
         vector<int> pop() override;  // Pop memory request from reqQueue when the data has sent to the downstream channel
         void statusUpdate() override;
         void pushChannel();
-        bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
+        //bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
         void popChanBuffer();
         //void bpUpdate() override;
 
@@ -72,6 +73,7 @@ namespace DFSim
         // Store memory request; As for load back data, push the corresponding reqQueueIndex into the deque<Data> channel;
         // MemReq: keep req; Data: keep status;
         vector<pair<MemReq, Data>> reqQueue;
+        pair<bool, MemReq> suspendReq;  // Outstanding req, need send to memSys; <valid, req>
         bool noLatencyMode = 0;  // Emulate no latency memory access
 
         // Profiling

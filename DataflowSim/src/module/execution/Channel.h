@@ -136,6 +136,7 @@ class Channel usage:
         vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
         uint size;    // chanBuffer size
+        uint speedup;  // Parallelism parameter
         vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         ChanType chanType;
 
@@ -148,7 +149,7 @@ class Channel usage:
     protected:
         //uint size;    // chanBuffer size
         uint cycle; // Channel execute cycle
-        uint speedup;  // Parallelism parameter
+        //uint speedup;  // Parallelism parameter
         int currId = 1;    // Current threadID, start at 1
         uint chanClk = 0;  // Used for func parallelize()
         //vector<int> lastPopVal;  // Record last data poped by each chanBuffer
