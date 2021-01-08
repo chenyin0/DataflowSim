@@ -264,7 +264,7 @@ void Lse::statusUpdate()
     {
         for (size_t i = 0; i < reqQueue.size(); ++i)
         {
-            auto req = reqQueue[sendMemPtr].first;
+            auto& req = reqQueue[sendMemPtr].first;
             if (req.valid && !req.inflight && !req.ready)
             {
                 if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction

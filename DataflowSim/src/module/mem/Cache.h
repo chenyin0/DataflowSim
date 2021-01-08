@@ -1,15 +1,11 @@
 #pragma once
-//
-// Created by find on 16-7-19.
-// cache line = cache block = 原代码里的cache item ~= cache way
-//
 
 /*
 Cache Module
 
 1. Multi-hierarchy (L1, L2, ... Ln)
 2. Operation: write/read, lock/unlock
-3. MSHR
+3. Non-blocking (MSHR)
 
 
 Req flow:
@@ -45,7 +41,6 @@ namespace DFSim
 
     using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
 
-    //写内存方法就默认写回吧。
     class Cache_Line 
     {
     public:
@@ -63,7 +58,6 @@ namespace DFSim
 
     class Cache 
     {
-        // 隐患
     public:
         Cache();
         ~Cache();
@@ -86,16 +80,7 @@ namespace DFSim
         }
 
     private:
-        void init(/*uint a_cache_size[], uint a_cache_line_size[], uint a_mapping_ways[]*/);
-        /**原代码中addr的处理有些问题，导致我没有成功运行他的代码。
-         * 检查是否命中
-         * @args:
-         * cache: 模拟的cache
-         * set_base: 当前地址属于哪一个set，其基址是什么。
-         * addr: 要判断的内存地址
-         * @return:
-         * 由于cache的地址肯定不会超过int（因为cache大小决定的）
-         * TODO: check the addr */
+        void init();
         void config_check();  // Check whether parameters are configured correctly
         int check_cache_hit(uint set_base, uint addr, int level);
         /**获取cache当前set中空余的line*/

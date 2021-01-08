@@ -3,6 +3,7 @@
 #include "./Spm.h"
 #include "./Cache.h"
 #include "../execution/Lse.h"
+#include "../mem/MemoryDataBus.h"
 
 namespace DFSim
 {
@@ -40,11 +41,12 @@ namespace DFSim
         void getLseReq();
         void sendBack2Lse();
         uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr
+        int getAckQueueEntry(vector<MemReq> _queue);
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
         const vector<Lse*>& getLseRegistry() const;
-        const vector<MemReq>& getReqQueue() const;
+        const vector<deque<MemReq>>& getReqQueue() const;
         //const vector<pair<MemReq, uint>>& getBusDelayFifo() const;
 #endif // DEBUG_MODE
 
@@ -55,31 +57,13 @@ namespace DFSim
         MemoryDataBus* memDataBus = nullptr;
 
     private:
-        uint sendPtr = 0;  // SendPtr for reqQueue, round-robin
+        //uint sendPtr = 0;  // SendPtr for reqQueue, round-robin
         uint reqQueueWritePtr = 0;  // Push Lse req to reqQueue, round-robin
         vector<Lse*> lseRegistry;
         vector<Lse*> lseReqTable;  // Record each lse_ptr (Note: if a Lse unrolls N times, it occupies N entries of this table)
-        vector<MemReq> reqQueue;
+        vector<deque<MemReq>> reqQueue;  // Vec1: #bank; Vec2: reqQueue_size (default size = 1, only transmit data to next memory hierarchy)
+        vector<vector<MemReq>> ackQueue;  // Vec1: #bank; Vec2: ackQueue_size
         deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
     };
 
-
-    class MemoryDataBus
-    {
-    public:
-        MemoryDataBus();
-        void mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk);
-        void mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk);
-        vector<MemReq> MemoryDataBusUpdate();
-        //vector<MemReq> getFromBusDelayFifo();  // Interface function to get req back from memory bus
-
-#ifdef DEBUG_MODE  // Get private instance for debug
-    public:
-        const deque<pair<MemReq, uint>>& getBusDelayFifo() const;
-#endif // DEBUG_MODE
-
-    private:
-        uint busDelay = BUS_DELAY;
-        deque<pair<MemReq, uint>> busDelayFifo;  // Emulate bus delay when receive data from DRAM
-    };
 }

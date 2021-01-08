@@ -140,6 +140,12 @@
     <ClInclude Include="src\module\Profiler.h">
       <Filter>src\module</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\mem\MemoryDataBus.h">
+      <Filter>src\module\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\module\mem\Mshr.h">
+      <Filter>src\module\memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -225,6 +231,12 @@
     </ClCompile>
     <ClCompile Include="src\module\Profiler.cpp">
       <Filter>src\module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\MemoryDataBus.cpp">
+      <Filter>src\module\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\Mshr.cpp">
+      <Filter>src\module\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

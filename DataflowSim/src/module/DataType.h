@@ -52,7 +52,8 @@ namespace DFSim
 
         uint lseId = 0;  // Signify belongs to which Lse
         uint lseReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in Lse
-        uint memSysReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in memSys
+        uint memSysAckQueueBankId = 0;  // Signify the req recorded in which bank of the ackQueue in memSys
+        uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
         uint spmReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in SPM
 
         // SGMF
@@ -61,6 +62,8 @@ namespace DFSim
 
     struct CacheReq
     {
+        CacheReq() = default;
+
         bool valid = 0;
         uint addr = 0;
         uint cnt = 0;  // Record cacheReq sequence (for debug)
@@ -72,6 +75,7 @@ namespace DFSim
 
         Cache_operation cacheOp;
 
-        uint memSysReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in memSys
+        uint memSysAckQueueBankId = 0;  // Signify the req store which entry of the reqQueue in memSys
+        uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
     };
 }
