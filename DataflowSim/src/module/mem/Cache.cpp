@@ -26,7 +26,7 @@ Cache::Cache()
 /**@arg a_cache_size[] 多级cache的大小设置
  * @arg a_cache_line_size[] 多级cache的line size（block size）大小
  * @arg a_mapping_ways[] 组相连的链接方式*/
-void Cache::init(/*uint a_cache_size[3], uint a_cache_line_size[3], uint a_mapping_ways[3]*/) 
+void Cache::init() 
 {
     // Check whether configuration is correct
     config_check();
@@ -128,37 +128,12 @@ void Cache::config_check()
 
 }
 
-///**顶部的初始化放在最一开始，如果中途需要对tick_count进行清零和caches的清空，执行此。主要因为tick_count的自增可能会超过unsigned long long，而且一旦tick_count清零，caches里的count数据也就出现了错误。*/
-//void Cache::re_init() 
-//{
-//    tick_count = 0;
-//    memset(cache_hit_count, 0, sizeof(cache_hit_count));
-//    memset(cache_miss_count, 0, sizeof(cache_miss_count));
-//
-//    for (_u8 i = 0; i < CACHE_MAXLEVEL; ++i)
-//    {
-//        cache_free_num[i] = cache_line_num[i];
-//        memset(caches[i], 0, sizeof(Cache_Line) * cache_line_num[i]);
-//    }
-//
-//    /*cache_free_num[0] = cache_line_num[0];
-//    cache_free_num[1] = cache_line_num[1];
-//    memset(caches[0], 0, sizeof(Cache_Line) * cache_line_num[0]);
-//    memset(caches[1], 0, sizeof(Cache_Line) * cache_line_num[1]);*/
-//    //    memset(cache_buf, 0, this->cache_size);
-//}
-
 Cache::~Cache() 
 {
-    /*free(caches[0]);
-    free(caches[1]);*/
-
     for (uint i = 0; i < CACHE_MAXLEVEL; ++i)
     {
         free(caches[i]);
     }
-
-    //    free(cache_buf);
 }
 
 uint Cache::getCacheTag(const uint addr, const uint level)
@@ -351,68 +326,6 @@ bool Cache::setCacheBlock(uint addr, uint level)
     }
 }
 
-///**从文件读取trace，在我最后的修改目标里，为了适配项目，这里需要改掉*/
-//void Cache::load_trace(const char* filename) 
-//{
-//    char buf[128];
-//    // 添加自己的input路径
-//    FILE* fin;
-//    // 记录的是trace中指令的读写，由于cache机制，和真正的读写次数当然不一样。。主要是如果设置的写回法，则写会等在cache中，直到被替换。
-//    uint rcount = 0, wcount = 0;
-//    fin = fopen(filename, "r");
-//    if (!fin) 
-//    {
-//        printf("load_trace %s failed\n", filename);
-//        return;
-//    }
-//    while (fgets(buf, sizeof(buf), fin)) 
-//    {
-//        _u8 style = 0;
-//        // 原代码中用的指针，感觉完全没必要，而且后面他的强制类型转换实际运行有问题。addr本身就是一个数值，32位unsigned int。
-//        uint addr = 0;
-//        sscanf(buf, "%c %x", &style, &addr);
-//        do_cache_op(addr, style);
-//        switch (style) 
-//        {
-//        case 'l':
-//            rcount++;
-//            break;
-//        case 's':
-//            wcount++;
-//            break;
-//        case 'k':
-//            break;
-//        case 'u':
-//            break;
-//
-//        }
-//    }
-//    // 指令统计
-//    printf("all r/w/sum: %lld %lld %lld \nread rate: %f%%\twrite rate: %f%%\n",
-//        rcount, wcount, tick_count,
-//        100.0 * rcount / tick_count,
-//        100.0 * wcount / tick_count
-//    );
-//    // miss率
-//    printf("L1 miss/hit: %lld/%lld\t hit/miss rate: %f%%/%f%%\n",
-//        cache_miss_count[0], cache_hit_count[0],
-//        100.0 * cache_hit_count[0] / (cache_hit_count[0] + cache_miss_count[0]),
-//        100.0 * cache_miss_count[0] / (cache_miss_count[0] + cache_hit_count[0]));
-//    printf("L2 miss/hit: %lld/%lld\t hit/miss rate: %f%%/%f%%\n",
-//        cache_miss_count[1], cache_hit_count[1],
-//        100.0 * cache_hit_count[1] / (cache_hit_count[1] + cache_miss_count[1]),
-//        100.0 * cache_miss_count[1] / (cache_miss_count[1] + cache_hit_count[1]));
-//    // 读写通信
-////    printf("read : %d Bytes \t %dKB\n write : %d Bytes\t %dKB \n",
-////           cache_r_count * cache_line_size,
-////           (cache_r_count * cache_line_size) >> 10,
-////           cache_w_count * cache_line_size,
-////           (cache_w_count * cache_line_size) >> 10);
-//    fclose(fin);
-//
-//}
-
-
 int Cache::lock_cache_line(uint line_index, int level) 
 {
     caches[level][line_index].flag |= CACHE_FLAG_LOCK;
@@ -432,7 +345,8 @@ CacheReq Cache::transMemReq2CacheReq(const MemReq& memReq)
     cacheReq.addr = memReq.addr;
     cacheReq.inflight = memReq.inflight;
     cacheReq.ready = memReq.ready;
-    cacheReq.memSysReqQueueIndex = memReq.memSysReqQueueIndex;
+    cacheReq.memSysAckQueueBankId = memReq.memSysAckQueueBankId;
+    cacheReq.memSysAckQueueBankEntryId = memReq.memSysAckQueueBankEntryId;
     cacheReq.cnt = memReq.cnt;  // For debug
 
     if (memReq.isWrite)
@@ -456,7 +370,8 @@ MemReq Cache::transCacheReq2MemReq(const CacheReq& cacheReq)
     memReq.addr = cacheReq.addr;
     memReq.inflight = cacheReq.inflight;
     memReq.ready = cacheReq.ready;
-    memReq.memSysReqQueueIndex = cacheReq.memSysReqQueueIndex;
+    memReq.memSysAckQueueBankId = cacheReq.memSysAckQueueBankId;
+    memReq.memSysAckQueueBankEntryId = cacheReq.memSysAckQueueBankEntryId;
     //memReq.cnt = cacheReq.cnt;
 
     if (cacheReq.cacheOp == Cache_operation::WRITE)
@@ -479,15 +394,7 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
     if (level == 0)  // L1 cache not coalesces address
     {
         ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
-        //if (reqQueueBank.size() < reqQueueSizePerBank[level])
-        //{
-        //    reqQueueBank.push_back(make_pair(cacheReq, cache_access_latency[level]));
-        //    return true;  // Send successfully
-        //}
-        //else
-        //{
-        //    return false;  // Send failed
-        //}
+
         for (auto& req : reqQueueBank)
         {
             if (!req.first.valid)
@@ -511,15 +418,7 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
         else
         {
             ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
-            //if (reqQueueBank.size() < reqQueueSizePerBank[level])
-            //{
-            //    reqQueueBank.push_back(make_pair(cacheReq, cache_access_latency[level]));
-            //    return true;  // Send successfully
-            //}
-            //else
-            //{
-            //    return false;  // Send failed
-            //}
+
             for (auto& req : reqQueueBank)
             {
                 if (!req.first.valid)
@@ -593,63 +492,6 @@ vector<MemReq> Cache::callBack()
     
     return readyReq;
 }
-
-//vector<MemReq> Cache::callBackInOrder()
-//{
-//    vector<MemReq> readyReq;
-//    uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
-//    uint _bankId = 0;
-//    uint _entryId = 0;
-//    bool getValid = 0;
-//    bool getReq = 0;
-//
-//    if (reqQueue.size() >= 1)
-//    {
-//        while (1)
-//        {
-//            for (size_t bankId = 0; bankId < reqQueue[0].size(); ++bankId)
-//            {
-//                auto reqQueueBank = reqQueue[0][bankId];
-//                for (size_t entryId = 0; entryId < reqQueueBank.size(); ++entryId)
-//                {
-//                    auto req = reqQueueBank[entryId].first;
-//                    if (req.valid && req.ready)
-//                    {
-//                        getValid = 1;
-//                        if (req.cnt < cnt)
-//                        {
-//                            cnt = req.cnt;
-//                            _entryId = entryId;
-//                            _bankId = bankId;
-//                            getReq = 1;
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if (getValid)
-//            {
-//                auto& req = reqQueue[0][_bankId][_entryId];
-//                readyReq.push_back(transCacheReq2MemReq(req.first));
-//                req.first.valid = 0;
-//            }
-//
-//            if (!getReq)
-//            {
-//                break;
-//            }
-//
-//            getValid = 0;
-//            getReq = 0;
-//        }
-//    }
-//    else
-//    {
-//        Debug::throwError("Not configure L1 cache!", __FILE__, __LINE__);
-//    }
-//
-//    return readyReq;
-//}
 
 bool Cache::sendReq2reqQueue2Mem(const CacheReq cacheReq)
 {

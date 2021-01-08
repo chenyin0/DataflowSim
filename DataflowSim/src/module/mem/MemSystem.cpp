@@ -6,13 +6,23 @@ using namespace DFSim;
 
 MemSystem::MemSystem()
 {
-    reqQueue.resize(MEMSYS_REQ_QUEUE_SIZE);
+    reqQueue.resize(MEMSYS_QUEUE_BANK_NUM);
+    for (auto& queue : reqQueue)
+    {
+        queue.resize(MEMSYS_REQ_QUEUE_SIZE_PER_BANK);
+    }
+
+    ackQueue.resize(MEMSYS_QUEUE_BANK_NUM);
+    for (auto& queue : ackQueue)
+    {
+        queue.resize(MEMSYS_ACK_QUEUE_SIZE_PER_BANK);
+    }
 
     if (SPM_ENABLE)
     {
         spm = new Spm();
     }
-
+    
     if (CACHE_ENABLE)
     {
         cache = new Cache();
@@ -93,11 +103,11 @@ bool MemSystem::addTransaction(MemReq _req)
     bool addSuccess = 0;
     for (size_t i = 0; i < reqQueue.size(); ++i)
     {
-        if (!reqQueue[i].valid)
+        if (reqQueue[i].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
         {
-            _req.memSysReqQueueIndex = i;  // Record the entry of reqQueue in memSystem
+            _req.memSysAckQueueBankId = i;  // Record the entry of reqQueue in memSystem
             _req.addr = addrBias(_req.addr);
-            reqQueue[i] = _req;
+            reqQueue[i].push_back(_req);
             addSuccess = 1;
             break;
         }
@@ -108,7 +118,7 @@ bool MemSystem::addTransaction(MemReq _req)
 
 void MemSystem::getLseReq()
 {
-    for (size_t i = 0; i < lseReqTable.size(); ++i)
+    for (size_t i = 0; i < std::min(reqQueue.size(), lseReqTable.size()); ++i)
     {
         Lse* _lse = lseReqTable[reqQueueWritePtr];
         if (_lse->sendReq2Mem())
@@ -124,14 +134,17 @@ void MemSystem::getLseReq()
 
 void MemSystem::sendBack2Lse()
 {
-    for (auto& req : reqQueue)
+    for (auto& queue : ackQueue)
     {
-        if (req.valid && req.ready)
+        for (auto& req : queue)
         {
-            /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
-            lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
-            lseRegistry[req.lseId]->ackCallback(req);
-            req.valid = 0;  // Clear req
+            if (req.valid && req.ready)
+            {
+                /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
+                lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
+                lseRegistry[req.lseId]->ackCallback(req);
+                req.valid = 0;  // Clear req
+            }
         }
     }
 }
@@ -142,22 +155,21 @@ void MemSystem::send2Spm()
     {
         for (size_t i = 0; i < reqQueue.size(); ++i)
         {
-            //sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
-
-            MemReq& req = reqQueue[sendPtr];
-            if (req.valid && !req.inflight && !req.ready)
+            if (!reqQueue[i].empty())
             {
-                if (spm->addTransaction(req))  // Send req to SPM, if send failed -> break;
+                MemReq& req = reqQueue[i].front();
+
+                int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
+                if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
                 {
-                    req.inflight = 1;
-                }
-                else
-                {
-                    break;
+                    req.memSysAckQueueBankEntryId = ackQueueEntry;
+                    if (spm->addTransaction(req))  // Send req to SPM
+                    {
+                        ackQueue[i][ackQueueEntry] = req;
+                        reqQueue[i].pop_front();
+                    }
                 }
             }
-
-            sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
         }
     }
     else
@@ -173,8 +185,8 @@ void MemSystem::getFromSpm()
         vector<MemReq> _req = spm->callBack();
         for (auto& req : _req)
         {
-            reqQueue[req.memSysReqQueueIndex].ready = 1;
-            reqQueue[req.memSysReqQueueIndex].inflight = 0;
+            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].ready = 1;
+            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].inflight = 0;
         }
     }
     else
@@ -183,28 +195,40 @@ void MemSystem::getFromSpm()
     }
 }
 
+int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
+{
+    for (size_t i = 0; i < _queue.size(); ++i)
+    {
+        if (!_queue[i].valid)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 void MemSystem::send2Cache()
 {
     if (cache != nullptr)
     {
         for (size_t i = 0; i < reqQueue.size(); ++i)
         {
-            //sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
-
-            MemReq& req = reqQueue[sendPtr];
-            if (req.valid && !req.inflight && !req.ready)
+            if (!reqQueue[i].empty())
             {
-                if (cache->addTransaction(req))  // Send req to SPM, if send failed -> break;
+                MemReq& req = reqQueue[i].front();
+
+                int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
+                if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
                 {
-                    req.inflight = 1;
-                }
-                else
-                {
-                    break;
+                    req.memSysAckQueueBankEntryId = ackQueueEntry;
+                    !!! if (cache->addTransaction(req))  // Send req to cache
+                    {
+                        ackQueue[i][ackQueueEntry] = req;
+                        reqQueue[i].pop_front();
+                    }
                 }
             }
-
-            sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
         }
     }
     else
@@ -218,14 +242,13 @@ void MemSystem::getFromCache()
     if (cache != nullptr)
     {
         vector<MemReq> _req;
-
         _req = cache->callBack();
 
         for (auto& req : _req)
         {
-            reqQueue[req.memSysReqQueueIndex].ready = 1;
-            reqQueue[req.memSysReqQueueIndex].inflight = 0;
-            //reqQueue[req.memSysReqQueueIndex].cnt = req.cnt;  // Send back cache request order
+            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].ready = 1;
+            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].inflight = 0;
+            //reqQueue[req.memSysAckQueueBankId].cnt = req.cnt;  // Send back cache request order
         }
     }
     else
@@ -267,47 +290,41 @@ void MemSystem::returnReqAck()
 
 void MemSystem::MemSystemUpdate()
 {
-    getLseReq();
-
-    if (SPM_ENABLE)
+    if (ClkDomain::getInstance()->checkClkAdd())  // MemorySystem update only when clk updated
     {
-        send2Spm();  // Send req to SPM
-        if (ClkDomain::getInstance()->checkClkAdd())
+        getLseReq();
+
+        if (SPM_ENABLE)
         {
+            send2Spm();  // Send req to SPM
             spm->spmUpdate();
+            spm->sendReq2Mem(mem);
         }
-        spm->sendReq2Mem(mem);
-    }
 
-    if (CACHE_ENABLE)
-    {
-        send2Cache();
-        if (ClkDomain::getInstance()->checkClkAdd())
+        if (CACHE_ENABLE)
         {
+            send2Cache();
             cache->cacheUpdate();
+            cache->sendReq2Mem(mem);
         }
-        cache->sendReq2Mem(mem);
-    }
 
-    if (ClkDomain::getInstance()->checkClkAdd())  // Update DRAM only when system clk update (Synchronize clk domain, in speedup mode)
-    {
         mem->update();
         getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
+
+        returnReqAck();
+
+        if (SPM_ENABLE)
+        {
+            getFromSpm();  // Get callback from SPM
+        }
+
+        if (CACHE_ENABLE)
+        {
+            getFromCache();  // Get callback from Cache
+        }
+
+        sendBack2Lse();
     }
-
-    returnReqAck();
-
-    if (SPM_ENABLE)
-    {
-        getFromSpm();  // Get callback from SPM
-    }
-
-    if (CACHE_ENABLE)
-    {
-        getFromCache();  // Get callback from Cache
-    }
-
-    sendBack2Lse();
 }
 
 
@@ -318,106 +335,8 @@ const vector<Lse*>& MemSystem::getLseRegistry() const
     return lseRegistry;
 }
 
-const vector<MemReq>& MemSystem::getReqQueue() const
+const vector<deque<MemReq>>& MemSystem::getReqQueue() const
 {
     return reqQueue;
 }
 #endif
-
-
-// MemoryDataBus
-MemoryDataBus::MemoryDataBus()
-{
-}
-
-void MemoryDataBus::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
-{
-    MemReq req;
-    req.valid = 1;
-    req.isWrite = false;
-    req.addr = _addr;
-
-    busDelayFifo.push_back(make_pair(req, busDelay));
-}
-
-void MemoryDataBus::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
-{
-    MemReq req;
-    req.valid = 1;
-    req.isWrite = true;
-    req.addr = _addr;
-
-    busDelayFifo.push_back(make_pair(req, busDelay));
-}
-
-vector<MemReq> MemoryDataBus::MemoryDataBusUpdate()
-{
-    // Emulate bus delay
-    for (auto& req : busDelayFifo)
-    {
-        if (req.second > 0)
-        {
-            --req.second; 
-        }
-    }
-
-    // Send ready req from memoryDataBus to reqStack in memSystem
-    vector<MemReq> _reqAckStack;
-
-    //bool traverse = 1;
-    //while (traverse)
-    //{
-    //    if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
-    //    {
-    //        _reqAckStack.push_back(busDelayFifo.front().first);
-    //        busDelayFifo.pop_front();
-    //    }
-    //    else
-    //    {
-    //        traverse = 0;
-    //    }
-    //}
-
-    for (auto iter = busDelayFifo.begin(); iter != busDelayFifo.end(); )
-    {
-        if (iter->second == 0)
-        {
-            _reqAckStack.push_back(iter->first);
-            iter = busDelayFifo.erase(iter);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return _reqAckStack;
-}
-
-//vector<MemReq> MemoryDataBus::getFromBusDelayFifo()
-//{
-//    vector<MemReq> reqStack;
-//    bool traverse = 1;
-//    while (traverse)
-//    {
-//        if (!busDelayFifo.empty() && busDelayFifo.front().second == 0)
-//        {
-//            reqStack.push_back(busDelayFifo.front().first);
-//            busDelayFifo.pop_front();
-//        }
-//        else
-//        {
-//            traverse = 0;
-//        }
-//    }
-//
-//    return reqStack;
-//}
-
-
-#ifdef DEBUG_MODE
-const deque<pair<MemReq, uint>>& MemoryDataBus::getBusDelayFifo() const
-{
-    return busDelayFifo;
-}
-#endif // DEBUG_MODE

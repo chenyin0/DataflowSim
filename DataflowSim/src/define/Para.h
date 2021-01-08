@@ -93,8 +93,12 @@ enum class ArchType
 #define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
-#define MEMSYS_REQ_QUEUE_SIZE 32  // reqQueue size in MemSystem
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
+
+#define MEMSYS_QUEUE_BANK_NUM 16  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 1  // reqQueue size per bank (default size = 1)
+#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 8  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+#define MEMSYS_COALESCING_ENABLE 1
 
 // SPM
 #define SPM_ENABLE 0
@@ -131,5 +135,20 @@ enum class ArchType
 #define CACHE_BANK_NUM_L1 16
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 32
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 8
 #define CACHE_REQ_Q_SIZE_PER_BANK_L2 4
+
+//#define CACHE_COALESCE_TABLE_ENTRY_NUM CACHE_BANK_NUM_L1
+//#define CACHE_COALESCE_TABLE_SIZE_PER_ENTRY 4
+
+//#define CACHE_BANK_FIFO_COALESCE_ENABLE_L1 1
+//#define CACHE_BANK_FIFO_COALESCE_ENABLE_L2 1
+
+#define CACHE_MSHR_ENABLE_L1 1
+#define CACHE_MSHR_ENABLE_L2 1
+
+#define CACHE_MSHR_ENTRY_NUM_L1 CACHE_BANK_NUM_L1
+#define CACHE_MSHR_ENTRY_NUM_L2 CACHE_BANK_NUM_L2
+
+#define CACHE_MSHR_SIZE_PER_ENTRY_L1 4
+#define CACHE_MSHR_SIZE_PER_ENTRY_L2 4
