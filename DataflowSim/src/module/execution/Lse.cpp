@@ -457,38 +457,66 @@ void Lse::ackCallback(MemReq _req)
 #endif // DEBUG_MODE
 }
 
-bool Lse::sendReq2Mem()
+pair<bool, MemReq> Lse::peekReqQueue()
 {
-    bool sendSuccess = 0;
-    bool reqInvalid = 0;
-
+    auto req = make_pair(0, MemReq());
     if (suspendReq.first)
+    {
+        req.first = 1;
+        req.second = suspendReq.second;
+    }
+
+    return req;
+}
+
+void Lse::sendReq2Mem()
+{
+//    bool sendSuccess = 0;
+//    bool reqInvalid = 0;
+//
+//    if (suspendReq.first)
+//    {
+//#ifdef DEBUG_MODE 
+//        memReqCnt++;
+//#endif // DEBUG_MODE
+//
+//        auto& req = suspendReq.second;
+//        if (memSys->addTransaction(req))
+//        {
+//            uint index = req.lseReqQueueIndex;
+//            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+//            suspendReq.first = 0;  // Clear current suspendReq
+//            sendSuccess = 1;
+//        }
+//#ifdef DEBUG_MODE 
+//        else
+//        {
+//            memReqBlockCnt++;
+//        }
+//#endif // DEBUG_MODE
+//    }
+//    else
+//    {
+//        reqInvalid = 1;
+//    }
+//
+//    return sendSuccess || reqInvalid;
+
+    if (!suspendReq.first)
+    {
+        Debug::throwError("Try to send an invalid request from Lse to MemSys", __FILE__, __LINE__);
+    }
+    else
     {
 #ifdef DEBUG_MODE 
         memReqCnt++;
 #endif // DEBUG_MODE
 
         auto& req = suspendReq.second;
-        if (memSys->addTransaction(req))
-        {
-            uint index = req.lseReqQueueIndex;
-            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
-            suspendReq.first = 0;  // Clear current suspendReq
-            sendSuccess = 1;
-        }
-#ifdef DEBUG_MODE 
-        else
-        {
-            memReqBlockCnt++;
-        }
-#endif // DEBUG_MODE
+        uint index = req.lseReqQueueIndex;
+        reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+        suspendReq.first = 0;  // Clear current suspendReq
     }
-    else
-    {
-        reqInvalid = 1;
-    }
-
-    return sendSuccess || reqInvalid;
 }
 
 void Lse::updateMemAccessRecord(uint index)

@@ -52,9 +52,11 @@ namespace DFSim
 
         uint lseId = 0;  // Signify belongs to which Lse
         uint lseReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in Lse
-        uint memSysAckQueueBankId = 0;  // Signify the req recorded in which bank of the ackQueue in memSys
-        uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
-        uint spmReqQueueIndex = 0;  // Signify the req store which entry of the reqQueue in SPM
+        //uint memSysAckQueueBankId = 0;  // Signify the req recorded in which bank of the ackQueue in memSys
+        //uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
+        uint spmReqQueueIndex = 0;  // Signify the req stored in which entry of the reqQueue in SPM
+
+        bool coalesced = 0;  // Record this req is a coalesced request
 
         // SGMF
         uint tag = 0;
@@ -75,7 +77,9 @@ namespace DFSim
 
         Cache_operation cacheOp;
 
-        uint memSysAckQueueBankId = 0;  // Signify the req store which entry of the reqQueue in memSys
-        uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
+        //uint memSysAckQueueBankId = 0;  // Signify the req store which entry of the reqQueue in memSys
+        //uint memSysAckQueueBankEntryId = 0;  // Signify the req recorded in with entry of the ackQueue bank
+
+        bool coalesced = 0;  // Record this req is a coalesced request
     };
 }

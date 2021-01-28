@@ -17,7 +17,7 @@ Req flow:
 
 
 Address bit fields:
-  32Œªµÿ÷∑—∞÷∑ø’º‰2^32words
+  32bit address space = 2^32words
     MSB                                    LSB
     Tag + Set(Index) + Block_offset(Cacheline)   Lower bits of Set is bank_index    
 
@@ -105,9 +105,11 @@ namespace DFSim
 
         uint getCacheTag(const uint addr, const uint level);
         uint getCacheSetIndex(const uint addr, const uint level);
+    public:
         uint getCacheBank(const uint addr, const uint level);
+        uint getCacheBlockId(const uint addr, const uint level);  // For memSystem coalescing
+    private:
         uint getCacheBlockOffset(const uint addr, const uint level);
-
         bool sendReq2CacheBank(const CacheReq cacheReq, const uint level);
         bool addrCoaleseCheck(const uint addr, const uint level);
         bool sendReq2reqQueue2Mem(const CacheReq cacheReq);

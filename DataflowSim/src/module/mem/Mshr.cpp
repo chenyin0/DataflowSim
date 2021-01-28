@@ -4,8 +4,9 @@
 
 using namespace DFSim;
 
-Mshr::Mshr()
+Mshr::Mshr(uint _entryNum, uint _entrySize)
 {
+    mshrInit(_entryNum, _entrySize);
 }
 
 void Mshr::mshrInit(uint _entryNum, uint _entrySize)
@@ -49,8 +50,11 @@ bool Mshr::lookUpMshr(uint _blockAddr)
         if (entry.valid && entry.blockAddr == _blockAddr)
         {
             entry.ready = 1;
+            return true;
         }
     }
+
+    return false;
 }
 
 CacheReq Mshr::getFromMshr()

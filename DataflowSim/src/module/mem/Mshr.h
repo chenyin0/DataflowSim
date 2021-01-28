@@ -17,17 +17,17 @@ namespace DFSim
     class Mshr
     {
     public:
-        Mshr();
+        Mshr(uint _entryNum, uint _entrySize);
         void mshrInit(uint _entryNum, uint _entrySize);
         bool send2Mshr(uint _blockAddr, CacheReq _cacheReq);  // Cache miss, send to MSHR (blockAddr = addr >> log2(cacheline_size))
         bool lookUpMshr(uint _blockAddr);  // Get a new cache_block, check MSHR
-        bool checkMshrReady();
-        CacheReq getFromMshr();
+        bool checkMshrReady();  // Check MSHR before getFromMshr
+        CacheReq getFromMshr();  // Before getFromMshr, must check whether MSHR is ready!
 
     private:
         uint entryNum = 0;
         uint entrySize = 0;
-        vector<MshrEntry> mshrTable;  // map<blockAddr, entry>
+        vector<MshrEntry> mshrTable;
         uint mshrRdPtr = 0;
     };
 }

@@ -140,6 +140,7 @@
     <ClInclude Include="src\module\execution\Lse.h" />
     <ClInclude Include="src\module\execution\Mux.h" />
     <ClInclude Include="src\module\mem\Cache.h" />
+    <ClInclude Include="src\module\mem\Coalescer.h" />
     <ClInclude Include="src\module\mem\MemoryDataBus.h" />
     <ClInclude Include="src\module\mem\MemSystem.h" />
     <ClInclude Include="src\module\mem\Mshr.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="src\module\execution\Lse.cpp" />
     <ClCompile Include="src\module\execution\Mux.cpp" />
     <ClCompile Include="src\module\mem\Cache.cpp" />
+    <ClCompile Include="src\module\mem\Coalescer.cpp" />
     <ClCompile Include="src\module\mem\MemoryDataBus.cpp" />
     <ClCompile Include="src\module\mem\MemSystem.cpp" />
     <ClCompile Include="src\module\mem\Mshr.cpp" />

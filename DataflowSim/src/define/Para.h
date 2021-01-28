@@ -96,9 +96,12 @@ enum class ArchType
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 
 #define MEMSYS_QUEUE_BANK_NUM 16  // MemSystem reqQueue bank number, emulate bandwidth contention
-#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 1  // reqQueue size per bank (default size = 1)
-#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 8  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 2  // reqQueue size per bank (default size = 1)
+#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 2  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+
 #define MEMSYS_COALESCING_ENABLE 1
+#define MEMSYS_COALESCER_ENTRY_NUM 8
+#define MEMSYS_COALESCER_SIZY_PER_ENTRY 4
 
 // SPM
 #define SPM_ENABLE 0
