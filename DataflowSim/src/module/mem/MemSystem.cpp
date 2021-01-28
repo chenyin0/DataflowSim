@@ -7,25 +7,27 @@ using namespace DFSim;
 MemSystem::MemSystem()
 {
     reqQueue.resize(MEMSYS_QUEUE_BANK_NUM);
-    for (auto& queue : reqQueue)
-    {
-        queue.resize(MEMSYS_REQ_QUEUE_SIZE_PER_BANK);
-    }
+    //for (auto& queue : reqQueue)
+    //{
+    //    queue.resize(MEMSYS_REQ_QUEUE_SIZE_PER_BANK);
+    //}
 
     ackQueue.resize(MEMSYS_QUEUE_BANK_NUM);
-    for (auto& queue : ackQueue)
-    {
-        queue.resize(MEMSYS_ACK_QUEUE_SIZE_PER_BANK);
-    }
+    //for (auto& queue : ackQueue)
+    //{
+    //    queue.resize(MEMSYS_ACK_QUEUE_SIZE_PER_BANK);
+    //}
 
     if (SPM_ENABLE)
     {
         spm = new Spm();
+        bankRecorder.resize(SPM_BANK_NUM);
     }
     
     if (CACHE_ENABLE)
     {
         cache = new Cache();
+        bankRecorder.resize(CACHE_BANK_NUM_L1);
     }
 
     memDataBus = new MemoryDataBus();
@@ -90,63 +92,242 @@ uint MemSystem::addrBias(uint _addr)
 
 bool MemSystem::addTransaction(MemReq _req)
 {
-    //if (reqQueue.size() < MEMSYS_REQ_QUEUE_SIZE)
-    //{
-    //    reqQueue.push_back(_req);
-    //    return true;
-    //}
-    //else
-    //{
-    //    return false;
-    //}
-
     bool addSuccess = 0;
-    for (size_t i = 0; i < reqQueue.size(); ++i)
+    uint bankId = getBankId(_req.addr);
+    if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
     {
-        if (reqQueue[i].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
-        {
-            _req.memSysAckQueueBankId = i;  // Record the entry of reqQueue in memSystem
-            _req.addr = addrBias(_req.addr);
-            reqQueue[i].push_back(_req);
-            addSuccess = 1;
-            break;
-        }
+        reqQueue[bankId].push_back(_req);
+        return true;
+    }
+    else
+    {
+        Debug::throwError("Try to push req into a full reqQueue", __FILE__, __LINE__);
     }
 
-    return addSuccess;
+    return false;
+}
+
+uint MemSystem::getBankId(uint _addr)
+{
+    if (CACHE_ENABLE)
+    {
+        return cache->getCacheBank(_addr, 0);
+    }
+
+    // Should not execute here
+    Debug::throwError("Not define which bank", __FILE__, __LINE__);
+}
+
+uint MemSystem::getAddrTag(uint _addr)
+{
+    if (CACHE_ENABLE)
+    {
+        return cache->getCacheBlockId(_addr, 0);
+    }
+
+    // Should not execute here
+    Debug::throwError("Not define address tag for coalescing", __FILE__, __LINE__);
+}
+
+void MemSystem::resetBankRecorder()
+{
+    for (auto& entry : bankRecorder)
+    {
+        entry.valid = 0;
+        entry.hasRegisteredCoalescer = 0;
+        entry.reqQueue.clear();
+    }
 }
 
 void MemSystem::getLseReq()
 {
-    for (size_t i = 0; i < std::min(reqQueue.size(), lseReqTable.size()); ++i)
+    //for (size_t i = 0; i < std::min(reqQueue.size(), lseReqTable.size()); ++i)
+    //{
+    //    Lse* _lse = lseReqTable[reqQueueWritePtr];
+    //    if (_lse->sendReq2Mem())
+    //    {
+    //        reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
+    //    }
+    //    else
+    //    {
+    //        break;
+    //    }
+    //}
+
+    //vector<pair<bool, uint>> bankOccupied(reqQueue.size());  // <bool, uint> = <valid, reqRecorder index>
+    //bankOccupied.assign(bankOccupied.size(), make_pair(0, 0));  // Clear bankOccupied, clear flag and address
+    //vector<deque<pair<uint, Lse*>>> reqRecorder;  // Record each req in one round
+
+    bool ptrUpdateLock = 0;
+    uint ptr = reqQueueWritePtr;  // Record inital ptr
+    resetBankRecorder();
+    uint coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();
+
+    // Generate all the valid req in this round
+    for (size_t i = 0; i < lseReqTable.size(); ++i)
     {
-        Lse* _lse = lseReqTable[reqQueueWritePtr];
-        if (_lse->sendReq2Mem())
+        ptr = (ptr + i) % lseReqTable.size();
+        Lse* _lse = lseReqTable[ptr];
+        auto req = _lse->peekReqQueue();
+        if (req.first)
         {
-            reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
+            bool sendSuccess = 0;
+            uint bankId = getBankId(req.second.addr);
+            if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
+            {
+                auto& entry = bankRecorder[bankId];
+                if (!entry.valid)  // If this entry has not been visited in this round
+                {
+                    entry.valid = 1;
+                    entry.addrTag = getAddrTag(req.second.addr);
+                    entry.reqQueue.push_back(req.second);
+                    sendSuccess = 1;
+                }
+                else
+                {
+                    if (coalescerFreeEntryNum > 0)
+                    {
+                        if (entry.addrTag == getAddrTag(req.second.addr))  // Check whether is coalesceable
+                        {
+                            // If the first time coalescing, occupy a coalscer entry
+                            if (!entry.hasRegisteredCoalescer)
+                            {
+                                coalescerFreeEntryNum--;
+                            }
+                            entry.hasRegisteredCoalescer = 1;
+
+                            if (entry.reqQueue.size() < MEMSYS_COALESCER_SIZY_PER_ENTRY)
+                            {
+                                entry.reqQueue.push_back(req.second);
+                                sendSuccess = 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!sendSuccess)
+            {
+                _lse->memReqBlockCnt++;
+            }
         }
         else
         {
-            break;
+            if (!ptrUpdateLock)
+            {
+                reqQueueWritePtr = ptr;
+                ptrUpdateLock = 1;  // Only update ptr once in each round
+            }
+        }
+    }
+
+    // Pop Lse request
+    for (auto& entry : bankRecorder)
+    {
+        if (entry.valid)
+        {
+            for (auto& req : entry.reqQueue)
+            {
+                lseRegistry[req.lseId]->sendReq2Mem();
+            }
+        }
+    }
+
+    // Send to coalescer
+    for (auto& entry : bankRecorder)
+    {
+        if (entry.valid && entry.hasRegisteredCoalescer)
+        {
+            for (auto& req : entry.reqQueue)
+            {
+                coalescer.send2Coalescer(entry.addrTag, entry.reqQueue);
+            }
+        }
+    }
+
+    // Send to reqQueue
+    for (auto& entry : bankRecorder)
+    {
+        if (entry.valid)
+        {
+            addTransaction(entry.reqQueue.front());  // Use the front request to represent all the coalesced address
         }
     }
 }
 
+//void MemSystem::writeAck2Lse(MemReq _req)
+//{
+//    lseRegistry[_req.lseId]->ackCallback(_req);
+//}
+
 void MemSystem::sendBack2Lse()
 {
-    for (auto& queue : ackQueue)
+    // Add a LSE recorder in each cycle
+    // Round-robin each ackQueue
+    // Erase non-conflict req in coalescing table
+    // Only when corresponding coalescing table entry has empty, pop the ackQueue
+
+    deque<bool> lseRecorder(lseRegistry.size());
+    uint ptr = ackQueueReadPtr;
+
+    for (size_t i = 0; i < ackQueue.size(); ++i)
     {
-        for (auto& req : queue)
+        ptr = (ptr + i) % ackQueue.size();
+        if (!ackQueue[ptr].empty())
         {
-            if (req.valid && req.ready)
+            auto& req = ackQueue[ptr].front();
+            if (req.coalesced)
             {
-                /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
-                lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
-                lseRegistry[req.lseId]->ackCallback(req);
-                req.valid = 0;  // Clear req
+                uint addrTag = getAddrTag(req.addr);
+                uint coalescerEntryId = coalescer.searchCoalescer(addrTag);
+                auto& coalescerQueue = coalescer.coalescerTable[coalescerEntryId].coalescerQueue;
+                for (auto iter = coalescerQueue.begin(); iter != coalescerQueue.end();)
+                {
+                    auto& lseId = iter->lseId;
+                    if (!lseRecorder[lseId])
+                    {
+                        lseRecorder[lseId] = 1;
+                        lseRegistry[lseId]->ackCallback(*iter);
+                        coalescerQueue.erase(iter);
+
+                        if (coalescerQueue.empty())
+                        {
+                            coalescer.popCoalescerEntry(coalescerEntryId);
+                            ackQueue[ptr].pop_front();
+                        }
+                    }
+                    else
+                    {
+                        iter++;
+                    }
+                }
+            }
+            else
+            {
+                if (!lseRecorder[req.lseId])  // If not Lse content, pop ackQueue
+                {
+                    lseRecorder[req.lseId] = 1;
+                    lseRegistry[req.lseId]->ackCallback(req);  // Write back ack to Lse
+                    ackQueue[ptr].pop_front();
+                }
             }
         }
     }
+
+
+    //for (auto& queue : ackQueue)
+    //{
+    //    for (auto& req : queue)
+    //    {
+    //        if (req.valid && req.ready)
+    //        {
+    //            /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
+    //            lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
+    //            lseRegistry[req.lseId]->ackCallback(req);
+    //            req.valid = 0;  // Clear req
+    //        }
+    //    }
+    //}
 }
 
 void MemSystem::send2Spm()
@@ -218,15 +399,20 @@ void MemSystem::send2Cache()
             {
                 MemReq& req = reqQueue[i].front();
 
-                int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
-                if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
+                //int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
+                //if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
+                //{
+                //    req.memSysAckQueueBankEntryId = ackQueueEntry;
+                //    !!! if (cache->addTransaction(req))  // Send req to cache
+                //    {
+                //        ackQueue[i][ackQueueEntry] = req;
+                //        reqQueue[i].pop_front();
+                //    }
+                //}
+
+                !!!if (cache->addTransaction(req))  // Send req to cache
                 {
-                    req.memSysAckQueueBankEntryId = ackQueueEntry;
-                    !!! if (cache->addTransaction(req))  // Send req to cache
-                    {
-                        ackQueue[i][ackQueueEntry] = req;
-                        reqQueue[i].pop_front();
-                    }
+                    reqQueue[i].pop_front();
                 }
             }
         }
@@ -239,16 +425,35 @@ void MemSystem::send2Cache()
 
 void MemSystem::getFromCache()
 {
+    //if (cache != nullptr)
+    //{
+    //    vector<MemReq> _req;
+    //    _req = cache->callBack();
+
+    //    for (auto& req : _req)
+    //    {
+    //        ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].ready = 1;
+    //        ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].inflight = 0;
+    //        //reqQueue[req.memSysAckQueueBankId].cnt = req.cnt;  // Send back cache request order
+    //    }
+    //}
+    //else
+    //{
+    //    Debug::throwError("Not define Cache!", __FILE__, __LINE__);
+    //}
+
     if (cache != nullptr)
     {
-        vector<MemReq> _req;
-        _req = cache->callBack();
-
-        for (auto& req : _req)
+        for (size_t queueId = 0; queueId < ackQueue.size(); ++queueId)
         {
-            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].ready = 1;
-            ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].inflight = 0;
-            //reqQueue[req.memSysAckQueueBankId].cnt = req.cnt;  // Send back cache request order
+            if (ackQueue[queueId].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
+            {
+                auto ack = cache->callBack(queueId);
+                if (ack.first)
+                {
+                    ackQueue[queueId].emplace_back(ack.second);
+                }
+            }
         }
     }
     else

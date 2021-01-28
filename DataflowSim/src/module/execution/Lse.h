@@ -46,7 +46,8 @@ namespace DFSim
         uint assign();  // Return corresponding addr
         //bool checkSend(Data _data, Channel* upstream) override;
         void ackCallback(MemReq _req);  // Callback func for MemSys
-        bool sendReq2Mem();  // Send req to memSystem, callback func for MemSys
+        void sendReq2Mem();  // Send req to memSystem, callback func for MemSys
+        pair<bool, MemReq> peekReqQueue();  // Peek the suspendReq by arbitor in memSys
 
     protected:
         void initial();

@@ -146,6 +146,9 @@
     <ClInclude Include="src\module\mem\Mshr.h">
       <Filter>src\module\memory</Filter>
     </ClInclude>
+    <ClInclude Include="src\module\mem\Coalescer.h">
+      <Filter>src\module\memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -236,6 +239,9 @@
       <Filter>src\module\memory</Filter>
     </ClCompile>
     <ClCompile Include="src\module\mem\Mshr.cpp">
+      <Filter>src\module\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\module\mem\Coalescer.cpp">
       <Filter>src\module\memory</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,4 @@
 //
-// Created by find on 16-7-19.
 // Cache architect
 // memory address  format:
 // |tag|组号 log2(组数)|组内块号log2(mapping_ways)|块内地址 log2(cache line)|
@@ -345,9 +344,10 @@ CacheReq Cache::transMemReq2CacheReq(const MemReq& memReq)
     cacheReq.addr = memReq.addr;
     cacheReq.inflight = memReq.inflight;
     cacheReq.ready = memReq.ready;
-    cacheReq.memSysAckQueueBankId = memReq.memSysAckQueueBankId;
-    cacheReq.memSysAckQueueBankEntryId = memReq.memSysAckQueueBankEntryId;
+    //cacheReq.memSysAckQueueBankId = memReq.memSysAckQueueBankId;
+    //cacheReq.memSysAckQueueBankEntryId = memReq.memSysAckQueueBankEntryId;
     cacheReq.cnt = memReq.cnt;  // For debug
+    cacheReq.coalesced = memReq.coalesced;
 
     if (memReq.isWrite)
     {
@@ -370,9 +370,10 @@ MemReq Cache::transCacheReq2MemReq(const CacheReq& cacheReq)
     memReq.addr = cacheReq.addr;
     memReq.inflight = cacheReq.inflight;
     memReq.ready = cacheReq.ready;
-    memReq.memSysAckQueueBankId = cacheReq.memSysAckQueueBankId;
-    memReq.memSysAckQueueBankEntryId = cacheReq.memSysAckQueueBankEntryId;
+    //memReq.memSysAckQueueBankId = cacheReq.memSysAckQueueBankId;
+    //memReq.memSysAckQueueBankEntryId = cacheReq.memSysAckQueueBankEntryId;
     //memReq.cnt = cacheReq.cnt;
+    memReq.coalesced = cacheReq.coalesced;
 
     if (cacheReq.cacheOp == Cache_operation::WRITE)
     {
@@ -431,6 +432,11 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
             return false;  // Send failed
         }
     }
+}
+
+uint Cache::getCacheBlockId(const uint addr, const uint level)
+{
+    return addr >> cache_line_shifts[level];
 }
 
 bool Cache::addrCoaleseCheck(const uint addr, const uint level)
