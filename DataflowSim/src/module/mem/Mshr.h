@@ -12,6 +12,7 @@ namespace DFSim
         deque<CacheReq> mshrQueue;
         bool valid = 0;
         bool ready = 0;
+        bool outstanding = 0;  // Set to 1, signify wait to send req to next cache level
     };
 
     class Mshr
@@ -22,6 +23,9 @@ namespace DFSim
         bool send2Mshr(uint _blockAddr, CacheReq _cacheReq);  // Cache miss, send to MSHR (blockAddr = addr >> log2(cacheline_size))
         bool lookUpMshr(uint _blockAddr);  // Get a new cache_block, check MSHR
         bool checkMshrReady();  // Check MSHR before getFromMshr
+        bool seekMshrFreeEntry();
+        vector<pair<uint, CacheReq>> getOutstandingReq();  // <entryId, req>
+        void sendOutstandingReq(vector<uint> entryIdVec);
         CacheReq getFromMshr();  // Before getFromMshr, must check whether MSHR is ready!
 
     private:

@@ -28,6 +28,7 @@ Address bit fields:
 #include "../DataType.h"
 #include "../EnumType.h"
 #include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
+#include "Mshr.h"
 
 typedef unsigned char _u8;
 //typedef unsigned long long uint;
@@ -39,7 +40,7 @@ namespace DFSim
     //enum class Cache_write_strategy;
     //enum class Cache_write_allocate;
 
-    using ReqQueueBank = vector<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
+    using ReqQueueBank = deque<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
 
     class Cache_Line 
     {
@@ -118,7 +119,11 @@ namespace DFSim
 
         void updateReqQueueOfCacheLevel();
         void updateCacheLine();
-        void reqQueueUpdate();
+        void updateReqQueueLatency();
+        void updateReqQueue();  // Send req to cacheline to check hit/miss
+        void updateAckQueue();  // Send back ack and replace the cacheline of lower level
+        void resetBankConflictRecorder();
+        void updateMshr();
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
@@ -143,8 +148,11 @@ namespace DFSim
         vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // 组相连的链接方式 (几路组相连)
 
         vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  // L1 each bank's reqQueueSize = 2; L2 = 2;
+        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  
+        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
         vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
+        vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
+                                             make_pari(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
@@ -191,9 +199,14 @@ namespace DFSim
         vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
 
         //vector<vector<pair<CacheReq, uint>>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
-        vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
+        vector<Mshr> mshr;
+        vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>), fifo mode
+        vector<vector<deque<CacheReq>>> ackQueue;  // Fifo mode
+        vector<deque<bool>> reqBankConflict;  // Record bank visiting, emulate bank confliction
+        vector<deque<bool>> ackBankConflict;  // Record bank visiting, emulate bank confliction
         deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
-        vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
+        //vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
+        vector<uint> reqQueueBankPtr;  // Round-robin to send reqQueue req to next cachelevel
 
         //uint reqCnt = 0;  // Record the sequence of each cacheReq
     };
