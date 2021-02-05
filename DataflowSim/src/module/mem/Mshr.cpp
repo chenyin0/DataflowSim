@@ -19,12 +19,13 @@ void Mshr::mshrInit(uint _entryNum, uint _entrySize)
 
 bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
 {
+    bool sendSuccess = 0;
     for (auto& entry : mshrTable)
     {
         if (entry.valid && entry.blockAddr == _blockAddr && entry.mshrQueue.size() < entrySize)
         {
-            entry.mshrQueue.push_back(_cacheReq);
-            return true;
+            entry.mshrQueue.emplace_back(_cacheReq);
+            sendSuccess = 1;
         }
     }
 
@@ -34,13 +35,14 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
         if (!entry.valid)
         {
             entry.valid = 1;
+            entry.outstanding = 1;
             entry.blockAddr = _blockAddr;
-            entry.mshrQueue.push_back(_cacheReq);
-            return true;
+            entry.mshrQueue.emplace_back(_cacheReq);
+            sendSuccess = 1;
         }
     }
 
-    return false;  // MSHR fail, stall req
+    return sendSuccess;
 }
 
 bool Mshr::lookUpMshr(uint _blockAddr)
@@ -103,4 +105,48 @@ bool Mshr::checkMshrReady()
     }
 
     return false;
+}
+
+bool Mshr::seekMshrFreeEntry()
+{
+    for (auto& entry : mshrTable)
+    {
+        if (!entry.valid)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+vector<pair<uint, CacheReq>> Mshr::getOutstandingReq()
+{
+    vector<pair<uint, CacheReq>> reqVec;
+
+    for (size_t entryId = 0; entryId < mshrTable.size(); ++entryId)
+    {
+        auto& entry = mshrTable[entryId];
+        if (entry.valid && entry.outstanding)
+        {
+            reqVec.emplace_back(make_pair(entryId, entry.mshrQueue.front()));
+        }
+    }
+
+    return reqVec;
+}
+
+void Mshr::sendOutstandingReq(vector<uint> entryIdVec)
+{
+    for (auto& entryId : entryIdVec)
+    {
+        if (mshrTable[entryId].outstanding)
+        {
+            mshrTable[entryId].outstanding = 0;
+        }
+        else
+        {
+            Debug::throwError("This entry is not an outstanding req", __FILE__, __LINE__);
+        }
+    }
 }

@@ -495,10 +495,29 @@ void MemSystem::returnReqAck()
 
 void MemSystem::MemSystemUpdate()
 {
+    // MemSys update in a reverse sequence to avoid data stall 
     if (ClkDomain::getInstance()->checkClkAdd())  // MemorySystem update only when clk updated
     {
-        getLseReq();
+        // MemSys -> Lse
+        sendBack2Lse();
 
+        // Send back ack from on-chip memory to memSys
+        if (SPM_ENABLE)
+        {
+            getFromSpm();  // Get callback from SPM
+        }
+
+        if (CACHE_ENABLE)
+        {
+            getFromCache();  // Get callback from Cache
+        }
+
+        // DRAM & memory bus
+        returnReqAck();
+        getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
+        mem->update();
+
+        // Send req to on-chip memory
         if (SPM_ENABLE)
         {
             send2Spm();  // Send req to SPM
@@ -513,22 +532,42 @@ void MemSystem::MemSystemUpdate()
             cache->sendReq2Mem(mem);
         }
 
-        mem->update();
-        getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
+        // Send back ack from memSys to Lse
+        getLseReq();
 
-        returnReqAck();
 
-        if (SPM_ENABLE)
-        {
-            getFromSpm();  // Get callback from SPM
-        }
+        //getLseReq();
 
-        if (CACHE_ENABLE)
-        {
-            getFromCache();  // Get callback from Cache
-        }
+        //if (SPM_ENABLE)
+        //{
+        //    send2Spm();  // Send req to SPM
+        //    spm->spmUpdate();
+        //    spm->sendReq2Mem(mem);
+        //}
 
-        sendBack2Lse();
+        //if (CACHE_ENABLE)
+        //{
+        //    send2Cache();
+        //    cache->cacheUpdate();
+        //    cache->sendReq2Mem(mem);
+        //}
+
+        //mem->update();
+        //getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
+
+        //returnReqAck();
+
+        //if (SPM_ENABLE)
+        //{
+        //    getFromSpm();  // Get callback from SPM
+        //}
+
+        //if (CACHE_ENABLE)
+        //{
+        //    getFromCache();  // Get callback from Cache
+        //}
+
+        //sendBack2Lse();
     }
 }
 
