@@ -35,6 +35,7 @@ void Cache::init()
     reqBankConflict.resize(CACHE_MAXLEVEL);
     ackBankConflict.resize(CACHE_MAXLEVEL);
     reqQueueBankPtr.resize(CACHE_MAXLEVEL);
+    ackQueueBankPtr.resize(CACHE_MAXLEVEL);
     //sendPtr.resize(CACHE_MAXLEVEL);
 
     for (_u8 i = 0; i < CACHE_MAXLEVEL; ++i)
@@ -857,7 +858,7 @@ void Cache::updateReqQueue()
     {
         if (mshr[level].seekMshrFreeEntry())  // If there is no free entry remains in Mshr, cache stall
         {
-            for (size_t i = 0; i < reqQueue[level].size(); ++i)  // Traverse each bank
+            for (size_t i = 0; i < reqQueue[level].size(); ++i)  // Traverse each bank, round-robin
             {
                 uint bankId = (reqQueueBankPtr[level] + i) % cache_bank_num[level];
                 auto& reqQueueBank = reqQueue[level][bankId];
@@ -879,8 +880,10 @@ void Cache::updateReqQueue()
                                 if (write_strategy[level] == Cache_write_strategy::WRITE_BACK)
                                 {
                                     caches[level][setIndex].flag |= CACHE_FLAG_DIRTY;  // Write cache -> dirty only in WRITE_BACK mode
-                                    req.first.ready = 1;
+                                    //req.first.ready = 1;
                                     //req.first.inflight = 0;
+                                    reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
+                                    // TODO: need to add a mechanism to ensure RAW/WAW!
                                 }
                                 else if (write_strategy[level] == Cache_write_strategy::WRITE_THROUGH)
                                 {
@@ -977,14 +980,103 @@ void Cache::updateReqQueue()
 
 void Cache::updateAckQueue()
 {
-    // ackqueue ÓÅÏÈ¼¶£º
+    // ackqueue priority£º
     // 1. The req hit in Upper cache level£¬and set mshr ready in the same time
     // 2. The ready entry in mshr
     // 3. The ready req in reqqueue.front()
 
+    for (size_t level = CACHE_MAXLEVEL; level >= 0; --level)
+    {
+        //*** Pop ackQueue
+        vector<CacheReq> cacheReqVec;
+        for (size_t i = 0; i < ackQueue[level].size(); ++i)
+        {
+            uint bankId = (ackQueueBankPtr[level] + i) % cache_bank_num[level];
+            auto& ackQueueBank = ackQueue[level][bankId];
+            if (!ackQueueBank.empty())
+            {
+                cacheReqVec.emplace_back(ackQueueBank.front());
+                ackQueueBank.pop_front();
+            }
+        }
+        ackQueueBankPtr[level] = (++ackQueueBankPtr[level]) % cache_bank_num[level];  // Update ackQueuePtr, round-robin
+
+        for (auto& req : cacheReqVec)
+        {
+            if (level > 0)
+            {
+                // Update MSHR
+                uint blockAddr = getCacheBlockId(req.addr, level - 1);
+                mshr[level - 1].lookUpMshr(blockAddr);
+
+                // Update cacheline
+                if (!(req.cacheOp == Cache_operation::WRITE && write_allocate[level - 1] == Cache_write_allocate::WRITE_NON_ALLOCATE))
+                {
+                    // Replace cacheline when cache miss
+                    if (!setCacheBlock(req.addr, level - 1))
+                    {
+                        Debug::throwError("Not update cacheline successfully!", __FILE__, __LINE__);
+                    }
+                }
+            }
+            else if (level == 0)
+            {
+                // Writeback ack to memSystem
+
+            }
+        }
+
+
+        //*** Push ackQueue
+        // Respond to MSHR ready reqs
+        auto reqVec = mshr[level].peekMshrReadyEntry();
+        vector<uint> entryIdVec;
+        if (!reqVec.empty())
+        {
+            for (auto& req : reqVec)
+            {
+                uint bankId = getCacheBank(req.second.addr, level);
+                // Write/Writeback OP not push into the ackQueue; (TODO: add a mechanism to ensure RAW/WAW)
+                if (req.second.cacheOp != Cache_operation::WRITE && req.second.cacheOp != Cache_operation::WRITEBACK_DIRTY_BLOCK)
+                {
+                    if (!ackBankConflict[level][bankId])
+                    {
+                        auto ackQueueBank = ackQueue[level][bankId];
+                        if (ackQueueBank.size() < ackQueueSizePerBank[level])
+                        {
+                            ackQueueBank.emplace_back(req.second);
+                            entryIdVec.emplace_back(req.first);
+                            ackBankConflict[level][bankId] = 1;
+                        }
+                    }
+                }
+                else  // Directly clear this req rather than push into the ackQueue
+                {
+                    entryIdVec.emplace_back(req.first);
+                }
+            }
+
+            mshr[level].clearMshrEntry(entryIdVec);
+        }
+
+        // Already req in reqQueue 
+        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
+        {
+            if (reqQueue[level][bankId].front().first.ready && !ackBankConflict[level][bankId])
+            {
+                if (ackQueue[level][bankId].size() < ackQueueSizePerBank[level])
+                {
+                    ackQueue[level][bankId].emplace_back(reqQueue[level][bankId].front().first);
+                    reqQueue[level][bankId].pop_front();
+                }
+            }
+        }
+
+    }
+
 }
 
-void Cache::updateMshr()
+void Cache::sendMshrOutstandingReq()
 {
     for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)
     {
@@ -1036,7 +1128,7 @@ void Cache::cacheUpdate()
     // Receive ready reqs
     updateAckQueue();
     // Send MSHR req to next level cache
-    updateMshr();
+    sendMshrOutstandingReq();
     // Check reqs hit/miss status, and send to MSHR
     updateReqQueue();
     // Update reqQueue latency
