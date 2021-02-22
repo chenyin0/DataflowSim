@@ -123,7 +123,7 @@ namespace DFSim
         void updateReqQueue();  // Send req to cacheline to check hit/miss
         void updateAckQueue();  // Send back ack and replace the cacheline of lower level
         void resetBankConflictRecorder();
-        void updateMshr();
+        void sendMshrOutstandingReq();
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
@@ -207,6 +207,7 @@ namespace DFSim
         deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
         //vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
         vector<uint> reqQueueBankPtr;  // Round-robin to send reqQueue req to next cachelevel
+        vector<uint> ackQueueBankPtr;  // Round-robin to traverse ackQueue
 
         //uint reqCnt = 0;  // Record the sequence of each cacheReq
     };

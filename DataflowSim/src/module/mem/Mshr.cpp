@@ -47,64 +47,98 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
 
 bool Mshr::lookUpMshr(uint _blockAddr)
 {
+    bool mshrHit = 0;
     for (auto& entry : mshrTable)
     {
         if (entry.valid && entry.blockAddr == _blockAddr)
         {
             entry.ready = 1;
-            return true;
+            mshrHit = 1;
         }
     }
 
-    return false;
+    return mshrHit;
 }
 
-CacheReq Mshr::getFromMshr()
-{
-    CacheReq req;
+//CacheReq Mshr::getFromMshr()
+//{
+//    CacheReq req;
+//
+//    for (size_t i = 0; i < mshrTable.size(); ++i)
+//    {
+//        auto& entry = mshrTable[mshrRdPtr + i];
+//        if (entry.valid && entry.ready)
+//        {
+//#ifdef DEBUG_MODE
+//            if (entry.mshrQueue.empty())
+//            {
+//                Debug::throwError("Try to get from an empty MSHR queue!", __FILE__, __LINE__);
+//            }
+//#endif
+//            req = entry.mshrQueue.front();
+//            entry.mshrQueue.pop_front();
+//            mshrRdPtr = (mshrRdPtr + i) % mshrTable.size();   // Update mshrRdPtr to this entry
+//
+//            // Clear a mshrQueue if it is empty
+//            if (entry.mshrQueue.empty())
+//            {
+//                entry.valid = 0;
+//                entry.ready = 0;
+//
+//                mshrRdPtr = (++mshrRdPtr) % mshrTable.size();  // Current entry is finish, update mshrRdPtr
+//            }
+//
+//            break;
+//        }
+//    }
+//
+//    return req;
+//}
 
+//bool Mshr::checkMshrReady()
+//{
+//    for (auto& entry : mshrTable)
+//    {
+//        if (entry.valid && entry.ready)
+//        {
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
+
+vector<pair<uint, CacheReq>> Mshr::peekMshrReadyEntry()
+{
+    vector<pair<uint, CacheReq>> reqVec;
     for (size_t i = 0; i < mshrTable.size(); ++i)
     {
-        auto& entry = mshrTable[mshrRdPtr + i];
+        uint entryId = (mshrRdPtr + i) % mshrTable.size();  // Round-robin
+        auto& entry = mshrTable[entryId];
         if (entry.valid && entry.ready)
         {
-#ifdef DEBUG_MODE
-            if (entry.mshrQueue.empty())
-            {
-                Debug::throwError("Try to get from an empty MSHR queue!", __FILE__, __LINE__);
-            }
-#endif
-            req = entry.mshrQueue.front();
-            entry.mshrQueue.pop_front();
-            mshrRdPtr = (mshrRdPtr + i) % mshrTable.size();   // Update mshrRdPtr to this entry
-
-            // Clear a mshrQueue if it is empty
-            if (entry.mshrQueue.empty())
-            {
-                entry.valid = 0;
-                entry.ready = 0;
-
-                mshrRdPtr = (++mshrRdPtr) % mshrTable.size();  // Current entry is finish, update mshrRdPtr
-            }
-
-            break;
+            reqVec.emplace_back(make_pair(entryId, entry.mshrQueue.front()));
         }
     }
 
-    return req;
+    mshrRdPtr = (++mshrRdPtr) % mshrTable.size();
+
+    return reqVec;
 }
 
-bool Mshr::checkMshrReady()
+void Mshr::clearMshrEntry(vector<uint> _entryIdVec)
 {
-    for (auto& entry : mshrTable)
+    for (auto& entryId : _entryIdVec)
     {
-        if (entry.valid && entry.ready)
+        auto& entry = mshrTable[entryId];
+        entry.mshrQueue.pop_front();
+        // Clear a mshrQueue if it is empty
+        if (entry.mshrQueue.empty())
         {
-            return true;
+            entry.valid = 0;
+            entry.ready = 0;
         }
     }
-
-    return false;
 }
 
 bool Mshr::seekMshrFreeEntry()
