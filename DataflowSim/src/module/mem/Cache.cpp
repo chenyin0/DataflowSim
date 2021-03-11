@@ -506,30 +506,40 @@ bool Cache::addTransaction(MemReq _req)
     return false;  // Cache bank is full, send req failed
 }
 
-vector<MemReq> Cache::callBack()
-{
-    vector<MemReq> readyReq;
+MemReq Cache::callBack(uint ackQueueId)
+{ 
+    MemReq req;
+    auto& ackQueueBank = ackQueue[0][ackQueueId];
+    if (!ackQueueBank.empty())
+    {
+        req = transCacheReq2MemReq(ackQueueBank.front());
+        ackQueueBank.pop_front();
+    }
 
-    if (reqQueue.size() >= 1)
-    {
-        for (auto& reqQueueBank : reqQueue[0])
-        {
-            for (auto& req : reqQueueBank)
-            {
-                if (req.first.valid && req.first.ready)
-                {
-                    readyReq.push_back(transCacheReq2MemReq(req.first));
-                    req.first.valid = 0;  // Clear req after being sent back
-                }
-            }
-        }
-    }
-    else
-    {
-        Debug::throwError("Not configure L1 cache!", __FILE__, __LINE__);
-    }
-    
-    return readyReq;
+    return req;
+
+    //vector<MemReq> readyReq;
+
+    //if (reqQueue.size() >= 1)
+    //{
+    //    for (auto& reqQueueBank : reqQueue[0])
+    //    {
+    //        for (auto& req : reqQueueBank)
+    //        {
+    //            if (req.first.valid && req.first.ready)
+    //            {
+    //                readyReq.push_back(transCacheReq2MemReq(req.first));
+    //                req.first.valid = 0;  // Clear req after being sent back
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    Debug::throwError("Not configure L1 cache!", __FILE__, __LINE__);
+    //}
+    //
+    //return readyReq;
 }
 
 bool Cache::sendReq2reqQueue2Mem(const CacheReq cacheReq)
@@ -598,248 +608,248 @@ void Cache::updateReqQueueLatency()
     }
 }
 
-void Cache::updateReqQueueOfCacheLevel()
-{
-    for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level
-    {
-        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)  // Traverse each bank
-        {
-            uint& _sendPtr = sendPtr[level][bankId];
-            ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
+//void Cache::updateReqQueueOfCacheLevel()
+//{
+//    for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level
+//    {
+//        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)  // Traverse each bank
+//        {
+//            uint& _sendPtr = sendPtr[level][bankId];
+//            ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
+//
+//            for (size_t i = 0; i < reqQueueSizePerBank[level]; ++i)  // Traverse each req of bank
+//            {
+//                auto& req = reqQueueBank[_sendPtr];
+//                if (req.second == 0 && req.first.valid && !req.first.ready)  // Req.second is latency counter
+//                {
+//                    uint addr = req.first.addr;
+//                    //uint set = (addr >> cache_line_shifts[i]) % cache_set_size[i];  // Set index
+//                    uint set = getCacheSetIndex(addr, level);  // Set index
+//                    uint set_base = set * cache_mapping_ways[level];  // Cacheline index
+//                    int setIndex = check_cache_hit(set_base, addr, level);
+//
+//                    //// debug_yin !!!!!!!!!!!!!!!!!!!!!!!
+//                    //if (addr == 4020 && req.first.cnt == 2363)
+//                    //{
+//                    //    std::cout << ">>>" << std::endl;
+//                    //    
+//                    //    for (size_t level = 0; level < reqQueue.size(); ++level)
+//                    //    {
+//                    //        std::cout << std::setw(8) << "Cache_L" << level + 1 << "_reqQueue:" << std::endl;
+//
+//                    //        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
+//                    //        {
+//                    //            std::cout << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
+//
+//                    //            // Print each req
+//                    //            std::cout << std::setw(12) << "addr:";
+//                    //            for (auto& req : reqQueue[level][bankId])
+//                    //            {
+//                    //                if (req.first.valid)
+//                    //                {
+//                    //                    std::cout << std::setw(5) << req.first.addr;
+//                    //                }
+//                    //            }
+//
+//                    //            std::cout << std::endl;
+//                    //            std::cout << std::setw(12) << "isWt:";
+//                    //            for (auto& req : reqQueue[level][bankId])
+//                    //            {
+//                    //                if (req.first.valid)
+//                    //                {
+//                    //                    if (req.first.cacheOp == Cache_operation::WRITE)
+//                    //                    {
+//                    //                        std::cout << std::setw(5) << "1";
+//                    //                    }
+//                    //                    else
+//                    //                    {
+//                    //                        std::cout << std::setw(5) << "0";
+//                    //                    }
+//                    //                }
+//                    //            }
+//
+//                    //            std::cout << std::endl;
+//                    //            std::cout << std::setw(12) << "inflg:";
+//                    //            for (auto& req : reqQueue[level][bankId])
+//                    //            {
+//                    //                if (req.first.valid)
+//                    //                {
+//                    //                    std::cout << std::setw(5) << req.first.inflight;
+//                    //                }
+//                    //            }
+//
+//                    //            std::cout << std::endl;
+//                    //            std::cout << std::setw(12) << "rdy:";
+//                    //            for (auto& req : reqQueue[level][bankId])
+//                    //            {
+//                    //                if (req.first.valid)
+//                    //                {
+//                    //                    std::cout << std::setw(5) << req.first.ready;
+//                    //                }
+//                    //            }
+//
+//                    //            std::cout << std::endl;
+//                    //            std::cout << std::setw(12) << "OrderId:";
+//                    //            for (auto& req : reqQueue[level][bankId])
+//                    //            {
+//                    //                if (req.first.valid)
+//                    //                {
+//                    //                    std::cout << std::setw(5) << req.first.cnt;
+//                    //                }
+//                    //            }
+//
+//                    //            std::cout << std::endl;
+//                    //        }
+//
+//                    //        std::cout << std::endl;
+//                    //    }
+//                    //    std::cout << std::endl;
+//                    //}
+//
+//                    if (setIndex != -1)  // Cache hit
+//                    {
+//                        if (req.first.cacheOp == Cache_operation::WRITE || req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
+//                        {
+//                            if (write_strategy[level] == Cache_write_strategy::WRITE_BACK)
+//                            {
+//                                caches[level][setIndex].flag |= CACHE_FLAG_DIRTY;  // Write cache -> dirty only in WRITE_BACK mode
+//                                req.first.ready = 1;
+//                                req.first.inflight = 0;
+//                            }
+//                            else if (write_strategy[level] == Cache_write_strategy::WRITE_THROUGH)
+//                            {
+//                                if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+//                                {
+//                                    if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache in "write_through"
+//                                    {
+//                                        req.first.ready = 1;
+//                                        req.first.inflight = 0;
+//                                    }
+//                                }
+//                                else  // If it is LLC, send the req to the DRAM
+//                                {
+//                                    if (sendReq2reqQueue2Mem(req.first))  // Send req to DRAM in "write_through"
+//                                    {
+//                                        req.first.ready = 1;
+//                                        req.first.inflight = 0;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        else  // If it is cache read or other cache operation
+//                        {
+//                            req.first.ready = 1;
+//                            req.first.inflight = 0;
+//                        }
+//
+//                        // Profiling
+//                        cache_hit_count[level]++;
+//                    }
+//                    else  // Cache miss
+//                    {   
+//                        if (!req.first.inflight)  // This req hasn't been sent to the next level cache
+//                        {
+//                            if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+//                            {
+//                                if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache bank
+//                                {
+//                                    // Note: Writeback dirty block not need to wait cacheblock return
+//                                    if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)  
+//                                    {
+//                                        req.first.ready = 1;
+//                                        req.first.inflight = 0;
+//                                    }
+//                                    else
+//                                    {
+//                                        req.first.inflight = 1;
+//                                    }
+//                                }
+//                            }
+//                            else  // If it is LLC, send the req to the DRAM
+//                            {
+//                                if (sendReq2reqQueue2Mem(req.first))
+//                                {
+//                                    // Note: Writeback dirty block not need to wait cacheblock return
+//                                    if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
+//                                    {
+//                                        req.first.ready = 1;
+//                                        req.first.inflight = 0;
+//                                    }
+//                                    else
+//                                    {
+//                                        req.first.inflight = 1;
+//                                    }
+//                                }
+//                            }
+//
+//                            // Profiling
+//                            cache_miss_count[level]++;
+//                        }
+//                    }
+//
+//                    _sendPtr = (_sendPtr + 1) % reqQueueSizePerBank[level];  // Update sendPtr (round-robin)
+//                    break;  // Each cycle only response one req in a bank, emulate bank conflict
+//                }
+//
+//                _sendPtr = (_sendPtr + 1) % reqQueueSizePerBank[level];  // Update sendPtr (round-robin)
+//            }
+//        }
+//    }
+//}
 
-            for (size_t i = 0; i < reqQueueSizePerBank[level]; ++i)  // Traverse each req of bank
-            {
-                auto& req = reqQueueBank[_sendPtr];
-                if (req.second == 0 && req.first.valid && !req.first.ready)  // Req.second is latency counter
-                {
-                    uint addr = req.first.addr;
-                    //uint set = (addr >> cache_line_shifts[i]) % cache_set_size[i];  // Set index
-                    uint set = getCacheSetIndex(addr, level);  // Set index
-                    uint set_base = set * cache_mapping_ways[level];  // Cacheline index
-                    int setIndex = check_cache_hit(set_base, addr, level);
-
-                    //// debug_yin !!!!!!!!!!!!!!!!!!!!!!!
-                    //if (addr == 4020 && req.first.cnt == 2363)
-                    //{
-                    //    std::cout << ">>>" << std::endl;
-                    //    
-                    //    for (size_t level = 0; level < reqQueue.size(); ++level)
-                    //    {
-                    //        std::cout << std::setw(8) << "Cache_L" << level + 1 << "_reqQueue:" << std::endl;
-
-                    //        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
-                    //        {
-                    //            std::cout << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
-
-                    //            // Print each req
-                    //            std::cout << std::setw(12) << "addr:";
-                    //            for (auto& req : reqQueue[level][bankId])
-                    //            {
-                    //                if (req.first.valid)
-                    //                {
-                    //                    std::cout << std::setw(5) << req.first.addr;
-                    //                }
-                    //            }
-
-                    //            std::cout << std::endl;
-                    //            std::cout << std::setw(12) << "isWt:";
-                    //            for (auto& req : reqQueue[level][bankId])
-                    //            {
-                    //                if (req.first.valid)
-                    //                {
-                    //                    if (req.first.cacheOp == Cache_operation::WRITE)
-                    //                    {
-                    //                        std::cout << std::setw(5) << "1";
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        std::cout << std::setw(5) << "0";
-                    //                    }
-                    //                }
-                    //            }
-
-                    //            std::cout << std::endl;
-                    //            std::cout << std::setw(12) << "inflg:";
-                    //            for (auto& req : reqQueue[level][bankId])
-                    //            {
-                    //                if (req.first.valid)
-                    //                {
-                    //                    std::cout << std::setw(5) << req.first.inflight;
-                    //                }
-                    //            }
-
-                    //            std::cout << std::endl;
-                    //            std::cout << std::setw(12) << "rdy:";
-                    //            for (auto& req : reqQueue[level][bankId])
-                    //            {
-                    //                if (req.first.valid)
-                    //                {
-                    //                    std::cout << std::setw(5) << req.first.ready;
-                    //                }
-                    //            }
-
-                    //            std::cout << std::endl;
-                    //            std::cout << std::setw(12) << "OrderId:";
-                    //            for (auto& req : reqQueue[level][bankId])
-                    //            {
-                    //                if (req.first.valid)
-                    //                {
-                    //                    std::cout << std::setw(5) << req.first.cnt;
-                    //                }
-                    //            }
-
-                    //            std::cout << std::endl;
-                    //        }
-
-                    //        std::cout << std::endl;
-                    //    }
-                    //    std::cout << std::endl;
-                    //}
-
-                    if (setIndex != -1)  // Cache hit
-                    {
-                        if (req.first.cacheOp == Cache_operation::WRITE || req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
-                        {
-                            if (write_strategy[level] == Cache_write_strategy::WRITE_BACK)
-                            {
-                                caches[level][setIndex].flag |= CACHE_FLAG_DIRTY;  // Write cache -> dirty only in WRITE_BACK mode
-                                req.first.ready = 1;
-                                req.first.inflight = 0;
-                            }
-                            else if (write_strategy[level] == Cache_write_strategy::WRITE_THROUGH)
-                            {
-                                if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
-                                {
-                                    if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache in "write_through"
-                                    {
-                                        req.first.ready = 1;
-                                        req.first.inflight = 0;
-                                    }
-                                }
-                                else  // If it is LLC, send the req to the DRAM
-                                {
-                                    if (sendReq2reqQueue2Mem(req.first))  // Send req to DRAM in "write_through"
-                                    {
-                                        req.first.ready = 1;
-                                        req.first.inflight = 0;
-                                    }
-                                }
-                            }
-                        }
-                        else  // If it is cache read or other cache operation
-                        {
-                            req.first.ready = 1;
-                            req.first.inflight = 0;
-                        }
-
-                        // Profiling
-                        cache_hit_count[level]++;
-                    }
-                    else  // Cache miss
-                    {   
-                        if (!req.first.inflight)  // This req hasn't been sent to the next level cache
-                        {
-                            if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
-                            {
-                                if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache bank
-                                {
-                                    // Note: Writeback dirty block not need to wait cacheblock return
-                                    if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)  
-                                    {
-                                        req.first.ready = 1;
-                                        req.first.inflight = 0;
-                                    }
-                                    else
-                                    {
-                                        req.first.inflight = 1;
-                                    }
-                                }
-                            }
-                            else  // If it is LLC, send the req to the DRAM
-                            {
-                                if (sendReq2reqQueue2Mem(req.first))
-                                {
-                                    // Note: Writeback dirty block not need to wait cacheblock return
-                                    if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
-                                    {
-                                        req.first.ready = 1;
-                                        req.first.inflight = 0;
-                                    }
-                                    else
-                                    {
-                                        req.first.inflight = 1;
-                                    }
-                                }
-                            }
-
-                            // Profiling
-                            cache_miss_count[level]++;
-                        }
-                    }
-
-                    _sendPtr = (_sendPtr + 1) % reqQueueSizePerBank[level];  // Update sendPtr (round-robin)
-                    break;  // Each cycle only response one req in a bank, emulate bank conflict
-                }
-
-                _sendPtr = (_sendPtr + 1) % reqQueueSizePerBank[level];  // Update sendPtr (round-robin)
-            }
-        }
-    }
-}
-
-void Cache::updateCacheLine()
-{
-    for (size_t level = 1; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level, exclude L1 cache
-    {
-        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)  // Traverse each bank
-        {
-            ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
-            for (auto& req : reqQueueBank)
-            {
-                if (req.first.valid && req.first.ready)
-                {
-                    uint addr = req.first.addr;
-
-                    // If cache_write and upper cache is write_non_allocate, not update the cacheline of upper level cache, just send back req ack directly
-                    if (req.first.cacheOp == Cache_operation::WRITE && write_allocate[level - 1] == Cache_write_allocate::WRITE_NON_ALLOCATE)
-                    {
-                        uint bankId_upper_level = getCacheBank(addr, level - 1);
-                        for (auto& req : reqQueue[level - 1][bankId_upper_level])
-                        {
-                            if (req.first.valid && !req.first.ready && req.first.inflight && req.first.addr == addr)
-                            {
-                                req.first.ready = 1;
-                                req.first.inflight = 0;
-                            }
-                        }
-
-                        // Clear req
-                        req.first.valid = 0;
-                        req.first.ready = 0;
-                        req.first.inflight = 0;
-                    }
-                    else if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
-                    {
-                        // Clear req, not update upper level cacheline
-                        req.first.valid = 0;
-                        req.first.ready = 0;
-                        req.first.inflight = 0;
-                    }
-                    else  // Update the cacheline of upper level cache
-                    {
-                        if (setCacheBlock(addr, level - 1))
-                        {
-                            // Clear req
-                            req.first.valid = 0;
-                            req.first.ready = 0;
-                            req.first.inflight = 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//void Cache::updateCacheLine()
+//{
+//    for (size_t level = 1; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level, exclude L1 cache
+//    {
+//        for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)  // Traverse each bank
+//        {
+//            ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
+//            for (auto& req : reqQueueBank)
+//            {
+//                if (req.first.valid && req.first.ready)
+//                {
+//                    uint addr = req.first.addr;
+//
+//                    // If cache_write and upper cache is write_non_allocate, not update the cacheline of upper level cache, just send back req ack directly
+//                    if (req.first.cacheOp == Cache_operation::WRITE && write_allocate[level - 1] == Cache_write_allocate::WRITE_NON_ALLOCATE)
+//                    {
+//                        uint bankId_upper_level = getCacheBank(addr, level - 1);
+//                        for (auto& req : reqQueue[level - 1][bankId_upper_level])
+//                        {
+//                            if (req.first.valid && !req.first.ready && req.first.inflight && req.first.addr == addr)
+//                            {
+//                                req.first.ready = 1;
+//                                req.first.inflight = 0;
+//                            }
+//                        }
+//
+//                        // Clear req
+//                        req.first.valid = 0;
+//                        req.first.ready = 0;
+//                        req.first.inflight = 0;
+//                    }
+//                    else if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
+//                    {
+//                        // Clear req, not update upper level cacheline
+//                        req.first.valid = 0;
+//                        req.first.ready = 0;
+//                        req.first.inflight = 0;
+//                    }
+//                    else  // Update the cacheline of upper level cache
+//                    {
+//                        if (setCacheBlock(addr, level - 1))
+//                        {
+//                            // Clear req
+//                            req.first.valid = 0;
+//                            req.first.ready = 0;
+//                            req.first.inflight = 0;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 void Cache::resetBankConflictRecorder()
 {
@@ -928,46 +938,6 @@ void Cache::updateReqQueue()
 
                             // Profiling
                             cache_miss_count[level]++;
-                
-
-                            //if (!req.first.inflight)  // This req hasn't been sent to the next level cache
-                            //{
-                            //    if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
-                            //    {
-                            //        if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache bank
-                            //        {
-                            //            // Note: Writeback dirty block not need to wait cacheblock return
-                            //            if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
-                            //            {
-                            //                req.first.ready = 1;
-                            //                req.first.inflight = 0;
-                            //            }
-                            //            else
-                            //            {
-                            //                req.first.inflight = 1;
-                            //            }
-                            //        }
-                            //    }
-                            //    else  // If it is LLC, send the req to the DRAM
-                            //    {
-                            //        if (sendReq2reqQueue2Mem(req.first))
-                            //        {
-                            //            // Note: Writeback dirty block not need to wait cacheblock return
-                            //            if (req.first.cacheOp == Cache_operation::WRITEBACK_DIRTY_BLOCK)
-                            //            {
-                            //                req.first.ready = 1;
-                            //                req.first.inflight = 0;
-                            //            }
-                            //            else
-                            //            {
-                            //                req.first.inflight = 1;
-                            //            }
-                            //        }
-                            //    }
-
-                            //    // Profiling
-                            //    cache_miss_count[level]++;
-                            //}
                         }
                     }
                 }
@@ -985,29 +955,29 @@ void Cache::updateAckQueue()
     // 2. The ready entry in mshr
     // 3. The ready req in reqqueue.front()
 
-    for (size_t level = CACHE_MAXLEVEL; level >= 0; --level)
+    for (int level = CACHE_MAXLEVEL; level >= 0; --level)
     {
         //*** Pop ackQueue
-        vector<CacheReq> cacheReqVec;
-        for (size_t i = 0; i < ackQueue[level].size(); ++i)
+        if (level > 0)  // If level = 0, pop by callback function
         {
-            uint bankId = (ackQueueBankPtr[level] + i) % cache_bank_num[level];
-            auto& ackQueueBank = ackQueue[level][bankId];
-            if (!ackQueueBank.empty())
+            vector<CacheReq> cacheReqVec;
+            for (size_t i = 0; i < ackQueue[level].size(); ++i)
             {
-                cacheReqVec.emplace_back(ackQueueBank.front());
-                ackQueueBank.pop_front();
+                uint bankId = (ackQueueBankPtr[level] + i) % cache_bank_num[level];
+                auto& ackQueueBank = ackQueue[level][bankId];
+                if (!ackQueueBank.empty())
+                {
+                    cacheReqVec.emplace_back(ackQueueBank.front());
+                    ackQueueBank.pop_front();
+                }
             }
-        }
-        ackQueueBankPtr[level] = (++ackQueueBankPtr[level]) % cache_bank_num[level];  // Update ackQueuePtr, round-robin
+            ackQueueBankPtr[level] = (++ackQueueBankPtr[level]) % cache_bank_num[level];  // Update ackQueuePtr, round-robin
 
-        for (auto& req : cacheReqVec)
-        {
-            if (level > 0)
+            for (auto& req : cacheReqVec)
             {
-                // Update MSHR
+                // Update MSHR in upper cache level, set corresponding MSHR entry ready if MSHR hit
                 uint blockAddr = getCacheBlockId(req.addr, level - 1);
-                mshr[level - 1].lookUpMshr(blockAddr);
+                mshr[level - 1].setMshrEntryReady(blockAddr);
 
                 // Update cacheline
                 if (!(req.cacheOp == Cache_operation::WRITE && write_allocate[level - 1] == Cache_write_allocate::WRITE_NON_ALLOCATE))
@@ -1018,11 +988,6 @@ void Cache::updateAckQueue()
                         Debug::throwError("Not update cacheline successfully!", __FILE__, __LINE__);
                     }
                 }
-            }
-            else if (level == 0)
-            {
-                // Writeback ack to memSystem
-
             }
         }
 
@@ -1059,7 +1024,7 @@ void Cache::updateAckQueue()
             mshr[level].clearMshrEntry(entryIdVec);
         }
 
-        // Already req in reqQueue 
+        // Ready req in reqQueue 
         for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
         {
             if (reqQueue[level][bankId].front().first.ready && !ackBankConflict[level][bankId])
@@ -1107,7 +1072,7 @@ void Cache::sendMshrOutstandingReq()
         // Clear mshr outstanding flag
         for (auto& entryId : mshrEntryId)
         {
-            mshr[level].sendOutstandingReq(mshrEntryId);
+            mshr[level].clearOutstandingFlag(mshrEntryId);
         }
     }
 }

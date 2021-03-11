@@ -80,7 +80,7 @@ namespace DFSim
         vector<deque<MemReq>> reqQueue;  // Vec1: #bank; Vec2: reqQueue_size (default size = 1, only transmit data to next memory hierarchy)
         vector<deque<MemReq>> ackQueue;  // Vec1: #bank; Vec2: ackQueue_size
         deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
-        Coalescer coalescer = Coalescer(MEMSYS_COALESCOR_ENTRY_NUM, MEMSYS_COALESCOR_SIZY_PER_ENTRY);
+        Coalescer coalescer = Coalescer(MEMSYS_COALESCER_ENTRY_NUM, MEMSYS_COALESCER_SIZY_PER_ENTRY);
         vector<bankRecorderEntry> bankRecorder;  // Emulate bank conflict, record bank visited status in each round
     };
 

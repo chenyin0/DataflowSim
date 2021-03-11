@@ -1,6 +1,6 @@
 #include "CppUnitTest.h"
 
-#include "../../DataflowSim/src/module/Channel.h"
+#include "../../DataflowSim/src/module/DataType.h"
 #include "../../DataflowSim/src/module/ClkSys.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
