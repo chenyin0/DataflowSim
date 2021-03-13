@@ -45,7 +45,11 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
     return sendSuccess;
 }
 
+<<<<<<< HEAD
 bool Mshr::lookUpMshr(uint _blockAddr)
+=======
+void Mshr::setMshrEntryReady(uint _blockAddr)
+>>>>>>> develop
 {
     bool mshrHit = 0;
     for (auto& entry : mshrTable)
@@ -53,11 +57,16 @@ bool Mshr::lookUpMshr(uint _blockAddr)
         if (entry.valid && entry.blockAddr == _blockAddr)
         {
             entry.ready = 1;
+<<<<<<< HEAD
             mshrHit = 1;
         }
     }
 
     return mshrHit;
+=======
+        }
+    }
+>>>>>>> develop
 }
 
 //CacheReq Mshr::getFromMshr()
@@ -170,7 +179,11 @@ vector<pair<uint, CacheReq>> Mshr::getOutstandingReq()
     return reqVec;
 }
 
+<<<<<<< HEAD
 void Mshr::sendOutstandingReq(vector<uint> entryIdVec)
+=======
+void Mshr::clearOutstandingFlag(vector<uint> entryIdVec)
+>>>>>>> develop
 {
     for (auto& entryId : entryIdVec)
     {

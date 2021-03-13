@@ -253,6 +253,21 @@ void MemSystem::getLseReq()
             addTransaction(entry.reqQueue.front());  // Use the front request to represent all the coalesced address
         }
     }
+
+
+    //for (auto& queue : ackQueue)
+    //{
+    //    for (auto& req : queue)
+    //    {
+    //        if (req.valid && req.ready)
+    //        {
+    //            /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
+    //            lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
+    //            lseRegistry[req.lseId]->ackCallback(req);
+    //            req.valid = 0;  // Clear req
+    //        }
+    //    }
+    //}
 }
 
 //void MemSystem::writeAck2Lse(MemReq _req)
@@ -330,38 +345,51 @@ void MemSystem::sendBack2Lse()
     //}
 }
 
-void MemSystem::send2Spm()
+int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
 {
-    if (spm != nullptr)
+    for (size_t i = 0; i < _queue.size(); ++i)
     {
-        for (size_t i = 0; i < reqQueue.size(); ++i)
+        if (!_queue[i].valid)
         {
-            if (!reqQueue[i].empty())
-            {
-                MemReq& req = reqQueue[i].front();
-
-                int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
-                if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
-                {
-                    req.memSysAckQueueBankEntryId = ackQueueEntry;
-                    if (spm->addTransaction(req))  // Send req to SPM
-                    {
-                        ackQueue[i][ackQueueEntry] = req;
-                        reqQueue[i].pop_front();
-                    }
-                }
-            }
+            return i;
         }
     }
-    else
-    {
-        Debug::throwError("Not define SPM!", __FILE__, __LINE__);
-    }
+
+    return -1;
+}
+
+void MemSystem::send2Spm()
+{
+    //if (spm != nullptr)
+    //{
+    //    for (size_t i = 0; i < reqQueue.size(); ++i)
+    //    {
+    //        if (!reqQueue[i].empty())
+    //        {
+    //            MemReq& req = reqQueue[i].front();
+
+    //            int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
+    //            if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
+    //            {
+    //                req.memSysAckQueueBankEntryId = ackQueueEntry;
+    //                if (spm->addTransaction(req))  // Send req to SPM
+    //                {
+    //                    ackQueue[i][ackQueueEntry] = req;
+    //                    reqQueue[i].pop_front();
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    Debug::throwError("Not define SPM!", __FILE__, __LINE__);
+    //}
 }
 
 void MemSystem::getFromSpm()
 {
-    if (spm != nullptr)
+    /*if (spm != nullptr)
     {
         vector<MemReq> _req = spm->callBack();
         for (auto& req : _req)
@@ -373,7 +401,7 @@ void MemSystem::getFromSpm()
     else
     {
         Debug::throwError("Not define SPM!", __FILE__, __LINE__);
-    }
+    }*/
 }
 
 int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
@@ -410,7 +438,7 @@ void MemSystem::send2Cache()
                 //    }
                 //}
 
-                !!!if (cache->addTransaction(req))  // Send req to cache
+                if (cache->addTransaction(req))  // Send req to cache
                 {
                     reqQueue[i].pop_front();
                 }
@@ -449,9 +477,9 @@ void MemSystem::getFromCache()
             if (ackQueue[queueId].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
             {
                 auto ack = cache->callBack(queueId);
-                if (ack.first)
+                if (ack.valid)
                 {
-                    ackQueue[queueId].emplace_back(ack.second);
+                    ackQueue[queueId].emplace_back(ack);
                 }
             }
         }

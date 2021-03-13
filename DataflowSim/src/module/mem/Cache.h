@@ -65,8 +65,7 @@ namespace DFSim
 
         // Interface function for MemSystem
         bool addTransaction(MemReq _req);  // Add transaction to Cache
-        vector<MemReq> callBack();  // Get memory access results from Cache
-        //vector<MemReq> callBackInOrder();  // Get memory access results from Cache in order
+        MemReq callBack(uint ackQueueId);  // Get memory access results from Cache
 
         // Interface func with DRAM
         void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
@@ -117,8 +116,8 @@ namespace DFSim
         bool setCacheBlock(uint addr, uint level);  // Set a cacheblock which the addr belongs to a specific cache level 
         bool writeBackDirtyCacheline(const uint tag, const uint setIndex, const uint level);
 
-        void updateReqQueueOfCacheLevel();
-        void updateCacheLine();
+        //void updateReqQueueOfCacheLevel();
+        //void updateCacheLine();
         void updateReqQueueLatency();
         void updateReqQueue();  // Send req to cacheline to check hit/miss
         void updateAckQueue();  // Send back ack and replace the cacheline of lower level
@@ -152,7 +151,7 @@ namespace DFSim
         vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
         vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
         vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
-                                             make_pari(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
+                                             make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };

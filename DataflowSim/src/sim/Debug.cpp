@@ -285,64 +285,70 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         // Print memSys reqQueue
         _output_file << "MemSys reqQueue:" << std::endl;
         _output_file << std::setw(12) << "addr:";
-        for (auto& req : _memSys->getReqQueue())
+        auto& reqQueue = _memSys->getReqQueue();
+        for (size_t bankId = 0; bankId < reqQueue.size(); ++bankId)
         {
-            if (req.valid)
-            {
-                _output_file << std::setw(MemSys_SetWidth) << req.addr;
-            }
-        }
+            _output_file << std::setw(8) << "Bank_" << bankId << std::endl;
 
-        _output_file << std::endl;
-        _output_file << std::setw(12) << "isWt:";
-        for (auto& req : _memSys->getReqQueue())
-        {
-            if (req.valid)
+            for (auto& req : reqQueue[bankId])
             {
-                _output_file << std::setw(MemSys_SetWidth) << req.isWrite;
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                }
             }
-        }
 
-        _output_file << std::endl;
-        _output_file << std::setw(12) << "inflg:";
-        for (auto& req : _memSys->getReqQueue())
-        {
-            if (req.valid)
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "isWt:";
+            for (auto& req : reqQueue[bankId])
             {
-                _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.isWrite;
+                }
             }
-        }
 
-        _output_file << std::endl;
-        _output_file << std::setw(12) << "rdy:";
-        for (auto& req : _memSys->getReqQueue())
-        {
-            if (req.valid)
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "inflg:";
+            for (auto& req : reqQueue[bankId])
             {
-                _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                }
             }
-        }
 
-        _output_file << std::endl;
-        _output_file << std::setw(12) << "orderId:";
-        for (auto& req : _memSys->getReqQueue())
-        {
-            if (req.valid)
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "rdy:";
+            for (auto& req : reqQueue[bankId])
             {
-                _output_file << std::setw(MemSys_SetWidth) << req.cnt;
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                }
             }
-        }
 
-        //_output_file << std::endl;
-        //_output_file << std::setw(12) << "hasPush:";
-        //for (auto& req : _memSys->getReqQueue())
-        //{
-        //    if (req.valid)
-        //    {
-        //        _output_file << std::setw(5) << req.hasPushChan;
-        //    }
-        //}
-        _output_file << std::endl;
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "orderId:";
+            for (auto& req : reqQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.cnt;
+                }
+            }
+
+            //_output_file << std::endl;
+            //_output_file << std::setw(12) << "hasPush:";
+            //for (auto& req : reqQueue[bankId])
+            //{
+            //    if (req.valid)
+            //    {
+            //        _output_file << std::setw(5) << req.hasPushChan;
+            //    }
+            //}
+            _output_file << std::endl;
+        }
 
         // SPM
         if (_memSys->spm != nullptr)
