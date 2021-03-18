@@ -404,19 +404,6 @@ void MemSystem::getFromSpm()
     }*/
 }
 
-int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
-{
-    for (size_t i = 0; i < _queue.size(); ++i)
-    {
-        if (!_queue[i].valid)
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
 void MemSystem::send2Cache()
 {
     if (cache != nullptr)
