@@ -542,7 +542,7 @@ void GemmTest::gemm_Base(Debug* debug)
         debug->debug_mode = Debug_mode::Print_detail;
         //debug->debug_mode = Debug_mode::Turn_off;
 
-        if (200000 > iter && iter > 199000 /*iter > 0*/)
+        if (/*200000 > iter && iter > 199000*/ iter > 0)
         {
             debug->getFile() << std::endl;
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel

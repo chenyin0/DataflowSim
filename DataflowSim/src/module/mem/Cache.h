@@ -127,6 +127,7 @@ namespace DFSim
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
         const vector<vector<ReqQueueBank>>& getReqQueue() const;
+        const vector<vector<deque<CacheReq>>>& getAckQueue() const;
         const deque<MemReq>& getReqQueue2Mem() const;
 #endif // DEBUG_MODE
 

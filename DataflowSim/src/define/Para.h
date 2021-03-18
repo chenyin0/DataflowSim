@@ -95,7 +95,7 @@ enum class ArchType
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 
-#define MEMSYS_QUEUE_BANK_NUM 16  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 2  // MemSystem reqQueue bank number, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 2  // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 2  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
@@ -135,8 +135,8 @@ enum class ArchType
 #define CACHE_ACCESS_LATENCY_L1 1  // Cycle
 #define CACHE_ACCESS_LATENCY_L2 4  // Cycle
 
-#define CACHE_BANK_NUM_L1 16
-#define CACHE_BANK_NUM_L2 8
+#define CACHE_BANK_NUM_L1 MEMSYS_QUEUE_BANK_NUM
+#define CACHE_BANK_NUM_L2 2
 
 #define CACHE_REQ_Q_SIZE_PER_BANK_L1 4
 #define CACHE_REQ_Q_SIZE_PER_BANK_L2 8

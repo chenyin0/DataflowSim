@@ -284,12 +284,12 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
         // Print memSys reqQueue
         _output_file << "MemSys reqQueue:" << std::endl;
-        _output_file << std::setw(12) << "addr:";
         auto& reqQueue = _memSys->getReqQueue();
         for (size_t bankId = 0; bankId < reqQueue.size(); ++bankId)
         {
             _output_file << std::setw(8) << "Bank_" << bankId << std::endl;
 
+            _output_file << std::setw(12) << "addr:";
             for (auto& req : reqQueue[bankId])
             {
                 if (req.valid)
@@ -405,7 +405,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             _output_file << std::endl;
             _output_file << "Cache reqQueue:" << std::endl;
 
-            const vector<vector<ReqQueueBank>> reqQueue = _memSys->cache->getReqQueue();
+            const vector<vector<ReqQueueBank>>& reqQueue = _memSys->cache->getReqQueue();
 
             for (size_t level = 0; level < reqQueue.size(); ++level)
             {
@@ -469,6 +469,83 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     //    if (req.first.valid)
                     //    {
                     //        _output_file << std::setw(5) << req.first.cnt;
+                    //    }
+                    //}
+
+                    _output_file << std::endl;
+                }
+
+                _output_file << std::endl;
+            }
+
+            // Print cache ackQueue
+            _output_file << std::endl;
+            _output_file << "Cache ackQueue:" << std::endl;
+
+            const vector<vector<deque<CacheReq>>>& ackQueue = _memSys->cache->getAckQueue();
+
+            for (size_t level = 0; level < ackQueue.size(); ++level)
+            {
+                _output_file << std::setw(8) << "Cache_L" << level + 1 << "_ackQueue:" << std::endl;
+
+                for (size_t bankId = 0; bankId < ackQueue[level].size(); ++bankId)
+                {
+                    _output_file << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
+
+                    // Print each req
+                    _output_file << std::setw(12) << "addr:";
+                    for (auto& req : ackQueue[level][bankId])
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "isWt:";
+                    for (auto& req : ackQueue[level][bankId])
+                    {
+                        if (req.valid)
+                        {
+                            if (req.cacheOp == Cache_operation::WRITE)
+                            {
+                                _output_file << std::setw(MemSys_SetWidth) << "1";
+                            }
+                            else
+                            {
+                                _output_file << std::setw(MemSys_SetWidth) << "0";
+                            }
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "inflg:";
+                    for (auto& req : ackQueue[level][bankId])
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "rdy:";
+                    for (auto& req : ackQueue[level][bankId])
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                        }
+                    }
+
+                    //_output_file << std::endl;
+                    //_output_file << std::setw(12) << "OrderId:";
+                    //for (auto& req : ackQueue[level][bankId])
+                    //{
+                    //    if (req.valid)
+                    //    {
+                    //        _output_file << std::setw(5) << req.cnt;
                     //    }
                     //}
 
