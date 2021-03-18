@@ -955,7 +955,7 @@ void Cache::updateAckQueue()
     // 2. The ready entry in mshr
     // 3. The ready req in reqqueue.front()
 
-    for (int level = CACHE_MAXLEVEL; level >= 0; --level)
+    for (int level = CACHE_MAXLEVEL - 1; level >= 0; --level)
     {
         //*** Pop ackQueue
         if (level > 0)  // If level = 0, pop by callback function
@@ -1027,12 +1027,15 @@ void Cache::updateAckQueue()
         // Ready req in reqQueue 
         for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
         {
-            if (reqQueue[level][bankId].front().first.ready && !ackBankConflict[level][bankId])
+            if (!reqQueue[level][bankId].empty())
             {
-                if (ackQueue[level][bankId].size() < ackQueueSizePerBank[level])
+                if (reqQueue[level][bankId].front().first.ready && !ackBankConflict[level][bankId])
                 {
-                    ackQueue[level][bankId].emplace_back(reqQueue[level][bankId].front().first);
-                    reqQueue[level][bankId].pop_front();
+                    if (ackQueue[level][bankId].size() < ackQueueSizePerBank[level])
+                    {
+                        ackQueue[level][bankId].emplace_back(reqQueue[level][bankId].front().first);
+                        reqQueue[level][bankId].pop_front();
+                    }
                 }
             }
         }
@@ -1070,10 +1073,7 @@ void Cache::sendMshrOutstandingReq()
         }
 
         // Clear mshr outstanding flag
-        for (auto& entryId : mshrEntryId)
-        {
-            mshr[level].clearOutstandingFlag(mshrEntryId);
-        }
+        mshr[level].clearOutstandingFlag(mshrEntryId);
     }
 }
 
@@ -1104,7 +1104,12 @@ void Cache::cacheUpdate()
 #ifdef DEBUG_MODE
 const vector<vector<ReqQueueBank>>& Cache::getReqQueue() const
 {
-    return reqQueue;
+    return DFSim::Cache::reqQueue;
+}
+
+const vector<vector<deque<CacheReq>>>& Cache::getAckQueue() const
+{
+    return DFSim::Cache::ackQueue;
 }
 
 const deque<MemReq>& Cache::getReqQueue2Mem() const
