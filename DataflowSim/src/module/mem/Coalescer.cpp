@@ -154,3 +154,10 @@ uint Coalescer::getCoalescerOccupiedEntryNum()
 {
     return coalescerTable.size();
 }
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+const deque<CoalescerEntry>& Coalescer::getCoalescerTable() const
+{
+    return coalescerTable;
+}
+#endif // DEBUG_MODE

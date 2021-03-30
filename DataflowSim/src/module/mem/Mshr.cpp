@@ -182,3 +182,10 @@ void Mshr::clearOutstandingFlag(vector<uint> entryIdVec)
         }
     }
 }
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+const vector<MshrEntry>& Mshr::getMshrTable() const
+{
+    return mshrTable;
+}
+#endif // DEBUG_MODE

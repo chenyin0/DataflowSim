@@ -283,12 +283,14 @@ void Debug::memSysPrint(const MemSystem* _memSys)
         _output_file << "== " << "MemorySystem" << std::endl;
 
         // Print memSys reqQueue
-        _output_file << "MemSys reqQueue:" << std::endl;
         auto& reqQueue = _memSys->getReqQueue();
+        auto& ackQueue = _memSys->getAckQueue();
         for (size_t bankId = 0; bankId < reqQueue.size(); ++bankId)
         {
-            _output_file << std::setw(8) << "Bank_" << bankId << std::endl;
+            _output_file << "Bank_" << bankId << std::endl;
 
+            // Print reqQueue
+            _output_file << std::setw(8) << "reqQueue:" << std::endl;
             _output_file << std::setw(12) << "addr:";
             for (auto& req : reqQueue[bankId])
             {
@@ -337,16 +339,117 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     _output_file << std::setw(MemSys_SetWidth) << req.cnt;
                 }
             }
+            _output_file << std::endl;
 
-            //_output_file << std::endl;
-            //_output_file << std::setw(12) << "hasPush:";
-            //for (auto& req : reqQueue[bankId])
-            //{
-            //    if (req.valid)
-            //    {
-            //        _output_file << std::setw(5) << req.hasPushChan;
-            //    }
-            //}
+
+            // Print ackQueue
+            _output_file << std::setw(8) << "ackQueue:" << std::endl;
+            _output_file << std::setw(12) << "addr:";
+            for (auto& req : ackQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "isWt:";
+            for (auto& req : ackQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.isWrite;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "inflg:";
+            for (auto& req : ackQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "rdy:";
+            for (auto& req : ackQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "orderId:";
+            for (auto& req : ackQueue[bankId])
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.cnt;
+                }
+            }
+            _output_file << std::endl;
+        }
+
+        // Coaleser
+        _output_file << std::endl;
+        _output_file << "MemSys Coaleser:" << std::endl;
+        const auto& coalescerTable = (*_memSys).getCoalescer().getCoalescerTable();
+
+        for (size_t entryId = 0; entryId < coalescerTable.size(); ++entryId)
+        {
+            auto& entry = coalescerTable[entryId];
+            _output_file << std::setw(8) << "Entry_" << entryId << ":"
+                << " valid:" << entry.valid
+                << " block_addr:" << entry.blockAddr
+                << " rdy:" << entry.ready;
+                //<< " outstanding:" << entry.outstanding << std::endl;
+
+            auto& reqQueue = entry.coalescerQueue;
+            // Print each EntryItem
+            _output_file << std::setw(12) << "addr:";
+            for (auto& req : reqQueue)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "isWt:";
+            for (auto& req : reqQueue)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.isWrite;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "inflg:";
+            for (auto& req : reqQueue)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "rdy:";
+            for (auto& req : reqQueue)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                }
+            }
+
             _output_file << std::endl;
         }
 
@@ -548,6 +651,79 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                     //        _output_file << std::setw(5) << req.cnt;
                     //    }
                     //}
+
+                    _output_file << std::endl;
+                }
+
+                _output_file << std::endl;
+            }
+
+            // Print cache MSHR
+            _output_file << std::endl;
+            _output_file << "Cache MSHR:" << std::endl;
+
+            const vector<Mshr>& mshr = _memSys->cache->getMshr();
+
+            for (size_t level = 0; level < mshr.size(); ++level)
+            {
+                _output_file << std::setw(8) << "Mshr_L" << level + 1 << ":" << std::endl;
+
+                for (size_t entryId = 0; entryId < mshr[level].getMshrTable().size(); ++entryId)
+                {
+                    auto& entry = mshr[level].getMshrTable()[entryId];
+                    _output_file << std::setw(8) << "Entry_" << entryId << ":"
+                        << " valid:" << entry.valid
+                        << " block_addr:" << entry.blockAddr
+                        << " rdy:" << entry.ready
+                        << " outstanding:" << entry.outstanding << std::endl;
+
+                    auto& reqQueue = entry.mshrQueue;
+                    // Print each EntryItem
+                    _output_file << std::setw(12) << "addr:";
+                    for (auto& req : reqQueue)
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "isWt:";
+                    for (auto& req : reqQueue)
+                    {
+                        if (req.valid)
+                        {
+                            if (req.cacheOp == Cache_operation::WRITE)
+                            {
+                                _output_file << std::setw(MemSys_SetWidth) << "1";
+                            }
+                            else
+                            {
+                                _output_file << std::setw(MemSys_SetWidth) << "0";
+                            }
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "inflg:";
+                    for (auto& req : reqQueue)
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.inflight;
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "rdy:";
+                    for (auto& req : reqQueue)
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                        }
+                    }
 
                     _output_file << std::endl;
                 }

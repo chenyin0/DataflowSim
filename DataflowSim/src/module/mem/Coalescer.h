@@ -1,6 +1,7 @@
 #pragma once
 #include "../../define/Define.hpp"
 #include "../DataType.h"
+#include "../../define/Para.h"
 
 namespace DFSim 
 {
@@ -27,6 +28,11 @@ namespace DFSim
         bool checkCoalescerReady();  // Coalescer has the highest priority 
         //MemReq getFromCoalescer();  // Before getFromCoaleser, must check whether coalescer is ready
         uint getCoalescerOccupiedEntryNum();
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+    public:
+        const deque<CoalescerEntry>& getCoalescerTable() const;
+#endif // DEBUG_MODE
 
     private:
         uint entryNum = 0;

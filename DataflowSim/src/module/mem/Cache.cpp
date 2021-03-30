@@ -56,10 +56,10 @@ void Cache::init()
         write_allocate[i] = cache_write_allocate[i];
 
         reqQueue[i].resize(cache_bank_num[i]);
-        for (auto& reqQueueBank : reqQueue[i])
-        {
-            reqQueueBank.resize(reqQueueSizePerBank[i]);
-        }
+        //for (auto& reqQueueBank : reqQueue[i])
+        //{
+        //    reqQueueBank.resize(reqQueueSizePerBank[i]);
+        //}
 
         ackQueue[i].resize(cache_bank_num[i]);
         for (auto& ackQueueBank : ackQueue[i])
@@ -575,7 +575,8 @@ void Cache::mem_req_complete(MemReq _req)
 {
     uint llc = CACHE_MAXLEVEL - 1;
     uint addr = _req.addr;
-    //uint set_llc = (addr >> cache_line_shifts[llc]) % cache_set_size[llc];
+
+    // Update cacheline
     uint set_llc = getCacheSetIndex(addr, llc);
     uint setBase_llc = set_llc * cache_mapping_ways[llc];
 
@@ -584,6 +585,10 @@ void Cache::mem_req_complete(MemReq _req)
         uint cache_free_line = get_cache_free_line(setBase_llc, llc);
         set_cache_line(cache_free_line, addr, llc);
     }
+
+    // Update MSHR of LLC
+    uint blockAddr = getCacheBlockId(addr, llc);
+    mshr[llc].setMshrEntryReady(blockAddr);
 }
 
 // Emulate cache access latency
@@ -897,24 +902,33 @@ void Cache::updateReqQueue()
                                 }
                                 else if (write_strategy[level] == Cache_write_strategy::WRITE_THROUGH)
                                 {
-                                    if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+                                    // In write_through mode, need to send write_req to next cache level by MSHR
+                                    // This behavior likes a cache miss
+                                    uint blockAddr = getCacheBlockId(req.first.addr, level);
+                                    if (!mshr[level].send2Mshr(blockAddr, req.first))
                                     {
-                                        if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache in "write_through"
-                                        {
-                                            //req.first.ready = 1;
-                                            //req.first.inflight = 0;
-                                            reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
-                                        }
+                                        Debug::throwError("Send to MSHR unsuccessfully!", __FILE__, __LINE__);
                                     }
-                                    else  // If it is LLC, send the req to the DRAM
-                                    {
-                                        if (sendReq2reqQueue2Mem(req.first))  // Send req to DRAM in "write_through"
-                                        {
-                                            //req.first.ready = 1;
-                                            //req.first.inflight = 0;
-                                            reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
-                                        }
-                                    }
+                                    reqQueueBank.pop_front();
+
+                                    //if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+                                    //{
+                                    //    if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache in "write_through"
+                                    //    {
+                                    //        //req.first.ready = 1;
+                                    //        //req.first.inflight = 0;
+                                    //        reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
+                                    //    }
+                                    //}
+                                    //else  // If it is LLC, send the req to the DRAM
+                                    //{
+                                    //    if (sendReq2reqQueue2Mem(req.first))  // Send req to DRAM in "write_through"
+                                    //    {
+                                    //        //req.first.ready = 1;
+                                    //        //req.first.inflight = 0;
+                                    //        reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
+                                    //    }
+                                    //}
                                 }
                             }
                             else  // If it is cache read or other cache operation
@@ -991,7 +1005,6 @@ void Cache::updateAckQueue()
             }
         }
 
-
         //*** Push ackQueue
         // Respond to MSHR ready reqs
         auto reqVec = mshr[level].peekMshrReadyEntry();
@@ -1006,7 +1019,7 @@ void Cache::updateAckQueue()
                 {
                     if (!ackBankConflict[level][bankId])
                     {
-                        auto ackQueueBank = ackQueue[level][bankId];
+                        auto& ackQueueBank = ackQueue[level][bankId];
                         if (ackQueueBank.size() < ackQueueSizePerBank[level])
                         {
                             ackQueueBank.emplace_back(req.second);
@@ -1115,5 +1128,10 @@ const vector<vector<deque<CacheReq>>>& Cache::getAckQueue() const
 const deque<MemReq>& Cache::getReqQueue2Mem() const
 {
     return reqQueue2Mem;
+}
+
+const vector<Mshr>& Cache::getMshr() const
+{
+    return mshr;
 }
 #endif

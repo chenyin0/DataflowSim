@@ -304,7 +304,7 @@ void MemSystem::sendBack2Lse()
             }
             else
             {
-                if (!lseRecorder[req.lseId])  // If not Lse content, pop ackQueue
+                if (!lseRecorder[req.lseId])  // If not Lse contention, pop ackQueue
                 {
                     lseRecorder[req.lseId] = 1;
                     lseRegistry[req.lseId]->ackCallback(req);  // Write back ack to Lse
@@ -582,5 +582,15 @@ const vector<Lse*>& MemSystem::getLseRegistry() const
 const vector<deque<MemReq>>& MemSystem::getReqQueue() const
 {
     return reqQueue;
+}
+
+const vector<deque<MemReq>>& MemSystem::getAckQueue() const
+{
+    return ackQueue;
+}
+
+const Coalescer& MemSystem::getCoalescer() const
+{
+    return coalescer;
 }
 #endif

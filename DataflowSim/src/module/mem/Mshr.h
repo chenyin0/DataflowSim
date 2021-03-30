@@ -1,6 +1,7 @@
 #pragma once
 #include "../../define/Define.hpp"
 #include "../DataType.h"
+#include "../../define/Para.h"
 
 namespace DFSim
 {
@@ -29,6 +30,11 @@ namespace DFSim
         vector<pair<uint, CacheReq>> getOutstandingReq();  // <entryId, req>
         void clearOutstandingFlag(vector<uint> entryIdVec);
         //CacheReq getFromMshr();  // Before getFromMshr, must check whether MSHR is ready!
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+    public:
+        const vector<MshrEntry>& getMshrTable() const;
+#endif // DEBUG_MODE
 
     private:
         uint entryNum = 0;

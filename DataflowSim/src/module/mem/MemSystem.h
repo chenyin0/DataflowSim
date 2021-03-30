@@ -62,6 +62,8 @@ namespace DFSim
     public:
         const vector<Lse*>& getLseRegistry() const;
         const vector<deque<MemReq>>& getReqQueue() const;
+        const vector<deque<MemReq>>& getAckQueue() const;
+        const Coalescer& getCoalescer() const;
         //const vector<pair<MemReq, uint>>& getBusDelayFifo() const;
 #endif // DEBUG_MODE
 
