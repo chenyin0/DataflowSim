@@ -46,7 +46,7 @@ namespace DFSim
         uint assign();  // Return corresponding addr
         //bool checkSend(Data _data, Channel* upstream) override;
         void ackCallback(MemReq _req);  // Callback func for MemSys
-        void sendReq2Mem();  // Send req to memSystem, callback func for MemSys
+        void setInflight(MemReq& _req);  // Set req inflight to signify this req has been sent to memSys
         pair<bool, MemReq> peekReqQueue();  // Peek the suspendReq by arbitor in memSys
 
     protected:
@@ -90,6 +90,7 @@ namespace DFSim
         uint lseId;
         uint lastPopVal = 0;
         // reqQueue ptr
+    public:  // Debug_yin_04.01 should't public
         uint pushQueuePtr = 0;  // Push req to reqQueue
         uint sendChanPtr = 0;  // Send ready req to channel
         uint sendMemPtr = 0;  // Send req to memory system
@@ -98,5 +99,8 @@ namespace DFSim
         uint orderId = 0;  // Record request sequence
         uint currReqId = 0;  // Used in Lse in order
         MemSystem* memSys = nullptr;
+
+        // Debug_yin
+        int reqCnt = -1;
     };
 }

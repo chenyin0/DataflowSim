@@ -365,6 +365,8 @@ CacheReq Cache::transMemReq2CacheReq(const MemReq& memReq)
     //cacheReq.memSysAckQueueBankEntryId = memReq.memSysAckQueueBankEntryId;
     cacheReq.cnt = memReq.cnt;  // For debug
     cacheReq.coalesced = memReq.coalesced;
+    cacheReq.lseId = memReq.lseId;
+    cacheReq.lseReqQueueIndex = memReq.lseReqQueueIndex;
 
     if (memReq.isWrite)
     {
@@ -391,6 +393,8 @@ MemReq Cache::transCacheReq2MemReq(const CacheReq& cacheReq)
     //memReq.memSysAckQueueBankEntryId = cacheReq.memSysAckQueueBankEntryId;
     //memReq.cnt = cacheReq.cnt;
     memReq.coalesced = cacheReq.coalesced;
+    memReq.lseId = cacheReq.lseId;
+    memReq.lseReqQueueIndex = cacheReq.lseReqQueueIndex;
 
     if (cacheReq.cacheOp == Cache_operation::WRITE)
     {
@@ -897,7 +901,8 @@ void Cache::updateReqQueue()
                                     caches[level][setIndex].flag |= CACHE_FLAG_DIRTY;  // Write cache -> dirty only in WRITE_BACK mode
                                     //req.first.ready = 1;
                                     //req.first.inflight = 0;
-                                    reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
+                                    //reqQueueBank.pop_front();  // Directly pop this req, not push into ackQueue
+                                    req.first.ready = 1;
                                     // TODO: need to add a mechanism to ensure RAW/WAW!
                                 }
                                 else if (write_strategy[level] == Cache_write_strategy::WRITE_THROUGH)
@@ -909,7 +914,8 @@ void Cache::updateReqQueue()
                                     {
                                         Debug::throwError("Send to MSHR unsuccessfully!", __FILE__, __LINE__);
                                     }
-                                    reqQueueBank.pop_front();
+                                    //reqQueueBank.pop_front();
+                                    req.first.ready = 1;
 
                                     //if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
                                     //{
@@ -1022,6 +1028,7 @@ void Cache::updateAckQueue()
                         auto& ackQueueBank = ackQueue[level][bankId];
                         if (ackQueueBank.size() < ackQueueSizePerBank[level])
                         {
+                            req.second.ready = 1;
                             ackQueueBank.emplace_back(req.second);
                             entryIdVec.emplace_back(req.first);
                             ackBankConflict[level][bankId] = 1;

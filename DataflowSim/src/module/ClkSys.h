@@ -41,7 +41,7 @@ namespace DFSim
 
     private:
         static uint _clk;
-        static bool clkAdd;
+        static bool clkAdd;  // Signify whether clock update in this cycle
         static deque<bool> clkStall;
         static void resetClkStall();
     };

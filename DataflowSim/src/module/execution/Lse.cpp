@@ -194,6 +194,18 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
         reqQueue[pushQueuePtr].first = req;
         reqQueue[pushQueuePtr].second = data;
 
+        // Debug_yin_04.01
+        if (reqQueue[pushQueuePtr].first.ready)
+        {
+            Debug::throwError("Lse not clear ready!", __FILE__, __LINE__);
+        }
+        //Debug_yin_04.01
+        //if (req.addr == 937 && req.cnt == 17)
+        //{
+        //    //Debug::throwError("Catch req 937!", __FILE__, __LINE__);
+        //    system("pause");
+        //}
+
         popChanBuffer();
         pushQueuePtr = (++pushQueuePtr) % reqQueue.size();
     }
@@ -262,35 +274,73 @@ void Lse::statusUpdate()
     // Select a ready req
     if (!suspendReq.first)  // If suspendReq is invalid
     {
-        for (size_t i = 0; i < reqQueue.size(); ++i)
+        //for (size_t i = 0; i < reqQueue.size(); ++i)
+        //{
+        //    auto& req = reqQueue[sendMemPtr].first;
+        //    if (req.valid && !req.inflight && !req.ready)
+        //    {
+        //        if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
+        //        {
+        //            req.lseReqQueueIndex = sendMemPtr;
+        //            if (NO_MEMORY || noLatencyMode)
+        //            {
+        //                ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
+        //            }
+        //            else
+        //            {
+        //                // If Lse in the false path, not send req to memory and sendback ack directly
+        //                if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
+        //                {
+        //                    ackCallback(req);
+        //                }
+        //                else
+        //                {
+        //                    suspendReq = make_pair(true, req);
+        //                }
+        //            }
+
+        //            sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
+        //            break;
+        //        }
+        //    }
+        //    //sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
+        //}
+
+        auto& req = reqQueue[sendMemPtr].first;
+        if (req.valid && !req.inflight && !req.ready)
         {
-            auto& req = reqQueue[sendMemPtr].first;
-            if (req.valid && !req.inflight && !req.ready)
+            if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
             {
-                if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
+                req.lseReqQueueIndex = sendMemPtr;
+                if (NO_MEMORY || noLatencyMode)
                 {
-                    if (NO_MEMORY || noLatencyMode)
+                    ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
+                }
+                else
+                {
+                    // If Lse in the false path, not send req to memory and sendback ack directly
+                    if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
                     {
-                        ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
+                        ackCallback(req);
                     }
                     else
                     {
-                        // If Lse in the false path, not send req to memory and sendback ack directly
-                        if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
-                        {
-                            ackCallback(req);
-                        }
-                        else
-                        {
-                            suspendReq = make_pair(true, req);
-                        }
-                    }
+                        suspendReq = make_pair(true, req);
 
-                    sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
-                    break;
+                        // *** Debug_yin_04.01
+                        if (req.cnt != reqCnt + 1)
+                        {
+                            std::cout << "req: " << req.cnt << std::endl;
+                            std::cout << "cnt: " << reqCnt << std::endl;
+                            Debug::throwError("Lse suspend not in order!", __FILE__, __LINE__);
+                        }
+                        reqCnt = req.cnt;
+                        // ***
+                    }
                 }
+
+                sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
             }
-            //sendMemPtr = (++sendMemPtr) % reqQueue.size();  // Update sendPtr, round-robin
         }
     }
 
@@ -330,6 +380,11 @@ void Lse::statusUpdate()
     {
         parallelize();
     }
+
+    //// Debug_yin_04.01
+    //std::cout << "pushQueuePtr: " << pushQueuePtr << "\t"
+    //    << "sendChanPtr: " << sendChanPtr << "\t"
+    //    << "sendMemPtr: " << sendMemPtr << std::endl;
 }
 
 void Lse::pushChannel()
@@ -448,6 +503,10 @@ uint Lse::assign()
 void Lse::ackCallback(MemReq _req)
 {
     uint index = _req.lseReqQueueIndex;
+    if (!reqQueue[index].first.inflight)
+    {
+        Debug::throwError("Current req is not an inflight req!", __FILE__, __LINE__);
+    }
     reqQueue[index].first.ready = 1;
     reqQueue[index].first.inflight = 0;
     //reqQueue[index].first.cnt = _req.cnt;
@@ -469,7 +528,7 @@ pair<bool, MemReq> Lse::peekReqQueue()
     return req;
 }
 
-void Lse::sendReq2Mem()
+void Lse::setInflight(MemReq& _req)
 {
 //    bool sendSuccess = 0;
 //    bool reqInvalid = 0;
@@ -512,9 +571,10 @@ void Lse::sendReq2Mem()
         memReqCnt++;
 #endif // DEBUG_MODE
 
-        auto& req = suspendReq.second;
-        uint index = req.lseReqQueueIndex;
+        /*auto& req = suspendReq.second;*/
+        uint index = _req.lseReqQueueIndex;
         reqQueue[index].first.inflight = 1;  // Req has been sent to memory
+        reqQueue[index].first.coalesced = _req.coalesced;
         suspendReq.first = 0;  // Clear current suspendReq
     }
 }

@@ -26,6 +26,7 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
         {
             entry.mshrQueue.emplace_back(_cacheReq);
             sendSuccess = 1;
+            return sendSuccess;
         }
     }
 
@@ -39,7 +40,7 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
             entry.blockAddr = _blockAddr;
             entry.mshrQueue.emplace_back(_cacheReq);
             sendSuccess = 1;
-            break;
+            return sendSuccess;
         }
     }
 

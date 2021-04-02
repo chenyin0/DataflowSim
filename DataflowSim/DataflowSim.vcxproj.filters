@@ -152,6 +152,9 @@
     <ClInclude Include="src\module\mem\Arbiter.h">
       <Filter>src\module\memory</Filter>
     </ClInclude>
+    <ClInclude Include="src\sim\Watchdog.h">
+      <Filter>src\sim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -249,6 +252,9 @@
     </ClCompile>
     <ClCompile Include="src\module\mem\Arbiter.cpp">
       <Filter>src\module\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\Watchdog.cpp">
+      <Filter>src\sim</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

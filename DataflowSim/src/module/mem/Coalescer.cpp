@@ -14,10 +14,10 @@ void Coalescer::coalescerInit(uint _entryNum, uint _entrySize)
     entryNum = _entryNum;
     entrySize = _entrySize;
 
-    coalescerTable.resize(_entryNum);
+    //coalescerTable.resize(_entryNum);
 }
 
-bool Coalescer::send2Coalescer(uint _blockAddr, vector<MemReq> _reqVec)
+bool Coalescer::send2Coalescer(uint _blockAddr, deque<MemReq> _reqQueue)
 {
     //for (auto& entry : coalescerTable)
     //{
@@ -44,16 +44,16 @@ bool Coalescer::send2Coalescer(uint _blockAddr, vector<MemReq> _reqVec)
 
     if (coalescerTable.size() < MEMSYS_COALESCER_ENTRY_NUM)
     {
-        deque<MemReq> reqQueue;
-        for (auto& req : _reqVec)
-        {
-            reqQueue.push_back(req);
-        }
+        //deque<MemReq> reqQueue;
+        //for (auto& req : _reqVec)
+        //{
+        //    reqQueue.push_back(req);
+        //}
 
         CoalescerEntry entry;
         entry.valid = 1;
         entry.blockAddr = _blockAddr;
-        entry.coalescerQueue = reqQueue;
+        entry.coalescerQueue = _reqQueue;
         coalescerTable.push_back(entry);
 
         return true;

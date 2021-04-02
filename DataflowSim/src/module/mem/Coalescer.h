@@ -21,7 +21,7 @@ namespace DFSim
     public:
         Coalescer(uint _entryNum, uint _entrySize);
         void coalescerInit(uint _entryNum, uint _entrySize);
-        bool send2Coalescer(uint _blockAddr, vector<MemReq> _reqVec);
+        bool send2Coalescer(uint _blockAddr, deque<MemReq> _reqQueue);
         uint searchCoalescer(uint _blockAddr);  // Search and return corresponding coalescer entry
         void popCoalescerEntry(uint entryId);
         //void writeBackCoalescer(uint _blockAddr);  // When receive a coaleced ack, set corresponding entry ready in coalescor

@@ -60,8 +60,9 @@ uint MemSystem::registerLse(Lse* _lse)
     uint lseId = lseRegistry.size() - 1;  // Index in LseRegistry
 
     // Add lseReqTable
-    vector<Lse*> lseVec( _lse->speedup, _lse );
-    lseReqTable.insert(lseReqTable.end(), lseVec.begin(), lseVec.end());
+    //vector<Lse*> lseVec( _lse->speedup, _lse );
+    //lseReqTable.insert(lseReqTable.end(), lseVec.begin(), lseVec.end());
+    lseReqTable.insert(lseReqTable.end(), _lse);
 
     return lseId;
 }
@@ -136,32 +137,15 @@ void MemSystem::resetBankRecorder()
         entry.valid = 0;
         entry.hasRegisteredCoalescer = 0;
         entry.reqQueue.clear();
+        //entry.rdPtr = 0;
+        entry.hasSent2Mem = 0;
     }
 }
 
 void MemSystem::getLseReq()
 {
-    //for (size_t i = 0; i < std::min(reqQueue.size(), lseReqTable.size()); ++i)
-    //{
-    //    Lse* _lse = lseReqTable[reqQueueWritePtr];
-    //    if (_lse->sendReq2Mem())
-    //    {
-    //        reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
-    //    }
-    //    else
-    //    {
-    //        break;
-    //    }
-    //}
-
-    //vector<pair<bool, uint>> bankOccupied(reqQueue.size());  // <bool, uint> = <valid, reqRecorder index>
-    //bankOccupied.assign(bankOccupied.size(), make_pair(0, 0));  // Clear bankOccupied, clear flag and address
-    //vector<deque<pair<uint, Lse*>>> reqRecorder;  // Record each req in one round
-
     bool ptrUpdateLock = 0;
     uint ptr = reqQueueWritePtr;  // Record inital ptr
-    resetBankRecorder();
-    uint coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();
 
     // Generate all the valid req in this round
     for (size_t i = 0; i < lseReqTable.size(); ++i)
@@ -183,23 +167,30 @@ void MemSystem::getLseReq()
                     entry.reqQueue.push_back(req.second);
                     sendSuccess = 1;
                 }
-                else
+                else  // If corresponding bank is occupied in this round, check whether can be coaleseced with the perior one
                 {
-                    if (coalescerFreeEntryNum > 0)
+                    // 1) A write req not send to coalescer and 2) Any req can't coalesce with a write req
+                    if (!req.second.isWrite && !entry.reqQueue.front().isWrite)
                     {
-                        if (entry.addrTag == getAddrTag(req.second.addr))  // Check whether is coalesceable
+                        if (coalescerFreeEntryNum > 0)
                         {
-                            // If the first time coalescing, occupy a coalscer entry
-                            if (!entry.hasRegisteredCoalescer)
+                            uint addrTag = getAddrTag(req.second.addr);
+                            if (addrTag == entry.addrTag)  // Check whether is coalesceable
                             {
-                                coalescerFreeEntryNum--;
-                            }
-                            entry.hasRegisteredCoalescer = 1;
+                                // If the first time coalescing, occupy a coalscer entry
+                                if (!entry.hasRegisteredCoalescer)
+                                {
+                                    // Assign a new coalescer entry, never coalesce to an existent one
+                                    coalescerFreeEntryNum--;
+                                    entry.hasRegisteredCoalescer = 1;
+                                }
 
-                            if (entry.reqQueue.size() < MEMSYS_COALESCER_SIZY_PER_ENTRY)
-                            {
-                                entry.reqQueue.push_back(req.second);
-                                sendSuccess = 1;
+                                if (entry.reqQueue.size() < MEMSYS_COALESCER_SIZY_PER_ENTRY)
+                                {
+                                    req.second.coalesced = 1;
+                                    entry.reqQueue.push_back(req.second);
+                                    sendSuccess = 1;
+                                }
                             }
                         }
                     }
@@ -211,48 +202,140 @@ void MemSystem::getLseReq()
                 _lse->memReqBlockCnt++;
             }
         }
-        else
-        {
-            if (!ptrUpdateLock)
-            {
-                reqQueueWritePtr = ptr;
-                ptrUpdateLock = 1;  // Only update ptr once in each round
-            }
-        }
     }
+    reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
 
-    // Pop Lse request
-    for (auto& entry : bankRecorder)
+    // For Lse parallelism/speedup mode
+    if (ClkDomain::checkClkAdd())
     {
-        if (entry.valid)
+        // Send to coalescer
+        for (auto& entry : bankRecorder)
         {
-            for (auto& req : entry.reqQueue)
+            if (entry.valid && entry.hasRegisteredCoalescer)
             {
-                lseRegistry[req.lseId]->sendReq2Mem();
-            }
-        }
-    }
-
-    // Send to coalescer
-    for (auto& entry : bankRecorder)
-    {
-        if (entry.valid && entry.hasRegisteredCoalescer)
-        {
-            for (auto& req : entry.reqQueue)
-            {
+                //deque<MemReq> _reqQueue;
+                //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
+                //{
+                //    _reqQueue.emplace_back(*iter);
+                //}
                 coalescer.send2Coalescer(entry.addrTag, entry.reqQueue);
             }
         }
+
+        // Send to memSystem's reqQueue
+        for (auto& entry : bankRecorder)
+        {
+            if (entry.valid)
+            {
+                //// Only send the req to memSys once
+                //if (!entry.hasSent2Mem && entry.rdPtr == 0)
+                //{
+                //    //auto& req = entry.reqQueue.front();
+                //    //req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
+                //    //if (addTransaction(req))  // Use the front request to represent all the coalesced address
+                //    //{
+                //    //    entry.hasSent2Mem = 1;
+                //    //}
+                //}
+
+                auto& req = entry.reqQueue.front();
+                req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
+                if (addTransaction(req))  // Use the front request to represent all the coalesced address
+                {
+                    entry.hasSent2Mem = 1;
+                }
+            }
+        }
+
+        // Pop Lse request
+        for (auto& entry : bankRecorder)
+        {
+            if (entry.valid && entry.hasSent2Mem)
+            {
+                for (auto& req : entry.reqQueue)
+                {
+                    lseRegistry[req.lseId]->setInflight(req);
+                }
+                //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
+                //{
+                //    auto& req = *iter;
+                //    lseRegistry[req.lseId]->setInflight(req);
+                //}
+            }
+        }
+
+        //// Update entry rdPtr
+        //for (auto& entry : bankRecorder)
+        //{
+        //    if (entry.valid)
+        //    {
+        //        entry.rdPtr = entry.reqQueue.size();
+        //    }
+        //}
+
+        resetBankRecorder();
+        coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
+        ////Debug_yin
+        //std::cout << "coalescer free Num: " << coalescerFreeEntryNum << std::endl;
     }
 
-    // Send to reqQueue
-    for (auto& entry : bankRecorder)
-    {
-        if (entry.valid)
-        {
-            addTransaction(entry.reqQueue.front());  // Use the front request to represent all the coalesced address
-        }
-    }
+    //// Send to coalescer
+    //for (auto& entry : bankRecorder)
+    //{
+    //    if (entry.valid && entry.hasRegisteredCoalescer)
+    //    {
+    //        deque<MemReq> _reqQueue;
+    //        for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
+    //        {
+    //            _reqQueue.emplace_back(*iter);
+    //        }
+    //        coalescer.send2Coalescer(entry.addrTag, _reqQueue);
+    //    }
+    //}
+
+    //// Send to memSystem's reqQueue
+    //for (auto& entry : bankRecorder)
+    //{
+    //    if (entry.valid)
+    //    {
+    //        // Only send the req to memSys once
+    //        if (!entry.hasSent2Mem && entry.rdPtr == 0)
+    //        {
+    //            auto& req = entry.reqQueue.front();
+    //            //req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
+    //            if (addTransaction(req))  // Use the front request to represent all the coalesced address
+    //            {
+    //                entry.hasSent2Mem = 1;
+    //            }
+    //        }
+    //    }
+    //}
+
+    //// Pop Lse request
+    //for (auto& entry : bankRecorder)
+    //{
+    //    if (entry.valid && entry.hasSent2Mem)
+    //    {
+    //        //for (auto& req : entry.reqQueue)
+    //        //{
+    //        //    lseRegistry[req.lseId]->sendReq2Mem();
+    //        //}
+    //        for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
+    //        {
+    //            auto& req = *iter;
+    //            lseRegistry[req.lseId]->setInflight(req);
+    //        }
+    //    }
+    //}
+
+    //// Update entry rdPtr
+    //for (auto& entry : bankRecorder)
+    //{
+    //    if (entry.valid)
+    //    {
+    //        entry.rdPtr = entry.reqQueue.size();
+    //    }
+    //}
 }
 
 //void MemSystem::writeAck2Lse(MemReq _req)
@@ -288,7 +371,7 @@ void MemSystem::sendBack2Lse()
                     {
                         lseRecorder[lseId] = 1;
                         lseRegistry[lseId]->ackCallback(*iter);
-                        coalescerQueue.erase(iter);
+                        iter = coalescerQueue.erase(iter);
 
                         if (coalescerQueue.empty())
                         {

@@ -1,4 +1,5 @@
 #include "./Gemm.h"
+#include "../../src/sim/Watchdog.h"
 
 using namespace DFSimTest;
 
@@ -56,6 +57,8 @@ void GemmTest::gemm_Base(Debug* debug)
     //*** Declare Profiler
     Profiler* profiler = new Profiler(registry, memSys, debug);
 
+    //*** Declare Watchdog
+    Watchdog watchdog = Watchdog(pow(2, 7), 10);
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, 1);  // Load M1
@@ -327,6 +330,7 @@ void GemmTest::gemm_Base(Debug* debug)
     registry->tableInit();  // Update registry and initial all the module in registry
     registry->pathBalance();
     profiler->init();
+    watchdog.addCheckPointChan({ lc_jj_getEnd, lc_kk_getEnd, lc_i_getEnd, lc_k_getEnd, lc_j_getEnd });
 
     begin->get({ 1 });
     uint iter = 0;
@@ -340,7 +344,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 200000;
+    uint max_iter = 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -354,9 +358,17 @@ void GemmTest::gemm_Base(Debug* debug)
     clock_t startTime, endTime;
     startTime = clock();
 
+    //// Debug_yin_04.02
+    //for (auto& entry : registry->registryTable)
+    //{
+    //    std::cout << "ModuleId: " << entry.moduleId << std::endl;
+    //}
+
     // Execute
     while (iter < max_iter)
     {
+        watchdog.feedDog(iter);
+
         // Print progress bar
         if (iter / segment > percent)
         {
@@ -542,7 +554,7 @@ void GemmTest::gemm_Base(Debug* debug)
         debug->debug_mode = Debug_mode::Print_detail;
         //debug->debug_mode = Debug_mode::Turn_off;
 
-        if (/*200000 > iter && iter > 199000*/ iter > 0)
+        if (/*61560 > iter && iter > 58000*/ iter > 0)
         {
             debug->getFile() << std::endl;
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel
@@ -645,6 +657,13 @@ void GemmTest::gemm_Base(Debug* debug)
             }
         }
 
+        //// Debug_yin_04.01
+        //debug->debug_mode = Debug_mode::Print_detail;
+        //debug->getFile() << "Lse_Partial_sum_reqQueue_size: " << lse_ld_partialSum->reqQueue.size() << std::endl;
+        //debug->getFile() << "pushQueuePtr: " << lse_ld_partialSum->pushQueuePtr 
+        //    << "\tsendMemPtr: " << lse_ld_partialSum->sendMemPtr 
+        //    << "\tsendChanPtr: " << lse_ld_partialSum->sendChanPtr << std::endl;
+
         if (!end->channel.empty())
         {
             debug->debug_mode = Debug_mode::Print_detail;
@@ -727,4 +746,5 @@ void GemmTest::gemm_Base(Debug* debug)
 
     delete registry;  // All the Module pointers have been deleted when destruct registry
     delete memSys;
+    delete profiler;
 }

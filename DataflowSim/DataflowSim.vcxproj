@@ -150,6 +150,7 @@
     <ClInclude Include="src\module\Profiler.h" />
     <ClInclude Include="src\module\Registry.h" />
     <ClInclude Include="src\sim\Debug.h" />
+    <ClInclude Include="src\sim\Watchdog.h" />
     <ClInclude Include="src\util\ReadFile.hpp" />
     <ClInclude Include="src\util\util.hpp" />
     <ClInclude Include="test\aes\Aes.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="src\module\Profiler.cpp" />
     <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="src\sim\Watchdog.cpp" />
     <ClCompile Include="test\aes\Aes.cpp" />
     <ClCompile Include="test\aes\Aes_Base.cpp" />
     <ClCompile Include="test\aes\Aes_DGSF.cpp" />
@@ -211,6 +213,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\Bfs\input.data" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DRAMSim2\DRAMSim2.vcxproj">
+      <Project>{86c551d5-103a-49c1-a654-325bee187ef1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

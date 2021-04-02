@@ -63,7 +63,7 @@ enum class ArchType
 
 // Lse
 #define LSE_QUEUE_SIZE 16
-#define LSE_O3 1
+#define LSE_O3 0
 
 #ifdef DGSF
     #define CHAN_SIZE BRAM_BANK_DEPTH
@@ -95,7 +95,7 @@ enum class ArchType
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 
-#define MEMSYS_QUEUE_BANK_NUM 1  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 2  // MemSystem reqQueue bank number, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 2  // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 2  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 

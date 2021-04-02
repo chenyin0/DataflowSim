@@ -71,6 +71,8 @@ namespace DFSim
         uint cnt = 0;  // Record cacheReq sequence (for debug)
         //uint setBase = 0;  // Cacheline Id (equal indicate in the same cacheline)
         //int hitIndex = -1;  // Cache miss = -1; Cache hit = cacheline index
+        uint lseId = 0;
+        uint lseReqQueueIndex = 0;
         
         bool inflight = 0;
         bool ready = 0;

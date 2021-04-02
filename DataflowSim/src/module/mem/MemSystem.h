@@ -18,7 +18,9 @@ namespace DFSim
         bool valid = 0;
         uint addrTag = 0;
         bool hasRegisteredCoalescer = 0;
-        vector<MemReq> reqQueue;
+        bool hasSent2Mem = 0;
+        deque<MemReq> reqQueue;
+        //uint rdPtr = 0; // Record current starting point to avoid operate a visited req agian
     };
 
     class MemSystem
@@ -84,6 +86,7 @@ namespace DFSim
         deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
         Coalescer coalescer = Coalescer(MEMSYS_COALESCER_ENTRY_NUM, MEMSYS_COALESCER_SIZY_PER_ENTRY);
         vector<bankRecorderEntry> bankRecorder;  // Emulate bank conflict, record bank visited status in each round
+        uint coalescerFreeEntryNum = 0;  // Record free coalescer entry number
     };
 
 }

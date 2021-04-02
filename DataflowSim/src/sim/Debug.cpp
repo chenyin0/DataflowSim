@@ -204,7 +204,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.addr;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.addr;
             }
         }
 
@@ -214,7 +214,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.isWrite;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.isWrite;
             }
         }
 
@@ -224,7 +224,17 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.inflight;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.inflight;
+            }
+        }
+
+        _output_file << std::endl;
+        _output_file << std::setw(12) << "coalesed:";
+        for (auto& req : _lse->reqQueue)
+        {
+            if (req.first.valid)
+            {
+                _output_file << std::setw(MemSys_SetWidth) << req.first.coalesced;
             }
         }
 
@@ -234,7 +244,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.ready;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.ready;
             }
         }
 
@@ -244,7 +254,7 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.hasPushChan;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.hasPushChan;
             }
         }
 
@@ -254,9 +264,18 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         {
             if (req.first.valid)
             {
-                _output_file << std::setw(5) << req.first.cnt;
+                _output_file << std::setw(MemSys_SetWidth) << req.first.cnt;
             }
         }
+
+        // Print Lse suspendReqQueue
+        _output_file << std::endl;
+        auto& req = _lse->suspendReq.second;
+        _output_file << "suspendReq: "
+            "v " << _lse->suspendReq.first << ":"
+            "addr " << req.addr << ":"
+            "isWt " << req.isWrite << ":"
+            "orderId " << req.cnt;
 
         // Print Lse channel
         _output_file << std::endl;
@@ -406,7 +425,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             _output_file << std::setw(8) << "Entry_" << entryId << ":"
                 << " valid:" << entry.valid
                 << " block_addr:" << entry.blockAddr
-                << " rdy:" << entry.ready;
+                << " rdy:" << entry.ready << std::endl;
                 //<< " outstanding:" << entry.outstanding << std::endl;
 
             auto& reqQueue = entry.coalescerQueue;
@@ -447,6 +466,16 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                 if (req.valid)
                 {
                     _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                }
+            }
+
+            _output_file << std::endl;
+            _output_file << std::setw(12) << "orderId:";
+            for (auto& req : reqQueue)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.cnt;
                 }
             }
 
@@ -565,15 +594,15 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                         }
                     }
 
-                    //_output_file << std::endl;
-                    //_output_file << std::setw(12) << "OrderId:";
-                    //for (auto& req : reqQueue[level][bankId])
-                    //{
-                    //    if (req.first.valid)
-                    //    {
-                    //        _output_file << std::setw(5) << req.first.cnt;
-                    //    }
-                    //}
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "OrderId:";
+                    for (auto& req : reqQueue[level][bankId])
+                    {
+                        if (req.first.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.first.cnt;
+                        }
+                    }
 
                     _output_file << std::endl;
                 }
@@ -642,15 +671,15 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                         }
                     }
 
-                    //_output_file << std::endl;
-                    //_output_file << std::setw(12) << "OrderId:";
-                    //for (auto& req : ackQueue[level][bankId])
-                    //{
-                    //    if (req.valid)
-                    //    {
-                    //        _output_file << std::setw(5) << req.cnt;
-                    //    }
-                    //}
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "OrderId:";
+                    for (auto& req : ackQueue[level][bankId])
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.cnt;
+                        }
+                    }
 
                     _output_file << std::endl;
                 }
@@ -722,6 +751,16 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                         if (req.valid)
                         {
                             _output_file << std::setw(MemSys_SetWidth) << req.ready;
+                        }
+                    }
+
+                    _output_file << std::endl;
+                    _output_file << std::setw(12) << "orderId:";
+                    for (auto& req : reqQueue)
+                    {
+                        if (req.valid)
+                        {
+                            _output_file << std::setw(MemSys_SetWidth) << req.cnt;
                         }
                     }
 

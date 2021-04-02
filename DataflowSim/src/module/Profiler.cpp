@@ -11,9 +11,20 @@ Profiler::Profiler(Registry* _registry, MemSystem* _memSys, Debug* _debugger)
 
 Profiler::~Profiler()
 {
-    delete registry;
-    delete debugger;
-    delete memSys;
+    //if (registry != nullptr)
+    //{
+    //    delete registry;
+    //}
+
+    if (debugger != nullptr)
+    {
+        delete debugger;
+    }
+
+    //if (memSys != nullptr)
+    //{
+    //    delete memSys;
+    //}
 }
 
 void Profiler::init()
