@@ -130,16 +130,20 @@ uint MemSystem::getAddrTag(uint _addr)
     Debug::throwError("Not define address tag for coalescing", __FILE__, __LINE__);
 }
 
-void MemSystem::resetBankRecorder()
+void MemSystem::resetBankRecorder(uint entryId)
 {
-    for (auto& entry : bankRecorder)
-    {
-        entry.valid = 0;
-        entry.hasRegisteredCoalescer = 0;
-        entry.reqQueue.clear();
-        //entry.rdPtr = 0;
-        entry.hasSent2Mem = 0;
-    }
+    bankRecorder[entryId].valid = 0;
+    bankRecorder[entryId].hasRegisteredCoalescer = 0;
+    bankRecorder[entryId].reqQueue.clear();
+
+    //for (auto& entry : bankRecorder)
+    //{
+    //    entry.valid = 0;
+    //    entry.hasRegisteredCoalescer = 0;
+    //    entry.reqQueue.clear();
+    //    //entry.rdPtr = 0;
+    //    //entry.hasSent2Mem = 0;
+    //}
 }
 
 void MemSystem::getLseReq()
@@ -197,7 +201,11 @@ void MemSystem::getLseReq()
                 }
             }
 
-            if (!sendSuccess)
+            if (sendSuccess)
+            {
+                lseRegistry[req.second.lseId]->setInflight(req.second);
+            }
+            else
             {
                 _lse->memReqBlockCnt++;
             }
@@ -223,8 +231,9 @@ void MemSystem::getLseReq()
         }
 
         // Send to memSystem's reqQueue
-        for (auto& entry : bankRecorder)
+        for (size_t entryId = 0; entryId < bankRecorder.size(); ++entryId)
         {
+            auto& entry = bankRecorder[entryId];
             if (entry.valid)
             {
                 //// Only send the req to memSys once
@@ -242,27 +251,30 @@ void MemSystem::getLseReq()
                 req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
                 if (addTransaction(req))  // Use the front request to represent all the coalesced address
                 {
-                    entry.hasSent2Mem = 1;
+                    //entry.hasSent2Mem = 1;
+                    resetBankRecorder(entryId);
                 }
             }
         }
 
-        // Pop Lse request
-        for (auto& entry : bankRecorder)
-        {
-            if (entry.valid && entry.hasSent2Mem)
-            {
-                for (auto& req : entry.reqQueue)
-                {
-                    lseRegistry[req.lseId]->setInflight(req);
-                }
-                //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
-                //{
-                //    auto& req = *iter;
-                //    lseRegistry[req.lseId]->setInflight(req);
-                //}
-            }
-        }
+        coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
+
+        //// Set Lse request inflight
+        //for (auto& entry : bankRecorder)
+        //{
+        //    if (entry.valid && entry.hasSent2Mem)
+        //    {
+        //        for (auto& req : entry.reqQueue)
+        //        {
+        //            lseRegistry[req.lseId]->setInflight(req);
+        //        }
+        //        //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
+        //        //{
+        //        //    auto& req = *iter;
+        //        //    lseRegistry[req.lseId]->setInflight(req);
+        //        //}
+        //    }
+        //}
 
         //// Update entry rdPtr
         //for (auto& entry : bankRecorder)
@@ -272,9 +284,7 @@ void MemSystem::getLseReq()
         //        entry.rdPtr = entry.reqQueue.size();
         //    }
         //}
-
-        resetBankRecorder();
-        coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
+        
         ////Debug_yin
         //std::cout << "coalescer free Num: " << coalescerFreeEntryNum << std::endl;
     }
@@ -578,12 +588,12 @@ void MemSystem::returnReqAck()
 
 void MemSystem::MemSystemUpdate()
 {
+    // MemSys -> Lse
+    sendBack2Lse();
+
     // MemSys update in a reverse sequence to avoid data stall 
     if (ClkDomain::getInstance()->checkClkAdd())  // MemorySystem update only when clk updated
     {
-        // MemSys -> Lse
-        sendBack2Lse();
-
         // Send back ack from on-chip memory to memSys
         if (SPM_ENABLE)
         {
@@ -614,44 +624,10 @@ void MemSystem::MemSystemUpdate()
             cache->cacheUpdate();
             cache->sendReq2Mem(mem);
         }
-
-        // Send back ack from memSys to Lse
-        getLseReq();
-
-
-        //getLseReq();
-
-        //if (SPM_ENABLE)
-        //{
-        //    send2Spm();  // Send req to SPM
-        //    spm->spmUpdate();
-        //    spm->sendReq2Mem(mem);
-        //}
-
-        //if (CACHE_ENABLE)
-        //{
-        //    send2Cache();
-        //    cache->cacheUpdate();
-        //    cache->sendReq2Mem(mem);
-        //}
-
-        //mem->update();
-        //getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
-
-        //returnReqAck();
-
-        //if (SPM_ENABLE)
-        //{
-        //    getFromSpm();  // Get callback from SPM
-        //}
-
-        //if (CACHE_ENABLE)
-        //{
-        //    getFromCache();  // Get callback from Cache
-        //}
-
-        //sendBack2Lse();
     }
+
+    // Get req from Lse to memSys
+    getLseReq();
 }
 
 

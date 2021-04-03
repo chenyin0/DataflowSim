@@ -551,8 +551,8 @@ void GemmTest::gemm_Base(Debug* debug)
 
         //** Print log
         // Set debug mode
-        debug->debug_mode = Debug_mode::Print_detail;
-        //debug->debug_mode = Debug_mode::Turn_off;
+        //debug->debug_mode = Debug_mode::Print_detail;
+        debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*61560 > iter && iter > 58000*/ iter > 0)
         {

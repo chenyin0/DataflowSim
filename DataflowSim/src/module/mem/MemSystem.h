@@ -18,7 +18,7 @@ namespace DFSim
         bool valid = 0;
         uint addrTag = 0;
         bool hasRegisteredCoalescer = 0;
-        bool hasSent2Mem = 0;
+        //bool hasSent2Mem = 0;
         deque<MemReq> reqQueue;
         //uint rdPtr = 0; // Record current starting point to avoid operate a visited req agian
     };
@@ -54,7 +54,7 @@ namespace DFSim
         void getLseReq();
         uint getBankId(uint _addr);  // Store in which bank
         uint getAddrTag(uint _addr);  // Upper address used to distinguish an individual block in coalescing (e.g. addr >> cachelineSize)
-        void resetBankRecorder();
+        void resetBankRecorder(uint entryId);
         void sendBack2Lse();
         //void writeAck2Lse(MemReq _req);
         uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr

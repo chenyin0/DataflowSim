@@ -875,9 +875,9 @@ void Cache::updateReqQueue()
 {
     for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level, exclude L1 cache
     {
-        if (mshr[level].seekMshrFreeEntry())  // If there is no free entry remains in Mshr, cache stall
+        for (size_t i = 0; i < reqQueue[level].size(); ++i)  // Traverse each bank, round-robin
         {
-            for (size_t i = 0; i < reqQueue[level].size(); ++i)  // Traverse each bank, round-robin
+            if (mshr[level].seekMshrFreeEntry())  // If there is no free entry remains in Mshr, cache stall
             {
                 uint bankId = (reqQueueBankPtr[level] + i) % cache_bank_num[level];
                 auto& reqQueueBank = reqQueue[level][bankId];
@@ -962,9 +962,12 @@ void Cache::updateReqQueue()
                     }
                 }
             }
-
-            reqQueueBankPtr[level] = (++reqQueueBankPtr[level]) % cache_bank_num[level];
+            else
+            {
+                break;
+            }
         }
+        reqQueueBankPtr[level] = (++reqQueueBankPtr[level]) % cache_bank_num[level];
     }
 }
 
