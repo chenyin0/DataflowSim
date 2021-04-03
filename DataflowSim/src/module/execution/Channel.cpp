@@ -78,18 +78,26 @@ void Channel::parallelize()
     //currId = currId % speedup + 1;
 
     // Push clkStall in parallel execution mode
-    if (currId != speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
+    if (currId < speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
     {
         ClkDomain::getInstance()->addClkStall();
-        currId = currId % speedup + 1;
+        ++currId;
     }
-    else
+    else if (ClkDomain::checkClkAdd())  // If system clk has updated, reset currId
     {
-        if (chanClk != ClkDomain::getClk())  // If system clk has updated
-        {
-            currId = 1;  // Reset currId
-            chanClk = ClkDomain::getClk();
-        }
+        currId = 1;
+
+        //if (chanClk != ClkDomain::getClk())  // If system clk has updated
+        //{
+        //    currId = 1;  // Reset currId
+        //    chanClk = ClkDomain::getClk();
+        //}
+
+        // If system clk has updated, reset currId
+        //if (ClkDomain::checkClkAdd())
+        //{
+        //    currId = 1;
+        //}
     }
 }
 
@@ -125,7 +133,7 @@ int Channel::getChanId(Channel* chan)
 }
 
 // Channel get data from the program variable 
-vector<int> Channel::get(vector<int> data)
+vector<int> Channel::get(const vector<int>& data)
 {
     vector<int> pushState(2);
     vector<int> popState(2);
@@ -140,7 +148,9 @@ vector<int> Channel::get(vector<int> data)
     }
 
     statusUpdate(); // Set valid according to the downstream channels' status
-    //bpUpdate();
+    //bpUpdate(); 
+
+    parallelize();
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -151,23 +161,21 @@ vector<int> Channel::get()
     vector<int> pushState(2);
     vector<int> popState(2);
 
-    //checkConnect();
-    popState = pop(); // Data lifetime in nested loop
-
-    //for (size_t i = 0; i < data.size(); ++i)
-    //{
-    //    // Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
-    //    pushState = push(data[i], i);
-    //}
-
-    for (size_t i = 0; i < upstream.size(); ++i)
+    if (isLoopVar || currId <= speedup)
     {
-        // Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
-        pushState = push(upstream[i]->value, i);
-    }
+        popState = pop(); // Data lifetime in nested loop
 
-    statusUpdate(); // Set valid according to the downstream channels' status
+        for (size_t i = 0; i < upstream.size(); ++i)
+        {
+            // Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+            pushState = push(upstream[i]->value, i);
+        }
+
+        statusUpdate(); // Set valid according to the downstream channels' status
+    }
+       
     //bpUpdate();
+    parallelize();
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -857,10 +865,10 @@ void ChanBase::statusUpdate()
 
     bpUpdate();
 
-    if (speedup > 1)
-    {
-        parallelize();
-    }
+    //if (speedup > 1)
+    //{
+    //    parallelize();
+    //}
 }
 
 bool ChanBase::checkDataMatch()
@@ -967,7 +975,7 @@ ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
     : ChanBase(_size, _cycle, _speedup)
 {
     //enable = 1;
-    currId = 1; // Id begins at 1
+    //currId = 1; // Id begins at 1
     //sendActiveMode = 0;  // Default set to false
 
     pushBufferEnable = 0;

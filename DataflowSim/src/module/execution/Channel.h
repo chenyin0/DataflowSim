@@ -80,7 +80,7 @@ class Channel usage:
         void initial();
         virtual void addUpstream(const vector<Channel*>& _upStream);
         void addDownstream(const vector<Channel*>& _dowmStream);
-        virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
+        virtual vector<int> get(const vector<int>& data);  // Return {pushSuccess, pushData, popSuccess, popData}
         virtual vector<int> get();  // Return {pushSuccess, pushData, popSuccess, popData}
         virtual int assign(uint bufferId);
         virtual int assign(Channel* chan);  // Suggest use this assign function
@@ -136,7 +136,7 @@ class Channel usage:
         vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
         uint size;    // chanBuffer size
-        uint speedup;  // Parallelism parameter
+        uint speedup = 1;  // Parallelism parameter
         vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         ChanType chanType;
 
@@ -151,7 +151,7 @@ class Channel usage:
         uint cycle; // Channel execute cycle
         //uint speedup;  // Parallelism parameter
         int currId = 1;    // Current threadID, start at 1
-        uint chanClk = 0;  // Used for func parallelize()
+        //uint chanClk = 0;  // Used for func parallelize()
         //vector<int> lastPopVal;  // Record last data poped by each chanBuffer
     };
 

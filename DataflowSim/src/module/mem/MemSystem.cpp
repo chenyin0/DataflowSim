@@ -284,9 +284,6 @@ void MemSystem::getLseReq()
         //        entry.rdPtr = entry.reqQueue.size();
         //    }
         //}
-        
-        ////Debug_yin
-        //std::cout << "coalescer free Num: " << coalescerFreeEntryNum << std::endl;
     }
 
     //// Send to coalescer
@@ -363,6 +360,9 @@ void MemSystem::sendBack2Lse()
     deque<bool> lseRecorder(lseRegistry.size());
     uint ptr = ackQueueReadPtr;
 
+    // Debug_yin_04.03
+    uint clk_d = ClkDomain::getClk();
+
     for (size_t i = 0; i < ackQueue.size(); ++i)
     {
         ptr = (ptr + i) % ackQueue.size();
@@ -382,17 +382,17 @@ void MemSystem::sendBack2Lse()
                         lseRecorder[lseId] = 1;
                         lseRegistry[lseId]->ackCallback(*iter);
                         iter = coalescerQueue.erase(iter);
-
-                        if (coalescerQueue.empty())
-                        {
-                            coalescer.popCoalescerEntry(coalescerEntryId);
-                            ackQueue[ptr].pop_front();
-                        }
                     }
                     else
                     {
                         iter++;
                     }
+                }
+
+                if (coalescerQueue.empty())
+                {
+                    coalescer.popCoalescerEntry(coalescerEntryId);
+                    ackQueue[ptr].pop_front();
                 }
             }
             else
