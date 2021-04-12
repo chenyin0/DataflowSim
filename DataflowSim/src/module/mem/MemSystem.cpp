@@ -1,22 +1,14 @@
 #include "./MemSystem.h"
 #include "../ClkSys.h"
 #include "../../sim/Debug.h"
+#include "../../util/util.hpp"  // Debug_yin_04.12
 
 using namespace DFSim;
 
 MemSystem::MemSystem()
 {
     reqQueue.resize(MEMSYS_QUEUE_BANK_NUM);
-    //for (auto& queue : reqQueue)
-    //{
-    //    queue.resize(MEMSYS_REQ_QUEUE_SIZE_PER_BANK);
-    //}
-
     ackQueue.resize(MEMSYS_QUEUE_BANK_NUM);
-    //for (auto& queue : ackQueue)
-    //{
-    //    queue.resize(MEMSYS_ACK_QUEUE_SIZE_PER_BANK);
-    //}
 
     if (SPM_ENABLE)
     {
@@ -46,12 +38,6 @@ MemSystem::~MemSystem()
     delete spm;
     delete cache;
     delete memDataBus;
-
-    //for (auto& lse : lseRegistry)
-    //{
-    //    delete lse;
-    //}
-
 }
 
 uint MemSystem::registerLse(Lse* _lse)
@@ -67,18 +53,6 @@ uint MemSystem::registerLse(Lse* _lse)
     return lseId;
 }
 
-//bool MemSystem::checkReqQueueIsFull()
-//{
-//    if (reqQueue.size() < MEMSYS_REQ_QUEUE_SIZE)
-//    {
-//        return false;
-//    }
-//    else
-//    {
-//        return true;
-//    }
-//}
-
 uint MemSystem::addrBias(uint _addr) 
 {
     if (DATA_PRECISION % 8 != 0)
@@ -93,7 +67,6 @@ uint MemSystem::addrBias(uint _addr)
 
 bool MemSystem::addTransaction(MemReq _req)
 {
-    bool addSuccess = 0;
     uint bankId = getBankId(_req.addr);
     if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
     {
@@ -135,21 +108,14 @@ void MemSystem::resetBankRecorder(uint entryId)
     bankRecorder[entryId].valid = 0;
     bankRecorder[entryId].hasRegisteredCoalescer = 0;
     bankRecorder[entryId].reqQueue.clear();
-
-    //for (auto& entry : bankRecorder)
-    //{
-    //    entry.valid = 0;
-    //    entry.hasRegisteredCoalescer = 0;
-    //    entry.reqQueue.clear();
-    //    //entry.rdPtr = 0;
-    //    //entry.hasSent2Mem = 0;
-    //}
 }
 
 void MemSystem::getLseReq()
 {
     bool ptrUpdateLock = 0;
+    // Debug_yin_04.12
     uint ptr = reqQueueWritePtr;  // Record inital ptr
+    //uint ptr = Util::uRandom(0, lseReqTable.size() - 1);
 
     // Generate all the valid req in this round
     for (size_t i = 0; i < lseReqTable.size(); ++i)
@@ -205,10 +171,12 @@ void MemSystem::getLseReq()
             {
                 lseRegistry[req.second.lseId]->setInflight(req.second);
             }
+#ifdef DEBUG_MODE 
             else
             {
                 _lse->memReqBlockCnt++;
             }
+#endif
         }
     }
     reqQueueWritePtr = (++reqQueueWritePtr) % lseReqTable.size();
@@ -221,11 +189,6 @@ void MemSystem::getLseReq()
         {
             if (entry.valid && entry.hasRegisteredCoalescer)
             {
-                //deque<MemReq> _reqQueue;
-                //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
-                //{
-                //    _reqQueue.emplace_back(*iter);
-                //}
                 coalescer.send2Coalescer(entry.addrTag, entry.reqQueue);
             }
         }
@@ -236,17 +199,6 @@ void MemSystem::getLseReq()
             auto& entry = bankRecorder[entryId];
             if (entry.valid)
             {
-                //// Only send the req to memSys once
-                //if (!entry.hasSent2Mem && entry.rdPtr == 0)
-                //{
-                //    //auto& req = entry.reqQueue.front();
-                //    //req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
-                //    //if (addTransaction(req))  // Use the front request to represent all the coalesced address
-                //    //{
-                //    //    entry.hasSent2Mem = 1;
-                //    //}
-                //}
-
                 auto& req = entry.reqQueue.front();
                 req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
                 if (addTransaction(req))  // Use the front request to represent all the coalesced address
@@ -258,97 +210,8 @@ void MemSystem::getLseReq()
         }
 
         coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
-
-        //// Set Lse request inflight
-        //for (auto& entry : bankRecorder)
-        //{
-        //    if (entry.valid && entry.hasSent2Mem)
-        //    {
-        //        for (auto& req : entry.reqQueue)
-        //        {
-        //            lseRegistry[req.lseId]->setInflight(req);
-        //        }
-        //        //for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
-        //        //{
-        //        //    auto& req = *iter;
-        //        //    lseRegistry[req.lseId]->setInflight(req);
-        //        //}
-        //    }
-        //}
-
-        //// Update entry rdPtr
-        //for (auto& entry : bankRecorder)
-        //{
-        //    if (entry.valid)
-        //    {
-        //        entry.rdPtr = entry.reqQueue.size();
-        //    }
-        //}
     }
-
-    //// Send to coalescer
-    //for (auto& entry : bankRecorder)
-    //{
-    //    if (entry.valid && entry.hasRegisteredCoalescer)
-    //    {
-    //        deque<MemReq> _reqQueue;
-    //        for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
-    //        {
-    //            _reqQueue.emplace_back(*iter);
-    //        }
-    //        coalescer.send2Coalescer(entry.addrTag, _reqQueue);
-    //    }
-    //}
-
-    //// Send to memSystem's reqQueue
-    //for (auto& entry : bankRecorder)
-    //{
-    //    if (entry.valid)
-    //    {
-    //        // Only send the req to memSys once
-    //        if (!entry.hasSent2Mem && entry.rdPtr == 0)
-    //        {
-    //            auto& req = entry.reqQueue.front();
-    //            //req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
-    //            if (addTransaction(req))  // Use the front request to represent all the coalesced address
-    //            {
-    //                entry.hasSent2Mem = 1;
-    //            }
-    //        }
-    //    }
-    //}
-
-    //// Pop Lse request
-    //for (auto& entry : bankRecorder)
-    //{
-    //    if (entry.valid && entry.hasSent2Mem)
-    //    {
-    //        //for (auto& req : entry.reqQueue)
-    //        //{
-    //        //    lseRegistry[req.lseId]->sendReq2Mem();
-    //        //}
-    //        for (auto iter = entry.reqQueue.begin() + entry.rdPtr; iter != entry.reqQueue.end(); ++iter)
-    //        {
-    //            auto& req = *iter;
-    //            lseRegistry[req.lseId]->setInflight(req);
-    //        }
-    //    }
-    //}
-
-    //// Update entry rdPtr
-    //for (auto& entry : bankRecorder)
-    //{
-    //    if (entry.valid)
-    //    {
-    //        entry.rdPtr = entry.reqQueue.size();
-    //    }
-    //}
 }
-
-//void MemSystem::writeAck2Lse(MemReq _req)
-//{
-//    lseRegistry[_req.lseId]->ackCallback(_req);
-//}
 
 void MemSystem::sendBack2Lse()
 {
@@ -359,9 +222,6 @@ void MemSystem::sendBack2Lse()
 
     deque<bool> lseRecorder(lseRegistry.size());
     uint ptr = ackQueueReadPtr;
-
-    // Debug_yin_04.03
-    uint clk_d = ClkDomain::getClk();
 
     for (size_t i = 0; i < ackQueue.size(); ++i)
     {
@@ -406,21 +266,6 @@ void MemSystem::sendBack2Lse()
             }
         }
     }
-
-
-    //for (auto& queue : ackQueue)
-    //{
-    //    for (auto& req : queue)
-    //    {
-    //        if (req.valid && req.ready)
-    //        {
-    //            /*lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.ready = 1;
-    //            lseRegistry[req.lseId]->reqQueue[req.lseReqQueueIndex].first.inflight = 0;*/
-    //            lseRegistry[req.lseId]->ackCallback(req);
-    //            req.valid = 0;  // Clear req
-    //        }
-    //    }
-    //}
 }
 
 int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
@@ -491,18 +336,6 @@ void MemSystem::send2Cache()
             if (!reqQueue[i].empty())
             {
                 MemReq& req = reqQueue[i].front();
-
-                //int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
-                //if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
-                //{
-                //    req.memSysAckQueueBankEntryId = ackQueueEntry;
-                //    !!! if (cache->addTransaction(req))  // Send req to cache
-                //    {
-                //        ackQueue[i][ackQueueEntry] = req;
-                //        reqQueue[i].pop_front();
-                //    }
-                //}
-
                 if (cache->addTransaction(req))  // Send req to cache
                 {
                     reqQueue[i].pop_front();
@@ -518,23 +351,6 @@ void MemSystem::send2Cache()
 
 void MemSystem::getFromCache()
 {
-    //if (cache != nullptr)
-    //{
-    //    vector<MemReq> _req;
-    //    _req = cache->callBack();
-
-    //    for (auto& req : _req)
-    //    {
-    //        ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].ready = 1;
-    //        ackQueue[req.memSysAckQueueBankId][req.memSysAckQueueBankEntryId].inflight = 0;
-    //        //reqQueue[req.memSysAckQueueBankId].cnt = req.cnt;  // Send back cache request order
-    //    }
-    //}
-    //else
-    //{
-    //    Debug::throwError("Not define Cache!", __FILE__, __LINE__);
-    //}
-
     if (cache != nullptr)
     {
         for (size_t queueId = 0; queueId < ackQueue.size(); ++queueId)

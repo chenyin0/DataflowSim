@@ -57,6 +57,7 @@ void Mshr::setMshrEntryReady(uint _blockAddr)
             entry.ready = 1;
         }
     }
+    //TODO: Need ensure RAW/WAR between different entries with the same blockAddr
 }
 
 //CacheReq Mshr::getFromMshr()
@@ -119,9 +120,7 @@ vector<pair<uint, CacheReq>> Mshr::peekMshrReadyEntry()
             reqVec.emplace_back(make_pair(entryId, entry.mshrQueue.front()));
         }
     }
-
     mshrRdPtr = (++mshrRdPtr) % mshrTable.size();
-
     return reqVec;
 }
 

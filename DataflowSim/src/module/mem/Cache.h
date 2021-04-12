@@ -46,7 +46,7 @@ namespace DFSim
     {
     public:
         uint tag;
-        /**计数，FIFO里记录最一开始的访问时间，LRU里记录上一次访问的时间*/
+        /** fifo_count records the first access time，lru_count records the last access time */
         union 
         {
             uint count;
@@ -83,20 +83,19 @@ namespace DFSim
         void init();
         void config_check();  // Check whether parameters are configured correctly
         int check_cache_hit(uint set_base, uint addr, int level);
-        /**获取cache当前set中空余的line*/
+        /** Get the free cacheline of current set */
         int get_cache_free_line(uint set_base, int level);
-        /**找到合适的line之后，将数据写入cache line中*/
+        /** Write to this cacheline */
         void set_cache_line(uint index, uint addr, int level);
-        ///**对一个指令进行分析*/
+        ///** Analyze a operation */
         //void do_cache_op(uint addr, Cache_operation oper_style);
-        ///**读入trace文件*/
+        ///** Read trace files */
         //void load_trace(const char* filename);
 
         /**lock a cache line*/
         int lock_cache_line(uint addr, int level);
         /**unlock a cache line*/
         int unlock_cache_line(uint addr, int level);
-        /**@return 返回miss率*/
 
         //void re_init();
 
@@ -111,7 +110,7 @@ namespace DFSim
     private:
         uint getCacheBlockOffset(const uint addr, const uint level);
         bool sendReq2CacheBank(const CacheReq cacheReq, const uint level);
-        bool addrCoaleseCheck(const uint addr, const uint level);
+        //bool addrCoaleseCheck(const uint addr, const uint level);
         bool sendReq2reqQueue2Mem(const CacheReq cacheReq);
         bool setCacheBlock(uint addr, uint level);  // Set a cacheblock which the addr belongs to a specific cache level 
         bool writeBackDirtyCacheline(const uint tag, const uint setIndex, const uint level);
@@ -137,16 +136,15 @@ namespace DFSim
         const unsigned char CACHE_FLAG_DIRTY = 0x02;
         const unsigned char CACHE_FLAG_LOCK = 0x04;
         const unsigned char CACHE_FLAG_MASK = 0xff;
-        /**最多多少层cache*/
-        //static const int CACHE_MAXLEVEL = 2;
+
         //const char OPERATION_READ = 'l';
         //const char OPERATION_WRITE = 's';
         //const char OPERATION_LOCK = 'k';
         //const char OPERATION_UNLOCK = 'u';
 
-        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // 多级cache的大小设置 (byte)
-        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // 多级cache的line size（block size）大小 (byte)
-        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // 组相连的链接方式 (几路组相连)
+        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
+        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
+        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
 
         vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
         vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  
@@ -158,48 +156,47 @@ namespace DFSim
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
 
-        /**cache的总大小，单位byte*/
+        /** Cache size of each level，byte */
         vector<uint> cache_size = vector<uint>(CACHE_MAXLEVEL);
-        /**cache line(Cache block)cache块的大小*/
+        /** Cacheline size */
         vector<uint> cache_line_size = vector<uint>(CACHE_MAXLEVEL);
-        /**总的行数*/
+        /** Cacheline number */
         vector<uint> cache_line_num = vector<uint>(CACHE_MAXLEVEL);
-        /**Bank number*/
+        /** Bank number */
         vector<uint> cache_bank_num = vector<uint>(CACHE_MAXLEVEL);
-        /**2的多少次方是bank的数量，用于匹配地址时，进行位移比较*/
-        vector<uint> cache_bank_shifts = vector<uint>(CACHE_MAXLEVEL);
-        /**每个set有多少way*/
+        /** Bank shift*/
+        //vector<uint> cache_bank_shifts = vector<uint>(CACHE_MAXLEVEL);
+        /** Way number of each set*/
         vector<uint> cache_mapping_ways = vector<uint>(CACHE_MAXLEVEL);
-        /**整个cache有多少组*/
+        /** Cache set number */
         vector<uint> cache_set_size = vector<uint>(CACHE_MAXLEVEL);
-        /**2的多少次方是set的数量，用于匹配地址时，进行位移比较*/
+        /** Cache set shift */
         vector<uint> cache_set_shifts = vector<uint>(CACHE_MAXLEVEL);
-        /**2的多少次方是line的长度，用于匹配地址*/
+        /** Cacheline shift */
         vector<uint> cache_line_shifts = vector<uint>(CACHE_MAXLEVEL);
-        /**真正的cache地址列。指针数组*/
+        /** Cache array, Pointer array */
         vector<Cache_Line*> caches = vector<Cache_Line*>(CACHE_MAXLEVEL);
 
-        /**指令计数器*/
+        /** Instruction counter */
         uint tick_count;
-        /**cache缓冲区,由于并没有数据*/
+        /** Cache buffer */
         //_u8 *cache_buf[CACHE_MAXLEVEL];
-        /**缓存替换算法*/
+        /** Replacement algorithm */
         vector<Cache_swap_style> swap_style = vector<Cache_swap_style>(CACHE_MAXLEVEL);
         // Write strategy
         vector<Cache_write_strategy> write_strategy = vector<Cache_write_strategy>(CACHE_MAXLEVEL);
         // Write allocate
         vector<Cache_write_allocate> write_allocate = vector<Cache_write_allocate>(CACHE_MAXLEVEL);
-        /**读写内存的计数*/
+        /** Read/write counter */
         uint cache_r_count, cache_w_count;
-        /**实际写内存的计数，cache --> memory */
+        /** Access memory counter，cache --> memory */
         uint cache_w_memory_count;
-        /**cache hit和miss的计数*/
+        /** Hit/miss counter */
         vector<uint> cache_hit_count = vector<uint>(CACHE_MAXLEVEL);
         vector<uint> cache_miss_count = vector<uint>(CACHE_MAXLEVEL);
-        /**空闲cache line的index记录，在寻找时，返回空闲line的index*/
-        vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
+        ///** Record free cacheline */
+        //vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
 
-        //vector<vector<pair<CacheReq, uint>>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>)
         vector<Mshr> mshr;
         vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>), fifo mode
         vector<vector<deque<CacheReq>>> ackQueue;  // Fifo mode
@@ -209,7 +206,5 @@ namespace DFSim
         //vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
         vector<uint> reqQueueBankPtr;  // Round-robin to send reqQueue req to next cachelevel
         vector<uint> ackQueueBankPtr;  // Round-robin to traverse ackQueue
-
-        //uint reqCnt = 0;  // Record the sequence of each cacheReq
     };
 }

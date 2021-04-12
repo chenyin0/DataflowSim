@@ -302,6 +302,7 @@ void Lse::statusUpdate()
                 req.lseReqQueueIndex = sendMemPtr;
                 if (NO_MEMORY || noLatencyMode)
                 {
+                    reqQueue[req.lseReqQueueIndex].first.inflight = 1;  // Set to inflight virtually
                     ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
                 }
                 else
@@ -309,6 +310,7 @@ void Lse::statusUpdate()
                     // If Lse in the false path, not send req to memory and sendback ack directly
                     if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
                     {
+                        reqQueue[req.lseReqQueueIndex].first.inflight = 1;  // Set to inflight virtually
                         ackCallback(req);
                     }
                     else
