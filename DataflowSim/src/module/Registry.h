@@ -35,6 +35,11 @@ namespace DFSim
         void tableInit();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
 
+#ifdef DEBUG_MODE  // Get private instance for debug
+    public:
+        const vector<RegistryTable>& getRegistryTable() const;
+#endif // DEBUG_MODE
+
     private:
         friend class Profiler;
 
@@ -49,6 +54,7 @@ namespace DFSim
         void checkChanMode(Channel* _chan);  // Check the mode of all the channels
         void checkChanPartialMux(Channel* _chan);  // Check the connection rule of PartialMux
         void checkLc();  // Check whether set outer-most loop
+        void checkChanDGSF(Channel* _chan);
 
     private:
         static uint moduleId;

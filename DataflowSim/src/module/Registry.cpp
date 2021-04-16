@@ -98,7 +98,7 @@ void Registry::tableInit()
 
 void Registry::pathBalance()
 {
-    // Ensure each channel buffer size greater than 2
+    // Ensure each channel buffer size greater than 2 to avoid deadlock and pipeline bubble
     for (auto& entry : registryTable)
     {
         if (entry.moduleType == ModuleType::Channel)
@@ -234,6 +234,7 @@ void Registry::checkConnectRule()
             checkChanConnect(chan);
             checkChanMode(chan);
             checkChanPartialMux(chan);
+            checkChanDGSF(chan);
         }
     }
 }
@@ -291,4 +292,21 @@ void Registry::checkLc()
     }
 }
 
+void Registry::checkChanDGSF(Channel* _chan)
+{
+    if (_chan->chanType == ChanType::Chan_DGSF)
+    {
+        if (!_chan->noUpstream && _chan->upstream.size() > 1)
+        {
+            Debug::throwError("The number of ChanDGSF's upstream can not exceed 1 !", __FILE__, __LINE__);
+        }
+    }
+}
+
+#ifdef DEBUG_MODE  // Get private instance for debug
+const vector<RegistryTable>& Registry::getRegistryTable() const
+{
+    return registryTable;
+}
+#endif // DEBUG_MODE
 

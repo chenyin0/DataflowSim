@@ -491,9 +491,10 @@ bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
                     break;
                 }
             }
-            else
+            else if(!chan->getTheLastData.front())  // The number of ChanDGSF's upstreams is limited to 1
             {
                 finish = 0;
+                break;
             }
         }
 

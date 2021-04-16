@@ -50,7 +50,7 @@ enum class ArchType
 #define FREQ 500 // System freq 500MHz
 
 // Base
-#define BASE_INPUT_BUFF_SIZE 100
+#define BASE_INPUT_BUFF_SIZE 2
 
 // DGSF
 #define BRAM_BANK_DEPTH 128  // SPM bank depth

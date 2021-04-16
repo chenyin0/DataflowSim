@@ -150,7 +150,10 @@ vector<int> Channel::get(const vector<int>& data)
     statusUpdate(); // Set valid according to the downstream channels' status
     //bpUpdate(); 
 
-    parallelize();
+    if (speedup > 1)
+    {
+        parallelize();
+    }
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -161,7 +164,7 @@ vector<int> Channel::get()
     vector<int> pushState(2);
     vector<int> popState(2);
 
-    if (isLoopVar || currId <= speedup)
+    if (/*isLoopVar || */currId <= speedup)
     {
         popState = pop(); // Data lifetime in nested loop
 
@@ -175,7 +178,10 @@ vector<int> Channel::get()
     }
        
     //bpUpdate();
-    parallelize();
+    if (speedup > 1)
+    {
+        parallelize();
+    }
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }

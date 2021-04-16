@@ -196,8 +196,8 @@ class Channel usage:
         //vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //void bpUpdate() override;
 
-    //public:
-    //    ArchType archType = ArchType::Base;
+    public:
+        //ArchType archType = ArchType::Base;
     };
 
 
@@ -236,10 +236,10 @@ class ChanDGSF usage:
         bool& popChannelEnable = enable;
         vector<ChanDGSF*> activeStream;  // Active next basic block in DGSF(switch sub-graph)
 
+        //ArchType archType = ArchType::DGSF;
+
     //private:
         //vector<uint> chanBufferDataCntLast;  // Record last data cnt for each chanBuffer
-
-        //ArchType archType = ArchType::DGSF;
     };
 
 
@@ -291,7 +291,7 @@ class ChanSGMF usage:
         uint tagSize = TAG_SIZE;  // Number of tags
         bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
 
-        /*ArchType archType = ArchType::SGMF;*/
+        //ArchType archType = ArchType::SGMF;
 
     //private:
         //uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)

@@ -600,7 +600,6 @@ void Cache::updateReqQueue()
                             {
                                 Debug::throwError("Send to MSHR unsuccessfully!", __FILE__, __LINE__);
                             }
-
                             reqQueueBank.pop_front();
 
                             // Profiling

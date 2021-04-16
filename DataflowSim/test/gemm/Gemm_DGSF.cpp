@@ -1,5 +1,6 @@
 #include "./Gemm.h"
 #include "../../src/module/execution/GraphScheduler.h"
+#include "../../src/sim/Watchdog.h"
 
 using namespace DFSimTest;
 
@@ -57,13 +58,18 @@ void GemmTest::gemm_DGSF(Debug* debug)
     //*** Declare profiler
     Profiler* profiler = new Profiler(registry, memSys, debug);
 
+    //*** Declare Watchdog
+    Watchdog watchdog = Watchdog(pow(2, 7), 50);
+
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
-    //lse_ld_m1->noLatencyMode = 1;
+    lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
+    lse_ld_m2->noLatencyMode = 1;
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
-    Lse* lse_st_partialSum = new Lse(200*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
+    lse_ld_partialSum->noLatencyMode = 1;
+    Lse* lse_st_partialSum = new Lse(20*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
     lse_st_partialSum->noLatencyMode = 1;
 
 
@@ -159,17 +165,17 @@ void GemmTest::gemm_DGSF(Debug* debug)
     end->noDownstream = 1;
 
     // loop kk
-    ChanBase* chan_jj_relay_loop_kk = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop kk for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_kk = new ChanBase(/*BASE_INPUT_BUFF_SIZE*/2, 0, 1);  // Relay channel in loop kk for chan_jj_lc
     chan_jj_relay_loop_kk->keepMode = 1;
 
     // loop i
     ChanBase* chan_i_row = new ChanBase(BASE_INPUT_BUFF_SIZE, MUL, 1);
     chan_i_row->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_i = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_i = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
     chan_jj_relay_loop_i->keepMode = 1;
 
-    ChanBase* chan_kk_relay_loop_i = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
+    ChanBase* chan_kk_relay_loop_i = new ChanBase(2*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
     chan_kk_relay_loop_i->keepMode = 1;
 
     // loop k
@@ -177,7 +183,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanBase* chan_m1_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 2 * ADD, DGSF_loop_k_speedup);
 
     ChanBase* chan_k_row = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, 0, DGSF_loop_k_speedup);
-    ChanBase* chan_k_row_delay = new ChanBase((1 + MUL) * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, ADD + MUL, DGSF_loop_k_speedup);
+    ChanBase* chan_k_row_delay = new ChanBase(10*(1 + MUL) * BASE_INPUT_BUFF_SIZE * DGSF_loop_k_speedup, ADD + MUL, DGSF_loop_k_speedup);
 
     ChanDGSF* chan_k_row_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_k_row_DGSF_LOOP->keepMode = 1;
@@ -185,35 +191,46 @@ void GemmTest::gemm_DGSF(Debug* debug)
     ChanDGSF* chan_m1_getData_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_m1_getData_DGSF_LOOP->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);  // Relay channel in loop k for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_k = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);  // Relay channel in loop k for chan_jj_lc
     //chan_jj_relay_loop_k->keepMode = 1;
 
     ChanDGSF* chan_jj_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
-    ChanBase* chan_i_row_relay_loop_k = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);
+    ChanBase* chan_i_row_relay_loop_k = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_k_speedup);
     //chan_i_row_relay_loop_k->keepMode = 1;
 
     ChanDGSF* chan_i_row_relay_loop_k_DGSF_LOOP = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_k_speedup);
     chan_i_row_relay_loop_k_DGSF_LOOP->keepMode = 1;
 
     // loop j
-    ChanBase* chan_m2_addr = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
-    ChanBase* chan_m2_addr_delay = new ChanBase(2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
+    ChanBase* chan_m2_addr = new ChanBase(10*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_m2_addr_delay = new ChanBase(10 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
 
     ChanBase* chan_m1_getData_DGSF_DAE_temp = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, DGSF_loop_j_speedup);  // Separate Channel in DGSF & channel in keepMode 
     ChanDGSF* chan_m1_getData_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_j_speedup);  // DAE dual-buffer
 
     ChanDGSF* lse_ld_m2_DGSF_DAE = new ChanDGSF(DGSF_INPUT_BUFF_SIZE, BRAM_ACCESS_DELAY, DGSF_loop_j_speedup);  // DAE dual-buffer
 
-    ChanBase* chan_mul = new ChanBase(BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
-    ChanBase* chan_mul_delay = new ChanBase(MUL * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, MUL, DGSF_loop_j_speedup);
+    ChanBase* chan_mul = new ChanBase(10*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(10*MUL * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, MUL, DGSF_loop_j_speedup);
 
-    ChanBase* chan_partialSum_addr = new ChanBase(200*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
-    ChanBase* chan_partialSum_addr_delay = new ChanBase(200*2 * BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
+    ChanBase* chan_partialSum_addr = new ChanBase(10*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 0, DGSF_loop_j_speedup);
+    ChanBase* chan_partialSum_addr_delay = new ChanBase(10*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, 2 * ADD, DGSF_loop_j_speedup);
 
-    ChanBase* chan_partialSum = new ChanBase(200*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, ADD, DGSF_loop_j_speedup);
+    ChanBase* chan_partialSum = new ChanBase(10*BASE_INPUT_BUFF_SIZE * DGSF_loop_j_speedup, ADD, DGSF_loop_j_speedup);
 
+    //// Debug_yin_04.15
+    //for (auto& entry : registry->getRegistryTable())
+    //{
+    //    if (entry.chanPtr != nullptr)
+    //    {
+    //        if (entry.chanPtr->keepMode)
+    //        {
+    //            entry.chanPtr->size = 2;
+    //        }
+    //    }
+    //}
 
     //*** Define interconnect
     // Begin & end connect to the outer most loop
@@ -375,6 +392,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     registry->tableInit();  // Update registry and initial all the module in registry
     registry->pathBalance();
     profiler->init();
+    watchdog.addCheckPointChan({ lc_jj_getEnd, lc_kk_getEnd, lc_i_getEnd, lc_k_getEnd, lc_j_getEnd });
     graphScheduler->schedulerInit();  // Initial graph scheduler
 
     begin->get({ 1 });
@@ -392,9 +410,10 @@ void GemmTest::gemm_DGSF(Debug* debug)
     uint graphId = 0; // For debug
     vector<pair<uint, uint>> subgraphRecord;  // For debug
 
-    uint max_iter = 5000000;
+    uint max_iter = 6888290;
     uint segment = max_iter / 100;
     uint percent = 0;
+    uint clk = 0;
 
     //*** Record run time
     clock_t startTime, endTime;
@@ -403,6 +422,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
     // Execute
     while (iter < max_iter)
     {
+        watchdog.feedDog(iter);
+
         // Print progress bar
         if (iter / segment > percent)
         {
@@ -411,7 +432,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         }
 
         DFSim::ClkDomain::getInstance()->clkUpdate(); // update clk in each loop
-        int clk = DFSim::ClkDomain::getInstance()->getClk();
+        clk = DFSim::ClkDomain::getInstance()->getClk();
         debug->getFile() << "\n" << "**************** " << "Exe:" << iter << "  ";
         debug->getFile() << " Clk:" << clk << " ********************" << std::endl;
 
@@ -439,6 +460,18 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lc_kk->loopVar->value = lc_kk->loopVar->assign(lc_kk->mux->outChan);
         kk = lc_kk->loopVar->assign(lc_kk->mux->outChan) + block_size;
         lc_kk->lcUpdate(kk < matrix_height);
+        //// Debug_yin_04.15
+        //auto& _data2 = lc_kk->loopVar->channel.front();
+        //if (_data2.last && _data2.lastOuter && lc_kk->loopVar->valid)
+        //{
+        //    std::cout << "Catch the last signal -> lc_kk->loopVar @ DataCnt = " << lc_kk->loopVar->chanDataCnt << std::endl;
+        //}
+        //auto dataCnt = lc_kk->loopVar->chanDataCnt;
+        //if (dataCnt == 3)
+        //{
+        //    //std::cout << "Iter" << iter << std::endl;
+        //    //system("pause");
+        //}
 
         // loop interface: var kk
         chan_kk_lc->get();
@@ -446,6 +479,12 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         chan_jj_relay_loop_kk->get();
         chan_jj_relay_loop_kk->value = chan_jj_relay_loop_kk->assign(chan_jj_lc);
+        // Debug_yin_04.15
+        auto& _data1 = chan_jj_relay_loop_kk->channel.front();
+        //if (_data1.last && _data1.lastOuter && chan_jj_relay_loop_kk->valid)
+        //{
+        //    std::cout << "Catch the last signal -> chan_jj_relay_loop_kk" << std::endl;
+        //}
 
         //** Loop Lc_i
         i = lc_i->mux->mux(i, 0, lc_i->sel);
@@ -468,6 +507,12 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         chan_jj_relay_loop_i->get();
         chan_jj_relay_loop_i->value = chan_jj_relay_loop_i->assign(chan_jj_relay_loop_kk);
+        //// Debug_yin_04.15
+        //auto& _data = chan_jj_relay_loop_i->channel.front();
+        //if (_data.last && _data.lastOuter && chan_jj_relay_loop_i->valid)
+        //{
+        //    std::cout << "Catch the last signal -> chan_jj_relay_loop_i" << std::endl;
+        //}
 
         //** Loop Lc_k
         k = lc_k->mux->mux(k, 0, lc_k->sel);
@@ -610,7 +655,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (130000 > iter && iter > 110000 /*iter >= 0*/)
+        if (/*691456 > iter && iter > 690000*/ iter >= 0)
         {
             //std::cout << "table_size:" << graphScheduler->subgraphTable.size() << std::endl;
 
@@ -745,6 +790,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
         ++iter;
     }
 
+    debug->debug_mode = Debug_mode::Print_detail;
+
     debug->getFile() << std::endl;
     debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Profiling" << std::endl;
@@ -826,10 +873,12 @@ void GemmTest::gemm_DGSF(Debug* debug)
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
     debug->getFile() << endl;
     debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Total Cycle: " << clk << std::endl;
     debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry
     delete memSys;
     delete graphScheduler;
+    delete profiler;
 }

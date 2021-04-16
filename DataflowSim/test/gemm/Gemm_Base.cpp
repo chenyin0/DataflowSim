@@ -170,25 +170,25 @@ void GemmTest::gemm_Base(Debug* debug)
     ChanBase* chan_i_row = new ChanBase(MUL * BASE_INPUT_BUFF_SIZE, MUL, 1);
     chan_i_row->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_i = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_i = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
     chan_jj_relay_loop_i->keepMode = 1;
 
-    ChanBase* chan_kk_relay_loop_i = new ChanBase(2*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
+    ChanBase* chan_kk_relay_loop_i = new ChanBase(/*2**/BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_kk_lc
     chan_kk_relay_loop_i->keepMode = 1;
 
     // loop k
-    ChanBase* chan_m1_addr = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2 * ADD, 1);
+    ChanBase* chan_m1_addr = new ChanBase(/*2 **/ BASE_INPUT_BUFF_SIZE, 2 * ADD, 1);
 
-    ChanBase* chan_k_row = new ChanBase(10*(1 + MUL) * BASE_INPUT_BUFF_SIZE, ADD + MUL, 1);
+    ChanBase* chan_k_row = new ChanBase(/*10**/(1 + MUL) * BASE_INPUT_BUFF_SIZE, ADD + MUL, 1);
     chan_k_row->keepMode = 1;
 
-    ChanBase* chan_m1_getData = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);
+    ChanBase* chan_m1_getData = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);
     chan_m1_getData->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k->keepMode = 1;
 
-    ChanBase* chan_i_row_relay_loop_k = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);
+    ChanBase* chan_i_row_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);
     chan_i_row_relay_loop_k->keepMode = 1;
 
     // loop j
@@ -201,17 +201,28 @@ void GemmTest::gemm_Base(Debug* debug)
     // 
     //ChanBase* chan_partialSum = new ChanBase(BASE_INPUT_BUFF_SIZE * 8, ADD, 8);
 
-    ChanBase* chan_m2_addr = new ChanBase(10 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
-    ChanBase* chan_m2_addr_delay = new ChanBase(10 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
+    ChanBase* chan_m2_addr = new ChanBase(/*10 * */BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_m2_addr_delay = new ChanBase(/*10 * */BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
 
-    ChanBase* chan_mul = new ChanBase(10*BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
-    ChanBase* chan_mul_delay = new ChanBase(10*MUL * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, MUL, Base_loop_j_speedup);
+    ChanBase* chan_mul = new ChanBase(/*10**/BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_mul_delay = new ChanBase(/*10**/MUL * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, MUL, Base_loop_j_speedup);
 
-    ChanBase* chan_partialSum_addr = new ChanBase(10 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
-    ChanBase* chan_partialSum_addr_delay = new ChanBase(10 * BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
+    ChanBase* chan_partialSum_addr = new ChanBase(/*10 * */BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 0, Base_loop_j_speedup);
+    ChanBase* chan_partialSum_addr_delay = new ChanBase(/*10 * */BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, 2 * ADD, Base_loop_j_speedup);
 
-    ChanBase* chan_partialSum = new ChanBase(10*BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, ADD, Base_loop_j_speedup);
+    ChanBase* chan_partialSum = new ChanBase(/*10**/BASE_INPUT_BUFF_SIZE * Base_loop_j_speedup, ADD, Base_loop_j_speedup);
 
+    //// Debug_yin_04.15
+    //for (auto& entry : registry->getRegistryTable())
+    //{
+    //    if (entry.chanPtr != nullptr)
+    //    {
+    //        if (entry.chanPtr->keepMode)
+    //        {
+    //            entry.chanPtr->size = 1;
+    //        }
+    //    }
+    //}
 
     //*** Define interconnect
     // Begin & end connect to the outer most loop
@@ -345,7 +356,7 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 50000000;// 5000000;
+    uint max_iter = 5000000;// 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -545,7 +556,7 @@ void GemmTest::gemm_Base(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (/*37500 > iter && iter > 34500*/ iter > 0)
+        if (/*37500 > iter && iter > 34500*/ iter >= 0)
         {
             debug->getFile() << std::endl;
             debug->getFile() << "Loop index jj: " << chan_jj_relay_loop_k->value << std::endl;  // Inner most relay channel
@@ -629,7 +640,7 @@ void GemmTest::gemm_Base(Debug* debug)
             debug->chanPrint("end", end);
 
             // Print MemorySystem
-            debug->memSysPrint(memSys);
+            //debug->memSysPrint(memSys);
 
 
             // Debug_yin_12.30
