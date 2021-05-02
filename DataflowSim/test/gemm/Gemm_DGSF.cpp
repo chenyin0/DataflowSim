@@ -64,13 +64,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
-    lse_ld_m1->noLatencyMode = 1;
+    //lse_ld_m1->noLatencyMode = 1;
     Lse* lse_ld_m2 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // Load M2
-    lse_ld_m2->noLatencyMode = 1;
+    //lse_ld_m2->noLatencyMode = 1;
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
-    lse_ld_partialSum->noLatencyMode = 1;
+    //lse_ld_partialSum->noLatencyMode = 1;
     Lse* lse_st_partialSum = new Lse(20*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
-    lse_st_partialSum->noLatencyMode = 1;
+    //lse_st_partialSum->noLatencyMode = 1;
 
 
     //*** Declare Lc
@@ -169,7 +169,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     chan_jj_relay_loop_kk->keepMode = 1;
 
     // loop i
-    ChanBase* chan_i_row = new ChanBase(BASE_INPUT_BUFF_SIZE, MUL, 1);
+    ChanBase* chan_i_row = new ChanBase(10*BASE_INPUT_BUFF_SIZE, MUL, 1);
     chan_i_row->keepMode = 1;
 
     ChanBase* chan_jj_relay_loop_i = new ChanBase(20*BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop i for chan_jj_lc
@@ -410,7 +410,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     uint graphId = 0; // For debug
     vector<pair<uint, uint>> subgraphRecord;  // For debug
 
-    uint max_iter = 6888290;
+    uint max_iter = /*53248;*/6888290;
     uint segment = max_iter / 100;
     uint percent = 0;
     uint clk = 0;
@@ -655,7 +655,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (/*691456 > iter && iter > 690000*/ iter >= 0)
+        if (/*53248 > iter && iter > 51248*/ iter >= 0)
         {
             //std::cout << "table_size:" << graphScheduler->subgraphTable.size() << std::endl;
 
