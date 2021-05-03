@@ -66,6 +66,7 @@ namespace DFSim
         ChanBase* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
         //MuxLc* mux = new MuxLc({ loopVar }, { }, { loopVar });
         Mux* mux;
+        int var = 0;  // loop variable
     };
 
 

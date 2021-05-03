@@ -27,8 +27,8 @@ enum class ArchType
     TIA    // 12 pe
 };
 
-//#define Base Base
-#define DGSF DGSF
+#define Base Base
+//#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 

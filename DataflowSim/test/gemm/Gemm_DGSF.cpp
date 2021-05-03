@@ -398,11 +398,11 @@ void GemmTest::gemm_DGSF(Debug* debug)
     begin->get({ 1 });
     uint iter = 0;
 
-    int jj = 0;
-    int kk = 0;
-    int i = 0;
-    int k = 0;
-    int j = 0;
+    //int jj = 0;
+    //int kk = 0;
+    //int i = 0;
+    //int k = 0;
+    //int j = 0;
 
     vector<int> res;  // Result
     vector<int> temp; // temp_result
@@ -437,13 +437,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
         debug->getFile() << " Clk:" << clk << " ********************" << std::endl;
 
         //** Loop Lc_jj
-        jj = lc_jj->mux->mux(jj, 0, lc_jj->sel);
+        lc_jj->var = lc_jj->mux->mux(lc_jj->var, 0, lc_jj->sel);
         lc_jj->mux->muxUpdate(lc_jj->sel);
-        lc_jj->mux->outChan->value = jj;
+        lc_jj->mux->outChan->value = lc_jj->var;
         lc_jj->loopVar->get();
         lc_jj->loopVar->value = lc_jj->loopVar->assign(lc_jj->mux->outChan);  // After get(), must update chan's value
-        jj = lc_jj->loopVar->value + block_size;
-        lc_jj->lcUpdate(jj < matrix_height);
+        lc_jj->var = lc_jj->loopVar->value + block_size;
+        lc_jj->lcUpdate(lc_jj->var < matrix_height);
 
         // Clear begin
         begin->valid = 0;
@@ -453,13 +453,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_jj_lc->value = chan_jj_lc->assign(lc_jj->loopVar);
 
         //** Loop Lc_kk
-        kk = lc_kk->mux->mux(kk, 0, lc_kk->sel);
+        lc_kk->var = lc_kk->mux->mux(lc_kk->var, 0, lc_kk->sel);
         lc_kk->mux->muxUpdate(lc_kk->sel);
-        lc_kk->mux->outChan->value = kk;
+        lc_kk->mux->outChan->value = lc_kk->var;
         lc_kk->loopVar->get();
         lc_kk->loopVar->value = lc_kk->loopVar->assign(lc_kk->mux->outChan);
-        kk = lc_kk->loopVar->assign(lc_kk->mux->outChan) + block_size;
-        lc_kk->lcUpdate(kk < matrix_height);
+        lc_kk->var = lc_kk->loopVar->assign(lc_kk->mux->outChan) + block_size;
+        lc_kk->lcUpdate(lc_kk->var < matrix_height);
         //// Debug_yin_04.15
         //auto& _data2 = lc_kk->loopVar->channel.front();
         //if (_data2.last && _data2.lastOuter && lc_kk->loopVar->valid)
@@ -487,13 +487,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //}
 
         //** Loop Lc_i
-        i = lc_i->mux->mux(i, 0, lc_i->sel);
+        lc_i->var = lc_i->mux->mux(lc_i->var, 0, lc_i->sel);
         lc_i->mux->muxUpdate(lc_i->sel);
-        lc_i->mux->outChan->value = i;
+        lc_i->mux->outChan->value = lc_i->var;
         lc_i->loopVar->get();
         lc_i->loopVar->value = lc_i->loopVar->assign(lc_i->mux->outChan);
-        i = lc_i->loopVar->assign(lc_i->mux->outChan) + 1;
-        lc_i->lcUpdate(i < matrix_height);
+        lc_i->var = lc_i->loopVar->assign(lc_i->mux->outChan) + 1;
+        lc_i->lcUpdate(lc_i->var < matrix_height);
 
         // loop interface: var i
         chan_i_lc->get();
@@ -515,13 +515,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
         //}
 
         //** Loop Lc_k
-        k = lc_k->mux->mux(k, 0, lc_k->sel);
+        lc_k->var = lc_k->mux->mux(lc_k->var, 0, lc_k->sel);
         lc_k->mux->muxUpdate(lc_k->sel);
-        lc_k->mux->outChan->value = k;
+        lc_k->mux->outChan->value = lc_k->var;
         lc_k->loopVar->get();
         lc_k->loopVar->value = lc_k->loopVar->assign(lc_k->mux->outChan);
-        k = lc_k->loopVar->assign(lc_k->mux->outChan) + 1;
-        lc_k->lcUpdate(k < block_size);
+        lc_k->var = lc_k->loopVar->assign(lc_k->mux->outChan) + 1;
+        lc_k->lcUpdate(lc_k->var < block_size);
 
         // loop interface: var k
         chan_k_lc_DGSF_LOOP->get();
@@ -564,13 +564,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_i_row_relay_loop_k_DGSF_LOOP->value = chan_i_row_relay_loop_k_DGSF_LOOP->assign(chan_i_row_relay_loop_k);
 
         //** Loop Lc_j
-        j = lc_j->mux->mux(j, 0, lc_j->sel);
+        lc_j->var = lc_j->mux->mux(lc_j->var, 0, lc_j->sel);
         lc_j->mux->muxUpdate(lc_j->sel);
-        lc_j->mux->outChan->value = j;
+        lc_j->mux->outChan->value = lc_j->var;
         lc_j->loopVar->get();
         lc_j->loopVar->value = lc_j->loopVar->assign(lc_j->mux->outChan);
-        j = lc_j->loopVar->assign(lc_j->mux->outChan) + 1;
-        lc_j->lcUpdate(j < block_size);
+        lc_j->var = lc_j->loopVar->assign(lc_j->mux->outChan) + 1;
+        lc_j->lcUpdate(lc_j->var < block_size);
 
         // loop interface: var j
         chan_m2_addr->get();
