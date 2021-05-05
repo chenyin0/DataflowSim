@@ -76,6 +76,7 @@ class Channel usage:
     public:
         Channel(uint _size, uint _cycle);
         Channel(uint _size, uint _cycle, uint _speedup);
+        Channel(string _moduleName, uint _size, uint _cycle, uint _speedup);
         virtual ~Channel();
         void initial();
         virtual void addUpstream(const vector<Channel*>& _upStream);
@@ -104,6 +105,8 @@ class Channel usage:
         virtual void parallelize();  // Emulate hardware parallel loop unrolling
 
     public:
+        string moduleName;
+        string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
         ModuleType moduleTypr = ModuleType::Channel;
         uint moduleId;  // RegisterTable Id
         vector<deque<Data>> chanBuffer;  // Store the input data of each upstream
@@ -166,6 +169,7 @@ class Channel usage:
     public:
         ChanBase(uint _size, uint _cycle);
         ChanBase(uint _size, uint _cycle, uint _speedup);
+        ChanBase(string _moduleName, uint _size, uint _cycle, uint _speedup);
 
         // Channel get data from the program variable
         //virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
@@ -215,9 +219,11 @@ class ChanDGSF usage:
     {
     public:
         ChanDGSF(uint _size, uint _cycle, uint _speedup);
+        ChanDGSF(string _moduleName, uint _size, uint _cycle, uint _speedup);
         ~ChanDGSF();
 
     private:
+        void initial();
         vector<int> push(int data, uint bufferId) override;
         void pushBuffer(int data, uint bufferId) override;
         void bpUpdate() override;
@@ -254,6 +260,7 @@ class ChanSGMF usage:
     {
     public:
         ChanSGMF(uint _size, uint _cycle);
+        ChanSGMF(string moduleName, uint _size, uint _cycle);
         //ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
         void init();
         ~ChanSGMF();

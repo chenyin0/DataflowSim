@@ -45,6 +45,7 @@ namespace DFSim
     public:
         //Mux(vector<Channel*> _trueChan, vector<Channel*> _falseChan, vector<Channel*> _downstream);
         Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan);
+        Mux(const string& moduleName_);
         virtual ~Mux();
         void addPort(vector<Channel*> _trueChanUpstream, vector<Channel*> _falseChanUpstream, vector<Channel*> _outChanDownstream);
         void muxUpdate(bool sel);
@@ -56,6 +57,8 @@ namespace DFSim
     protected:
         virtual void bpUpdate();
     public:
+        string moduleName;
+        string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
         ModuleType moduleTypr = ModuleType::Mux;
         uint moduleId;
         bool sel = 0;
@@ -63,9 +66,9 @@ namespace DFSim
         /*Channel* trueChan = new Channel(2, 0);
         Channel* falseChan = new Channel(2, 0);
         Channel* outChan = new Channel(2, 0);*/
-        ChanBase* trueChan;
-        ChanBase* falseChan;
-        ChanBase* outChan;
+        ChanBase* trueChan = nullptr;
+        ChanBase* falseChan = nullptr;
+        ChanBase* outChan = nullptr;
     protected:
         Data upstreamDataStatus;
     };

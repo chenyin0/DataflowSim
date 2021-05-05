@@ -89,6 +89,88 @@ int Registry::registerMux(Mux* mux)
     }
 }
 
+int Registry::registerChan(const string& moduleName_, Channel* chan_)
+{
+    if (Registry::registryTable.size() != Registry::moduleId)
+    {
+        Debug::throwError("Registry moduleId is not equal to regisTable entryId!", __FILE__, __LINE__);
+        return -1;
+    }
+
+    auto iter = registryDict.find(moduleName_);
+    if (iter != registryDict.end())
+    {
+        Debug::throwError("There already has a same name module in registryDict!", __FILE__, __LINE__);
+        return -1;
+    }
+    
+    RegistryTable entry;
+    entry.chanPtr = chan_;
+    entry.moduleId = Registry::moduleId;
+    entry.moduleType = ModuleType::Channel;
+    entry.moduleName = moduleName_;
+    registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+    registryTable.push_back(entry);
+
+    return Registry::moduleId++;
+}
+
+int Registry::registerLc(const string& moduleName_, Lc* lc_)
+{
+    if (Registry::registryTable.size() != Registry::moduleId)
+    {
+        Debug::throwError("Registry moduleId is not equal to regisTable entryId!", __FILE__, __LINE__);
+        return -1;
+    }
+
+    auto iter = registryDict.find(moduleName_);
+    if (iter != registryDict.end())
+    {
+        Debug::throwError("There already has a same name module in registryDict!", __FILE__, __LINE__);
+        return -1;
+    }
+
+    else
+    {
+        RegistryTable entry;
+        entry.lcPtr = lc_;
+        entry.moduleId = Registry::moduleId;
+        entry.moduleType = ModuleType::Lc;
+        registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+        registryTable.push_back(entry);
+
+        return Registry::moduleId++;
+    }
+}
+
+int Registry::registerMux(const string& moduleName_, Mux* mux_)
+{
+    if (Registry::registryTable.size() != Registry::moduleId)
+    {
+        Debug::throwError("Registry moduleId is not equal to regisTable entryId!", __FILE__, __LINE__);
+        return -1;
+    }
+
+    auto iter = registryDict.find(moduleName_);
+    if (iter != registryDict.end())
+    {
+        Debug::throwError("There already has a same name module in registryDict!", __FILE__, __LINE__);
+        return -1;
+    }
+
+    else
+    {
+        RegistryTable entry;
+        entry.muxPtr = mux_;
+        entry.moduleId = Registry::moduleId;
+        entry.moduleType = ModuleType::Mux;
+        registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+        registryTable.push_back(entry);
+
+        return Registry::moduleId++;
+    }
+}
+
 void Registry::tableInit()
 {
     initChannel();

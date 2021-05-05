@@ -35,6 +35,7 @@ namespace DFSim
         Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup);*/
         Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys);
         Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup);
+        Lse(string _moduleName, uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup);
         ~Lse();
 
         //void get(bool _isWrite, uint _addr);  // Load/store addr

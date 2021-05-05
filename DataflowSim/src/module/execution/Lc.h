@@ -37,6 +37,7 @@ namespace DFSim
     public:
         //LC(vector<Channel*> _getActive, vector<Channel*> _sendActive, vector<Channel*> _getEnd, vector<Channel*> _sendEnd);
         Lc(ChanBase* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, Mux* _mux);
+        Lc(const string& moduleName_);
         virtual ~Lc();
         void lcUpdate(bool newSel);
         void selUpdate(bool newSel);
@@ -50,6 +51,8 @@ namespace DFSim
         virtual void loopUpdate();
 
     public:
+        string moduleName;
+        string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
         ModuleType moduleTypr = ModuleType::Lc;
         uint moduleId;
         bool sel = 0;  // Sel for loop control, default set to select initial value
@@ -61,11 +64,11 @@ namespace DFSim
         //deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
 
     public:
-        ChanBase* getEnd;
-        ChanBase* sendEnd;
-        ChanBase* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;
+        ChanBase* getEnd = nullptr;
+        ChanBase* sendEnd = nullptr;
+        ChanBase* loopVar = nullptr;  // 1) Get condition result; 2) Used as getActive and sendActive;
         //MuxLc* mux = new MuxLc({ loopVar }, { }, { loopVar });
-        Mux* mux;
+        Mux* mux = nullptr;
         int var = 0;  // loop variable
     };
 

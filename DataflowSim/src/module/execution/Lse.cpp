@@ -40,6 +40,12 @@ Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speed
     initial();
 }
 
+Lse::Lse(string _moduleName, uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup)
+    : Channel(_moduleName, _size, _cycle, _speedup), isWrite(_isWrite), memSys(_memSys)
+{
+    initial();
+}
+
 Lse::~Lse()
 {
     //if (memSys != nullptr)

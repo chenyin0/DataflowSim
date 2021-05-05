@@ -36,8 +36,26 @@ Mux::Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan) :
     //}
 }
 
+Mux::Mux(const string& moduleName_) : moduleName(moduleName_)
+{
+    moduleId = Registry::registerMux(moduleName_, this);
+
+    trueChan = new ChanBase(moduleName_ + "_trueChan", 2, 0, 1);
+    trueChan->masterName = moduleName_;
+    trueChan->noDownstream = 1;
+
+    falseChan = new ChanBase(moduleName_ + "_falseChan", 2, 0, 1);
+    falseChan->masterName = moduleName_;
+    falseChan->noDownstream = 1;
+
+    outChan = new ChanBase(moduleName_ + "_outChan", 2, 0, 1);
+    outChan->masterName = moduleName_;
+    outChan->noUpstream = 1;
+}
+
 Mux::~Mux()
 {
+    //** Delete in ~Registry()
     //delete trueChan;
     //delete falseChan;
     //delete outChan;

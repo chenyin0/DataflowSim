@@ -18,10 +18,17 @@ Channel::Channel(uint _size, uint _cycle, uint _speedup) :
     initial();
 }
 
+Channel::Channel(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+    moduleName(_moduleName), size(_size), cycle(_cycle), speedup(_speedup)
+{
+    initial();
+}
+
 void Channel::initial()
 {
     // Register itself in the registerTable
-    moduleId = Registry::registerChan(this);
+    //moduleId = Registry::registerChan(this);
+    moduleId = Registry::registerChan(moduleName, this);
 }
 
 Channel::~Channel()
@@ -414,6 +421,12 @@ ChanBase::ChanBase(uint _size, uint _cycle) :
 
 ChanBase::ChanBase(uint _size, uint _cycle, uint _speedup) : 
     Channel(_size, _cycle, _speedup)
+{
+    initial();
+}
+
+ChanBase::ChanBase(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+    Channel(_moduleName, _size, _cycle, _speedup)
 {
     initial();
 }
@@ -980,6 +993,17 @@ bool ChanBase::checkDataMatch()
 ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
     : ChanBase(_size, _cycle, _speedup)
 {
+    initial();
+}
+
+ChanDGSF::ChanDGSF(string _moduleName, uint _size, uint _cycle, uint _speedup)
+    : ChanBase(_moduleName, _size, _cycle, _speedup)
+{
+    initial();
+}
+
+void ChanDGSF::initial()
+{
     //enable = 1;
     //currId = 1; // Id begins at 1
     //sendActiveMode = 0;  // Default set to false
@@ -1317,6 +1341,12 @@ bool ChanDGSF::checkGetLastData(uint bufferId)
 // class ChanSGMF
 ChanSGMF::ChanSGMF(uint _size, uint _cycle) : 
     ChanBase(_size, _cycle)/*, chanSize(_size)*/
+{
+    init();
+}
+
+ChanSGMF::ChanSGMF(string _moduleName, uint _size, uint _cycle) :
+    ChanBase(_moduleName, _size, _cycle, 1)
 {
     init();
 }

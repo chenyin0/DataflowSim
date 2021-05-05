@@ -17,6 +17,32 @@ Lc::~Lc()
     //delete mux;
 }
 
+Lc::Lc(const string& moduleName_) : moduleName(moduleName_)
+{
+    moduleId = Registry::registerLc(moduleName_, this);
+
+    mux = new Mux(moduleName_ + "_Mux");
+    mux->masterName = moduleName_;
+
+    loopVar = new ChanBase(moduleName_ + "_loopVar", 2, 0, 1);
+    loopVar->masterName = moduleName_;
+    loopVar->enable = 1;
+    loopVar->isLoopVar = 1;
+    loopVar->isFeedback = 1;
+
+    getEnd = new ChanBase(moduleName_ + "_getEnd", 2, 0, 1);
+    getEnd->masterName = moduleName_;
+    getEnd->enable = 1;
+    getEnd->noDownstream = 1;
+    getEnd->downstream = { nullptr };
+
+    sendEnd = new ChanBase(moduleName_ + "_sendEnd", 2, 0, 1);
+    sendEnd->masterName = moduleName_;
+    sendEnd->enable = 1;
+    sendEnd->noUpstream = 1;
+    sendEnd->upstream = { nullptr };
+}
+
 void Lc::init()
 {
     moduleId = Registry::registerLc(this);
