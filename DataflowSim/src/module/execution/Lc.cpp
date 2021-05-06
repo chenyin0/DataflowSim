@@ -21,8 +21,9 @@ Lc::~Lc()
 Lc::Lc(const string& moduleName_) : moduleName(moduleName_)
 {
     moduleId = Registry::registerLc(moduleName_, this);
+    //moduleId = Registry::registerModule(moduleName, this);
 
-    mux = new Mux(moduleName_ + "_Mux");
+    mux = new Mux(moduleName_ + "_mux");
     mux->masterName = moduleName_;
 
     loopVar = new ChanBase(moduleName_ + "_loopVar", 2, 0, 1);

@@ -137,6 +137,7 @@ int Registry::registerLc(const string& moduleName_, Lc* lc_)
         entry.lcPtr = lc_;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Lc;
+        entry.moduleName = moduleName_;
         registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
         registryTable.push_back(entry);
 
@@ -165,11 +166,27 @@ int Registry::registerMux(const string& moduleName_, Mux* mux_)
         entry.muxPtr = mux_;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Mux;
+        entry.moduleName = moduleName_;
         registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
         registryTable.push_back(entry);
 
         return Registry::moduleId++;
     }
+}
+
+Channel* Registry::getChan(const string& moduleName_)
+{
+    return registryTable[registryDict[moduleName_]].chanPtr;
+}
+
+Lc* Registry::getLc(const string& moduleName_)
+{
+    return registryTable[registryDict[moduleName_]].lcPtr;
+}
+
+Mux* Registry::getMux(const string& moduleName_)
+{
+    return registryTable[registryDict[moduleName_]].muxPtr;
 }
 
 void Registry::tableInit()

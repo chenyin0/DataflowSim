@@ -23,6 +23,7 @@ Channel::Channel(string _moduleName, uint _size, uint _cycle, uint _speedup) :
 {
     //initial();
     moduleId = Registry::registerChan(moduleName, this);
+    //moduleId = Registry::registerModule(moduleName, this);
 }
 
 void Channel::initial()
@@ -33,17 +34,17 @@ void Channel::initial()
 
 Channel::~Channel()
 {
-    for (auto& chan : upstream)
-    {
-        //delete chan;
-        chan = nullptr;
-    }
+    //for (auto& chan : upstream)
+    //{
+    //    //delete chan;
+    //    chan = nullptr;
+    //}
 
-    for (auto& chan : downstream)
-    {
-        //delete chan;
-        chan = nullptr;
-    }
+    //for (auto& chan : downstream)
+    //{
+    //    //delete chan;
+    //    chan = nullptr;
+    //}
 }
 
 void Channel::addUpstream(const vector<Channel*>& _upStream)
@@ -155,8 +156,10 @@ vector<int> Channel::get(const vector<int>& data)
     }
 
     statusUpdate(); // Set valid according to the downstream channels' status
+    
+    value = aluUpdate();  // Update channel value
+    
     //bpUpdate(); 
-
     if (speedup > 1)
     {
         parallelize();
@@ -183,7 +186,9 @@ vector<int> Channel::get()
 
         statusUpdate(); // Set valid according to the downstream channels' status
     }
-       
+
+    value = aluUpdate();  // Update channel value
+
     //bpUpdate();
     if (speedup > 1)
     {
@@ -369,6 +374,70 @@ void Channel::bpUpdate()
         }
     }
 }
+
+int Channel::aluUpdate()
+{
+    vector<int> operands;
+    for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+    {
+        if (!chanBuffer[bufferId].empty())
+        {
+            operands.push_back(chanBuffer[bufferId].front().value);
+        }
+        else
+        {
+            operands.push_back(lastPopVal[bufferId]);
+        }
+    }
+
+    int& in1 = operands[0];
+    int& in2 = operands[1];
+    int& in3 = operands[2];
+
+    switch (aluOp)
+    {
+    case Alu_op::Nop:
+        return in1;
+    case Alu_op::Add:
+        return in1 + in2;
+    case Alu_op::Sub:
+        return in1 - in2;
+    case Alu_op::Mul:
+        return in1 * in2;
+    case Alu_op::Div:
+        return in1 / in2;
+    case Alu_op::Mod:
+        return in1 % in2;
+    case Alu_op::Mac:
+        return in1 * in2 + in3;
+    case Alu_op::Cmp:
+        return in1 > in2 ? 1 : 0;
+    case Alu_op::Sel:
+        return in1 == 0 ? in2 : in3;
+    case Alu_op::And:
+        return in1 && in2;
+    case Alu_op::Or:
+        return in1 || in2;
+    case Alu_op::Not:
+        return ~in1;
+    case Alu_op::Shl:
+        return in1 << in2;
+    case Alu_op::Shr:
+        return in1 >> in2;
+    case Alu_op::Func:
+        return fp(operands);
+    default:
+        Debug::throwError("Undefined Alu_op!", __FILE__, __LINE__);
+    }
+}
+
+//int Channel::funcUpdate()
+//{
+//    if (aluOp == Alu_op::Func)
+//    {
+//        return 
+//    }
+//}
 
 //bool Channel::checkUpstream()
 //{

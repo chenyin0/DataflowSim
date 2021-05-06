@@ -88,4 +88,27 @@ namespace DFSim
         WRITE_ALLOCATE,
         WRITE_NON_ALLOCATE
     };
+
+    enum class Alu_op
+    {
+        Nop,
+        //** Algorithm
+        Add,
+        Sub,
+        Mul,
+        Div,
+        Mod,
+        Mac,
+        //** Logic
+        Cmp,
+        Sel,
+        And,
+        Or,
+        Xor,
+        Not,
+        Shl,  // Left shift
+        Shr,  // Right shift
+        //** User-define function
+        Func
+    };
 }

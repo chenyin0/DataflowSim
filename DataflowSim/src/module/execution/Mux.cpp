@@ -39,6 +39,7 @@ Mux::Mux(ChanBase* _trueChan, ChanBase* _falseChan, ChanBase* _outChan) :
 Mux::Mux(const string& moduleName_) : moduleName(moduleName_)
 {
     moduleId = Registry::registerMux(moduleName_, this);
+    //moduleId = Registry::registerModule(moduleName, this);
 
     trueChan = new ChanBase(moduleName_ + "_trueChan", 2, 0, 1);
     trueChan->masterName = moduleName_;

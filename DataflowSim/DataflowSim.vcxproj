@@ -151,6 +151,7 @@
     <ClInclude Include="src\module\mem\Spm.h" />
     <ClInclude Include="src\module\Profiler.h" />
     <ClInclude Include="src\module\Registry.h" />
+    <ClInclude Include="src\sim\control_tree.h" />
     <ClInclude Include="src\sim\Debug.h" />
     <ClInclude Include="src\sim\Watchdog.h" />
     <ClInclude Include="src\util\ReadFile.hpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="src\module\mem\Spm.cpp" />
     <ClCompile Include="src\module\Profiler.cpp" />
     <ClCompile Include="src\module\Registry.cpp" />
+    <ClCompile Include="src\sim\control_tree.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
     <ClCompile Include="src\sim\Watchdog.cpp" />
     <ClCompile Include="test\aes\Aes.cpp" />
@@ -187,6 +189,7 @@
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
+    <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp" />
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
     <ClCompile Include="test\lud\Lud.cpp" />
     <ClCompile Include="test\lud\Lud_Base.cpp" />

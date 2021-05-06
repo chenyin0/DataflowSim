@@ -4,6 +4,7 @@
 #include "../module/execution/Channel.h"
 #include "../module/execution/Lc.h"
 #include "../module/execution/Mux.h"
+#include "../sim/Debug.h"
 
 /*
 Module Register
@@ -38,8 +39,53 @@ namespace DFSim
         static int registerChan(const string& moduleName_, Channel* chan_);
         static int registerLc(const string& moduleName_, Lc* lc_);
         static int registerMux(const string& moduleName_, Mux* mux_);
+        Channel* getChan(const string& moduleName_);
+        Lc* getLc(const string& moduleName_);
+        Mux* getMux(const string& moduleName_);
+
         void tableInit();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
+
+        /*template <typename T>
+        static int registerModule(const string& moduleName_, T module_)
+        {
+            if (Registry::registryTable.size() != Registry::moduleId)
+            {
+                Debug::throwError("Registry moduleId is not equal to regisTable entryId!", __FILE__, __LINE__);
+                return -1;
+            }
+
+            auto iter = registryDict.find(moduleName_);
+            if (iter != registryDict.end())
+            {
+                Debug::throwError("There already has a same name module in registryDict!", __FILE__, __LINE__);
+                return -1;
+            }
+
+            RegistryTable entry;
+            if (std::is_same<decltype(module_), decltype(entry.chanPtr)>::value)
+            {
+                entry.chanPtr = module_;
+                entry.moduleType = ModuleType::Channel;
+            }
+            else if (std::is_same<decltype(module_), Lc*>::value)
+            {
+                entry.lcPtr = module_;
+                entry.moduleType = ModuleType::Lc;
+            }
+            else if (std::is_same<decltype(module_), Mux*>::value)
+            {
+                entry.muxPtr = module_;
+                entry.moduleType = ModuleType::Mux;
+            }
+            
+            entry.moduleId = Registry::moduleId; 
+            entry.moduleName = moduleName_;
+            registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+            registryTable.push_back(entry);
+
+            return Registry::moduleId++;
+        }*/
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:

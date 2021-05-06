@@ -76,6 +76,7 @@ namespace DFSimTest
     {
     public:
         static void gemm_Base(Debug* debug);
+        static void gemm_Base_auto_sim(Debug* debug);
         static void gemm_DGSF(Debug* debug);
     
     private:

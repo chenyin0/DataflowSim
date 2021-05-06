@@ -155,6 +155,9 @@
     <ClInclude Include="src\sim\Watchdog.h">
       <Filter>src\sim</Filter>
     </ClInclude>
+    <ClInclude Include="src\sim\control_tree.h">
+      <Filter>src\sim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -255,6 +258,12 @@
     </ClCompile>
     <ClCompile Include="src\sim\Watchdog.cpp">
       <Filter>src\sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\control_tree.cpp">
+      <Filter>src\sim</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp">
+      <Filter>test\gemm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
