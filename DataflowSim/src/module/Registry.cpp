@@ -5,6 +5,7 @@ using namespace DFSim;
 
 uint Registry::moduleId = 0;
 vector<RegistryTable> Registry::registryTable;
+unordered_map<string, uint> Registry::registryDict;
 
 Registry::Registry()
 {

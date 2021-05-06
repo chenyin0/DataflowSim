@@ -106,7 +106,7 @@ class Channel usage:
 
     public:
         string moduleName;
-        string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
+        string masterName = "None";  // If this module affiliates to a upper module, store the name of it. Default value = "None";
         ModuleType moduleTypr = ModuleType::Channel;
         uint moduleId;  // RegisterTable Id
         vector<deque<Data>> chanBuffer;  // Store the input data of each upstream

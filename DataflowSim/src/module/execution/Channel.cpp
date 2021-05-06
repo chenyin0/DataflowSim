@@ -21,14 +21,14 @@ Channel::Channel(uint _size, uint _cycle, uint _speedup) :
 Channel::Channel(string _moduleName, uint _size, uint _cycle, uint _speedup) :
     moduleName(_moduleName), size(_size), cycle(_cycle), speedup(_speedup)
 {
-    initial();
+    //initial();
+    moduleId = Registry::registerChan(moduleName, this);
 }
 
 void Channel::initial()
 {
     // Register itself in the registerTable
-    //moduleId = Registry::registerChan(this);
-    moduleId = Registry::registerChan(moduleName, this);
+    moduleId = Registry::registerChan(this);
 }
 
 Channel::~Channel()

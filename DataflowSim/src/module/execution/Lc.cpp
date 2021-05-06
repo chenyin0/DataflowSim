@@ -11,6 +11,7 @@ Lc::Lc(ChanBase* _loopVar, ChanBase* _getEnd, ChanBase* _sendEnd, Mux* _mux)
 
 Lc::~Lc()
 {
+    //** Delete in ~Registry()
     //delete getEnd;
     //delete sendEnd;
     //delete loopVar;

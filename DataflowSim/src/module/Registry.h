@@ -35,9 +35,9 @@ namespace DFSim
         static int registerLc(Lc* lc);
         static int registerMux(Mux* mux);
         //**
-        static int registerChan(const string& moduleName_, const Channel* chan);
-        static int registerLc(const string& moduleName_, const Lc* lc);
-        static int registerMux(const string& moduleName_, const Mux* mux);
+        static int registerChan(const string& moduleName_, Channel* chan_);
+        static int registerLc(const string& moduleName_, Lc* lc_);
+        static int registerMux(const string& moduleName_, Mux* mux_);
         void tableInit();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
 
@@ -65,7 +65,7 @@ namespace DFSim
     private:
         static uint moduleId;
         static vector<RegistryTable> registryTable;
-        unordered_map<string, uint> registryDict;
+        static unordered_map<string, uint> registryDict;
     };
 
 }
