@@ -155,9 +155,10 @@ vector<int> Channel::get(const vector<int>& data)
         pushState = push(data[i], i);
     }
 
-    statusUpdate(); // Set valid according to the downstream channels' status
-    
-    value = aluUpdate();  // Update channel value
+    // Set valid according to the downstream channels' status
+    statusUpdate(); 
+    // Update channel value
+    funcUpdate();  
     
     //bpUpdate(); 
     if (speedup > 1)
@@ -187,7 +188,8 @@ vector<int> Channel::get()
         statusUpdate(); // Set valid according to the downstream channels' status
     }
 
-    value = aluUpdate();  // Update channel value
+    // Update channel value
+    funcUpdate();
 
     //bpUpdate();
     if (speedup > 1)
@@ -375,24 +377,44 @@ void Channel::bpUpdate()
     }
 }
 
+void Channel::funcUpdate()
+{
+    if (valid)
+    {
+        for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+        {
+            if (!chanBuffer[bufferId].empty())
+            {
+                buffer2Alu[bufferId] = chanBuffer[bufferId].front().value;
+            }
+        }
+        for (size_t i = 0; i < operand.size(); ++i)
+        {
+            aluInput[i] = *operand[i];
+        }
+
+        value = aluUpdate();
+    }
+}
+
 int Channel::aluUpdate()
 {
-    vector<int> operands;
-    for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
-    {
-        if (!chanBuffer[bufferId].empty())
-        {
-            operands.push_back(chanBuffer[bufferId].front().value);
-        }
-        else
-        {
-            operands.push_back(lastPopVal[bufferId]);
-        }
-    }
+    //vector<int> operands;
+    //for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+    //{
+    //    if (!chanBuffer[bufferId].empty())
+    //    {
+    //        operands.push_back(chanBuffer[bufferId].front().value);
+    //    }
+    //    else
+    //    {
+    //        operands.push_back(lastPopVal[bufferId]);
+    //    }
+    //}
 
-    int& in1 = operands[0];
-    int& in2 = operands[1];
-    int& in3 = operands[2];
+    int& in1 = aluInput[0];
+    int& in2 = aluInput[1];
+    int& in3 = aluInput[2];
 
     switch (aluOp)
     {
@@ -411,9 +433,9 @@ int Channel::aluUpdate()
     case Alu_op::Mac:
         return in1 * in2 + in3;
     case Alu_op::Cmp:
-        return in1 > in2 ? 1 : 0;
+        return (in1 > in2) ? 1 : 0;
     case Alu_op::Sel:
-        return in1 == 0 ? in2 : in3;
+        return in1 ? in2 : in3;
     case Alu_op::And:
         return in1 && in2;
     case Alu_op::Or:
@@ -425,7 +447,7 @@ int Channel::aluUpdate()
     case Alu_op::Shr:
         return in1 >> in2;
     case Alu_op::Func:
-        return fp(operands);
+        return fp(operand);
     default:
         Debug::throwError("Undefined Alu_op!", __FILE__, __LINE__);
     }

@@ -306,6 +306,19 @@ void Registry::initLastPopVal(Channel* _chan)
     }
 }
 
+void Registry::initAluInput(Channel* _chan)
+{
+    if (!_chan->noUpstream)
+    {
+        uint upstreamSize = _chan->upstream.size();
+        _chan->buffer2Alu.resize(upstreamSize);
+    }
+    else
+    {
+        _chan->buffer2Alu.resize(1);
+    }
+}
+
 void Registry::initChannel()
 {
     for (auto& entry : registryTable)
@@ -316,6 +329,7 @@ void Registry::initChannel()
             initLastTagQueue(entry.chanPtr);
             initBp(entry.chanPtr);
             initLastPopVal(entry.chanPtr);
+            initAluInput(entry.chanPtr);
         }
     }
 }

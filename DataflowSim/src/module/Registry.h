@@ -99,6 +99,7 @@ namespace DFSim
         void initChanBuffer(Channel* _chan);
         void initBp(Channel* _chan);
         void initLastPopVal(Channel* _chan);
+        void initAluInput(Channel* _chan);
         void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream
 
         void checkConnectRule();  // Check connection rules
