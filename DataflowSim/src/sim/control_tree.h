@@ -10,16 +10,16 @@ namespace DFSim
         string controlRegionName;
         string upperControlRegion;
         vector<string> lowerControlRegion;
-        vector<string> modules;  // modules in this control region
+        vector<string> nodes;  // modules in this control region
     };
 
     class ControlTree
     {
     public:
         ControlTree();
-        //int findControlRegionIndex(const string& name_);
+        auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator;
         void addControlRegion(const vector<string>& controlRegions_);
-        void addModules(const string& targetCtrlRegion, const vector<string>& modules_);
+        void addNodes(const string& targetCtrlRegion, const vector<string>& modules_);
         void addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_);
         void addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_);
 
