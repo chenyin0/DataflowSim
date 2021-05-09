@@ -28,7 +28,8 @@ int main()
     Gemm
     Bfs
     */
-    TestBench_name tb_name = TestBench_name::Gemm;
+    static TestBench_name g_tb_name = TestBench_name::Gemm;
+    static string g_filePath = "./resource/" + tb_name_convert::toString(g_tb_name) + "/";
 
     //** Define Arch
 #ifdef Base
@@ -42,7 +43,7 @@ int main()
 #endif
     //**
 
-    DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(tb_name) + string("/") + tb_name_convert::toString(tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
+    DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(g_tb_name) + string("/") + tb_name_convert::toString(g_tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
     //DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
 
@@ -54,7 +55,7 @@ int main()
     debug->getFile() << "******************************" << std::endl;
 #endif
 
-    switch (tb_name)
+    switch (g_tb_name)
     {
     case TestBench_name::SimpleFlowTest:
     {
