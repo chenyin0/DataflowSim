@@ -108,6 +108,9 @@ namespace DFSim
         Not,
         Shl,  // Left shift
         Shr,  // Right shift
+        //** Ld/St
+        Load,
+        Store,
         //** User-define function
         Func
     };
