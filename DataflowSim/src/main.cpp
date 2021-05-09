@@ -22,13 +22,13 @@ int main()
     DFSim::ClkDomain clk();
     std::cout << "Begin test" << std::endl;
 
-    /* TestBench name list
+    /* App name list
     SimpleFlowTest
     MemoryTest
     Gemm
     Bfs
     */
-    static TestBench_name g_tb_name = TestBench_name::Gemm;
+    static App_name g_tb_name = App_name::Gemm;
     static string g_filePath = "./resource/" + tb_name_convert::toString(g_tb_name) + "/";
 
     //** Define Arch
@@ -57,7 +57,7 @@ int main()
 
     switch (g_tb_name)
     {
-    case TestBench_name::SimpleFlowTest:
+    case App_name::SimpleFlowTest:
     {
         switch (arch)
         {
@@ -74,7 +74,7 @@ int main()
 
         break;
     }
-    case TestBench_name::MemoryTest:
+    case App_name::MemoryTest:
     {
         switch (arch)
         {
@@ -91,7 +91,7 @@ int main()
 
         break;
     }
-    case TestBench_name::Gemm:
+    case App_name::Gemm:
     {
         switch (arch)
         {
@@ -110,7 +110,7 @@ int main()
 
         break;
     }
-    case TestBench_name::Bfs:
+    case App_name::Bfs:
     {
         switch (arch)
         {
@@ -127,7 +127,7 @@ int main()
 
         break;
     }
-    case TestBench_name::Aes:
+    case App_name::Aes:
     {
         switch (arch)
         {
@@ -144,7 +144,7 @@ int main()
 
         break;
     }
-    case TestBench_name::Lud:
+    case App_name::Lud:
     {
         switch (arch)
         {

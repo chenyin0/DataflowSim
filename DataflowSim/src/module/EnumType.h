@@ -4,7 +4,7 @@
 
 namespace DFSim
 {
-    enum class TestBench_name
+    enum class App_name
     {
         SimpleFlowTest,
         MemoryTest,
@@ -17,19 +17,19 @@ namespace DFSim
     class tb_name_convert
     {
     public:
-        static string toString(TestBench_name type_)
+        static string toString(App_name type_)
         {
-            if (type_ == TestBench_name::SimpleFlowTest)
+            if (type_ == App_name::SimpleFlowTest)
                 return "SimpleFlowTest";
-            if (type_ == TestBench_name::MemoryTest)
+            if (type_ == App_name::MemoryTest)
                 return "MemoryTest";
-            if (type_ == TestBench_name::Gemm)
+            if (type_ == App_name::Gemm)
                 return "Gemm";
-            if (type_ == TestBench_name::Bfs)
+            if (type_ == App_name::Bfs)
                 return "Bfs";
-            if (type_ == TestBench_name::Aes)
+            if (type_ == App_name::Aes)
                 return "Aes";
-            if (type_ == TestBench_name::Lud)
+            if (type_ == App_name::Lud)
                 return "Lud";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
