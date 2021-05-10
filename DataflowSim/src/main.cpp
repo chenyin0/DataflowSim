@@ -2,6 +2,7 @@
 #include "../src/define/Para.h"
 #include "../src/module/ClkSys.h"
 #include "../src/sim/Debug.h"
+#include "./sim/global.h"
 
 #include "../test/simpleflow/SimpleFlow_Base.cpp"
 #include "../test/simpleflow/SimpleFlow_DGSF.cpp"
@@ -22,28 +23,7 @@ int main()
     DFSim::ClkDomain clk();
     std::cout << "Begin test" << std::endl;
 
-    /* App name list
-    SimpleFlowTest
-    MemoryTest
-    Gemm
-    Bfs
-    */
-    static App_name g_tb_name = App_name::Gemm;
-    static string g_filePath = "./resource/" + tb_name_convert::toString(g_tb_name) + "/";
-
-    //** Define Arch
-#ifdef Base
-    ArchType arch = ArchType::Base;
-#endif
-#ifdef DGSF
-    ArchType arch = ArchType::DGSF;
-#endif
-#ifdef SGMF
-    ArchType arch = ArchType::SGMF;
-#endif
-    //**
-
-    DFSim::Debug* debug = new DFSim::Debug(string("./resource/") + tb_name_convert::toString(g_tb_name) + string("/") + tb_name_convert::toString(g_tb_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
+    DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
 
     //DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
 
@@ -55,11 +35,11 @@ int main()
     debug->getFile() << "******************************" << std::endl;
 #endif
 
-    switch (g_tb_name)
+    switch (Global::app_name)
     {
     case App_name::SimpleFlowTest:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             //DFSimTest::simpleFlow_Base(debug);
@@ -76,7 +56,7 @@ int main()
     }
     case App_name::MemoryTest:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             //DFSimTest::MemoryTest::memory_test(debug);
@@ -93,7 +73,7 @@ int main()
     }
     case App_name::Gemm:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             // Debug_yin_05.05
@@ -112,7 +92,7 @@ int main()
     }
     case App_name::Bfs:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             //DFSimTest::GemmTest::gemm_base(debug);
@@ -129,7 +109,7 @@ int main()
     }
     case App_name::Aes:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             DFSimTest::AesTest::aes_Base(debug);
@@ -146,7 +126,7 @@ int main()
     }
     case App_name::Lud:
     {
-        switch (arch)
+        switch (Global::arch)
         {
         case ArchType::Base:
             DFSimTest::LudTest::lud_Base(debug);

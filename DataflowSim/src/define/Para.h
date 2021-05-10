@@ -19,14 +19,6 @@
 //2) SGMF: channel size = 2;
 //3) TIA(instruction-based): much less PEs; fine-grained synchronization(the channel execute cycle is longer)
 
-enum class ArchType
-{
-    Base,  // Plasticine 64 pe
-    DGSF,  // 48 pe
-    SGMF,  // 32 pe
-    TIA    // 12 pe
-};
-
 #define Base Base
 //#define DGSF DGSF
 //#define SGMF SGMF

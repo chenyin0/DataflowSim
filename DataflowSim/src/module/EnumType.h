@@ -14,7 +14,7 @@ namespace DFSim
         Lud
     };
 
-    class tb_name_convert
+    class App_name_convert
     {
     public:
         static string toString(App_name type_)
@@ -34,6 +34,14 @@ namespace DFSim
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }
+    };
+
+    enum class ArchType
+    {
+        Base,  // Plasticine 64 pe
+        DGSF,  // 48 pe
+        SGMF,  // 32 pe
+        TIA    // 12 pe
     };
 
     enum class Debug_mode
