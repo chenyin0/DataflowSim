@@ -8,6 +8,8 @@
 #include "../../src/sim/Debug.h"
 #include "../../src/module/Registry.h"
 #include "../../src/module/Profiler.h"
+#include "../../src/sim/graph.h"
+#include "../../src/sim/control_tree.h"
 
 /*  Gemm src code from MachSuite benchmark suite (blocked)
 
@@ -81,6 +83,14 @@ namespace DFSimTest
     
     private:
         static void generateData();  // Generate benchmark data
+        static void generateDfg();  // Generate Dfg with control tree
+        //static void generateChanGraph();  // Generate chanGraph with control tree
+
+        // Construct DFG and chanGraph
+        static Dfg dfg;
+        //static ControlTree dfgControlTree;
+        //static ChanGraph chanGraph;
+        //static ControlTree chanGraphControlTree;
 
         static const uint matrix_width;
         static const uint matrix_height;
@@ -89,10 +99,15 @@ namespace DFSimTest
         static const uint m1_BaseAddr;
         static const uint m2_BaseAddr;
         static const uint partialSum_BaseAddr;
+        static const uint prod_BaseAddr;
 
         static vector<vector<int>> m1;
         static vector<vector<int>> m2;
         static vector<vector<int>> result;
+
+        static vector<int> m1_;
+        static vector<int> m2_;
+        static vector<int> prod_;
 
         // Performance parameter
         // Base

@@ -63,6 +63,7 @@ namespace DFSim
         //bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
         void popChanBuffer();
         //void bpUpdate() override;
+        virtual void funcUpdate() override;
 
         void updateMemAccessRecord(uint _reqIndex);
 
@@ -77,6 +78,8 @@ namespace DFSim
         vector<pair<MemReq, Data>> reqQueue;
         pair<bool, MemReq> suspendReq;  // Outstanding req, need send to memSys; <valid, req>
         bool noLatencyMode = 0;  // Emulate no latency memory access
+        vector<int>* memorySpace = nullptr;  // Point to load/store array
+        uint baseAddr = 0;
 
         // Profiling
         uint memAccessLat = 0;
@@ -99,5 +102,6 @@ namespace DFSim
         uint orderId = 0;  // Record request sequence
         uint currReqId = 0;  // Used in Lse in order
         MemSystem* memSys = nullptr;
+        deque<int> valueQueue;  // Store value in store mode  
     };
 }

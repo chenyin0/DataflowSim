@@ -52,7 +52,9 @@ Lse::~Lse()
     //{
     //    delete memSys;
     //}
-    memSys = nullptr;  // Destruct memorySystem in the destructor of class MemSystem
+    //memSys = nullptr;  // Destruct memorySystem in the destructor of class MemSystem
+    delete memSys;
+    delete memorySpace;
 }
 
 void Lse::initial()
@@ -101,6 +103,10 @@ vector<int> Lse::pop()
         uint reqQueueIndex = channel.front().lseReqQueueIndex;
         lastPopVal = reqQueue[reqQueueIndex].first.addr;
         channel.pop_front();  // Pop channel
+        if (isWrite)
+        {
+            valueQueue.pop_front();
+        }
         reqQueue[reqQueueIndex].first.valid = 0;  // Pop reqQueue
         reqQueue[reqQueueIndex].second.valid = 0;
 
@@ -170,7 +176,8 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 
     MemReq req;
     req.valid = 1;
-    req.addr = chanBuffer[0].front().value;  // Address must stored in chanBuffer[0]!!!
+    //req.addr = chanBuffer[0].front().value;  // Address must stored in chanBuffer[0]!!!
+    req.addr = chanBuffer[0].front().value + baseAddr;  // Address must stored in chanBuffer[0]!!!
     req.isWrite = isWrite;
     req.lseId = lseId;
 
@@ -200,6 +207,10 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
         reqQueue[pushQueuePtr].first = req;
         reqQueue[pushQueuePtr].second = data;
 
+        if (isWrite)
+        {
+            valueQueue.push_back(chanBuffer[1].front().value);  // Preserve value in Store mode
+        }
         popChanBuffer();
         pushQueuePtr = (++pushQueuePtr) % reqQueue.size();
     }
@@ -438,6 +449,20 @@ void Lse::pushChannel()
                 ++currReqId;
                 sendChanPtr = (++sendChanPtr) % reqQueue.size();
             }
+        }
+    }
+}
+
+void Lse::funcUpdate()
+{
+    if (valid)
+    {
+        // chanBuffer[0] stores address
+        value = (*memorySpace)[channel.front().value - baseAddr];
+
+        if (isWrite)
+        {
+            (*memorySpace)[channel.front().value - baseAddr] = valueQueue.front();
         }
     }
 }

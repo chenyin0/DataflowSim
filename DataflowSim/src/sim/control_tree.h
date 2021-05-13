@@ -21,13 +21,14 @@ namespace DFSim
         ControlTree();
         auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator;
         void addControlRegion(const vector<pair<string, string>>& controlRegions_);  // pair<controlRegionName, controlRegionType>
-        void addNodes(const string& targetCtrlRegion, const vector<string>& modules_);
+        void addNodes(const string& targetCtrlRegion, const vector<string>& nodes_);
         void addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_);
         void addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_);
+        void completeControlRegionHierarchy();
         vector<pair<string, uint>> traverseControlRegionsDfs();
         void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_);
 
-    private:
+    public:
         vector<ControlRegion> controlRegionTable;
         unordered_map<string, uint> controlRegionIndexDict;
     };

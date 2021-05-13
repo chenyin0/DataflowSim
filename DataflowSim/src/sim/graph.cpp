@@ -29,6 +29,11 @@ auto Graph::findNodeIndex(const string& _nodeName)->unordered_map<string, uint>:
     }
 }
 
+Node* Graph::getNode(const string& _nodeName)
+{
+    return nodes[findNodeIndex(_nodeName)->second];
+}
+
 void Graph::addPreNodesData(const string& _nodeName, const vector<string>& _pre_nodes_data)
 {
     uint index = findNodeIndex(_nodeName)->second;
@@ -92,16 +97,16 @@ void Graph::removeRedundantConnect()
 {
     for (auto& node : nodes)
     {
-        set<string> s1(node->pre_nodes_data.begin(), node->pre_nodes_data.begin());
+        set<string> s1(node->pre_nodes_data.begin(), node->pre_nodes_data.end());
         node->pre_nodes_data.assign(s1.begin(), s1.end());
 
-        set<string> s2(node->next_nodes_data.begin(), node->next_nodes_data.begin());
+        set<string> s2(node->next_nodes_data.begin(), node->next_nodes_data.end());
         node->next_nodes_data.assign(s2.begin(), s2.end());
 
-        set<string> s3(node->pre_nodes_active.begin(), node->pre_nodes_active.begin());
+        set<string> s3(node->pre_nodes_active.begin(), node->pre_nodes_active.end());
         node->pre_nodes_active.assign(s3.begin(), s3.end());
 
-        set<string> s4(node->next_nodes_active.begin(), node->next_nodes_active.begin());
+        set<string> s4(node->next_nodes_active.begin(), node->next_nodes_active.end());
         node->next_nodes_active.assign(s4.begin(), s4.end());
     }
 }
@@ -193,6 +198,23 @@ void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _control
     }
 }
 
+//void Graph::addNode(const string& _nodeName)
+//{
+//    for (auto& node : nodes)
+//    {
+//        if (nodeIndexDict.count(node->node_name))
+//        {
+//            Debug::throwError("There already has a same name control region!", __FILE__, __LINE__);
+//        }
+//        else
+//        {
+//            nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+//            auto chanNode = new Chan_Node(_nodeName);
+//            nodes.push_back(chanNode);
+//        }
+//    }
+//}
+
 //void Graph::printSubgraphDot(std::fstream& fileName_, string& controlRegionName_, vector<string>& nodes_, string& controlType_)
 //{
 //    fileName_ << std::endl;
@@ -230,20 +252,65 @@ Dfg::Dfg()
 
 void Dfg::addNode(const string& _nodeName, const string& _nodeOp)
 {
-    for (auto& node : nodes)
+    if (nodeIndexDict.count(_nodeName))
     {
-        if (nodeIndexDict.count(node->node_name))
+        Debug::throwError("There already has a same name node!", __FILE__, __LINE__);
+    }
+    else
+    {
+        nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+        Dfg_Node* dfgNode = new Dfg_Node(_nodeName, _nodeOp);
+        if (_nodeOp == "Loop_head")
         {
-            Debug::throwError("There already has a same name control region!", __FILE__, __LINE__);
+            dfgNode->node_type = "Lc";
         }
-        else
+        else if (_nodeOp == "Const")
         {
-            nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
-            auto dfgNode = new Dfg_Node(_nodeName, _nodeOp);
-            nodes.push_back(dfgNode);
+            dfgNode->node_type = "Const";
         }
+        nodes.push_back(dfgNode);
     }
 }
+
+void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const int& _constVal)
+{
+    addNode(_nodeName, _nodeOp);
+    dynamic_cast<Dfg_Node*>(getNode(_nodeName))->constVal = _constVal;
+}
+
+void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes)
+{
+    addNode(_nodeName, _nodeOp);
+    auto& pre_nodes_data_ = dynamic_cast<Dfg_Node*>(getNode(_nodeName))->pre_nodes_data;
+    pre_nodes_data_.insert(pre_nodes_data_.end(), _preNodes.begin(), _preNodes.end());
+}
+
+void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodesData, const vector<string>& _preNodesActive)
+{
+    addNode(_nodeName, _nodeOp, _preNodesData);
+    auto& pre_nodes_active_ = dynamic_cast<Dfg_Node*>(getNode(_nodeName))->pre_nodes_active;
+    pre_nodes_active_.insert(pre_nodes_active_.end(), _preNodesActive.begin(), _preNodesActive.end());
+}
+
+void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint& baseAddr_)
+{
+    if (_nodeOp == "Load" || _nodeOp == "Store")
+    {
+        addNode(_nodeName, _nodeOp, _preNodes);
+        dynamic_cast<Dfg_Node*>(getNode(_nodeName))->memorySpace = memorySpace_;
+        dynamic_cast<Dfg_Node*>(getNode(_nodeName))->baseAddr = baseAddr_;
+    }
+    else
+    {
+        Debug::throwError("This node is not a Load/Store node!", __FILE__, __LINE__);
+    }
+}
+
+//void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const string& _preNode)
+//{
+//    addNode(_nodeName, _nodeOp);
+//    dynamic_cast<Dfg_Node*>(getNode(_nodeName))->pre_nodes_data.push_back(_preNode);
+//}
 
 void Dfg::printDotNodeLabel(std::fstream& fileName_)
 {
@@ -277,33 +344,49 @@ void Dfg::printDotNodeLabel(std::fstream& fileName_)
     }
 }
 
-void Dfg::plotDot(ControlTree& _controlTree)
+void Dfg::plotDot()
 {
-    Graph::plotDot(dfg_dot, _controlTree);
+    Graph::plotDot(dfg_dot, controlTree);
 }
 
 
 //** ChanGraph
 ChanGraph::ChanGraph()
 {
+    initial();
+}
+
+ChanGraph::ChanGraph(Dfg& dfg_)
+{
+    initial();
+    genChanGraphFromDfg(dfg_);
+}
+
+void ChanGraph::initial()
+{
     chan_graph_dot.open(Global::file_path + "chan_graph.dot", ios::out);
 }
 
 void ChanGraph::addNode(const string& _nodeName)
 {
-    for (auto& node : nodes)
+    if (nodeIndexDict.count(_nodeName))
     {
-        if (nodeIndexDict.count(node->node_name))
-        {
-            Debug::throwError("There already has a same name control region!", __FILE__, __LINE__);
-        }
-        else
-        {
-            nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
-            auto chanNode = new Chan_Node(_nodeName);
-            nodes.push_back(chanNode);
-        }
+        Debug::throwError("There already has a same name node!", __FILE__, __LINE__);
     }
+    else
+    {
+        nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+        auto chanNode = new Chan_Node(_nodeName);
+        nodes.push_back(chanNode);
+    }
+}
+
+void ChanGraph::addNode(const string& _nodeName, const string& _nodeType, const string& _nodeOp, const string& _chanMode)
+{
+    addNode(_nodeName);
+    dynamic_cast<Chan_Node*>(getNode(_nodeName))->node_type = _nodeType;
+    dynamic_cast<Chan_Node*>(getNode(_nodeName))->node_op = _nodeOp;
+    dynamic_cast<Chan_Node*>(getNode(_nodeName))->chan_mode = _chanMode;
 }
 
 void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
@@ -313,14 +396,16 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
     {
         string& nodeName = dynamic_cast<Chan_Node*>(node)->node_name;
         string& nodeOp = dynamic_cast<Chan_Node*>(node)->node_op;
+        string& chanMode = dynamic_cast<Chan_Node*>(node)->chan_mode;
         string& nodeType = dynamic_cast<Chan_Node*>(node)->node_type;
         uint& cycle_ = dynamic_cast<Chan_Node*>(node)->cycle;
         uint& speedup_ = dynamic_cast<Chan_Node*>(node)->speedup;
         uint& size_ = dynamic_cast<Chan_Node*>(node)->size;
 
+        label = nodeName + " [";
         if (nodeType == "ChanBase" || nodeType == "ChanDGSF")
         {
-            label = nodeName + " [label=\"chan_" + nodeName + "\\n" + 
+            label += "label=\"" + nodeName + "\\n" + 
                 "Size:" + to_string(size_) + " "
                 "Cyc:"+ to_string(cycle_) + " "
                 "Speed:" + to_string(speedup_) + "\"";
@@ -332,10 +417,14 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         }
         else if (nodeType == "Lc" || nodeType == "Mux")
         {
-            label += ", shape=box";
+            label += "shape=box";
+        }
+        else if (nodeType == "Lse_ld" || nodeType == "Lse_st")
+        {
+            label += ", fillcolor=\"chartreuse2\", style=filled";
         }
 
-        if (nodeOp == "Keep_mode")
+        if (chanMode == "Keep_mode")
         {
             label += ", fillcolor=\"darkorange\", style=filled";
         }
@@ -350,8 +439,145 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
     }
 }
 
-void ChanGraph::plotDot(ControlTree& _controlTree)
+void ChanGraph::plotDot()
 {
-    Graph::plotDot(chan_graph_dot, _controlTree);
+    Graph::plotDot(chan_graph_dot, controlTree);
 }
 
+void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
+{
+    // Copy controlRegionHierarchy
+    controlTree.controlRegionTable = dfg_.controlTree.controlRegionTable;
+    controlTree.controlRegionIndexDict = dfg_.controlTree.controlRegionIndexDict;
+    for (auto& controlRegion : controlTree.controlRegionTable)
+    {
+        controlRegion.nodes.clear();  // Clear dfgNode
+    }
+    
+    // Construct chanNode
+    vector<string> chanNodeName(dfg_.nodes.size());  // Keep chanNodeName to corresponding dfgNode
+    string nodeName;
+    string nodeType;
+    string nodeOp;
+    string chanMode;
+    for (size_t i = 0; i < dfg_.nodes.size(); ++i)
+    {
+        const auto& node = dynamic_cast<Dfg_Node*>(dfg_.nodes[i]);
+        nodeOp = node->node_op;
+
+        if (node->node_type == "Normal")
+        {
+            nodeName = "Chan_" + node->node_name;
+            nodeType = "ChanBase";
+            chanMode = "Normal";
+            addNode(nodeName, nodeType, nodeOp, chanMode);
+        }
+        else if (node->node_type == "Lc")
+        {
+            nodeName = "Lc_" + node->node_name;
+            nodeType = "Lc";
+            chanMode = "Normal";
+            addNode(nodeName, nodeType, nodeOp, chanMode);
+        }
+        else if (node->node_type == "Mux")
+        {
+            nodeName = "Mux_" + node->node_name;
+            nodeType = "Mux";
+            chanMode = "Normal";
+            addNode(nodeName, nodeType, nodeOp, chanMode);
+        }
+        else if (node->node_type == "MuxParitial")
+        {
+            nodeName = "MuxPartial_" + node->node_name;
+            nodeType = "ChanPartialMux";
+            chanMode = "Normal";
+            addNode(nodeName, nodeType, nodeOp, chanMode);
+        }
+        else if (node->node_type == "Const")
+        {
+            // Skip this node
+        }
+        else
+        {
+            Debug::throwError("Undefined node type!", __FILE__, __LINE__);
+        }
+
+        chanNodeName[i] = nodeName;
+    }
+
+    // Add chanNode to controlTree and add connection
+    for (auto& controlRegion : dfg_.controlTree.controlRegionTable)
+    {
+        for (auto& dfgNode : controlRegion.nodes)
+        {
+            string& chanName = chanNodeName[dfg_.findNodeIndex(dfgNode)->second];
+            //auto& chanNodePtr = nodes[findNodeIndex(chanName)->second];
+            const auto& dfgNodePtr = dynamic_cast<Dfg_Node*>(dfg_.getNode(dfgNode));
+            if (dfgNodePtr->node_type != "Const")
+            {
+                controlTree.addNodes(controlRegion.controlRegionName, { chanName });
+
+                for (auto& nodeName : dfgNodePtr->pre_nodes_data)
+                {
+                    string& s = chanNodeName[dfg_.findNodeIndex(nodeName)->second];
+                    if (s != "")
+                    {
+                        addPreNodesData(chanName, { s });
+                    }
+                }
+                for (auto& nodeName : dfgNodePtr->next_nodes_data)
+                {
+                    string& s = chanNodeName[dfg_.findNodeIndex(nodeName)->second];
+                    if (s != "")
+                    {
+                        addNextNodesData(chanName, { chanNodeName[dfg_.findNodeIndex(nodeName)->second] });
+                    }
+                }
+                for (auto& nodeName : dfgNodePtr->pre_nodes_active)
+                {
+                    string& s = chanNodeName[dfg_.findNodeIndex(nodeName)->second];
+                    if (s != "")
+                    {
+                        addPreNodesActive(chanName, { chanNodeName[dfg_.findNodeIndex(nodeName)->second] });
+                    }
+                }
+                for (auto& nodeName : dfgNodePtr->next_nodes_active)
+                {
+                    string& s = chanNodeName[dfg_.findNodeIndex(nodeName)->second];
+                    if (s != "")
+                    {
+                        addNextNodesActive(chanName, { chanNodeName[dfg_.findNodeIndex(nodeName)->second] });
+                    }
+                }
+                //addPreNodesData(chanName, dfgNodePtr->pre_nodes_data);
+                //addNextNodesData(chanName, dfgNodePtr->next_nodes_data);
+                //addPreNodesActive(chanName, dfgNodePtr->pre_nodes_active);
+                //addNextNodesActive(chanName, dfgNodePtr->next_nodes_active);
+            }
+            else
+            {
+                for (auto& nextNodeData : dfgNodePtr->next_nodes_data)
+                {
+                    string& nextChanNodeName = chanNodeName[dfg_.findNodeIndex(nextNodeData)->second];
+                    const auto& nextChanNodePtr = dynamic_cast<Chan_Node*>(getNode(nextChanNodeName));
+                    nextChanNodePtr->constVal.push_back(dfgNodePtr->constVal);
+
+                    auto iter = find(nextChanNodePtr->pre_nodes_data.begin(), nextChanNodePtr->pre_nodes_data.end(), dfgNode);
+                    nextChanNodePtr->constLocation = iter - nextChanNodePtr->pre_nodes_data.begin();
+                }
+            }
+        }
+    }
+    completeConnect();
+    removeRedundantConnect();
+}
+
+void ChanGraph::addSpecialFuncChan()
+{
+    // Generate loop level hierarchy
+
+    // Add relayNode
+
+    // Add keepMode and drainMode
+
+}

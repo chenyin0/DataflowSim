@@ -23,7 +23,7 @@ void ControlTree::addControlRegion(const vector<pair<string, string>>& controlRe
     }
 }
 
-void ControlTree::addNodes(const string& targetCtrlRegion, const vector<string>& modules_)
+void ControlTree::addNodes(const string& targetCtrlRegion, const vector<string>& nodes_)
 {
     //auto iter = controlRegionIndexDict.find(targetCtrlRegion);
     //if (iter != controlRegionIndexDict.end())
@@ -37,7 +37,7 @@ void ControlTree::addNodes(const string& targetCtrlRegion, const vector<string>&
     //}
 
     uint index = findControlRegionIndex(targetCtrlRegion)->second;
-    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), modules_.begin(), modules_.end());
+    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
 }
 
 void ControlTree::addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_)
@@ -53,8 +53,11 @@ void ControlTree::addUpperControlRegion(const string& targetCtrlRegion, const st
     //    Debug::throwError("Not find this controlRegion in controlRegionIndexDict!", __FILE__, __LINE__);
     //}
 
-    uint index = findControlRegionIndex(targetCtrlRegion)->second;
-    controlRegionTable[index].upperControlRegion = ctrlRegions_;
+    if (!targetCtrlRegion.empty())
+    {
+        uint index = findControlRegionIndex(targetCtrlRegion)->second;
+        controlRegionTable[index].upperControlRegion = ctrlRegions_;
+    }
 }
 
 void ControlTree::addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_)
@@ -69,9 +72,11 @@ void ControlTree::addLowerControlRegion(const string& targetCtrlRegion, const ve
     //{
     //    Debug::throwError("Not find this controlRegion in controlRegionIndexDict!", __FILE__, __LINE__);
     //}
-
-    uint index = findControlRegionIndex(targetCtrlRegion)->second;
-    controlRegionTable[index].lowerControlRegion.insert(controlRegionTable[index].lowerControlRegion.end(), ctrlRegions_.begin(), ctrlRegions_.end());
+    if (!targetCtrlRegion.empty())
+    {
+        uint index = findControlRegionIndex(targetCtrlRegion)->second;
+        controlRegionTable[index].lowerControlRegion.insert(controlRegionTable[index].lowerControlRegion.end(), ctrlRegions_.begin(), ctrlRegions_.end());
+    }
 }
 
 auto ControlTree::findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator
@@ -134,4 +139,26 @@ void ControlTree::printSubgraphDot(std::fstream& fileName_, string& controlRegio
     }
 
     fileName_ << "label=\"" << controlRegionName_ << "\"" << std::endl;  // Not print "}" here for nested subgraphs
+}
+
+void ControlTree::completeControlRegionHierarchy()
+{
+    for (auto& controlRegion : controlRegionTable)
+    {
+        // Complete upperControlRegion
+        for (auto& lowerRegion : controlRegion.lowerControlRegion)
+        {
+            addUpperControlRegion(lowerRegion, controlRegion.controlRegionName);
+        }
+
+        // Complete lowerControlRegion
+        addLowerControlRegion(controlRegion.upperControlRegion, { controlRegion.controlRegionName });
+    }
+
+    // Remove redundancy in lowerControlRegion
+    for (auto& controlRegion : controlRegionTable)
+    {
+        set<string> s(controlRegion.lowerControlRegion.begin(), controlRegion.lowerControlRegion.end());
+        controlRegion.lowerControlRegion.assign(s.begin(), s.end());
+    }
 }

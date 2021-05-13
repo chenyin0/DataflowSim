@@ -103,7 +103,7 @@ class Channel usage:
         virtual void bpUpdate();
         //virtual void bpUpdate() = 0;
         virtual void parallelize();  // Emulate hardware parallel loop unrolling
-        void funcUpdate();
+        virtual void funcUpdate();
         int aluUpdate();
         int(*fp)(vector<int*>& operand_) = nullptr;
         //int funcUpdate();
