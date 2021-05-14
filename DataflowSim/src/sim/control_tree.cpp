@@ -23,22 +23,22 @@ void ControlTree::addControlRegion(const vector<pair<string, string>>& controlRe
     }
 }
 
-void ControlTree::addNodes(const string& targetCtrlRegion, const vector<string>& nodes_)
-{
-    //auto iter = controlRegionIndexDict.find(targetCtrlRegion);
-    //if (iter != controlRegionIndexDict.end())
-    //{
-    //    uint index = iter->second;
-    //    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), modules_.begin(), modules_.end());
-    //}
-    //else
-    //{
-    //    Debug::throwError("Not find this controlRegion in controlRegionIndexDict!", __FILE__, __LINE__);
-    //}
-
-    uint index = findControlRegionIndex(targetCtrlRegion)->second;
-    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
-}
+//void ControlTree::addNodes(const string& targetCtrlRegion, const vector<string>& nodes_)
+//{
+//    //auto iter = controlRegionIndexDict.find(targetCtrlRegion);
+//    //if (iter != controlRegionIndexDict.end())
+//    //{
+//    //    uint index = iter->second;
+//    //    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), modules_.begin(), modules_.end());
+//    //}
+//    //else
+//    //{
+//    //    Debug::throwError("Not find this controlRegion in controlRegionIndexDict!", __FILE__, __LINE__);
+//    //}
+//
+//    uint index = findControlRegionIndex(targetCtrlRegion)->second;
+//    controlRegionTable[index].nodes.insert(controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
+//}
 
 void ControlTree::addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_)
 {

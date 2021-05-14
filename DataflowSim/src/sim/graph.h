@@ -10,6 +10,7 @@ namespace DFSim
         string node_name;
         /*string node_type;
         string node_op;*/
+        string controlRegionName;
         vector<string> pre_nodes_data;
         vector<string> next_nodes_data;
         vector<string> pre_nodes_active;
@@ -38,7 +39,7 @@ namespace DFSim
         Chan_Node(string _nodeName) : Node(_nodeName) {}
         string node_type = "ChanBase";  // Lc, Mux, ChanPartialMux, ChanBase, ChanDGSF, Lse_ld, Lse_st
         string node_op;  // Inherit from Dfg_Node 
-        string chan_mode = "Normal";  // Normal, Keep_mode, Drain_mode, Fake_chan
+        string chan_mode = "Normal";  // Normal, Keep_mode, Drain_mode, Fake_mode(e.g. Relay_mode)
         
         uint size = 1;
         uint speedup = 1;
@@ -67,6 +68,8 @@ namespace DFSim
         void completeConnect();
         void removeRedundantConnect();
         auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator;
+        bool findNode(const string& _nodeName);
+        void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);
@@ -79,6 +82,7 @@ namespace DFSim
     public:
         vector<Node*> nodes;
         unordered_map<string, uint> nodeIndexDict;
+        ControlTree controlTree;
     };
 
     class Dfg : public Graph
@@ -96,8 +100,8 @@ namespace DFSim
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;
 
-    public:
-        ControlTree controlTree;
+    /*public:
+        ControlTree controlTree;*/
 
     private:
         std::fstream dfg_dot;
@@ -112,16 +116,22 @@ namespace DFSim
         void initial();
         void addNode(const string& _nodeName);
         void addNode(const string& _nodeName, const string& _nodeType, const string& _nodeOp, const string& _chanMode);
+        void addNode(const string& _nodeName, const string& _nodeType, const string& _nodeOp, const string& _chanMode, const string& _ctrlRegion);
         void plotDot();
         void genChanGraphFromDfg(Dfg& dfg_);  // Generate chanGraph from DFG
-        void addSpecialFuncChan();  // Add relayMode and drainMode channel
+        void addSpecialModeChan();  // Add relayMode and drainMode channel
         void pathBalance();
-
+        
+        vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
+        vector<string> findMinDistPath(vector<string>& _preNodeCtrlRegionPath, vector<string>& _nextNodeCtrlRegionPath);
+        vector<string> backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy);
+        //string findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy);
+ 
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;
 
-    public:
-        ControlTree controlTree;
+   /* public:
+        ControlTree controlTree;*/
 
     private:
         std::fstream chan_graph_dot;

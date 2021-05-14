@@ -29,6 +29,19 @@ auto Graph::findNodeIndex(const string& _nodeName)->unordered_map<string, uint>:
     }
 }
 
+bool Graph::findNode(const string& _nodeName)
+{
+    auto iter = nodeIndexDict.find(_nodeName);
+    if (iter == nodeIndexDict.end())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 Node* Graph::getNode(const string& _nodeName)
 {
     return nodes[findNodeIndex(_nodeName)->second];
@@ -195,6 +208,17 @@ void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _control
             }
             fileName_ << std::endl;
         }
+    }
+}
+
+void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_)
+{
+    uint index = controlTree.findControlRegionIndex(targetCtrlRegion)->second;
+    controlTree.controlRegionTable[index].nodes.insert(controlTree.controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
+    
+    for (auto& node : nodes_)
+    {
+        nodes[findNodeIndex(node)->second]->controlRegionName = targetCtrlRegion;
     }
 }
 
@@ -389,6 +413,12 @@ void ChanGraph::addNode(const string& _nodeName, const string& _nodeType, const 
     dynamic_cast<Chan_Node*>(getNode(_nodeName))->chan_mode = _chanMode;
 }
 
+void ChanGraph::addNode(const string& _nodeName, const string& _nodeType, const string& _nodeOp, const string& _chanMode, const string& _ctrlRegion)
+{
+    addNode(_nodeName, _nodeType, _nodeOp, _chanMode);
+    dynamic_cast<Chan_Node*>(getNode(_nodeName))->controlRegionName = _ctrlRegion;
+}
+
 void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
 {
     string label;
@@ -403,34 +433,39 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         uint& size_ = dynamic_cast<Chan_Node*>(node)->size;
 
         label = nodeName + " [";
-        if (nodeType == "ChanBase" || nodeType == "ChanDGSF")
+        if (nodeType == "ChanBase" || nodeType == "ChanDGSF" || nodeType == "Lse_ld" || nodeType == "Lse_st")
         {
             label += "label=\"" + nodeName + "\\n" + 
                 "Size:" + to_string(size_) + " "
                 "Cyc:"+ to_string(cycle_) + " "
-                "Speed:" + to_string(speedup_) + "\"";
+                "Speed:" + to_string(speedup_) + "\\n" +
+                nodeType + "\"";
 
             if (nodeType == "ChanDGSF")
             {
                 label += ", fillcolor=\"cadetblue2\", style=filled";
+            }
+            else if (nodeType == "Lse_ld" || nodeType == "Lse_st")
+            {
+                label += "fillcolor=\"chartreuse2\", style=filled";
             }
         }
         else if (nodeType == "Lc" || nodeType == "Mux")
         {
             label += "shape=box";
         }
-        else if (nodeType == "Lse_ld" || nodeType == "Lse_st")
-        {
-            label += ", fillcolor=\"chartreuse2\", style=filled";
-        }
 
         if (chanMode == "Keep_mode")
         {
             label += ", fillcolor=\"darkorange\", style=filled";
         }
-        else if (nodeType == "Drain_mode")
+        else if (chanMode == "Drain_mode")
         {
             label += ", fillcolor=\"bisque1\", style=filled";
+        }
+        else if (chanMode == "Fake_mode")
+        {
+            label += ", fillcolor=\"antiquewhite3\", style=filled";
         }
 
         label += "]";
@@ -460,38 +495,51 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
     string nodeType;
     string nodeOp;
     string chanMode;
+    string controlRegionName;
     for (size_t i = 0; i < dfg_.nodes.size(); ++i)
     {
         const auto& node = dynamic_cast<Dfg_Node*>(dfg_.nodes[i]);
         nodeOp = node->node_op;
+        controlRegionName = node->controlRegionName;
 
         if (node->node_type == "Normal")
         {
             nodeName = "Chan_" + node->node_name;
-            nodeType = "ChanBase";
+            if (node->node_op == "Load")
+            {
+                nodeType = "Lse_ld";
+            }
+            else if (node->node_op == "Store")
+            {
+                nodeType = "Lse_st";
+            }
+            else
+            {
+                nodeType = "ChanBase";
+            }
             chanMode = "Normal";
-            addNode(nodeName, nodeType, nodeOp, chanMode);
+            addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
         }
         else if (node->node_type == "Lc")
         {
             nodeName = "Lc_" + node->node_name;
             nodeType = "Lc";
             chanMode = "Normal";
-            addNode(nodeName, nodeType, nodeOp, chanMode);
+            addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
         }
         else if (node->node_type == "Mux")
         {
             nodeName = "Mux_" + node->node_name;
             nodeType = "Mux";
             chanMode = "Normal";
-            addNode(nodeName, nodeType, nodeOp, chanMode);
+            addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
         }
         else if (node->node_type == "MuxParitial")
         {
             nodeName = "MuxPartial_" + node->node_name;
             nodeType = "ChanPartialMux";
             chanMode = "Normal";
-            addNode(nodeName, nodeType, nodeOp, chanMode);
+            addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
         }
         else if (node->node_type == "Const")
         {
@@ -515,7 +563,7 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
             const auto& dfgNodePtr = dynamic_cast<Dfg_Node*>(dfg_.getNode(dfgNode));
             if (dfgNodePtr->node_type != "Const")
             {
-                controlTree.addNodes(controlRegion.controlRegionName, { chanName });
+                addNodes2CtrlTree(controlRegion.controlRegionName, { chanName });
 
                 for (auto& nodeName : dfgNodePtr->pre_nodes_data)
                 {
@@ -572,12 +620,271 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
     removeRedundantConnect();
 }
 
-void ChanGraph::addSpecialFuncChan()
+void ChanGraph::addSpecialModeChan()
 {
     // Generate loop level hierarchy
+    // TODO: refine the code below
+    vector<ControlRegion> loopHierarchy = controlTree.controlRegionTable;
+    auto bfsCtrlRegion = bfsTraverseControlTree(controlTree);
 
-    // Add relayNode
+    for (int i = bfsCtrlRegion.size() - 1; i >= 0; --i)
+    {
+        auto ctrlRegionName = bfsCtrlRegion[i];
+        auto& ctrlRegion = loopHierarchy[controlTree.findControlRegionIndex(ctrlRegionName)->second];
+        if (ctrlRegion.controlType != "Loop")
+        {
+            auto& upperCtrlRegion = loopHierarchy[controlTree.findControlRegionIndex(ctrlRegion.upperControlRegion)->second];
+            upperCtrlRegion.nodes.insert(upperCtrlRegion.nodes.end(), ctrlRegion.nodes.begin(), ctrlRegion.nodes.end());
+            upperCtrlRegion.lowerControlRegion.insert(upperCtrlRegion.lowerControlRegion.end(), ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end());
+
+            for (auto& lowerCtrlRegionName : ctrlRegion.lowerControlRegion)
+            {
+                auto& lowerCtrlRegion = loopHierarchy[controlTree.findControlRegionIndex(lowerCtrlRegionName)->second];
+                lowerCtrlRegion.upperControlRegion = ctrlRegion.upperControlRegion;
+            }
+        }
+    }
+
+    for (auto iter = loopHierarchy.begin(); iter != loopHierarchy.end();)
+    {
+        if (iter->controlType != "Loop")
+        {
+            loopHierarchy.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    //** Add relayNode
+    // Find the shortest path between two nodes in two different controlRegions
+    for (auto& node : nodes)
+    {
+        vector<string> nextNodes;
+        nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
+        nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
+
+        for (auto& nextNodeName : nextNodes)
+        {
+            auto& nextNode = nodes[findNodeIndex(nextNodeName)->second];
+            if (node->controlRegionName != nextNode->controlRegionName)
+            {
+                // Construct ctrlRegionPath
+                vector<string> ctrlRegionPath;
+                vector<string> s = backTrackPath(node->node_name, loopHierarchy);
+                vector<string> s_next = backTrackPath(nextNode->node_name, loopHierarchy);
+
+                auto iter = find(s.begin(), s.end(), nextNode->controlRegionName);
+                auto iter_next = find(s_next.begin(), s_next.end(), node->controlRegionName);
+
+                if (iter != s.end())
+                {
+                    for (auto iter_ = s.begin(); iter_ != iter; ++iter_)
+                    {
+                        ctrlRegionPath.push_back(*iter_);
+                    }
+                    ctrlRegionPath.push_back(*iter);
+                }
+                else if (iter_next != s_next.end())
+                {
+                    for (auto iter_ = s_next.begin(); iter_ != iter_next; ++iter_)
+                    {
+                        ctrlRegionPath.push_back(*iter_);
+                    }
+                    ctrlRegionPath.push_back(*iter_next);
+                    reverse(ctrlRegionPath.begin(), ctrlRegionPath.end());  // Reverse to make node -> node_next
+                }
+                else
+                {
+                    vector<string> s_tmp;
+                    vector<string> s_next_tmp;
+                    auto iter_tmp = s.begin();
+                    auto iter_next_tmp = s_next.begin();
+                    string nodeCtrlRegion = *iter_tmp;
+                    string nextNodeCtrlRegion = *iter_next_tmp;
+
+                    while (nodeCtrlRegion != nextNodeCtrlRegion)
+                    {
+                        s_tmp.push_back(nodeCtrlRegion);
+                        s_next_tmp.push_back(nextNodeCtrlRegion);
+                        nodeCtrlRegion = *(++iter_tmp);
+                        nextNodeCtrlRegion = *(++iter_next_tmp);
+                    }
+
+                    s_tmp.push_back(*iter_tmp);  // Add the shared root ctrlRegion
+                    reverse(s_next_tmp.begin(), s_next_tmp.end());
+                    ctrlRegionPath.insert(ctrlRegionPath.end(), s_tmp.begin(), s_tmp.end());
+                    ctrlRegionPath.insert(ctrlRegionPath.end(), s_next_tmp.begin(), s_next_tmp.end());
+                }
+
+                // Insert relay nodes according to ctrlRegionPath
+                auto it = ctrlRegionPath.begin();
+                ctrlRegionPath.erase(it);  // Remove node's ctrlRegion
+                ctrlRegionPath.pop_back();  // Remove nextNode's ctrlRegion
+                vector<string> nodeVec;
+                // Create relay node
+                for (auto& ctrlRegion : ctrlRegionPath)
+                {
+                    string nodeName = node->node_name + "_relay_" + ctrlRegion;
+                    if (!findNode(nodeName))
+                    {
+                        addNode(nodeName, "ChanBase", "Nop", "Fake_mode", ctrlRegion);  // Add relayMode node
+                        addNodes2CtrlTree(ctrlRegion, {nodeName});
+
+                        // Add active connect between relay node and Lc
+                        for (auto& node_ : controlTree.controlRegionTable[controlTree.findControlRegionIndex(ctrlRegion)->second].nodes)
+                        {
+                            auto nodePtr = dynamic_cast<Chan_Node*>(nodes[findNodeIndex(node_)->second]);
+                            if (nodePtr->node_type == "Lc")
+                            {
+                                nodes[findNodeIndex(nodeName)->second]->pre_nodes_active.push_back(nodePtr->node_name);
+                                break;
+                            }
+                        }
+                    }
+
+                    nodeVec.push_back(nodeName);
+                }
+
+                // Connect each level relay nodes
+                for (auto iter = nodeVec.begin(); iter != nodeVec.end(); ++iter)
+                {
+                    if (iter == nodeVec.begin())
+                    {
+                        nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(node->node_name);
+                    }
+                    if (iter == nodeVec.end() - 1)
+                    {
+                        auto iter_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
+                        auto iter_active = find(nextNode->pre_nodes_active.begin(), nextNode->pre_nodes_active.end(), node->node_name);
+                        if (iter_data != nextNode->pre_nodes_data.end())
+                        {
+                            nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(nextNode->node_name);
+                        }
+                        else if (iter_data != nextNode->pre_nodes_active.end())
+                        {
+                            nodes[findNodeIndex(*iter)->second]->next_nodes_active.push_back(nextNode->node_name);
+                        }
+                    }
+                    if(iter != nodeVec.begin() && iter != nodeVec.end() - 1)
+                    {
+                        nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(*(iter - 1));
+                        nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(*(iter+1));
+                    }
+                }
+
+                // Delete original node -> nextNode connection
+                // Only when ctrlRegionPath not empty, signify there has inserted a relay node
+                if (!ctrlRegionPath.empty())
+                {
+                    auto iter_data = find(node->next_nodes_data.begin(), node->next_nodes_data.end(), nextNode->node_name);
+                    auto iter_active = find(node->next_nodes_active.begin(), node->next_nodes_active.end(), nextNode->node_name);
+                    auto iter_next_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
+                    auto iter_next_active = find(nextNode->pre_nodes_active.begin(), nextNode->pre_nodes_active.end(), node->node_name);
+
+                    if (iter_data != node->next_nodes_data.end())
+                    {
+                        node->next_nodes_data.erase(iter_data);
+                    }
+
+                    if (iter_active != node->next_nodes_active.end())
+                    {
+                        node->next_nodes_active.erase(iter_active);
+                    }
+
+                    if (iter_next_data != nextNode->pre_nodes_data.end())
+                    {
+                        nextNode->pre_nodes_data.erase(iter_next_data);
+                    }
+
+                    if (iter_next_active != nextNode->pre_nodes_active.end())
+                    {
+                        nextNode->pre_nodes_active.erase(iter_next_active);
+                    }
+                }
+            }
+        }
+    }
+    // Delete below in the final version
+    completeConnect();
+    removeRedundantConnect();
 
     // Add keepMode and drainMode
 
+}
+
+//string ChanGraph::findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy)
+//{
+//    for (auto& ctrlRegion : loopHierarchy)
+//    {
+//        if (ctrlRegionName == ctrlRegion.controlRegionName)
+//        {
+//            return 
+//        }
+//    }
+//}
+
+vector<string> ChanGraph::bfsTraverseControlTree(ControlTree& ctrlTree)
+{
+    vector<string> bfsCtrlTree;
+    deque<string> queue;
+    if (!ctrlTree.controlRegionTable.empty())
+    {
+        queue.push_back(ctrlTree.controlRegionTable[0].controlRegionName);
+    }
+
+    while (!queue.empty())
+    {
+        for (auto& lowerCtrlRegion : ctrlTree.controlRegionTable[ctrlTree.findControlRegionIndex(queue.front())->second].lowerControlRegion)
+        {
+            queue.push_back(lowerCtrlRegion);
+        }
+
+        bfsCtrlTree.push_back(queue.front());
+        queue.pop_front();
+    }
+
+    return bfsCtrlTree;
+}
+
+vector<string> ChanGraph::backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy)
+{
+    vector<string> backTrackPath;
+    bool findNode = 0;
+    for (auto& ctrlRegion : loopHierarchy)
+    {
+        for (auto& node : ctrlRegion.nodes)
+        {
+            if (node == nodeName)
+            {
+                backTrackPath.push_back(ctrlRegion.controlRegionName);
+                findNode = 1;
+                break;
+            }
+        }
+
+        if (findNode)
+        {
+            break;
+        }
+    }
+
+    deque<string> queue;
+    queue.push_back(backTrackPath.front());
+    while (!queue.empty())
+    {
+        for (auto& ctrlRegion : loopHierarchy)
+        {
+            if (ctrlRegion.controlRegionName == queue.front())
+            {
+                queue.push_back(ctrlRegion.upperControlRegion);
+                backTrackPath.push_back(ctrlRegion.upperControlRegion);
+                break;
+            }
+        }
+        queue.pop_front();
+    }
+
+    return backTrackPath;
 }

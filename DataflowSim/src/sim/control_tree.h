@@ -21,7 +21,7 @@ namespace DFSim
         ControlTree();
         auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator;
         void addControlRegion(const vector<pair<string, string>>& controlRegions_);  // pair<controlRegionName, controlRegionType>
-        void addNodes(const string& targetCtrlRegion, const vector<string>& nodes_);
+        //void addNodes(const string& targetCtrlRegion, const vector<string>& nodes_);
         void addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_);
         void addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_);
         void completeControlRegionHierarchy();
