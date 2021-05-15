@@ -623,8 +623,9 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
 void ChanGraph::addSpecialModeChan()
 {
     // Generate loop level hierarchy
-    // TODO: refine the code below
-    vector<ControlRegion> loopHierarchy = controlTree.controlRegionTable;
+    vector<ControlRegion> loopHierarchy = genLoopHierarchy(controlTree);
+
+    /*vector<ControlRegion> loopHierarchy = controlTree.controlRegionTable;
     auto bfsCtrlRegion = bfsTraverseControlTree(controlTree);
 
     for (int i = bfsCtrlRegion.size() - 1; i >= 0; --i)
@@ -655,7 +656,7 @@ void ChanGraph::addSpecialModeChan()
         {
             ++iter;
         }
-    }
+    }*/
 
     //** Add relayNode
     // Find the shortest path between two nodes in two different controlRegions
@@ -671,52 +672,54 @@ void ChanGraph::addSpecialModeChan()
             if (node->controlRegionName != nextNode->controlRegionName)
             {
                 // Construct ctrlRegionPath
-                vector<string> ctrlRegionPath;
+                //vector<string> ctrlRegionPath;
                 vector<string> s = backTrackPath(node->node_name, loopHierarchy);
                 vector<string> s_next = backTrackPath(nextNode->node_name, loopHierarchy);
 
-                auto iter = find(s.begin(), s.end(), nextNode->controlRegionName);
-                auto iter_next = find(s_next.begin(), s_next.end(), node->controlRegionName);
+                vector<string> ctrlRegionPath = findShortestCtrlRegionPath(s, s_next);
 
-                if (iter != s.end())
-                {
-                    for (auto iter_ = s.begin(); iter_ != iter; ++iter_)
-                    {
-                        ctrlRegionPath.push_back(*iter_);
-                    }
-                    ctrlRegionPath.push_back(*iter);
-                }
-                else if (iter_next != s_next.end())
-                {
-                    for (auto iter_ = s_next.begin(); iter_ != iter_next; ++iter_)
-                    {
-                        ctrlRegionPath.push_back(*iter_);
-                    }
-                    ctrlRegionPath.push_back(*iter_next);
-                    reverse(ctrlRegionPath.begin(), ctrlRegionPath.end());  // Reverse to make node -> node_next
-                }
-                else
-                {
-                    vector<string> s_tmp;
-                    vector<string> s_next_tmp;
-                    auto iter_tmp = s.begin();
-                    auto iter_next_tmp = s_next.begin();
-                    string nodeCtrlRegion = *iter_tmp;
-                    string nextNodeCtrlRegion = *iter_next_tmp;
+                //auto iter = find(s.begin(), s.end(), nextNode->controlRegionName);
+                //auto iter_next = find(s_next.begin(), s_next.end(), node->controlRegionName);
 
-                    while (nodeCtrlRegion != nextNodeCtrlRegion)
-                    {
-                        s_tmp.push_back(nodeCtrlRegion);
-                        s_next_tmp.push_back(nextNodeCtrlRegion);
-                        nodeCtrlRegion = *(++iter_tmp);
-                        nextNodeCtrlRegion = *(++iter_next_tmp);
-                    }
+                //if (iter != s.end())
+                //{
+                //    for (auto iter_ = s.begin(); iter_ != iter; ++iter_)
+                //    {
+                //        ctrlRegionPath.push_back(*iter_);
+                //    }
+                //    ctrlRegionPath.push_back(*iter);
+                //}
+                //else if (iter_next != s_next.end())
+                //{
+                //    for (auto iter_ = s_next.begin(); iter_ != iter_next; ++iter_)
+                //    {
+                //        ctrlRegionPath.push_back(*iter_);
+                //    }
+                //    ctrlRegionPath.push_back(*iter_next);
+                //    reverse(ctrlRegionPath.begin(), ctrlRegionPath.end());  // Reverse to make node -> node_next
+                //}
+                //else
+                //{
+                //    vector<string> s_tmp;
+                //    vector<string> s_next_tmp;
+                //    auto iter_tmp = s.begin();
+                //    auto iter_next_tmp = s_next.begin();
+                //    string nodeCtrlRegion = *iter_tmp;
+                //    string nextNodeCtrlRegion = *iter_next_tmp;
 
-                    s_tmp.push_back(*iter_tmp);  // Add the shared root ctrlRegion
-                    reverse(s_next_tmp.begin(), s_next_tmp.end());
-                    ctrlRegionPath.insert(ctrlRegionPath.end(), s_tmp.begin(), s_tmp.end());
-                    ctrlRegionPath.insert(ctrlRegionPath.end(), s_next_tmp.begin(), s_next_tmp.end());
-                }
+                //    while (nodeCtrlRegion != nextNodeCtrlRegion)
+                //    {
+                //        s_tmp.push_back(nodeCtrlRegion);
+                //        s_next_tmp.push_back(nextNodeCtrlRegion);
+                //        nodeCtrlRegion = *(++iter_tmp);
+                //        nextNodeCtrlRegion = *(++iter_next_tmp);
+                //    }
+
+                //    s_tmp.push_back(*iter_tmp);  // Add the shared root ctrlRegion
+                //    reverse(s_next_tmp.begin(), s_next_tmp.end());
+                //    ctrlRegionPath.insert(ctrlRegionPath.end(), s_tmp.begin(), s_tmp.end());
+                //    ctrlRegionPath.insert(ctrlRegionPath.end(), s_next_tmp.begin(), s_next_tmp.end());
+                //}
 
                 // Insert relay nodes according to ctrlRegionPath
                 auto it = ctrlRegionPath.begin();
@@ -811,7 +814,158 @@ void ChanGraph::addSpecialModeChan()
     removeRedundantConnect();
 
     // Add keepMode and drainMode
+    vector<ControlRegion> loopHierarchy_ = genLoopHierarchy(controlTree);
+    for (auto& ctrlRegion : loopHierarchy_)
+    {
+        for (auto& node : ctrlRegion.nodes)
+        {
+            // KeepMode
+            for (auto& nextNodeData : nodes[findNodeIndex(node)->second]->next_nodes_data)
+            {
+                auto iter = find(ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end(), findNodeCtrlRegionInLoopHierarchy(nextNodeData, loopHierarchy_));
+                if (iter != ctrlRegion.lowerControlRegion.end())
+                {
+                    string nodeName=
+                    if()
+                }
+            }
 
+            for (auto& nextNodeActive : nodes[findNodeIndex(node)->second]->next_nodes_active)
+            {
+
+            }
+
+            // DrainMode
+            for (auto& preNodeData : nodes[findNodeIndex(node)->second]->pre_nodes_data)
+            {
+
+            }
+
+            for (auto& preNodeActive : nodes[findNodeIndex(node)->second]->pre_nodes_active)
+            {
+
+            }
+        }
+
+        // keepMode
+        vector<string> nextNode;
+        nextNode.insert(nextNode.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
+        nextNode.insert(nextNode.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
+        for (auto& nextNodeActive : nextNode)
+        {
+            if()
+        }
+
+        // drainMode
+        vector<string> preNode;
+        preNode.insert(preNode.end(), node->pre_nodes_data.begin(), node->pre_nodes_data.end());
+        preNode.insert(preNode.end(), node->pre_nodes_active.begin(), node->pre_nodes_active.end());
+        for (auto& preNodeActive : preNode)
+        {
+
+        }
+
+    }
+
+}
+
+void ChanGraph::insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes)
+{
+    //if (preNodes.empty() || nextNodes.empty())
+    //{
+    //    Debug::throwError("PreNodes or nextNods is empty!", __FILE__, __LINE__);
+    //}
+    if (preNodes.size() > 1 && nextNodes.size() > 1)
+    {
+        Debug::throwError("At least one of them's size must equal to one!", __FILE__, __LINE__);
+    }
+    else if(chanNode.controlRegionName == "")
+    {
+        Debug::throwError("The controlRegionName of this chanNode did not declare!", __FILE__, __LINE__);
+    }
+    else
+    {
+        if (nextNodes.size() == 1)
+        {
+            auto& nextNodePtr = nodes[findNodeIndex(nextNodes.front())->second];
+            for (auto& preNode : preNodes)
+            {
+                auto& preNodePtr = nodes[findNodeIndex(preNode)->second];
+                auto iter_data = find(preNodePtr->next_nodes_data.begin(), preNodePtr->next_nodes_data.end(), nextNodes.front());
+                auto iter_active = find(preNodePtr->next_nodes_active.begin(), preNodePtr->next_nodes_active.end(), nextNodes.front());
+
+                if (iter_data != preNodePtr->next_nodes_data.end())
+                {
+                    *iter_data = chanNode.node_name;
+                }
+                if (iter_active != preNodePtr->next_nodes_active.end())
+                {
+                    *iter_active = chanNode.node_name;
+                }
+
+                chanNode.pre_nodes_data = nextNodePtr->pre_nodes_data;
+                chanNode.pre_nodes_active = nextNodePtr->pre_nodes_active;
+
+                chanNode.next_nodes_data.push_back(nextNodePtr->node_name);
+
+                nextNodePtr->pre_nodes_active.clear();
+                nextNodePtr->pre_nodes_data.clear();
+                nextNodePtr->pre_nodes_data.push_back(chanNode.node_name);
+            }
+        }
+
+        if (preNodes.size() == 1)
+        {
+            auto& preNodePtr = nodes[findNodeIndex(preNodes.front())->second];
+            for (auto& nextNode : nextNodes)
+            {
+                auto& nextNodePtr = nodes[findNodeIndex(nextNode)->second];
+                auto iter_data = find(nextNodePtr->pre_nodes_data.begin(), nextNodePtr->pre_nodes_data.end(), preNodes.front());
+                auto iter_active = find(nextNodePtr->pre_nodes_active.begin(), nextNodePtr->pre_nodes_active.end(), preNodes.front());
+
+                if (iter_data != nextNodePtr->pre_nodes_data.end())
+                {
+                    *iter_data = chanNode.node_name;
+                }
+                if (iter_active != nextNodePtr->pre_nodes_active.end())
+                {
+                    *iter_active = chanNode.node_name;
+                }
+
+                chanNode.next_nodes_data = nextNodePtr->next_nodes_data;
+                chanNode.next_nodes_active = nextNodePtr->next_nodes_active;
+
+                chanNode.pre_nodes_data.push_back(preNodePtr->node_name);
+
+                preNodePtr->next_nodes_active.clear();
+                preNodePtr->next_nodes_data.clear();
+                preNodePtr->next_nodes_data.push_back(chanNode.node_name);
+            }
+        }
+
+        // Insert chanNode to nodes and nodeIndexDict
+        nodeIndexDict.insert(pair<string, uint>(chanNode.node_name, nodeIndexDict.size()));
+        Chan_Node* chanNodePtr = new Chan_Node(chanNode.node_name);
+        *chanNodePtr = chanNode;
+        nodes.push_back(chanNodePtr);
+    }
+}
+
+string ChanGraph::findNodeCtrlRegionInLoopHierarchy(string _nodeName, vector<ControlRegion> _loopHierarchy)
+{
+    for (auto& ctrlRegion : _loopHierarchy)
+    {
+        for (auto& node : ctrlRegion.nodes)
+        {
+            if (_nodeName == node)
+            {
+                return ctrlRegion.controlRegionName;
+            }
+        }
+    }
+
+    string nullString;
+    return nullString;
 }
 
 //string ChanGraph::findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy)
@@ -824,6 +978,121 @@ void ChanGraph::addSpecialModeChan()
 //        }
 //    }
 //}
+
+vector<ControlRegion> ChanGraph::genLoopHierarchy(ControlTree& _controlTree)
+{
+    vector<ControlRegion> loopHierarchy = _controlTree.controlRegionTable;
+    auto bfsCtrlRegion = bfsTraverseControlTree(_controlTree);
+    reverse(bfsCtrlRegion.begin(), bfsCtrlRegion.end());
+
+    for (auto& ctrlRegionName : bfsCtrlRegion)
+    {
+        //auto ctrlRegionName = bfsCtrlRegion[i];
+        auto& ctrlRegion = loopHierarchy[_controlTree.findControlRegionIndex(ctrlRegionName)->second];
+        if (ctrlRegion.controlType != "Loop")
+        {
+            auto& upperCtrlRegion = loopHierarchy[_controlTree.findControlRegionIndex(ctrlRegion.upperControlRegion)->second];
+            upperCtrlRegion.nodes.insert(upperCtrlRegion.nodes.end(), ctrlRegion.nodes.begin(), ctrlRegion.nodes.end());
+            upperCtrlRegion.lowerControlRegion.insert(upperCtrlRegion.lowerControlRegion.end(), ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end());
+
+            //for (auto& lowerCtrlRegionName : ctrlRegion.lowerControlRegion)
+            //{
+            //    auto& lowerCtrlRegion = loopHierarchy[_controlTree.findControlRegionIndex(lowerCtrlRegionName)->second];
+            //    lowerCtrlRegion.upperControlRegion = ctrlRegion.upperControlRegion;
+            //}
+        }
+    }
+
+    for (auto& ctrlRegion : loopHierarchy)
+    {
+        if (ctrlRegion.controlType == "Loop")
+        {
+            for (auto& lowerCtrlRegion : ctrlRegion.lowerControlRegion)
+            {
+                loopHierarchy[_controlTree.findControlRegionIndex(lowerCtrlRegion)->second].upperControlRegion = ctrlRegion.controlRegionName;
+            }
+
+            // Delete non-loop controlRegion in each lowerCtrlRegion
+            for (auto iter = ctrlRegion.lowerControlRegion.begin(); iter != ctrlRegion.lowerControlRegion.end(); )
+            {
+                if (loopHierarchy[_controlTree.findControlRegionIndex(*iter)->second].controlType != "Loop")
+                {
+                    ctrlRegion.lowerControlRegion.erase(iter);
+                }
+                else
+                {
+                    ++iter;
+                }
+            }
+        }
+    }
+
+    // Delete non-loop controlRegion
+    for (auto iter = loopHierarchy.begin(); iter != loopHierarchy.end();)
+    {
+        if (iter->controlType != "Loop")
+        {
+            loopHierarchy.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    return loopHierarchy;
+}
+
+vector<string> ChanGraph::findShortestCtrlRegionPath(vector<string>& _preNodeCtrlRegionPath, vector<string>& _nextNodeCtrlRegionPath)
+{
+    vector<string> ctrlRegionPath;
+    auto s = _preNodeCtrlRegionPath;
+    auto s_next = _nextNodeCtrlRegionPath;
+    auto iter = find(s.begin(), s.end(), _nextNodeCtrlRegionPath.front());
+    auto iter_next = find(s_next.begin(), s_next.end(), _preNodeCtrlRegionPath.front());
+
+    if (iter != s.end())
+    {
+        for (auto iter_ = s.begin(); iter_ != iter; ++iter_)
+        {
+            ctrlRegionPath.push_back(*iter_);
+        }
+        ctrlRegionPath.push_back(*iter);
+    }
+    else if (iter_next != s_next.end())
+    {
+        for (auto iter_ = s_next.begin(); iter_ != iter_next; ++iter_)
+        {
+            ctrlRegionPath.push_back(*iter_);
+        }
+        ctrlRegionPath.push_back(*iter_next);
+        reverse(ctrlRegionPath.begin(), ctrlRegionPath.end());  // Reverse to make node -> node_next
+    }
+    else
+    {
+        vector<string> s_tmp;
+        vector<string> s_next_tmp;
+        auto iter_tmp = s.begin();
+        auto iter_next_tmp = s_next.begin();
+        string nodeCtrlRegion = *iter_tmp;
+        string nextNodeCtrlRegion = *iter_next_tmp;
+
+        while (nodeCtrlRegion != nextNodeCtrlRegion)
+        {
+            s_tmp.push_back(nodeCtrlRegion);
+            s_next_tmp.push_back(nextNodeCtrlRegion);
+            nodeCtrlRegion = *(++iter_tmp);
+            nextNodeCtrlRegion = *(++iter_next_tmp);
+        }
+
+        s_tmp.push_back(*iter_tmp);  // Add the shared root ctrlRegion
+        reverse(s_next_tmp.begin(), s_next_tmp.end());
+        ctrlRegionPath.insert(ctrlRegionPath.end(), s_tmp.begin(), s_tmp.end());
+        ctrlRegionPath.insert(ctrlRegionPath.end(), s_next_tmp.begin(), s_next_tmp.end());
+    }
+
+    return ctrlRegionPath;
+}
 
 vector<string> ChanGraph::bfsTraverseControlTree(ControlTree& ctrlTree)
 {
