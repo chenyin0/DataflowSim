@@ -80,7 +80,7 @@ namespace DFSim
         //void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_, vector<string>& nodes_, string& controlType_);
 
     public:
-        vector<Node*> nodes;
+        deque<Node*> nodes;
         unordered_map<string, uint> nodeIndexDict;
         ControlTree controlTree;
     };

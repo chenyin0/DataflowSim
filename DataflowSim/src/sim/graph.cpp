@@ -662,6 +662,11 @@ void ChanGraph::addSpecialModeChan()
     // Find the shortest path between two nodes in two different controlRegions
     for (auto& node : nodes)
     {
+        std::cout << node->node_name << std::endl;
+        if (node->node_name == "Chan_i_row")
+        {
+            std::cout << node->node_name << std::endl;
+        }
         vector<string> nextNodes;
         nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
         nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
@@ -813,6 +818,7 @@ void ChanGraph::addSpecialModeChan()
     completeConnect();
     removeRedundantConnect();
 
+    // TODO: Strict rule: The lowerCtrlRegion of chanNode which in keepMode or drainMode must be the same. Remove this restriction in the future 
     // Add keepMode and drainMode
     vector<ControlRegion> loopHierarchy_ = genLoopHierarchy(controlTree);
     for (auto& ctrlRegion : loopHierarchy_)
@@ -820,53 +826,63 @@ void ChanGraph::addSpecialModeChan()
         for (auto& node : ctrlRegion.nodes)
         {
             // KeepMode
-            for (auto& nextNodeData : nodes[findNodeIndex(node)->second]->next_nodes_data)
+            auto nodePtr = nodes[findNodeIndex(node)->second];
+            vector<string> next_nodes = nodePtr->next_nodes_data;
+            next_nodes.insert(next_nodes.end(), nodePtr->next_nodes_active.begin(), nodePtr->next_nodes_active.end());
+
+            string lastLowerCtrlRegion;
+            for (auto& nextNode : next_nodes)
             {
-                auto iter = find(ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end(), findNodeCtrlRegionInLoopHierarchy(nextNodeData, loopHierarchy_));
+                auto iter = find(ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end(), findNodeCtrlRegionInLoopHierarchy(nextNode, loopHierarchy_));
                 if (iter != ctrlRegion.lowerControlRegion.end())
                 {
-                    string nodeName=
-                    if()
+                    if (lastLowerCtrlRegion == "")
+                    {
+                        lastLowerCtrlRegion = *iter;
+                    }
+                    else
+                    {
+                        if (lastLowerCtrlRegion != *iter)
+                        {
+                            Debug::throwError("The lowerCtrlRegions are not same!", __FILE__, __LINE__);
+                        }
+                    }
                 }
             }
-
-            for (auto& nextNodeActive : nodes[findNodeIndex(node)->second]->next_nodes_active)
+            if (lastLowerCtrlRegion != "")
             {
-
+                dynamic_cast<Chan_Node*>(nodePtr)->chan_mode = "Keep_mode";
             }
 
             // DrainMode
-            for (auto& preNodeData : nodes[findNodeIndex(node)->second]->pre_nodes_data)
+            vector<string> pre_nodes = nodePtr->pre_nodes_data;
+            pre_nodes.insert(pre_nodes.end(), nodePtr->pre_nodes_active.begin(), nodePtr->pre_nodes_active.end());
+            string lastUpperCtrlRegion;
+
+            for (auto& preNode : pre_nodes)
             {
-
+                auto iter_ = find(ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end(), findNodeCtrlRegionInLoopHierarchy(preNode, loopHierarchy_));
+                if (iter_ != ctrlRegion.lowerControlRegion.end())
+                {
+                    if (lastUpperCtrlRegion == "")
+                    {
+                        lastUpperCtrlRegion = *iter_;
+                    }
+                    else
+                    {
+                        if (lastUpperCtrlRegion != *iter_)
+                        {
+                            Debug::throwError("The lowerCtrlRegions are not same!", __FILE__, __LINE__);
+                        }
+                    }
+                }
             }
-
-            for (auto& preNodeActive : nodes[findNodeIndex(node)->second]->pre_nodes_active)
+            if (lastUpperCtrlRegion != "")
             {
-
+                dynamic_cast<Chan_Node*>(nodePtr)->chan_mode = "Drain_mode";
             }
         }
-
-        // keepMode
-        vector<string> nextNode;
-        nextNode.insert(nextNode.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
-        nextNode.insert(nextNode.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
-        for (auto& nextNodeActive : nextNode)
-        {
-            if()
-        }
-
-        // drainMode
-        vector<string> preNode;
-        preNode.insert(preNode.end(), node->pre_nodes_data.begin(), node->pre_nodes_data.end());
-        preNode.insert(preNode.end(), node->pre_nodes_active.begin(), node->pre_nodes_active.end());
-        for (auto& preNodeActive : preNode)
-        {
-
-        }
-
     }
-
 }
 
 void ChanGraph::insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes)
@@ -1140,7 +1156,10 @@ vector<string> ChanGraph::backTrackPath(string& nodeName, vector<ControlRegion>&
     }
 
     deque<string> queue;
-    queue.push_back(backTrackPath.front());
+    if (!backTrackPath.empty())
+    {
+        queue.push_back(backTrackPath.front());
+    }
     while (!queue.empty())
     {
         for (auto& ctrlRegion : loopHierarchy)
