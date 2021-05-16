@@ -7,18 +7,40 @@ ControlTree::ControlTree()
 {
 }
 
-void ControlTree::addControlRegion(const vector<pair<string, string>>& controlRegions_)
+void ControlTree::addControlRegion(const vector<tuple<string, string, string>>& controlRegions_)
 {
     for (auto& controlRegion : controlRegions_)
     {
-        if (controlRegionIndexDict.count(controlRegion.first))
+        if (controlRegionIndexDict.count(get<0>(controlRegion)))
         {
             Debug::throwError("There already has a same name control region!", __FILE__, __LINE__);
         }
         else
         {
-            controlRegionIndexDict.insert(pair<string, uint>(controlRegion.first, controlRegionTable.size()));
-            controlRegionTable.push_back(ControlRegion(controlRegion.first, controlRegion.second));
+            controlRegionIndexDict.insert(pair<string, uint>(get<0>(controlRegion), controlRegionTable.size()));
+            if (get<1>(controlRegion) == "Loop")
+            {
+                controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion)));
+            }
+            else if (get<1>(controlRegion) == "Branch")
+            {
+                if (get<2>(controlRegion) == "truePath")
+                {
+                    controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion), true));
+                }
+                else if (get<2>(controlRegion) == "falsePath")
+                {
+                    controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion), false));
+                }
+                else
+                {
+                    Debug::throwError("Illegal branchPath!", __FILE__, __LINE__);
+                }
+            }
+            else
+            {
+                Debug::throwError("Illegal control region!", __FILE__, __LINE__);
+            }
         }
     }
 }

@@ -424,10 +424,23 @@ void Registry::genModule(ChanGraph& _chanGraph)
     auto _nodes = _chanGraph.nodes;
     for (auto& _module : _nodes)
     {
+        auto controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(_module->node_name)->second];
+        auto controlType = controlRegion.controlType;
+        auto branchPath = controlRegion.branchPath;
         auto _node_type = dynamic_cast<Chan_Node*>(_module)->node_type;
         if (_node_type == "ChanBase" || _node_type == "ChanDGSF" || _node_type == "ChanPartialMux")
         {
-            genChan(*dynamic_cast<Chan_Node*>(_module));
+            auto chanPtr = genChan(*dynamic_cast<Chan_Node*>(_module));
+            if (controlType == "Branch")
+            {
+                chanPtr->branchMode = true;
+                chanPtr->channelCond = branchPath;
+            }
+            // Set cond for Cmp operation
+            if (dynamic_cast<Chan_Node*>(_module)->node_op == "Cmp")
+            {
+                chanPtr->isCond = true;
+            }
         }
         else if (_node_type == "Lc")
         {
@@ -438,12 +451,23 @@ void Registry::genModule(ChanGraph& _chanGraph)
             }
             else
             {
-                genLc(*dynamic_cast<Chan_Node*>(_module));
+                auto lcPtr = genLc(*dynamic_cast<Chan_Node*>(_module));
+                // TODO: not sure whether lc in branchMode works well
+                if (controlType == "Branch")
+                {
+                    lcPtr->loopVar->branchMode = true;
+                    lcPtr->loopVar->channelCond = branchPath;
+                }
             }
         }
         else if (_node_type == "Lse_ld" || _node_type == "Lse_st")
         {
-            genLse(*dynamic_cast<Chan_Node*>(_module));
+            auto lsePtr = genLse(*dynamic_cast<Chan_Node*>(_module));
+            if (controlType == "Branch")
+            {
+                lsePtr->branchMode = true;
+                lsePtr->channelCond = branchPath;
+            }
         }
         else if (_node_type == "Mux")
         {
@@ -472,10 +496,28 @@ Channel* Registry::genChan(Chan_Node& _chan)
     else if (_chan.node_type == "ChanBase")
     {
         ChanBase* chan = new ChanBase(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+
+        if (_chan.chan_mode == "Keep_mode")
+        {
+            chan->keepMode = 1;
+        }
+        else if (_chan.chan_mode == "Drain_mode")
+        {
+            chan->drainMode = 1;
+        }
     }
     else if (_chan.node_type == "ChanDGSF")
     {
         ChanDGSF* chan = new ChanDGSF(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+
+        if (_chan.chan_mode == "Keep_mode")
+        {
+            chan->keepMode = 1;
+        }
+        else if (_chan.chan_mode == "Drain_mode")
+        {
+            chan->drainMode = 1;
+        }
     }
     else if (_chan.node_type == "ChanPartialMux")
     {
