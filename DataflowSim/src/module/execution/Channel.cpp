@@ -2415,6 +2415,12 @@ ChanPartialMux::ChanPartialMux(uint _size, uint _cycle, uint _speedup) :
     initial();
 }
 
+ChanPartialMux::ChanPartialMux(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+    ChanBase(_moduleName, _size, _cycle, _speedup)
+{
+    initial();
+}
+
 void ChanPartialMux::initial()
 {
     chanType = ChanType::Chan_PartialMux;

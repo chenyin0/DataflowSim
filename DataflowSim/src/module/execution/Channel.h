@@ -330,6 +330,7 @@ class ChanPartialMux usage:
     public:
         ChanPartialMux(uint _size, uint _cycle);
         ChanPartialMux(uint _size, uint _cycle, uint _speedup);
+        ChanPartialMux(string _moduleName, uint _size, uint _cycle, uint _speedup);
 
     private:
         void initial();

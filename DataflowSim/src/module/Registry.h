@@ -5,6 +5,7 @@
 #include "../module/execution/Lc.h"
 #include "../module/execution/Mux.h"
 #include "../sim/Debug.h"
+#include "../sim/graph.h"
 
 /*
 Module Register
@@ -29,7 +30,7 @@ namespace DFSim
     class Registry
     {
     public:
-        Registry();
+        Registry(MemSystem* _memSys);
         ~Registry();
         //* Do not use anymore, only keep to compatible with the old version, remove in the future
         static int registerChan(Channel* chan);
@@ -45,6 +46,21 @@ namespace DFSim
 
         void tableInit();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
+
+        // Generate module
+        void genModule(ChanGraph& _chanGraph);
+        Lc* genLc(Chan_Node& _lc);
+        Lc* genLcOuterMost(Chan_Node& _lc);
+        Channel* genChan(Chan_Node& _chan);
+        Lse* genLse(Chan_Node& _lse);
+        Mux* genMux(Chan_Node& _mux);
+
+        // Generate interconnect
+        void genConnect(ChanGraph& _chanGraph);
+
+        // simulation
+        void sim();
+
 
         /*template <typename T>
         static int registerModule(const string& moduleName_, T module_)
@@ -113,6 +129,8 @@ namespace DFSim
         static uint moduleId;
         static vector<RegistryTable> registryTable;
         static unordered_map<string, uint> registryDict;
+
+        MemSystem* memSys = nullptr;
     };
 
 }

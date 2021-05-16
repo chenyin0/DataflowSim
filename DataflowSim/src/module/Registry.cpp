@@ -7,7 +7,7 @@ uint Registry::moduleId = 0;
 vector<RegistryTable> Registry::registryTable;
 unordered_map<string, uint> Registry::registryDict;
 
-Registry::Registry()
+Registry::Registry(MemSystem* _memSys) : memSys(_memSys)
 {
 }
 
@@ -28,6 +28,8 @@ Registry::~Registry()
             delete entry.muxPtr;
         }
     }
+
+    delete memSys;
 }
 
 int Registry::registerChan(Channel* chan)
@@ -415,6 +417,94 @@ void Registry::checkChanDGSF(Channel* _chan)
             Debug::throwError("The number of ChanDGSF's upstream can not exceed 1 !", __FILE__, __LINE__);
         }
     }
+}
+
+void Registry::genModule(ChanGraph& _chanGraph)
+{
+    auto _nodes = _chanGraph.nodes;
+    for (auto& _module : _nodes)
+    {
+        auto _node_type = dynamic_cast<Chan_Node*>(_module)->node_type;
+        if (_node_type == "ChanBase" || _node_type == "ChanDGSF" || _node_type == "ChanPartialMux")
+        {
+            genChan(*dynamic_cast<Chan_Node*>(_module));
+        }
+        else if (_node_type == "Lc")
+        {
+            auto& controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(_module->controlRegionName)->second];
+            if (controlRegion.upperControlRegion.empty())
+            {
+                genLcOuterMost(*dynamic_cast<Chan_Node*>(_module));
+            }
+            else
+            {
+                genLc(*dynamic_cast<Chan_Node*>(_module));
+            }
+        }
+        else if (_node_type == "Lse_ld" || _node_type == "Lse_st")
+        {
+            genLse(*dynamic_cast<Chan_Node*>(_module));
+        }
+        else if (_node_type == "Mux")
+        {
+            genMux(*dynamic_cast<Chan_Node*>(_module));
+        }
+    }
+}
+
+Lc* Registry::genLc(Chan_Node& _lc)
+{
+    Lc* lc = new Lc(_lc.node_name);
+    lc->mux->addPort({ lc->loopVar }, { }, { lc->loopVar });
+}
+
+Lc* Registry::genLcOuterMost(Chan_Node& _lc)
+{
+    genLc(_lc)->isOuterMostLoop = 1;
+}
+
+Channel* Registry::genChan(Chan_Node& _chan)
+{
+    if (_chan.node_name == "begin" || _chan.node_name == "end")
+    {
+        Channel* chan = new ChanBase(_chan.node_name, 1, 0, 1);
+    }
+    else if (_chan.node_type == "ChanBase")
+    {
+        ChanBase* chan = new ChanBase(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+    }
+    else if (_chan.node_type == "ChanDGSF")
+    {
+        ChanDGSF* chan = new ChanDGSF(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+    }
+    else if (_chan.node_type == "ChanPartialMux")
+    {
+        ChanPartialMux* chan = new ChanPartialMux(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+    }
+}
+
+Lse* Registry::genLse(Chan_Node& _lse)
+{
+    if (_lse.node_type == "Lse_ld")
+    {
+        Lse* lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, false, memSys, _lse.speedup);
+    }
+    else if (_lse.node_type == "Lse_st")
+    {
+        Lse* lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, true, memSys, _lse.speedup);
+    }
+}
+
+Mux* Registry::genMux(Chan_Node& _mux)
+{
+    Mux* mux = new Mux(_mux.node_name);
+}
+
+void Registry::genConnect(ChanGraph& _chanGraph)
+{
+    //?? set noUpperStream and noDownStream
+
+    //    add Lc addPort manually @@
 }
 
 #ifdef DEBUG_MODE  // Get private instance for debug
