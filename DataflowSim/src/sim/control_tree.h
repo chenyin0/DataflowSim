@@ -16,17 +16,21 @@ namespace DFSim
         vector<string> nodes;  // modules in this control region
         string controlType;  // <Loop, Branch>
         bool branchPath = true;  // true = true path; false = false path
+
+        string theTailNode;
     };
 
     class ControlTree
     {
     public:
         ControlTree();
+        ControlRegion& getCtrlRegion(const string& controlRegionName_);
         auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator;
         void addControlRegion(const vector<tuple<string, string, string>>& controlRegions_);  // pair<controlRegionName, controlRegionType>
         //void addNodes(const string& targetCtrlRegion, const vector<string>& nodes_);
         void addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_);
         void addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_);
+        //void setTheTailNode(const string& targetCtrlRegion, const string& nodeName);
         void completeControlRegionHierarchy();
         vector<pair<string, uint>> traverseControlRegionsDfs();
         void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_);

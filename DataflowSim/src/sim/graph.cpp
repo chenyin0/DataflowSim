@@ -330,6 +330,25 @@ void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<s
     }
 }
 
+void Dfg::setTheTailNode(const string& targetCtrlRegion, string nodeName)
+{
+    auto& nodeType_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_type; 
+    if (nodeType_ == "Normal")
+    {
+        nodeName = "Chan_" + nodeName;
+    }
+    else if (nodeType_ == "Lc")
+    {
+        nodeName = "Lc_" + nodeName;
+    }
+    else if (nodeType_ == "Mux")
+    {
+        nodeName = "Mux_" + nodeName;
+    }
+
+    controlTree.getCtrlRegion(targetCtrlRegion).theTailNode = nodeName;
+}
+
 //void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const string& _preNode)
 //{
 //    addNode(_nodeName, _nodeOp);

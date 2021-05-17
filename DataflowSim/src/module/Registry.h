@@ -43,6 +43,8 @@ namespace DFSim
         Channel* getChan(const string& moduleName_);
         Lc* getLc(const string& moduleName_);
         Mux* getMux(const string& moduleName_);
+        auto findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator;
+        RegistryTable& getRegistryTableEntry(const string& _moduleName);
 
         void tableInit();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
@@ -125,7 +127,7 @@ namespace DFSim
         void checkLc();  // Check whether set outer-most loop
         void checkChanDGSF(Channel* _chan);
 
-    private:
+    public:
         static uint moduleId;
         static vector<RegistryTable> registryTable;
         static unordered_map<string, uint> registryDict;

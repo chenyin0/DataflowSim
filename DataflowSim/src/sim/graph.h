@@ -95,6 +95,7 @@ namespace DFSim
         void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodesData, const vector<string>& _preNodesActive);
         void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint& baseAddr_);
         //void addNode(const string& _nodeName, const string& _nodeOp, const string& _preNode);
+        void setTheTailNode(const string& targetCtrlRegion, string nodeName);
         void plotDot();
 
     private:
@@ -129,6 +130,7 @@ namespace DFSim
         string findNodeCtrlRegionInLoopHierarchy(string _nodeName, vector<ControlRegion> _loopHierarchy);
         void insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes);  // Add a chanNode between preNodes and nextNodes (at least one of them's size must equal to one)
         //string findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy);
+        vector<string> bfsTraverseNode();  // Generate simulation sequence
  
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;

@@ -101,6 +101,11 @@ void ControlTree::addLowerControlRegion(const string& targetCtrlRegion, const ve
     }
 }
 
+ControlRegion& ControlTree::getCtrlRegion(const string& controlRegionName_)
+{
+    return controlRegionTable[findControlRegionIndex(controlRegionName_)->second];
+}
+
 auto ControlTree::findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator
 {
     auto iter = controlRegionIndexDict.find(controlRegionName_);

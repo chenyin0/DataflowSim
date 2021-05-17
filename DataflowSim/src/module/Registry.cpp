@@ -29,7 +29,7 @@ Registry::~Registry()
         }
     }
 
-    delete memSys;
+    //delete memSys;
 }
 
 int Registry::registerChan(Channel* chan)
@@ -424,7 +424,7 @@ void Registry::genModule(ChanGraph& _chanGraph)
     auto _nodes = _chanGraph.nodes;
     for (auto& _module : _nodes)
     {
-        auto controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(_module->node_name)->second];
+        auto controlRegion = _chanGraph.controlTree.getCtrlRegion(_module->controlRegionName);
         auto controlType = controlRegion.controlType;
         auto branchPath = controlRegion.branchPath;
         auto _node_type = dynamic_cast<Chan_Node*>(_module)->node_type;
@@ -480,18 +480,23 @@ Lc* Registry::genLc(Chan_Node& _lc)
 {
     Lc* lc = new Lc(_lc.node_name);
     lc->mux->addPort({ lc->loopVar }, { }, { lc->loopVar });
+    return lc;
 }
 
 Lc* Registry::genLcOuterMost(Chan_Node& _lc)
 {
-    genLc(_lc)->isOuterMostLoop = 1;
+    const auto& lc = genLc(_lc);
+    lc->isOuterMostLoop = 1;
+    return lc;
 }
 
 Channel* Registry::genChan(Chan_Node& _chan)
 {
-    if (_chan.node_name == "begin" || _chan.node_name == "end")
+    Channel* chan_ = nullptr;
+    if (_chan.node_name == "Chan_begin" || _chan.node_name == "Chan_end")
     {
         Channel* chan = new ChanBase(_chan.node_name, 1, 0, 1);
+        chan_ = chan;
     }
     else if (_chan.node_type == "ChanBase")
     {
@@ -505,6 +510,8 @@ Channel* Registry::genChan(Chan_Node& _chan)
         {
             chan->drainMode = 1;
         }
+
+        chan_ = chan;
     }
     else if (_chan.node_type == "ChanDGSF")
     {
@@ -518,35 +525,274 @@ Channel* Registry::genChan(Chan_Node& _chan)
         {
             chan->drainMode = 1;
         }
+
+        chan_ = chan;
     }
     else if (_chan.node_type == "ChanPartialMux")
     {
         ChanPartialMux* chan = new ChanPartialMux(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+        chan_ = chan;
     }
+
+    return chan_;
 }
 
 Lse* Registry::genLse(Chan_Node& _lse)
 {
+    Lse* lse = nullptr;
     if (_lse.node_type == "Lse_ld")
     {
-        Lse* lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, false, memSys, _lse.speedup);
+        lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, false, memSys, _lse.speedup);
     }
     else if (_lse.node_type == "Lse_st")
     {
-        Lse* lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, true, memSys, _lse.speedup);
+        lse = new Lse(_lse.node_name, _lse.size, _lse.cycle, true, memSys, _lse.speedup);
     }
+
+    return lse;
 }
 
 Mux* Registry::genMux(Chan_Node& _mux)
 {
     Mux* mux = new Mux(_mux.node_name);
+    return mux;
 }
 
 void Registry::genConnect(ChanGraph& _chanGraph)
 {
-    //?? set noUpperStream and noDownStream
+    for (auto& entry : registryTable)
+    {
+        // Lc
+        if (entry.lcPtr != nullptr)
+        {
+            vector<string> getActiveName;
+            vector<string> sendActiveName;
+            string getEndName;
+            //vector<string> sendEndName;  // auto-set in completeConnect
 
-    //    add Lc addPort manually @@
+            auto lcChanGraphPtr = _chanGraph.getNode(entry.lcPtr->moduleName);
+            getActiveName.insert(getActiveName.end(), lcChanGraphPtr->pre_nodes_data.begin(), lcChanGraphPtr->pre_nodes_data.end());
+            getActiveName.insert(getActiveName.end(), lcChanGraphPtr->pre_nodes_active.begin(), lcChanGraphPtr->pre_nodes_active.end());
+
+            sendActiveName.insert(sendActiveName.end(), lcChanGraphPtr->next_nodes_data.begin(), lcChanGraphPtr->next_nodes_data.end());
+            sendActiveName.insert(sendActiveName.end(), lcChanGraphPtr->next_nodes_active.begin(), lcChanGraphPtr->next_nodes_active.end());
+
+            getEndName = _chanGraph.controlTree.getCtrlRegion(lcChanGraphPtr->controlRegionName).theTailNode;
+            if (getEndName == "")
+            {
+                Debug::throwError("Forget to declare the tailNode in loop control region !", __FILE__, __LINE__);
+            }
+
+            // Process begin and end node
+            auto iter = find(getActiveName.begin(), getActiveName.end(), "Chan_begin");
+            auto iter_ = find(sendActiveName.begin(), sendActiveName.end(), "Chan_end");
+            if (iter != getActiveName.end())
+            {
+                Channel* Chan_begin_ptr = getChan("Chan_begin");
+                entry.lcPtr->addDependence({ Chan_begin_ptr }, {});
+                getActiveName.erase(iter);
+            }
+            if (iter_ != sendActiveName.end())
+            {
+                Channel* Chan_end_ptr = getChan("Chan_end");
+                entry.lcPtr->addPort({ }, { }, { }, { Chan_end_ptr });
+                sendActiveName.erase(iter_);
+            }
+
+            vector<Channel*> getActive;
+            for (auto& i : getActiveName)
+            {
+                getActive.push_back(getChan(i));
+            }
+
+            vector<Channel*> sendActive;
+            for (auto& i : sendActiveName)
+            {
+                sendActive.push_back(getChan(i));
+            }
+
+            Channel* getEnd = nullptr;
+            if (getRegistryTableEntry(getEndName).lcPtr != nullptr)
+            {
+                getEnd = getRegistryTableEntry(getEndName).lcPtr->sendEnd;
+            }
+            else if (getRegistryTableEntry(getEndName).chanPtr != nullptr)
+            {
+                getEnd = getChan(getEndName);
+            }
+            else
+            {
+                Debug::throwError("Not find getEnd!", __FILE__, __LINE__);
+            }
+
+            //vector<Channel*> sendEnd;
+
+            entry.lcPtr->addPort({ getActive }, { sendActive }, { getEnd }, {});  // No need sendEnd, auto-set in complete connect
+        }
+        // Mux should be single input for trueChan and falseChan, single output for outChan
+        // Mux must connect to Channel!
+        else if (entry.muxPtr != nullptr)
+        {
+            // Not set to a submodule mux (e.g. the mux in a Lc)
+            if (entry.muxPtr->masterName == "")
+            {
+                auto muxChanGraphPtr = _chanGraph.getNode(entry.muxPtr->moduleName);
+                if (muxChanGraphPtr->pre_nodes_data.size() != 2 && muxChanGraphPtr->next_nodes_data.size() != 1)
+                {
+                    Debug::throwError("Mux:: The number of pre_nodes and next_nodes not satisfy. If default, use \"NULL\" to represent!", __FILE__, __LINE__);
+                }
+                else
+                {
+                    string trueChanUpstream = muxChanGraphPtr->pre_nodes_data[0];
+                    string falseChanUpstream = muxChanGraphPtr->pre_nodes_data[1];
+                    string outChanDownstream = muxChanGraphPtr->next_nodes_data[0];
+
+                    if (trueChanUpstream != "NULL")
+                    {
+                        entry.muxPtr->trueChan->addUpstream({ getChan(trueChanUpstream) });
+                    }
+                    if (falseChanUpstream != "NULL")
+                    {
+                        entry.muxPtr->falseChan->addUpstream({ getChan(falseChanUpstream) });
+                    }
+                    if (outChanDownstream != "NULL")
+                    {
+                        entry.muxPtr->outChan->addDownstream({ getChan(outChanDownstream) });
+                    }
+                }
+            }
+        }
+        // Channel
+        else if (entry.chanPtr != nullptr)  
+        {
+            if (entry.chanPtr->masterName == "")
+            {
+                auto nodePtr = _chanGraph.getNode(entry.chanPtr->moduleName);
+                auto& pre_data = nodePtr->pre_nodes_data;
+                auto& pre_active = nodePtr->pre_nodes_active;
+                auto& next_data = nodePtr->next_nodes_data;
+                auto& next_active = nodePtr->next_nodes_active;
+
+                vector<string> upstreams;
+                vector<string> downstreams;
+                upstreams.insert(upstreams.end(), pre_data.begin(), pre_data.end());
+                upstreams.insert(upstreams.end(), pre_active.begin(), pre_active.end());
+                downstreams.insert(downstreams.end(), next_data.begin(), next_data.end());
+                downstreams.insert(downstreams.end(), next_active.begin(), next_active.end());
+
+                for (auto& upstream : upstreams)
+                {
+                    Channel* chanUpstream = nullptr;
+                    auto& registryEntry = getRegistryTableEntry(upstream);
+                    if (registryEntry.lcPtr != nullptr)
+                    {
+                        chanUpstream = registryEntry.lcPtr->loopVar;
+                    }
+                    else if (registryEntry.chanPtr != nullptr)
+                    {
+                        chanUpstream = registryEntry.chanPtr;
+                    }
+                    else if (registryEntry.muxPtr != nullptr)
+                    {
+                        chanUpstream = registryEntry.muxPtr->outChan;
+                    }
+                    entry.chanPtr->addUpstream({ chanUpstream });
+                }
+
+                for (auto& downstream : downstreams)
+                {
+                    Channel* chanDownstream = nullptr;
+                    auto& registryEntry = getRegistryTableEntry(downstream);
+                    if (registryEntry.lcPtr != nullptr)
+                    {
+                        chanDownstream = registryEntry.lcPtr->loopVar;
+                    }
+                    else if (registryEntry.chanPtr != nullptr)
+                    {
+                        chanDownstream = registryEntry.chanPtr;
+                    }
+                    else if (registryEntry.muxPtr != nullptr)
+                    {
+                        // Do nothing, due to hard to determine connect to trueChan or falseChan
+                        // auto-set in completeConnect
+                    }
+                    entry.chanPtr->addUpstream({ chanDownstream });
+                }
+            }
+        }
+        else
+        {
+            Debug::throwError("Invalid registryTable entry!", __FILE__, __LINE__);
+        }
+    }
+
+    // completeConnect
+    // set noupstream and nodownstream
+    for (auto& registryEntry : registryTable)
+    {
+        if (registryEntry.chanPtr != nullptr)
+        {
+            auto& chan_ = registryEntry.chanPtr;
+            for (auto& upChanPtr : chan_->upstream)
+            {
+                upChanPtr->addDownstream({ chan_ });
+            }
+
+            for (auto& downChanPtr : chan_->downstream)
+            {
+                downChanPtr->addUpstream({ chan_ });
+            }
+        }
+    }
+
+    // Set noUpstream and noDownstream
+    for (auto& registryEntry : registryTable)
+    {
+        if (registryEntry.chanPtr != nullptr)
+        {
+            if (registryEntry.chanPtr->upstream.empty())
+            {
+                registryEntry.chanPtr->noUpstream = true;
+            }
+
+            if (registryEntry.chanPtr->downstream.empty())
+            {
+                registryEntry.chanPtr->noDownstream = true;
+            }
+
+        }
+    }
+
+    // Remove redundant connect
+    for (auto& registryEntry : registryTable)
+    {
+        if (registryEntry.chanPtr != nullptr)
+        {
+            set<Channel*> upstreamChans(registryEntry.chanPtr->upstream.begin(), registryEntry.chanPtr->upstream.end());
+            registryEntry.chanPtr->upstream.assign(upstreamChans.begin(), upstreamChans.end());
+
+            set<Channel*> downstreamChans(registryEntry.chanPtr->downstream.begin(), registryEntry.chanPtr->downstream.end());
+            registryEntry.chanPtr->downstream.assign(downstreamChans.begin(), downstreamChans.end());
+        }
+    }
+}
+
+auto Registry::findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator
+{
+    auto iter = registryDict.find(_moduleName);
+    if (iter == registryDict.end())
+    {
+        Debug::throwError("Not find this module!", __FILE__, __LINE__);
+    }
+    else
+    {
+        return iter;
+    }
+}
+
+RegistryTable& Registry::getRegistryTableEntry(const string& _moduleName)
+{
+    return registryTable[findRegistryEntryIndex(_moduleName)->second];
 }
 
 #ifdef DEBUG_MODE  // Get private instance for debug

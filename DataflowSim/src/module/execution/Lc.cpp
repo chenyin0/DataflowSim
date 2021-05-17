@@ -36,13 +36,11 @@ Lc::Lc(const string& moduleName_) : moduleName(moduleName_)
     getEnd->masterName = moduleName_;
     getEnd->enable = 1;
     getEnd->noDownstream = 1;
-    getEnd->downstream = { nullptr };
 
     sendEnd = new ChanBase(moduleName_ + "_sendEnd", 2, 0, 1);
     sendEnd->masterName = moduleName_;
     sendEnd->enable = 1;
     sendEnd->noUpstream = 1;
-    sendEnd->upstream = { nullptr };
 }
 
 void Lc::init()
