@@ -49,11 +49,11 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
 
     //******  Define module  ******//
-    //*** Declare registry
-    Registry* registry = new Registry();
-
     //*** Declare memory
     MemSystem* memSys = new MemSystem();
+
+    //*** Declare registry
+    Registry* registry = new Registry(memSys);
 
     //*** Declare profiler
     Profiler* profiler = new Profiler(registry, memSys, debug);

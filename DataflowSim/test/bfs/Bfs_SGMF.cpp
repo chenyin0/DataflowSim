@@ -16,11 +16,11 @@ void BfsTest::bfs_SGMF(Debug* debug)
 
 
     //******  Define module  ******//
-    //*** Declare registry
-    Registry* registry = new Registry();
-
     //*** Declare memory
     MemSystem* memSys = new MemSystem();
+
+    //*** Declare registry
+    Registry* registry = new Registry(memSys);
 
     //*** Declare Lse
     Lse* lse_ld_node = new Lse(SGMF_INPUT_BUFF_SIZE, 0, false, memSys);  // Load node

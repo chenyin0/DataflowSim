@@ -9,11 +9,11 @@ void LudTest::lud_Base(Debug* debug)
 
 
     //******  Define module  ******//
-    //*** Declare registry
-    Registry* registry = new Registry();
-
     //*** Declare memory
     MemSystem* memSys = new MemSystem();
+
+    //*** Declare registry
+    Registry* registry = new Registry(memSys);
 
 
     //*** Declare Lse

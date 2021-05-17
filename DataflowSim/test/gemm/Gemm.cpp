@@ -72,11 +72,11 @@ void GemmTest::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_pair<string, string>("loop_jj", "Loop"),
-         make_pair<string, string>("loop_kk", "Loop"),
-         make_pair<string, string>("loop_i", "Loop"),
-         make_pair<string, string>("loop_k", "Loop"),
-         make_pair<string, string>("loop_j", "Loop"),
+        { make_tuple<string, string, string>("loop_jj", "Loop", "Null"),
+         make_tuple<string, string, string>("loop_kk", "Loop", "Null"),
+         make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+         make_tuple<string, string, string>("loop_k", "Loop", "Null"),
+         make_tuple<string, string, string>("loop_j", "Loop", "Null"),
         });
 
     dfg.controlTree.addLowerControlRegion("loop_jj", { "loop_kk" });
@@ -90,28 +90,32 @@ void GemmTest::generateDfg()
     // global_const
     dfg.addNode("row_size", "Const", GemmTest::matrix_width);
     // loop_jj
-    dfg.addNode("begin", "Normal");
-    dfg.addNode("end", "Normal", {}, {"jj"});
+    dfg.addNode("begin", "Nop");
+    dfg.addNode("end", "Nop", {}, {"jj"});
     dfg.addNode("jj", "Loop_head", {}, {"begin"});
+    dfg.addNode("jj_lc", "Nop", {"jj"}, {});
     //dynamic_cast<Dfg_Node*>(dfg.getNode("jj"))->loop_info=make_tuple("0","","","")
 
     // loop_kk
-    dfg.addNode("kk", "Loop_head", {}, {"jj"});
+    dfg.addNode("kk", "Loop_head", {}, {"jj_lc"});
+    dfg.addNode("kk_lc", "Nop", {}, { "kk" });
 
     // loop_i
-    dfg.addNode("i", "Loop_head", {}, { "kk" });
+    dfg.addNode("i", "Loop_head", {}, { "kk_lc" });
+    dfg.addNode("i_lc", "Nop", {}, { "i" });
     dfg.addNode("i_row", "Mul", {"i", "row_size"});
 
     // loop_k
-    dfg.addNode("k", "Loop_head", {}, { "i" });
-    dfg.addNode("k_kk", "Add", {"k", "kk"});
+    dfg.addNode("k", "Loop_head", {}, { "i_lc" });
+    dfg.addNode("k_lc", "Nop", {}, { "k" });
+    dfg.addNode("k_kk", "Add", {"k", "kk_lc"});
     dfg.addNode("k_row", "Mul", {"k_kk", "row_size"});
     dfg.addNode("m1_addr", "Add", {"i_row", "k_kk"});
     dfg.addNode("temp_x", "Load", {"m1_addr"}, &m1_, m1_BaseAddr);
 
     // loop_j
-    dfg.addNode("j", "Loop_head", {}, { "k" });
-    dfg.addNode("j_jj", "Add", {"j", "jj"});
+    dfg.addNode("j", "Loop_head", {}, { "k_lc" });
+    dfg.addNode("j_jj", "Add", {"j", "jj_lc"});
     dfg.addNode("m2_addr", "Add", {"k_row", "j_jj"});
     dfg.addNode("m2_data", "Load", {"m2_addr"}, &m2_, m2_BaseAddr);
     dfg.addNode("mul", "Mul", {"temp_x", "m2_data"});
@@ -124,11 +128,18 @@ void GemmTest::generateDfg()
     dfg.removeRedundantConnect();
 
     //** Add nodes to controlTree
-    dfg.controlTree.addNodes("loop_jj", { "begin", "end", "jj" });
-    dfg.controlTree.addNodes("loop_kk", { "kk" });
-    dfg.controlTree.addNodes("loop_i", { "i", "i_row" });
-    dfg.controlTree.addNodes("loop_k", { "k", "k_kk", "k_row", "m1_addr", "temp_x" });
-    dfg.controlTree.addNodes("loop_j", { "j", "j_jj", "m2_addr", "m2_data", "mul", "prod_addr", "prod_data", "prod_data_update", "prod_data_update_st" });
+    dfg.addNodes2CtrlTree("loop_jj", { "begin", "end", "jj", "jj_lc" });
+    dfg.addNodes2CtrlTree("loop_kk", { "kk", "kk_lc" });
+    dfg.addNodes2CtrlTree("loop_i", { "i", "i_lc", "i_row" });
+    dfg.addNodes2CtrlTree("loop_k", { "k", "k_lc", "k_kk", "k_row", "m1_addr", "temp_x" });
+    dfg.addNodes2CtrlTree("loop_j", { "j", "j_jj", "m2_addr", "m2_data", "mul", "prod_addr", "prod_data", "prod_data_update", "prod_data_update_st" });
+
+    //** Indicate the tail node for each loop region
+    dfg.setTheTailNode("loop_jj", "kk");
+    dfg.setTheTailNode("loop_kk", "i");
+    dfg.setTheTailNode("loop_i", "k");
+    dfg.setTheTailNode("loop_k", "j");
+    dfg.setTheTailNode("loop_j", "prod_data_update");
 
     dfg.plotDot();
 }
