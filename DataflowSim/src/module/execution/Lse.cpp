@@ -53,7 +53,7 @@ Lse::~Lse()
     //    delete memSys;
     //}
     //memSys = nullptr;  // Destruct memorySystem in the destructor of class MemSystem
-    delete memSys;
+
     delete memorySpace;
 }
 

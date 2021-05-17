@@ -98,16 +98,16 @@ void GemmTest::generateDfg()
 
     // loop_kk
     dfg.addNode("kk", "Loop_head", {}, {"jj_lc"});
-    dfg.addNode("kk_lc", "Nop", {}, { "kk" });
+    dfg.addNode("kk_lc", "Nop", {"kk"}, {});
 
     // loop_i
     dfg.addNode("i", "Loop_head", {}, { "kk_lc" });
-    dfg.addNode("i_lc", "Nop", {}, { "i" });
+    dfg.addNode("i_lc", "Nop", {"i"}, {});
     dfg.addNode("i_row", "Mul", {"i", "row_size"});
 
     // loop_k
     dfg.addNode("k", "Loop_head", {}, { "i_lc" });
-    dfg.addNode("k_lc", "Nop", {}, { "k" });
+    dfg.addNode("k_lc", "Nop", {"k"}, {});
     dfg.addNode("k_kk", "Add", {"k", "kk_lc"});
     dfg.addNode("k_row", "Mul", {"k_kk", "row_size"});
     dfg.addNode("m1_addr", "Add", {"i_row", "k_kk"});

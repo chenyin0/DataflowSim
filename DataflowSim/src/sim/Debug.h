@@ -3,6 +3,7 @@
 #include "../module/ClkSys.h"
 #include "../module/execution/Channel.h"
 #include "../module/execution/Lse.h"
+#include "../module/Registry.h"
 
 namespace DFSim
 {
@@ -10,7 +11,6 @@ namespace DFSim
     {
     public:
         Debug(string fileName);
-
         ~Debug();
 
         std::ofstream& getFile()
@@ -29,6 +29,8 @@ namespace DFSim
         void chanPrint(const string name, const ChanSGMF* channel);
         void lsePrint(const string _name, const Lse* _lse);
         void memSysPrint(const MemSystem* _memSys);
+        void printRegistry(const Registry* _registry);
+        void printSimNodes(ChanGraph& _chanGraph);
 
         template <typename T>
         void vecPrint(const string name, const vector<T>& vec)

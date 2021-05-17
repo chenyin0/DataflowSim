@@ -790,6 +790,59 @@ void Debug::memSysPrint(const MemSystem* _memSys)
     }
 }
 
+void Debug::printRegistry(const Registry* _registry)
+{
+    _output_file << std::endl;
+    _output_file << "Registry Entry: " << std::endl;
+    for (auto& entry : _registry->registryTable)
+    {
+        _output_file << std::endl;
+        _output_file << entry.moduleName;
+        if (entry.chanPtr != nullptr)
+        {
+            _output_file << "\n\t" << "Upstream: ";
+            for (auto& upstream : entry.chanPtr->upstream)
+            {
+                _output_file << upstream->moduleName << "\t";
+            }
+
+            _output_file << "\n\t" << "Downstream: ";
+            for (auto& downstream : entry.chanPtr->downstream)
+            {
+                _output_file << downstream->moduleName << "\t";
+            }
+        }
+        _output_file << std::endl;
+    }
+}
+
+void Debug::printSimNodes(ChanGraph& _chanGraph)
+{
+    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+
+    _output_file << std::endl;
+    _output_file << "Sim Nodes: " << std::endl;
+    for (auto& node : simNodes)
+    {
+        _output_file << std::endl;
+        _output_file << node << "\t" << dynamic_cast<Chan_Node*>(_chanGraph.getNode(node))->node_op << std::endl;
+        _output_file << "Upstream: ";
+
+        for (auto& preNode : _chanGraph.getNode(node)->pre_nodes_data)
+        {
+            _output_file << preNode << "\t";
+        }
+
+        //_output_file << "\n\t" << "Downstream: ";
+        //for (auto& downstream : entry.chanPtr->downstream)
+        //{
+        //    _output_file << downstream->moduleName << "\t";
+        //}
+
+        _output_file << std::endl;
+    }
+}
+
 void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)
 {
     uint clk = DFSim::ClkDomain::getInstance()->getClk();

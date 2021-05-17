@@ -24,7 +24,7 @@ namespace DFSim
         // System performance
         static void recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk);
         // Memory access
-        static void recordMemoryAccessNum(uint _moduleId, ChanType _chanType, uint _clk);
+        //static void recordMemoryAccessNum(uint _moduleId, ChanType _chanType, uint _clk);
         void printLseProfiling(string lseName, Lse* _lsePtr);
         void printCacheMissRate();
         // Channel status

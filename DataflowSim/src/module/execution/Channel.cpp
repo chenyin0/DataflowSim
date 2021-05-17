@@ -51,7 +51,10 @@ void Channel::addUpstream(const vector<Channel*>& _upStream)
 {
     for (auto& chan : _upStream)
     {
-        upstream.push_back(chan);
+        if (chan != nullptr)
+        {
+            upstream.push_back(chan);
+        }
     }
 }
 
@@ -59,7 +62,10 @@ void Channel::addDownstream(const vector<Channel*>& _downStream)
 {
     for (auto& chan : _downStream)
     {
-        downstream.push_back(chan);
+        if (chan != nullptr)
+        {
+            downstream.push_back(chan);
+        }
     }
 }
 

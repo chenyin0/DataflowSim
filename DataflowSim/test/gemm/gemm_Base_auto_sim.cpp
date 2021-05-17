@@ -70,8 +70,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     Watchdog watchdog = Watchdog(pow(2, 7), 50);
 
     registry->genModule(chanGraph);
-    auto& regis = Registry::registryTable;
     registry->genConnect(chanGraph);
+    auto& regis = Registry::registryTable;
+    //debug->printRegistry(registry);
+    debug->printSimNodes(chanGraph);
 
     ////*** Declare Lse
     //Lse* lse_ld_m1 = new Lse("lse_ld_m1",LSE_QUEUE_SIZE, 0, false, memSys, 1);  // Load M1
@@ -307,9 +309,9 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
     ////*** Simulate
     //// Initiation
-    //registry->tableInit();  // Update registry and initial all the module in registry
-    //registry->pathBalance();
-    //profiler->init();
+    registry->tableInit();  // Update registry and initial all the module in registry
+    registry->pathBalance();
+    profiler->init();
     //watchdog.addCheckPointChan({ lc_jj->getEnd, lc_kk->getEnd, lc_i->getEnd, lc_k->getEnd, lc_j->getEnd });
 
     //begin->get({ 1 });

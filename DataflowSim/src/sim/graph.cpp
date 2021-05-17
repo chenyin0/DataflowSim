@@ -523,18 +523,20 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
 
         if (node->node_type == "Normal")
         {
-            nodeName = "Chan_" + node->node_name;
             if (node->node_op == "Load")
             {
                 nodeType = "Lse_ld";
+                nodeName = "Lse_" + node->node_name;
             }
             else if (node->node_op == "Store")
             {
                 nodeType = "Lse_st";
+                nodeName = "Lse_" + node->node_name;
             }
             else
             {
                 nodeType = "ChanBase";
+                nodeName = "Chan_" + node->node_name;
             }
             chanMode = "Normal";
             addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
@@ -644,48 +646,15 @@ void ChanGraph::addSpecialModeChan()
     // Generate loop level hierarchy
     vector<ControlRegion> loopHierarchy = genLoopHierarchy(controlTree);
 
-    /*vector<ControlRegion> loopHierarchy = controlTree.controlRegionTable;
-    auto bfsCtrlRegion = bfsTraverseControlTree(controlTree);
-
-    for (int i = bfsCtrlRegion.size() - 1; i >= 0; --i)
-    {
-        auto ctrlRegionName = bfsCtrlRegion[i];
-        auto& ctrlRegion = loopHierarchy[controlTree.findControlRegionIndex(ctrlRegionName)->second];
-        if (ctrlRegion.controlType != "Loop")
-        {
-            auto& upperCtrlRegion = loopHierarchy[controlTree.findControlRegionIndex(ctrlRegion.upperControlRegion)->second];
-            upperCtrlRegion.nodes.insert(upperCtrlRegion.nodes.end(), ctrlRegion.nodes.begin(), ctrlRegion.nodes.end());
-            upperCtrlRegion.lowerControlRegion.insert(upperCtrlRegion.lowerControlRegion.end(), ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end());
-
-            for (auto& lowerCtrlRegionName : ctrlRegion.lowerControlRegion)
-            {
-                auto& lowerCtrlRegion = loopHierarchy[controlTree.findControlRegionIndex(lowerCtrlRegionName)->second];
-                lowerCtrlRegion.upperControlRegion = ctrlRegion.upperControlRegion;
-            }
-        }
-    }
-
-    for (auto iter = loopHierarchy.begin(); iter != loopHierarchy.end();)
-    {
-        if (iter->controlType != "Loop")
-        {
-            loopHierarchy.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }*/
-
     //** Add relayNode
     // Find the shortest path between two nodes in two different controlRegions
     for (auto& node : nodes)
     {
-        std::cout << node->node_name << std::endl;
-        if (node->node_name == "Chan_i_row")
-        {
-            std::cout << node->node_name << std::endl;
-        }
+        //std::cout << node->node_name << std::endl;
+        //if (node->node_name == "Chan_i_row")
+        //{
+        //    std::cout << node->node_name << std::endl;
+        //}
         vector<string> nextNodes;
         nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
         nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
@@ -699,51 +668,7 @@ void ChanGraph::addSpecialModeChan()
                 //vector<string> ctrlRegionPath;
                 vector<string> s = backTrackPath(node->node_name, loopHierarchy);
                 vector<string> s_next = backTrackPath(nextNode->node_name, loopHierarchy);
-
                 vector<string> ctrlRegionPath = findShortestCtrlRegionPath(s, s_next);
-
-                //auto iter = find(s.begin(), s.end(), nextNode->controlRegionName);
-                //auto iter_next = find(s_next.begin(), s_next.end(), node->controlRegionName);
-
-                //if (iter != s.end())
-                //{
-                //    for (auto iter_ = s.begin(); iter_ != iter; ++iter_)
-                //    {
-                //        ctrlRegionPath.push_back(*iter_);
-                //    }
-                //    ctrlRegionPath.push_back(*iter);
-                //}
-                //else if (iter_next != s_next.end())
-                //{
-                //    for (auto iter_ = s_next.begin(); iter_ != iter_next; ++iter_)
-                //    {
-                //        ctrlRegionPath.push_back(*iter_);
-                //    }
-                //    ctrlRegionPath.push_back(*iter_next);
-                //    reverse(ctrlRegionPath.begin(), ctrlRegionPath.end());  // Reverse to make node -> node_next
-                //}
-                //else
-                //{
-                //    vector<string> s_tmp;
-                //    vector<string> s_next_tmp;
-                //    auto iter_tmp = s.begin();
-                //    auto iter_next_tmp = s_next.begin();
-                //    string nodeCtrlRegion = *iter_tmp;
-                //    string nextNodeCtrlRegion = *iter_next_tmp;
-
-                //    while (nodeCtrlRegion != nextNodeCtrlRegion)
-                //    {
-                //        s_tmp.push_back(nodeCtrlRegion);
-                //        s_next_tmp.push_back(nextNodeCtrlRegion);
-                //        nodeCtrlRegion = *(++iter_tmp);
-                //        nextNodeCtrlRegion = *(++iter_next_tmp);
-                //    }
-
-                //    s_tmp.push_back(*iter_tmp);  // Add the shared root ctrlRegion
-                //    reverse(s_next_tmp.begin(), s_next_tmp.end());
-                //    ctrlRegionPath.insert(ctrlRegionPath.end(), s_tmp.begin(), s_tmp.end());
-                //    ctrlRegionPath.insert(ctrlRegionPath.end(), s_next_tmp.begin(), s_next_tmp.end());
-                //}
 
                 // Insert relay nodes according to ctrlRegionPath
                 auto it = ctrlRegionPath.begin();
@@ -837,7 +762,7 @@ void ChanGraph::addSpecialModeChan()
     completeConnect();
     removeRedundantConnect();
 
-    // TODO: Strict rule: The lowerCtrlRegion of chanNode which in keepMode or drainMode must be the same. Remove this restriction in the future 
+    // TODO: Strict rule: The controlRegion of all the nextNodes of a chanNode in keepMode or drainMode must be the same. Remove this restriction in the future 
     // Add keepMode and drainMode
     vector<ControlRegion> loopHierarchy_ = genLoopHierarchy(controlTree);
     for (auto& ctrlRegion : loopHierarchy_)
@@ -1150,6 +1075,45 @@ vector<string> ChanGraph::bfsTraverseControlTree(ControlTree& ctrlTree)
     }
 
     return bfsCtrlTree;
+}
+
+vector<string> ChanGraph::bfsTraverseNode()
+{
+    vector<string> bfsNodeTree;
+    deque<string> queue = { "Chan_begin" };
+
+    while (!queue.empty())
+    {
+        vector<string> nextNodes;
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
+        for (auto& nextNode : nextNodes)
+        {
+            queue.push_back(nextNode);
+        }
+
+        bfsNodeTree.push_back(queue.front());
+        queue.pop_front();
+    }
+
+    // Remove redundant node
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    vector<string> hasFound;
+    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+    {
+        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+        {
+            iter = bfsNodeTree.erase(iter);
+        }
+        else
+        {
+            hasFound.push_back(*iter);
+            ++iter;
+        }
+    }
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+
+    return bfsNodeTree;
 }
 
 vector<string> ChanGraph::backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy)

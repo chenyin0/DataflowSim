@@ -663,11 +663,11 @@ void Registry::genConnect(ChanGraph& _chanGraph)
             }
         }
         // Channel
-        else if (entry.chanPtr != nullptr)  
+        else if (entry.chanPtr != nullptr)
         {
-            if (entry.chanPtr->masterName == "")
+            if (entry.chanPtr->masterName == "None" && entry.chanPtr->moduleName != "Chan_end" && entry.chanPtr->moduleName != "Chan_begin")
             {
-                auto nodePtr = _chanGraph.getNode(entry.chanPtr->moduleName);
+                const auto& nodePtr = _chanGraph.getNode(entry.chanPtr->moduleName);
                 auto& pre_data = nodePtr->pre_nodes_data;
                 auto& pre_active = nodePtr->pre_nodes_active;
                 auto& next_data = nodePtr->next_nodes_data;
@@ -716,7 +716,7 @@ void Registry::genConnect(ChanGraph& _chanGraph)
                         // Do nothing, due to hard to determine connect to trueChan or falseChan
                         // auto-set in completeConnect
                     }
-                    entry.chanPtr->addUpstream({ chanDownstream });
+                    entry.chanPtr->addDownstream({ chanDownstream });
                 }
             }
         }

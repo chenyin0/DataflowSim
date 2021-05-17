@@ -4,8 +4,9 @@
 #include "../module/execution/Channel.h"
 #include "../module/execution/Lc.h"
 #include "../module/execution/Mux.h"
-#include "../sim/Debug.h"
+//#include "../sim/Debug.h"
 #include "../sim/graph.h"
+#include "./mem/MemSystem.h"
 
 /*
 Module Register
@@ -56,10 +57,8 @@ namespace DFSim
         Channel* genChan(Chan_Node& _chan);
         Lse* genLse(Chan_Node& _lse);
         Mux* genMux(Chan_Node& _mux);
-
         // Generate interconnect
         void genConnect(ChanGraph& _chanGraph);
-
         // simulation
         void sim();
 
