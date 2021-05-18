@@ -1,5 +1,6 @@
 #include "./Registry.h"
 #include "../sim/Debug.h"
+#include "../sim/global.h"
 
 using namespace DFSim;
 
@@ -463,6 +464,7 @@ void Registry::genModule(ChanGraph& _chanGraph)
         else if (_node_type == "Lse_ld" || _node_type == "Lse_st")
         {
             auto lsePtr = genLse(*dynamic_cast<Chan_Node*>(_module));
+            lsePtr->baseAddr = dynamic_cast<Chan_Node*>(_module)->baseAddr;
             if (controlType == "Branch")
             {
                 lsePtr->branchMode = true;
@@ -799,6 +801,123 @@ auto Registry::findRegistryEntryIndex(const string& _moduleName)->unordered_map<
 RegistryTable& Registry::getRegistryTableEntry(const string& _moduleName)
 {
     return registryTable[findRegistryEntryIndex(_moduleName)->second];
+}
+
+void Registry::genConfiguration(ChanGraph& _chanGraph)
+{
+    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+    
+    std::ofstream _config_file;
+    _config_file.open(Global::file_path + App_name_convert::toString(Global::app_name) + string("_config_") + string(xstr(ARCH)) + string(".txt"));
+
+    // gen channel declare
+    _config_file << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << "******* Below is gen channel declare *******" << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << std::endl;
+    for (auto& chanName : simNodes)
+    {
+        _config_file << "const auto& " << chanName << " = registry->";
+        auto& entry = getRegistryTableEntry(chanName);
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            _config_file << "getChan(\"" << chanName << "\");";
+        }
+        else if (entry.moduleType == ModuleType::Lc)
+        {
+            _config_file << "getLc(\"" << chanName << "\");";
+        }
+        else if (entry.moduleType == ModuleType::Mux)
+        {
+            _config_file << "getMux(\"" << chanName << "\");";
+        }
+        _config_file << std::endl;
+    }
+
+    // gen sim
+    _config_file << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << "******* Below is gen simulation config *******" << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << std::endl;
+    for (auto& chanName : simNodes)
+    {
+        if (chanName != "Chan_begin" && chanName != "Chan_end")
+        {
+            auto& entry = getRegistryTableEntry(chanName);
+            if (entry.moduleType == ModuleType::Channel)
+            {
+                string& op = dynamic_cast<Chan_Node*>(_chanGraph.getNode(chanName))->node_op;
+                _config_file << chanName << "->get();" << "\t// " << op << std::endl;
+                if (op != "Store")
+                {
+                    _config_file << chanName << "->value = ";
+                    if (op == "Load")
+                    {
+                        _config_file << chanName << "->assign();";
+                    }
+                    else
+                    {
+                        for (auto& preNode : _chanGraph.getNode(chanName)->pre_nodes_data)
+                        {
+                            _config_file << chanName << "->assign(" << preNode << ")";
+                        }
+                        _config_file << ";";
+                    }
+                }
+            }
+            else if (entry.moduleType == ModuleType::Lc)
+            {
+                _config_file << ">>> Here should add a Lc: " << chanName;
+                _config_file << "\n// Lc: " << chanName;
+            }
+            else if (entry.moduleType == ModuleType::Mux)
+            {
+                _config_file << ">>> Here should add a Mux: " << chanName;
+            }
+            _config_file << std::endl;
+            _config_file << std::endl;
+        }
+    }
+
+    // gen debugPrint
+    _config_file << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << "******* Below is gen debug print *******" << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << std::endl;
+
+    // Print chan
+    _config_file << "//** Print channle" << std::endl;
+    for (auto& chanName : simNodes)
+    {
+        auto& entry = getRegistryTableEntry(chanName);
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            _config_file << "debug->chanPrint(\"" << chanName << "\", " << chanName << ");" << std::endl;
+        }
+        else if (entry.moduleType == ModuleType::Lc)
+        {
+            _config_file << "debug->getFile() << std::endl;" << std::endl;
+            _config_file << "debug->getFile() << \"************ Lc: \" << \"" << chanName << "\" << \"***********\" << std::endl;" << std::endl;
+            _config_file << "debug->chanPrint(\"" << chanName << "->loopVar" << "\", " << chanName << "->loopVar" << ");" << std::endl;
+        }
+    }
+
+    // Print End signal
+    _config_file << std::endl;
+    _config_file << "debug->getFile() << std::endl;" << std::endl;
+    _config_file << "debug->getFile() << \"*****************  End signal  *****************\" << std::endl;" << std::endl;
+    for (auto& chanName : simNodes)
+    {
+        auto& entry = getRegistryTableEntry(chanName);
+        if (entry.moduleType == ModuleType::Lc)
+        {
+            _config_file << "debug->chanPrint(\"" << chanName << "->getEnd" << "\", " << chanName << "->getEnd" << ");";
+            _config_file << "debug->getFile() << \"" << chanName << " loopEnd: \" << " << chanName << "->loopEnd << std::endl;" << std::endl;
+        }
+    }
 }
 
 #ifdef DEBUG_MODE  // Get private instance for debug

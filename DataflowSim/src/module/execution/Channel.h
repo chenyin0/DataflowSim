@@ -85,6 +85,7 @@ class Channel usage:
         virtual vector<int> get();  // Return {pushSuccess, pushData, popSuccess, popData}
         virtual int assign(uint bufferId);
         virtual int assign(Channel* chan);  // Suggest use this assign function
+        virtual uint assign();
         virtual vector<int> pop() = 0;
         virtual vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //virtual bool checkSend(Data _data, Channel* upstream) = 0;
@@ -143,6 +144,7 @@ class Channel usage:
         vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
         uint size;    // chanBuffer size
+        uint cycle; // Channel execute cycle
         uint speedup = 1;  // Parallelism parameter
         vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         vector<int> buffer2Alu;  // Store ChanBuffer.front().value
@@ -156,7 +158,7 @@ class Channel usage:
 
     protected:
         //uint size;    // chanBuffer size
-        uint cycle; // Channel execute cycle
+        //uint cycle; // Channel execute cycle
         //uint speedup;  // Parallelism parameter
         int currId = 1;    // Current threadID, start at 1
         //uint chanClk = 0;  // Used for func parallelize()

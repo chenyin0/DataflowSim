@@ -163,8 +163,9 @@ vector<int> Channel::get(const vector<int>& data)
 
     // Set valid according to the downstream channels' status
     statusUpdate(); 
-    // Update channel value
-    funcUpdate();  
+
+    //// Update channel value
+    //funcUpdate();  
     
     //bpUpdate(); 
     if (speedup > 1)
@@ -194,8 +195,8 @@ vector<int> Channel::get()
         statusUpdate(); // Set valid according to the downstream channels' status
     }
 
-    // Update channel value
-    funcUpdate();
+    //// Update channel value
+    //funcUpdate();
 
     //bpUpdate();
     if (speedup > 1)
@@ -231,6 +232,13 @@ int Channel::assign(Channel* chan)
     uint bufferId = getChanId(chan);
 
     return this->assign(bufferId);
+}
+
+uint Channel::assign()
+{
+    Debug::throwError("Not use now!", __FILE__, __LINE__);
+
+    return 0;
 }
 
 vector<int> Channel::push(int data, uint bufferId)

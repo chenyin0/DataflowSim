@@ -112,13 +112,14 @@ void GemmTest::generateDfg()
     dfg.addNode("k_row", "Mul", {"k_kk", "row_size"});
     dfg.addNode("m1_addr", "Add", {"i_row", "k_kk"});
     dfg.addNode("temp_x", "Load", {"m1_addr"}, &m1_, m1_BaseAddr);
+    dfg.addNode("m1_data", "Nop", { "temp_x" });
 
     // loop_j
     dfg.addNode("j", "Loop_head", {}, { "k_lc" });
     dfg.addNode("j_jj", "Add", {"j", "jj_lc"});
     dfg.addNode("m2_addr", "Add", {"k_row", "j_jj"});
     dfg.addNode("m2_data", "Load", {"m2_addr"}, &m2_, m2_BaseAddr);
-    dfg.addNode("mul", "Mul", {"temp_x", "m2_data"});
+    dfg.addNode("mul", "Mul", {"m1_data", "m2_data"});
     dfg.addNode("prod_addr", "Add", {"i_row", "j_jj"});
     dfg.addNode("prod_data", "Load", { "prod_addr" }, &prod_, prod_BaseAddr);
     dfg.addNode("prod_data_update", "Add", {"prod_data", "mul"});
@@ -131,7 +132,7 @@ void GemmTest::generateDfg()
     dfg.addNodes2CtrlTree("loop_jj", { "begin", "end", "jj", "jj_lc" });
     dfg.addNodes2CtrlTree("loop_kk", { "kk", "kk_lc" });
     dfg.addNodes2CtrlTree("loop_i", { "i", "i_lc", "i_row" });
-    dfg.addNodes2CtrlTree("loop_k", { "k", "k_lc", "k_kk", "k_row", "m1_addr", "temp_x" });
+    dfg.addNodes2CtrlTree("loop_k", { "k", "k_lc", "k_kk", "k_row", "m1_addr", "temp_x", "m1_data" });
     dfg.addNodes2CtrlTree("loop_j", { "j", "j_jj", "m2_addr", "m2_data", "mul", "prod_addr", "prod_data", "prod_data_update", "prod_data_update_st" });
 
     //** Indicate the tail node for each loop region
@@ -143,8 +144,3 @@ void GemmTest::generateDfg()
 
     dfg.plotDot();
 }
-
-//void GemmTest::generateChanGraph()
-//{
-//
-//}

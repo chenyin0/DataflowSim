@@ -44,7 +44,7 @@ namespace DFSim
         // or upper pe updates local reg many times then sends the data to lse once)
         //void get(vector<int> data, uint& trig_cnt);
         /*void get(bool _isWrite, uint _addr, uint& trig_cnt);*/  
-        uint assign();  // Return corresponding addr
+        virtual uint assign() override;  // Return corresponding addr
         //bool checkSend(Data _data, Channel* upstream) override;
         void ackCallback(MemReq _req);  // Callback func for MemSys
         void setInflight(MemReq& _req);  // Set req inflight to signify this req has been sent to memSys

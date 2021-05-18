@@ -153,6 +153,8 @@
     <ClInclude Include="src\module\Registry.h" />
     <ClInclude Include="src\sim\control_tree.h" />
     <ClInclude Include="src\sim\Debug.h" />
+    <ClInclude Include="src\sim\global.h" />
+    <ClInclude Include="src\sim\graph.h" />
     <ClInclude Include="src\sim\Watchdog.h" />
     <ClInclude Include="src\util\ReadFile.hpp" />
     <ClInclude Include="src\util\util.hpp" />
@@ -181,6 +183,8 @@
     <ClCompile Include="src\module\Registry.cpp" />
     <ClCompile Include="src\sim\control_tree.cpp" />
     <ClCompile Include="src\sim\Debug.cpp" />
+    <ClCompile Include="src\sim\global.cpp" />
+    <ClCompile Include="src\sim\graph.cpp" />
     <ClCompile Include="src\sim\Watchdog.cpp" />
     <ClCompile Include="test\aes\Aes.cpp" />
     <ClCompile Include="test\aes\Aes_Base.cpp" />

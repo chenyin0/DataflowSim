@@ -17,6 +17,7 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
     int m1_addr;
     int m2_addr;
     int prod_addr;
+    int m1_data;
 
     // Loop 0
     loopjj:for (jj = 0; jj < row_size; jj += block_size){
@@ -33,12 +34,13 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
                     k_row = k_kk * row_size;
                     m1_addr = i_row + k_kk;
                     temp_x = m1[m1_addr];
+                    m1_data = temp_x;
                     // Loop 4; 6 inst
                     loopj:for (j = 0; j < block_size; ++j){
                         j_jj = j + jj;
                         m2_addr = k_row + j_jj;
                         m2_data = m2[m2_addr];
-                        mul = temp_x * m2_data;
+                        mul = m1_data * m2_data;
                         prod_addr = i_row + j_jj;
                         prod[prod_addr] += mul;
                     }

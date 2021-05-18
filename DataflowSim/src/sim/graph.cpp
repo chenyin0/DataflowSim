@@ -153,18 +153,18 @@ void Graph::printDotNodeConnect(std::fstream& fileName_)
     // Plot data connect
     for (auto& node : nodes)
     {
-        for (size_t i = 0; i < node->next_nodes_data.size(); ++i)
+        for (size_t i = 0; i < node->pre_nodes_data.size(); ++i)
         {
-            fileName_ << node->node_name << "->" << node->next_nodes_data[i] << " [label=" << i << "]" << std::endl;
+            fileName_ << node->pre_nodes_data[i] << "->" << node->node_name << " [label=" << i << "]" << std::endl;
         }
     }
 
     // Plot active connect
     for (auto& node : nodes)
     {
-        for (size_t i = 0; i < node->next_nodes_active.size(); ++i)
+        for (size_t i = 0; i < node->pre_nodes_active.size(); ++i)
         {
-            fileName_ << node->node_name << "->" << node->next_nodes_active[i] << " [label=" << i << ", style = \"dashed\"]" << std::endl;
+            fileName_ << node->pre_nodes_active[i] << "->" << node->node_name << " [label=" << i << ", style = \"dashed\"]" << std::endl;
         }
     }
 }
@@ -552,6 +552,7 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
             }
             chanMode = "Normal";
             addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
+            dynamic_cast<Chan_Node*>(getNode(nodeName))->baseAddr = node->baseAddr;  // Only for load/store chanNode
         }
         else if (node->node_type == "Lc")
         {

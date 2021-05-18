@@ -68,6 +68,30 @@
     <Filter Include="resource\Lud">
       <UniqueIdentifier>{7bfcbddf-13a2-4bf0-97c5-15b3cb12cc4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\viterbi">
+      <UniqueIdentifier>{efe319ef-8031-4965-aca6-8e294ccc305f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\sort">
+      <UniqueIdentifier>{dbb2af52-0a68-49cb-9521-436fb3c333e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\fft">
+      <UniqueIdentifier>{f4119647-6b87-435a-91f2-55ee2078a721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\cfd">
+      <UniqueIdentifier>{e69fadd2-6c46-4a9b-a90e-7abd8977b649}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\hotspot">
+      <UniqueIdentifier>{61172897-9eb1-4446-bc45-351977c282e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\ge">
+      <UniqueIdentifier>{9c80c989-2bd6-4aae-9190-0063365c3ed9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\gesummv">
+      <UniqueIdentifier>{d7c9ebbb-8d5c-4042-ad6d-9e6e1ca02996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\cholesky">
+      <UniqueIdentifier>{04f47ab9-6300-4003-86bb-1032f1331638}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -156,6 +180,12 @@
       <Filter>src\sim</Filter>
     </ClInclude>
     <ClInclude Include="src\sim\control_tree.h">
+      <Filter>src\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\graph.h">
+      <Filter>src\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\global.h">
       <Filter>src\sim</Filter>
     </ClInclude>
   </ItemGroup>
@@ -264,6 +294,12 @@
     </ClCompile>
     <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp">
       <Filter>test\gemm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\graph.cpp">
+      <Filter>src\sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\global.cpp">
+      <Filter>src\sim</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -500,10 +500,12 @@ uint Lse::assign()
     if (!this->channel.empty())
     {
         uint index = channel.front().lseReqQueueIndex;
-        return reqQueue[index].first.addr;
+        return reqQueue[index].first.addr - baseAddr;
     }
     else
-        return lastPopVal;
+    {
+        return lastPopVal >= baseAddr ? lastPopVal - baseAddr : 0;
+    }
 }
 
 void Lse::ackCallback(MemReq _req)

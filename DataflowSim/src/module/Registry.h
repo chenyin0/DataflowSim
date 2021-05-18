@@ -59,6 +59,8 @@ namespace DFSim
         Mux* genMux(Chan_Node& _mux);
         // Generate interconnect
         void genConnect(ChanGraph& _chanGraph);
+        // Gen configuration
+        void genConfiguration(ChanGraph& _chanGraph);
         // simulation
         void sim();
 
