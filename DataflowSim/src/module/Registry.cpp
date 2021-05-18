@@ -768,11 +768,17 @@ void Registry::genConnect(ChanGraph& _chanGraph)
     {
         if (registryEntry.chanPtr != nullptr)
         {
-            set<Channel*> upstreamChans(registryEntry.chanPtr->upstream.begin(), registryEntry.chanPtr->upstream.end());
-            registryEntry.chanPtr->upstream.assign(upstreamChans.begin(), upstreamChans.end());
+            //set<Channel*> upstreamChans(registryEntry.chanPtr->upstream.begin(), registryEntry.chanPtr->upstream.end());
+            //registryEntry.chanPtr->upstream.assign(upstreamChans.begin(), upstreamChans.end());
 
-            set<Channel*> downstreamChans(registryEntry.chanPtr->downstream.begin(), registryEntry.chanPtr->downstream.end());
-            registryEntry.chanPtr->downstream.assign(downstreamChans.begin(), downstreamChans.end());
+            //set<Channel*> downstreamChans(registryEntry.chanPtr->downstream.begin(), registryEntry.chanPtr->downstream.end());
+            //registryEntry.chanPtr->downstream.assign(downstreamChans.begin(), downstreamChans.end());
+
+            auto upstream_ = Util::removeDuplicatesKeepSequence(registryEntry.chanPtr->upstream);
+            registryEntry.chanPtr->upstream.assign(upstream_.begin(), upstream_.end());
+
+            auto downstream_ = Util::removeDuplicatesKeepSequence(registryEntry.chanPtr->downstream);
+            registryEntry.chanPtr->downstream.assign(downstream_.begin(), downstream_.end());
         }
     }
 }

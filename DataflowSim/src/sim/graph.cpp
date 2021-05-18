@@ -110,16 +110,28 @@ void Graph::removeRedundantConnect()
 {
     for (auto& node : nodes)
     {
-        set<string> s1(node->pre_nodes_data.begin(), node->pre_nodes_data.end());
+        //set<string> s1(node->pre_nodes_data.begin(), node->pre_nodes_data.end());
+        //node->pre_nodes_data.assign(s1.begin(), s1.end());
+
+        //set<string> s2(node->next_nodes_data.begin(), node->next_nodes_data.end());
+        //node->next_nodes_data.assign(s2.begin(), s2.end());
+
+        //set<string> s3(node->pre_nodes_active.begin(), node->pre_nodes_active.end());
+        //node->pre_nodes_active.assign(s3.begin(), s3.end());
+
+        //set<string> s4(node->next_nodes_active.begin(), node->next_nodes_active.end());
+        //node->next_nodes_active.assign(s4.begin(), s4.end());
+
+        auto s1 = Util::removeDuplicatesKeepSequence(node->pre_nodes_data);
         node->pre_nodes_data.assign(s1.begin(), s1.end());
 
-        set<string> s2(node->next_nodes_data.begin(), node->next_nodes_data.end());
+        auto s2 = Util::removeDuplicatesKeepSequence(node->next_nodes_data);
         node->next_nodes_data.assign(s2.begin(), s2.end());
 
-        set<string> s3(node->pre_nodes_active.begin(), node->pre_nodes_active.end());
+        auto s3 = Util::removeDuplicatesKeepSequence(node->pre_nodes_active);
         node->pre_nodes_active.assign(s3.begin(), s3.end());
 
-        set<string> s4(node->next_nodes_active.begin(), node->next_nodes_active.end());
+        auto s4 = Util::removeDuplicatesKeepSequence(node->next_nodes_active);
         node->next_nodes_active.assign(s4.begin(), s4.end());
     }
 }

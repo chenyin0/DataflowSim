@@ -278,6 +278,21 @@ namespace DFSim
             return resultStringVector;
         }
 
+        template <typename Type>
+        static vector<Type> removeDuplicatesKeepSequence(const vector<Type>& vec_)
+        {
+            vector<Type> vecTmp;
+            for (auto& i : vec_)
+            {
+                if (find(vecTmp.begin(), vecTmp.end(), i) == vecTmp.end())
+                {
+                    vecTmp.push_back(i);
+                }
+            }
+
+            return vecTmp;
+        }
+
         
         /** Convert element type in Vector */
         template<
