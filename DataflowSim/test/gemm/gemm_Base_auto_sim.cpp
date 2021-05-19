@@ -34,10 +34,10 @@ void bbgemm(TYPE m1[N], TYPE m2[N], TYPE prod[N]){
 /*
 Config tips:
 
-1. 如果channel的来源是外层循环变量，则upstream来自外层的keepMode的loopIndex channel；
-    如果channel的来源是同层循环变量，则upstream来自同层的loopVar
+1. 如果channel的来源是外层loop_index，则upstream来自外层的keepMode的loop_index channel；
+    如果channel的来源是同层loop_index，则upstream来自同层的loopVar
 
-2. 即使channel的数据来源不是同层的循环变量，upstream中也要添加当前循环的loopVar，用来接收当前循环产生的last_tag
+2. 即使channel的数据来源不是同层的loop_index，upstream中也要添加当前循环Lc的loopVar，用来接收当前循环产生的last_tag
 
 */
 
@@ -49,6 +49,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     // Generate ChanGraph
     ChanGraph chanGraph(GemmTest::dfg);
     chanGraph.addSpecialModeChan();
+    chanGraph.addNodeDelay();
     chanGraph.plotDot();
 
 
@@ -129,7 +130,8 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
             if (entry.chanPtr->masterName == "None" && entry.chanPtr->moduleName != "Chan_begin" && entry.chanPtr->moduleName != "Chan_end")
             {
                 entry.chanPtr->size = 30;
-                entry.chanPtr->cycle = 0;
+                //entry.chanPtr->cycle = 0;
+                entry.chanPtr->speedup = 6;
             }
         }
     }
@@ -315,7 +317,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
          //** Print log
          // Set debug mode
-         //debug->debug_mode = Debug_mode::Print_detail;
+        //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*37500 > iter && iter > 34500*/ iter >= 0)

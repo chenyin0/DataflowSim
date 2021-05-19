@@ -121,6 +121,7 @@ namespace DFSim
         void plotDot();
         void genChanGraphFromDfg(Dfg& dfg_);  // Generate chanGraph from DFG
         void addSpecialModeChan();  // Add relayMode and drainMode channel
+        void addNodeDelay();
         void pathBalance();
         
         vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);

@@ -82,7 +82,7 @@
 */
 
 // MemSystem
-#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
+#define NO_MEMORY 1  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)

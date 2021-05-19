@@ -1172,3 +1172,35 @@ vector<string> ChanGraph::backTrackPath(string& nodeName, vector<ControlRegion>&
 
     return backTrackPath;
 }
+
+void ChanGraph::addNodeDelay()
+{
+    for (auto& chanNode : nodes)
+    {
+        const auto& chanNodePtr = dynamic_cast<Chan_Node*>(chanNode);
+        if (chanNodePtr->node_op == "Nop")
+        {
+            chanNodePtr->cycle = 0;
+        }
+        else if (chanNodePtr->node_op == "Mul")
+        {
+            chanNodePtr->cycle = MUL;
+        }
+        else if (chanNodePtr->node_op == "Add")
+        {
+            chanNodePtr->cycle = ADD;
+        }
+        else if (chanNodePtr->node_op == "Sub")
+        {
+            chanNodePtr->cycle = SUB;
+        }
+        else if (chanNodePtr->node_op == "Div")
+        {
+            chanNodePtr->cycle = DIV;
+        }
+        else
+        {
+            chanNodePtr->cycle = 1;
+        }
+    }
+}
