@@ -77,8 +77,8 @@ int main()
         {
         case ArchType::Base:
             // Debug_yin_05.05
-            DFSimTest::GemmTest::gemm_Base_auto_sim(debug);
-            //DFSimTest::GemmTest::gemm_Base(debug);
+            //DFSimTest::GemmTest::gemm_Base_auto_sim(debug);
+            DFSimTest::GemmTest::gemm_Base(debug);
             break;
         case ArchType::DGSF:
             DFSimTest::GemmTest::gemm_DGSF(debug);

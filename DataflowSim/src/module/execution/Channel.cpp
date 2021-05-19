@@ -92,7 +92,7 @@ void Channel::parallelize()
     //currId = currId % speedup + 1;
 
     // Push clkStall in parallel execution mode
-    if (currId < speedup && !channel.empty())  // If the parallel execution dosen't finish, stall the system clock;
+    if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
     {
         ClkDomain::getInstance()->addClkStall();
         ++currId;
@@ -161,8 +161,16 @@ vector<int> Channel::get(const vector<int>& data)
         pushState = push(data[i], i);
     }
 
-    // Set valid according to the downstream channels' status
-    statusUpdate(); 
+    if (/*isLoopVar || */currId <= speedup)
+    {
+        statusUpdate();  // Set valid according to the downstream channels' status
+    }
+    else
+    {
+        valid = 0;
+    }
+
+    bpUpdate();
 
     //// Update channel value
     //funcUpdate();  
@@ -182,18 +190,25 @@ vector<int> Channel::get()
     vector<int> pushState(2);
     vector<int> popState(2);
 
+    popState = pop(); // Data lifetime in nested loop
+
+    for (size_t i = 0; i < upstream.size(); ++i)
+    {
+        // Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
+        pushState = push(upstream[i]->value, i);
+    }
+
     if (/*isLoopVar || */currId <= speedup)
     {
-        popState = pop(); // Data lifetime in nested loop
-
-        for (size_t i = 0; i < upstream.size(); ++i)
-        {
-            // Note: the sequence of data in data vector should consistent with corresponding upstream and buffer in chanBuffer
-            pushState = push(upstream[i]->value, i);
-        }
-
         statusUpdate(); // Set valid according to the downstream channels' status
     }
+    else
+    {
+        valid = 0;
+    }
+
+    bpUpdate();
+
 
     //// Update channel value
     //funcUpdate();
@@ -987,7 +1002,7 @@ void ChanBase::statusUpdate()
         ++chanDataCnt;
     }
 
-    bpUpdate();
+    //bpUpdate();
 
     //if (speedup > 1)
     //{

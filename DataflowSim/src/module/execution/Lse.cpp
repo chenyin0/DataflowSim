@@ -370,7 +370,7 @@ void Lse::statusUpdate()
         ++chanDataCnt;
     }
 
-    bpUpdate();
+    //bpUpdate();
 
     //// Emulate hardware parallel loop unrolling
     //if (speedup > 1)

@@ -185,10 +185,10 @@ void GemmTest::gemm_Base(Debug* debug)
     ChanBase* chan_m1_getData = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);
     chan_m1_getData->keepMode = 1;
 
-    ChanBase* chan_jj_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);  // Relay channel in loop k for chan_jj_lc
+    ChanBase* chan_jj_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE + 1, 0, 1);  // Relay channel in loop k for chan_jj_lc
     chan_jj_relay_loop_k->keepMode = 1;
 
-    ChanBase* chan_i_row_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE, 0, 1);
+    ChanBase* chan_i_row_relay_loop_k = new ChanBase(/*20**/BASE_INPUT_BUFF_SIZE + 1, 0, 1);
     chan_i_row_relay_loop_k->keepMode = 1;
 
     // loop j

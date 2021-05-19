@@ -28,7 +28,7 @@ vector<int> GemmTest::prod_;
 
 // Performance parameter
 // Base
-uint GemmTest::Base_loop_j_speedup = 2;
+uint GemmTest::Base_loop_j_speedup = 20;
 
 // DGSF
 uint GemmTest::DGSF_loop_k_speedup = 5;
