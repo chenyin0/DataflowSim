@@ -182,6 +182,19 @@ Channel* Registry::getChan(const string& moduleName_)
     return registryTable[registryDict[moduleName_]].chanPtr;
 }
 
+Lse* Registry::getLse(const string& moduleName_)
+{
+    const auto& ptr = getChan(moduleName_);
+    if (ptr->chanType != ChanType::Chan_Lse)
+    {
+        Debug::throwError("This module is not a Lse!", __FILE__, __LINE__);
+    }
+    else
+    {
+        return dynamic_cast<Lse*>(ptr);
+    }
+}
+
 Lc* Registry::getLc(const string& moduleName_)
 {
     return registryTable[registryDict[moduleName_]].lcPtr;
@@ -333,8 +346,18 @@ void Registry::initChannel()
             initBp(entry.chanPtr);
             initLastPopVal(entry.chanPtr);
             initAluInput(entry.chanPtr);
+
+            if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+            {
+                initLse(dynamic_cast<Lse*>(entry.chanPtr));
+            }
         }
     }
+}
+
+void Registry::initLse(Lse* _lse)
+{
+    _lse->reqQueue.resize(_lse->size);
 }
 
 void Registry::checkConnectRule()
@@ -803,7 +826,7 @@ RegistryTable& Registry::getRegistryTableEntry(const string& _moduleName)
     return registryTable[findRegistryEntryIndex(_moduleName)->second];
 }
 
-void Registry::genConfiguration(ChanGraph& _chanGraph)
+void Registry::genSimConfig(ChanGraph& _chanGraph)
 {
     vector<string> simNodes = _chanGraph.bfsTraverseNode();
     
@@ -895,7 +918,14 @@ void Registry::genConfiguration(ChanGraph& _chanGraph)
         auto& entry = getRegistryTableEntry(chanName);
         if (entry.moduleType == ModuleType::Channel)
         {
-            _config_file << "debug->chanPrint(\"" << chanName << "\", " << chanName << ");" << std::endl;
+            if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+            {
+                _config_file << "debug->lsePrint(\"" << chanName << "\", " << "dynamic_cast<Lse*>(" << chanName << "));" << std::endl;
+            }
+            else
+            {
+                _config_file << "debug->chanPrint(\"" << chanName << "\", " << chanName << ");" << std::endl;
+            }
         }
         else if (entry.moduleType == ModuleType::Lc)
         {
@@ -916,6 +946,22 @@ void Registry::genConfiguration(ChanGraph& _chanGraph)
         {
             _config_file << "debug->chanPrint(\"" << chanName << "->getEnd" << "\", " << chanName << "->getEnd" << ");";
             _config_file << "debug->getFile() << \"" << chanName << " loopEnd: \" << " << chanName << "->loopEnd << std::endl;" << std::endl;
+        }
+    }
+}
+
+void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup)
+{
+    auto& ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
+    for (auto& chanNode : ctrlRegion.nodes)
+    {
+        auto& registryEntry = getRegistryTableEntry(chanNode);
+        if (registryEntry.moduleType == ModuleType::Channel)
+        {
+            if (registryEntry.chanPtr->masterName == "None")
+            {
+                registryEntry.chanPtr->speedup = _speedup;
+            }
         }
     }
 }

@@ -44,6 +44,7 @@ namespace DFSim
         Channel* getChan(const string& moduleName_);
         Lc* getLc(const string& moduleName_);
         Mux* getMux(const string& moduleName_);
+        Lse* getLse(const string& moduleName_);
         auto findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator;
         RegistryTable& getRegistryTableEntry(const string& _moduleName);
 
@@ -60,7 +61,8 @@ namespace DFSim
         // Generate interconnect
         void genConnect(ChanGraph& _chanGraph);
         // Gen configuration
-        void genConfiguration(ChanGraph& _chanGraph);
+        void genSimConfig(ChanGraph& _chanGraph);
+        void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
         // simulation
         void sim();
 
@@ -120,6 +122,7 @@ namespace DFSim
         void initLastPopVal(Channel* _chan);
         void initAluInput(Channel* _chan);
         void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream
+        void initLse(Lse* _lse);  // Initial Lse reqQueue size
 
         void checkConnectRule();  // Check connection rules
         void checkChanConnect(Channel* _chan);  // Check the connection of all the channels
@@ -128,7 +131,7 @@ namespace DFSim
         void checkLc();  // Check whether set outer-most loop
         void checkChanDGSF(Channel* _chan);
 
-    public:
+    private:
         static uint moduleId;
         static vector<RegistryTable> registryTable;
         static unordered_map<string, uint> registryDict;
