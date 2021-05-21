@@ -155,6 +155,7 @@ class Channel usage:
         // Performance profiling
         vector<uint> chanBufferDataCnt;  // Record the number of data has been pushed into each chanBuffer
         uint chanDataCnt = 0;  // Record the number of data has been sent from channel
+        uint utilizationCnt = 0;
 
     protected:
         //uint size;    // chanBuffer size

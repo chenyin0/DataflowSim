@@ -92,26 +92,30 @@ void Channel::parallelize()
     //currId = currId % speedup + 1;
 
     // Push clkStall in parallel execution mode
-    if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
-    {
-        ClkDomain::getInstance()->addClkStall();
-        ++currId;
-    }
-    else if (ClkDomain::checkClkAdd())  // If system clk has updated, reset currId
+    //if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
+    //{
+    //    if (currId < speedup)
+    //    {
+    //        ClkDomain::getInstance()->addClkStall();
+    //    }
+    //    ++currId;
+    //}
+    //else if (ClkDomain::checkClkAdd())  // If system clk has updated, reset currId
+    //{
+    //    currId = 1;
+    //}
+
+    if (ClkDomain::checkClkAdd())
     {
         currId = 1;
-
-        //if (chanClk != ClkDomain::getClk())  // If system clk has updated
-        //{
-        //    currId = 1;  // Reset currId
-        //    chanClk = ClkDomain::getClk();
-        //}
-
-        // If system clk has updated, reset currId
-        //if (ClkDomain::checkClkAdd())
-        //{
-        //    currId = 1;
-        //}
+    }
+    if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
+    {
+        if (currId < speedup)
+        {
+            ClkDomain::getInstance()->addClkStall();
+        }
+        ++currId;
     }
 }
 
@@ -198,7 +202,7 @@ vector<int> Channel::get()
         pushState = push(upstream[i]->value, i);
     }
 
-    if (/*isLoopVar || */currId <= speedup)
+    if (/*isLoopVar || */currId <= speedup || ClkDomain::checkClkAdd())
     {
         statusUpdate(); // Set valid according to the downstream channels' status
     }
