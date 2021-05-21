@@ -16,10 +16,10 @@ Profiler::~Profiler()
     //    delete registry;
     //}
 
-    if (debugger != nullptr)
-    {
-        delete debugger;
-    }
+    //if (debugger != nullptr)
+    //{
+    //    delete debugger;
+    //}
 
     //if (memSys != nullptr)
     //{
@@ -83,4 +83,47 @@ void Profiler::updateBufferMaxDataNum()
 void Profiler::printBufferMaxDataNum(string chanName, Channel* chanPtr)
 {
     debugger->getFile() << chanName << ":\t" << maxDataNum[chanPtr->moduleId] << std::endl;
+}
+
+void Profiler::updateChanUtilization()
+{
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            if (entry.chanPtr->valid)
+            {
+                entry.chanPtr->utilizationCnt++;
+            }
+        }
+    }
+}
+
+void Profiler::printChanUtilization()
+{
+    debugger->getFile() << "******* Channel Utilization *********" << std::endl;
+
+    uint chanNum = 0;
+    float chanUtilAvg = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            float utilization = std::min(static_cast<float>(entry.chanPtr->utilizationCnt) / static_cast<float>((entry.chanPtr->speedup * ClkDomain::getClk())) * 100, float(100));
+            //debugger->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
+            
+            if (entry.chanPtr->moduleName != "Chan_begin" 
+                && entry.chanPtr->moduleName != "Chan_end" 
+                && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar) 
+                && (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1))
+            {
+                debugger->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
+                ++chanNum;
+                chanUtilAvg += utilization;
+            }
+        }
+    }
+
+    debugger->getFile() << std::endl;
+    debugger->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / chanNum << setprecision(2) << "%" << std::endl;
 }
