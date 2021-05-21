@@ -331,14 +331,54 @@ void MemSystem::send2Cache()
 {
     if (cache != nullptr)
     {
+        if (CACHE_ALL_HIT)
+        {
+            for (size_t queueId = 0; queueId < ackQueue.size(); ++queueId)
+            {
+                if (ackQueue[queueId].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
+                {
+                    auto ack = cache->callBack(queueId);
+                    if (ack.valid)
+                    {
+                        ackQueue[queueId].emplace_back(ack);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < reqQueue.size(); ++i)
+            {
+                if (!reqQueue[i].empty())
+                {
+                    MemReq& req = reqQueue[i].front();
+                    if (cache->addTransaction(req))  // Send req to cache
+                    {
+                        reqQueue[i].pop_front();
+                    }
+                }
+            }
+        }
+
         for (size_t i = 0; i < reqQueue.size(); ++i)
         {
             if (!reqQueue[i].empty())
             {
                 MemReq& req = reqQueue[i].front();
-                if (cache->addTransaction(req))  // Send req to cache
+                if (CACHE_ALL_HIT)
                 {
-                    reqQueue[i].pop_front();
+                    if (ackQueue[i].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
+                    {
+                        ackQueue[i].emplace_back(req);
+                        reqQueue[i].pop_front();
+                    }
+                }
+                else
+                {
+                    if (cache->addTransaction(req))  // Send req to cache
+                    {
+                        reqQueue[i].pop_front();
+                    }
                 }
             }
         }
