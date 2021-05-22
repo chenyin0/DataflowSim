@@ -42,7 +42,7 @@
 #define FREQ 500 // System freq 500MHz
 
 // Base
-#define BASE_INPUT_BUFF_SIZE 2
+#define BASE_INPUT_BUFF_SIZE 4
 
 // DGSF
 #define BRAM_BANK_DEPTH 128  // SPM bank depth
@@ -82,18 +82,19 @@
 */
 
 // MemSystem
-#define NO_MEMORY 1  // Emulate ideal memory(latency = 0)
+#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
+#define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 32  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 8  //32  // MemSystem reqQueue bank number, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4  // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
-#define MEMSYS_COALESCER_ENTRY_NUM 32
-#define MEMSYS_COALESCER_SIZY_PER_ENTRY 8
+#define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
+#define MEMSYS_COALESCER_SIZY_PER_ENTRY 8  // 8
 
 // SPM
 #define SPM_ENABLE 0
@@ -104,6 +105,7 @@
 
 // Cache
 #define CACHE_ENABLE 1
+#define CACHE_ALL_HIT 1
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
 #define CACHE_MAXLEVEL 2  // Max cache heriarachy level 

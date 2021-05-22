@@ -31,7 +31,7 @@ namespace DFSim
         void updateBufferMaxDataNum();  // Record the peak data number in chanBuffer for path balancing
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
         void updateChanUtilization();
-        void printChanUtilization();
+        void printChanProfiling();
 
     private:
         vector<ProfilingTable> profilingTable;

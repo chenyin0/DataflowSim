@@ -45,6 +45,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
     debugger->getFile() << std::setw(20) << lseName 
         << "\taccessCnt: " << std::setw(5) << _lsePtr->memAccessCnt
+        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::min(_lsePtr->speedup, uint(BANK_BLOCK_SIZE/DATA_PRECISION))
         << "\tAvgLat: " << std::setw(5) << _lsePtr->avgMemAccessLat
         << "\treqBlockRate: " << std::fixed << setprecision(1) << std::setw(5) << reqBlockRate << "%"
         << "\treqBlockCnt: " << std::setw(5) << _lsePtr->memReqBlockCnt
@@ -93,23 +94,25 @@ void Profiler::updateChanUtilization()
         {
             if (entry.chanPtr->valid)
             {
-                entry.chanPtr->utilizationCnt++;
+                entry.chanPtr->activeCnt++;
             }
         }
     }
 }
 
-void Profiler::printChanUtilization()
+void Profiler::printChanProfiling()
 {
     debugger->getFile() << "******* Channel Utilization *********" << std::endl;
 
     uint chanNum = 0;
     float chanUtilAvg = 0;
+    uint chanActiveNumTotal = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)
         {
-            float utilization = std::min(static_cast<float>(entry.chanPtr->utilizationCnt) / static_cast<float>((entry.chanPtr->speedup * ClkDomain::getClk())) * 100, float(100));
+            uint activeNum = entry.chanPtr->activeCnt;
+            float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * ClkDomain::getClk())) * 100, float(100));
             //debugger->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
             
             if (entry.chanPtr->moduleName != "Chan_begin" 
@@ -120,10 +123,17 @@ void Profiler::printChanUtilization()
                 debugger->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
                 ++chanNum;
                 chanUtilAvg += utilization;
+
+                chanActiveNumTotal += activeNum;
             }
         }
     }
 
     debugger->getFile() << std::endl;
     debugger->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / chanNum << setprecision(2) << "%" << std::endl;
+
+    debugger->getFile() << std::endl;
+    debugger->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
+    debugger->getFile() << "Total ALU Active Times: " << chanActiveNumTotal << std::endl;
+    debugger->getFile() << "Total Reg Access Times: " << chanActiveNumTotal * 3 << std::endl;
 }
