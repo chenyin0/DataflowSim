@@ -49,6 +49,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     // Generate ChanGraph
     ChanGraph chanGraph(GemmTest::dfg);
     chanGraph.addSpecialModeChan();
+    chanGraph.subgraphPartition(2, 10);
     chanGraph.addNodeDelay();
     chanGraph.plotDot();
 

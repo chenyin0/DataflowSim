@@ -1,6 +1,7 @@
 #include "./graph.h"
 #include "./Debug.h"
 #include "../sim/global.h"
+#include "../../lib/metis/metis.h"
 
 using namespace DFSim;
 
@@ -234,6 +235,141 @@ void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<strin
     }
 }
 
+tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)
+{
+    // Generate adjacent matrix
+    uint dim = nodes.size();
+    vector<vector<uint>> matrix(dim, vector<uint>(dim, 0));
+    for (uint i = 0; i < dim; ++i)
+    {
+        for (size_t i = 0; i < nodes.size(); ++i)
+        {
+            vector<string> adjNodes;
+            adjNodes.insert(adjNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->next_nodes_data.begin(), nodes[i]->next_nodes_data.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->next_nodes_active.begin(), nodes[i]->next_nodes_active.end());
+            for (auto& adjNode : adjNodes)
+            {
+                uint j = findNodeIndex(adjNode)->second;
+                if (nodes[i]->controlRegionName == nodes[j]->controlRegionName)
+                {
+                    matrix[i][j] = _edgeWeightWithinCtrlRegion;  // Weight of edges within a same ctrlRegion
+                }
+                else
+                {
+                    matrix[i][j] = 1;  // Weight of edges inter two different ctrlRegion
+                }
+            }
+        }
+    }
+
+    // Generate CSR format by adjacent matrix
+    vector<int64_t> indPtr(0);
+    vector<int64_t> ind(0);
+    vector<int64_t> val(0);
+    for (int i = 0; i < dim; i++)
+    {
+        indPtr.push_back(ind.size());
+        for (uint j = 0; j < dim; ++j)
+        {
+            if (matrix[i][j] > 0)
+            {
+                ind.push_back(j);
+                val.push_back(matrix[i][j]);
+            }
+        }
+    }
+    indPtr.push_back(ind.size());
+
+    return make_tuple(indPtr, ind, val);
+}
+
+void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion)
+{
+    uint devideNum = _subgraphNum;
+    auto dfgCsr = csrFormat(_edgeWeightWithinCtrlRegion);
+    vector<idx_t> cluster;
+    vector<idx_t> xadj = std::get<0>(dfgCsr);
+    vector<idx_t> adjncy = std::get<1>(dfgCsr);
+    vector<idx_t> adjwgt = std::get<2>(dfgCsr);
+
+    idx_t nVertices = xadj.size() - 1;  // Vertex number
+    idx_t nEdges = adjncy.size() / 2;  // Edge number
+    idx_t nWeights = 1;
+    idx_t nParts = static_cast<idx_t>(devideNum);  // Subgraph number
+    idx_t objval;
+    std::vector<idx_t> part(nVertices, 0);
+    // TODO: select the best graph split function!
+    if (devideNum > 16)
+    {
+        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
+    }
+    else
+    {
+        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
+    }
+
+    for (size_t i = 0; i < part.size(); ++i)
+    {
+        nodes[i]->subgraphId = part[i];
+    }
+
+    //for (auto& node : dfg.nodes)
+    //{
+    //    std::cout << node.second.kPartId << std::endl;
+    //}
+
+    uint adjacentEdgeNum = 0;
+    for (size_t i = 0; i < nodes.size(); ++i)
+    {
+        uint partId = nodes[i]->subgraphId;
+        vector<string> preNodes;
+        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+        for (auto& preNode : preNodes)
+        {
+            if (getNode(preNode)->subgraphId != partId)
+            {
+                adjacentEdgeNum++;
+            }
+        }
+    }
+
+    uint actualNodeNum = 0;
+    uint memNormAccessNum = 0;
+    for (auto& node : nodes)
+    {
+        auto nodePtr = dynamic_cast<Chan_Node*>(node);
+        if (nodePtr->isPhysicalChan)
+        {
+            ++actualNodeNum;
+        }
+
+        if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
+        {
+            ++memNormAccessNum;
+        }
+    }
+
+    uint arraySize = 64;
+    uint maxCoalesceRate = 8;
+    // TODO: Figure out actual coalesceRate of each subgraph
+    uint coalesceRate = std::min(arraySize / (actualNodeNum / devideNum), maxCoalesceRate);
+    float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
+    float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
+    float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
+
+    std::cout << std::endl;
+    std::cout << ">>> Part_num: " << _subgraphNum << std::endl;
+    std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+    std::cout << "coalesce_rate: " << coalesceRate << std::endl;
+    std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
+    std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
+    std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
+    std::cout << std::endl;
+}
+
 //void Graph::addNode(const string& _nodeName)
 //{
 //    for (auto& node : nodes)
@@ -303,6 +439,14 @@ void Dfg::addNode(const string& _nodeName, const string& _nodeOp)
         else if (_nodeOp == "Const")
         {
             dfgNode->node_type = "Const";
+        }
+        else if (_nodeOp == "Sel")
+        {
+            dfgNode->node_type = "Mux";
+        }
+        else if (_nodeOp == "SelPartial")
+        {
+            dfgNode->node_type = "MuxPartial";
         }
         nodes.push_back(dfgNode);
     }
@@ -494,10 +638,6 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         {
             label += ", fillcolor=\"bisque1\", style=filled";
         }
-        else if (chanMode == "Fake_mode")
-        {
-            label += ", fillcolor=\"antiquewhite3\", style=filled";
-        }
 
         label += "]";
 
@@ -568,7 +708,7 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
             chanMode = "Normal";
             addNode(nodeName, nodeType, nodeOp, chanMode, controlRegionName);
         }
-        else if (node->node_type == "MuxParitial")
+        else if (node->node_type == "MuxPartial")
         {
             nodeName = "MuxPartial_" + node->node_name;
             nodeType = "ChanPartialMux";
@@ -694,7 +834,8 @@ void ChanGraph::addSpecialModeChan()
                     string nodeName = node->node_name + "_relay_" + ctrlRegion;
                     if (!findNode(nodeName))
                     {
-                        addNode(nodeName, "ChanBase", "Nop", "Fake_mode", ctrlRegion);  // Add relayMode node
+                        addNode(nodeName, "ChanBase", "Nop", "Normal", ctrlRegion);  // Add relayMode node
+                        dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
                         addNodes2CtrlTree(ctrlRegion, {nodeName});
 
                         // Add active connect between relay node and Lc
@@ -776,7 +917,7 @@ void ChanGraph::addSpecialModeChan()
     removeRedundantConnect();
 
     // TODO: Strict rule: The controlRegion of all the nextNodes of a chanNode in keepMode or drainMode must be the same. Remove this restriction in the future 
-    // Add keepMode and drainMode
+    // Set keepMode and drainMode
     vector<ControlRegion> loopHierarchy_ = genLoopHierarchy(controlTree);
     for (auto& ctrlRegion : loopHierarchy_)
     {

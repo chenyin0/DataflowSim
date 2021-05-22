@@ -17,14 +17,17 @@ namespace DFSim
         vector<string> next_nodes_active;
 
         virtual void fakeFunc() {};
+
+        // For subgraph partition
+        uint subgraphId = 0;
     };
 
     struct Dfg_Node : public Node
     {
         Dfg_Node(string _nodeName, string _node_op) : Node(_nodeName), node_op(_node_op) {}
         //Dfg_Node(string _nodeName, string _node_op, int _constVal) : Node(_nodeName), node_op(_node_op), constVal(_constVal) {}
-        string node_type = "Normal";  // Normal, Const, Lc, Mux, MuxParitial
-        string node_op;  // normal op, Loop_head, Load, Store, Const
+        string node_type = "Normal";  // Normal, Const, Lc, Mux, MuxPartial
+        string node_op;  // Normal op, Loop_head, Load, Store, Const, Sel, SelPartial
         //tuple<string, string, string, string> loop_info;  // {init, boundary, operation, next}; Only when this node is a Lc
         
         int constVal = 0;  // For constant
@@ -39,7 +42,8 @@ namespace DFSim
         Chan_Node(string _nodeName) : Node(_nodeName) {}
         string node_type = "ChanBase";  // Lc, Mux, ChanPartialMux, ChanBase, ChanDGSF, Lse_ld, Lse_st
         string node_op;  // Inherit from Dfg_Node 
-        string chan_mode = "Normal";  // Normal, Keep_mode, Drain_mode, Fake_mode(e.g. Relay_mode)
+        string chan_mode = "Normal";  // Normal, Keep_mode, Drain_mode
+        bool isPhysicalChan = true;  // This chan is only a logic chan (e.g. Relay_mode)
         
         uint size = 2;
         uint speedup = 1;
@@ -70,6 +74,8 @@ namespace DFSim
         auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator;
         bool findNode(const string& _nodeName);
         void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
+        tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> csrFormat(uint _edgeWeightWithinCtrlRegion);
+        void subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion);
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);

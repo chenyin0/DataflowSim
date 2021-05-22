@@ -92,6 +92,12 @@
     <Filter Include="test\cholesky">
       <UniqueIdentifier>{04f47ab9-6300-4003-86bb-1032f1331638}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{789ec1b8-9b84-4f40-b244-e1360e5ad4e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\metis">
+      <UniqueIdentifier>{c05ac80f-bfa6-499d-a68e-f5a419bfea3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -187,6 +193,9 @@
     </ClInclude>
     <ClInclude Include="src\sim\global.h">
       <Filter>src\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\metis\metis.h">
+      <Filter>lib\metis</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -347,5 +356,10 @@
     <None Include="resource\Bfs\input.data">
       <Filter>resource\Bfs</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\metis\metis.lib">
+      <Filter>lib\metis</Filter>
+    </Library>
   </ItemGroup>
 </Project>
