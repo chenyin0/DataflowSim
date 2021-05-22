@@ -110,6 +110,7 @@ namespace DFSim
         //** Logic
         Cmp,
         Sel,
+        SelPartial,
         And,
         Or,
         Xor,
