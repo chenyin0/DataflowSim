@@ -68,7 +68,7 @@ void GemmTest::gemm_Base(Debug* debug)
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, false, memSys, Base_loop_j_speedup);  // load partial sum
     //lse_ld_partialSum->noLatencyMode = 1;
     Lse* lse_st_partialSum = new Lse(LSE_QUEUE_SIZE * Base_loop_j_speedup, 0, true, memSys, Base_loop_j_speedup);  // Store back partial sum
-    //lse_st_partialSum->noLatencyMode = 1;
+    lse_st_partialSum->noLatencyMode = 1;
 
 
     //*** Declare Lc
@@ -528,6 +528,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
         //** Profiler update
         profiler->updateBufferMaxDataNum();
+        profiler->updateChanUtilization();
 
         end->get();
 
@@ -688,6 +689,16 @@ void GemmTest::gemm_Base(Debug* debug)
     debug->getFile() << "Profiling" << std::endl;
     debug->getFile() << "*******************************" << std::endl;
 
+    // Print channel utilization
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Channel profiling: " << std::endl;
+    debug->getFile() << std::endl;
+
+    profiler->printChanProfiling();
+
+    // Print buffer usage
+    debug->getFile() << std::endl;
     profiler->printBufferMaxDataNum("chan_jj_lc", chan_jj_lc);
     profiler->printBufferMaxDataNum("chan_kk_lc", chan_kk_lc);
     profiler->printBufferMaxDataNum("chan_jj_relay_loop_kk", chan_jj_relay_loop_kk);

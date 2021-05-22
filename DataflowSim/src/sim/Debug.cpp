@@ -794,7 +794,7 @@ void Debug::printRegistry(const Registry* _registry)
 {
     _output_file << std::endl;
     _output_file << "Registry Entry: " << std::endl;
-    for (auto& entry : _registry->registryTable)
+    for (auto& entry : _registry->getRegistryTable())
     {
         _output_file << std::endl;
         _output_file << entry.moduleName;

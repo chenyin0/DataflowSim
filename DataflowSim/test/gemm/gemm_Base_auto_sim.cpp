@@ -72,10 +72,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
     registry->genModule(chanGraph);
     registry->genConnect(chanGraph);
-    auto& regis = Registry::registryTable;
+    auto& regis = registry->getRegistryTable();
     //debug->printRegistry(registry);
     debug->printSimNodes(chanGraph);
-    registry->genConfiguration(chanGraph);
+    registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
 
     ////*** Generate gold results
     //for (size_t i = 0; i < matrix_height; ++i)
@@ -123,7 +123,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     const auto& Chan_prod_data_update = registry->getChan("Chan_prod_data_update");
     const auto& Lse_prod_data_update_st = registry->getChan("Lse_prod_data_update_st");
 
-    for (auto& entry : registry->registryTable)
+    for (auto& entry : registry->getRegistryTable())
     {
         if (entry.chanPtr != nullptr)
         {
@@ -131,10 +131,16 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
             {
                 entry.chanPtr->size = 30;
                 //entry.chanPtr->cycle = 0;
-                entry.chanPtr->speedup = 6;
+                //entry.chanPtr->speedup = 3;
             }
         }
     }
+
+    // Set speedup
+    registry->setSpeedup(chanGraph, "loop_j", 2);
+
+    // User defined
+    registry->getLse("Lse_prod_data_update_st")->noLatencyMode = 1;
 
     //// Initiation
     registry->tableInit();  // Update registry and initial all the module in registry
@@ -291,10 +297,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
         //** Profiler update
         profiler->updateBufferMaxDataNum();
+        profiler->updateChanUtilization();
 
         /*end->get();*/
         Chan_end->get();	// Nop
-
 
         /* std::cout << std::endl;
          if (ldm1Cnt != lse_ld_m1->memAccessCnt)
@@ -315,8 +321,8 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
          ldm2Cnt = lse_ld_m2->memAccessCnt;
          ldPartialCnt = lse_ld_partialSum->memAccessCnt;*/
 
-         //** Print log
-         // Set debug mode
+        //** Print log
+        // Set debug mode
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
@@ -363,15 +369,15 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
             debug->chanPrint("Chan_k_row", Chan_k_row);
             debug->chanPrint("Chan_m1_addr", Chan_m1_addr);
             debug->chanPrint("Chan_j_jj", Chan_j_jj);
-            debug->chanPrint("Lse_temp_x", Lse_temp_x);
+            debug->lsePrint("Lse_temp_x", dynamic_cast<Lse*>(Lse_temp_x));
             debug->chanPrint("Chan_m2_addr", Chan_m2_addr);
             debug->chanPrint("Chan_prod_addr", Chan_prod_addr);
             debug->chanPrint("Chan_m1_data", Chan_m1_data);
-            debug->chanPrint("Lse_m2_data", Lse_m2_data);
-            debug->chanPrint("Lse_prod_data", Lse_prod_data);
+            debug->lsePrint("Lse_m2_data", dynamic_cast<Lse*>(Lse_m2_data));
+            debug->lsePrint("Lse_prod_data", dynamic_cast<Lse*>(Lse_prod_data));
             debug->chanPrint("Chan_mul", Chan_mul);
             debug->chanPrint("Chan_prod_data_update", Chan_prod_data_update);
-            debug->chanPrint("Lse_prod_data_update_st", Lse_prod_data_update_st);
+            debug->lsePrint("Lse_prod_data_update_st", dynamic_cast<Lse*>(Lse_prod_data_update_st));
 
 
             debug->getFile() << std::endl;
@@ -383,7 +389,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
             debug->chanPrint("Lc_j->getEnd", Lc_j->getEnd); debug->getFile() << "Lc_j loopEnd: " << Lc_j->loopEnd << std::endl;
 
             // Print MemorySystem
-            //debug->memSysPrint(memSys);
+            debug->memSysPrint(memSys);
 
             //    // Debug_yin_12.30
             //    if (iter % 500 == 0)
@@ -425,10 +431,18 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         ++iter;
     }
 
-    //debug->getFile() << std::endl;
-    //debug->getFile() << "*******************************" << std::endl;
-    //debug->getFile() << "Profiling" << std::endl;
-    //debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Profiling" << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+
+    // Print channel utilization
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "Channel profiling: " << std::endl;
+    debug->getFile() << std::endl;
+
+    profiler->printChanProfiling();
 
     //profiler->printBufferMaxDataNum("chan_jj_lc", chan_jj_lc);
     //profiler->printBufferMaxDataNum("chan_kk_lc", chan_kk_lc);
