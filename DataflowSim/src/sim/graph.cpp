@@ -363,6 +363,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     std::cout << std::endl;
     std::cout << ">>> Part_num: " << _subgraphNum << std::endl;
     std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+    std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
     std::cout << "coalesce_rate: " << coalesceRate << std::endl;
     std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
     std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
