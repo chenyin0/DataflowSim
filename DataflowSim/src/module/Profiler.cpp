@@ -115,6 +115,7 @@ void Profiler::printChanProfiling()
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * ClkDomain::getClk())) * 100, float(100));
             //debugger->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
             
+            // TODO: Exclude channel in "Nop"
             if (entry.chanPtr->moduleName != "Chan_begin" 
                 && entry.chanPtr->moduleName != "Chan_end" 
                 && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar) 
@@ -136,4 +137,21 @@ void Profiler::printChanProfiling()
     debugger->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
     debugger->getFile() << "Total ALU Active Times: " << chanActiveNumTotal << std::endl;
     debugger->getFile() << "Total Reg Access Times: " << chanActiveNumTotal * 3 << std::endl;
+
+
+    // Print the max data number in channel
+    debugger->getFile() << std::endl;
+    debugger->getFile() << "******* Max Data Num in Buffer *********" << std::endl;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            if (entry.chanPtr->moduleName != "Chan_begin"
+                && entry.chanPtr->moduleName != "Chan_end"
+                && entry.chanPtr->masterName == "None")
+            {
+                printBufferMaxDataNum(entry.chanPtr->moduleName, entry.chanPtr);
+            }
+        }
+    }
 }
