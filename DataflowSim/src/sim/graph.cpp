@@ -301,7 +301,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     idx_t objval;
     std::vector<idx_t> part(nVertices, 0);
     // TODO: select the best graph split function!
-    if (devideNum > 16)
+    if (devideNum > 8)
     {
         int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
     }
@@ -341,7 +341,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     for (auto& node : nodes)
     {
         auto nodePtr = dynamic_cast<Chan_Node*>(node);
-        if (nodePtr->isPhysicalChan)
+        if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
         {
             ++actualNodeNum;
         }
@@ -362,6 +362,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
 
     std::cout << std::endl;
     std::cout << ">>> Part_num: " << _subgraphNum << std::endl;
+    std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
     std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
     std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
     std::cout << "coalesce_rate: " << coalesceRate << std::endl;
@@ -420,7 +421,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
 //** Dfg
 Dfg::Dfg()
 {
-    dfg_dot.open(Global::file_path + "dfg.dot", ios::out);
+    dfg_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_dfg.dot", ios::out);
 }
 
 void Dfg::addNode(const string& _nodeName, const string& _nodeOp)
@@ -564,7 +565,7 @@ ChanGraph::ChanGraph(Dfg& dfg_)
 
 void ChanGraph::initial()
 {
-    chan_graph_dot.open(Global::file_path + "chan_graph.dot", ios::out);
+    chan_graph_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_chan_graph.dot", ios::out);
 }
 
 void ChanGraph::addNode(const string& _nodeName)
@@ -825,66 +826,67 @@ void ChanGraph::addSpecialModeChan()
                 vector<string> ctrlRegionPath = findShortestCtrlRegionPath(s, s_next);
 
                 // Insert relay nodes according to ctrlRegionPath
-                auto it = ctrlRegionPath.begin();
-                ctrlRegionPath.erase(it);  // Remove node's ctrlRegion
-                ctrlRegionPath.pop_back();  // Remove nextNode's ctrlRegion
-                vector<string> nodeVec;
-                // Create relay node
-                for (auto& ctrlRegion : ctrlRegionPath)
+                if (ctrlRegionPath.size() > 2)
                 {
-                    string nodeName = node->node_name + "_relay_" + ctrlRegion;
-                    if (!findNode(nodeName))
-                    {
-                        addNode(nodeName, "ChanBase", "Nop", "Normal", ctrlRegion);  // Add relayMode node
-                        dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
-                        addNodes2CtrlTree(ctrlRegion, {nodeName});
+                    auto it = ctrlRegionPath.begin();
+                    ctrlRegionPath.erase(it);  // Remove node's ctrlRegion
+                    ctrlRegionPath.pop_back();  // Remove nextNode's ctrlRegion
 
-                        // Add active connect between relay node and Lc
-                        for (auto& node_ : controlTree.controlRegionTable[controlTree.findControlRegionIndex(ctrlRegion)->second].nodes)
+                    vector<string> nodeVec;
+                    // Create relay node
+                    for (auto& ctrlRegion : ctrlRegionPath)
+                    {
+                        string nodeName = node->node_name + "_relay_" + ctrlRegion;
+                        if (!findNode(nodeName))
                         {
-                            auto nodePtr = dynamic_cast<Chan_Node*>(nodes[findNodeIndex(node_)->second]);
-                            if (nodePtr->node_type == "Lc")
+                            addNode(nodeName, "ChanBase", "Nop", "Normal", ctrlRegion);  // Add relayMode node
+                            dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
+                            addNodes2CtrlTree(ctrlRegion, { nodeName });
+
+                            // Add active connect between relay node and Lc
+                            for (auto& node_ : controlTree.controlRegionTable[controlTree.findControlRegionIndex(ctrlRegion)->second].nodes)
                             {
-                                nodes[findNodeIndex(nodeName)->second]->pre_nodes_active.push_back(nodePtr->node_name);
-                                break;
+                                auto nodePtr = dynamic_cast<Chan_Node*>(nodes[findNodeIndex(node_)->second]);
+                                if (nodePtr->node_type == "Lc")
+                                {
+                                    nodes[findNodeIndex(nodeName)->second]->pre_nodes_active.push_back(nodePtr->node_name);
+                                    break;
+                                }
                             }
                         }
+
+                        nodeVec.push_back(nodeName);
                     }
 
-                    nodeVec.push_back(nodeName);
-                }
-
-                // Connect each level relay nodes
-                for (auto iter = nodeVec.begin(); iter != nodeVec.end(); ++iter)
-                {
-                    if (iter == nodeVec.begin())
+                    // Connect each level relay nodes
+                    for (auto iter = nodeVec.begin(); iter != nodeVec.end(); ++iter)
                     {
-                        nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(node->node_name);
-                    }
-                    if (iter == nodeVec.end() - 1)
-                    {
-                        auto iter_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
-                        auto iter_active = find(nextNode->pre_nodes_active.begin(), nextNode->pre_nodes_active.end(), node->node_name);
-                        if (iter_data != nextNode->pre_nodes_data.end())
+                        if (iter == nodeVec.begin())
                         {
-                            nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(nextNode->node_name);
+                            nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(node->node_name);
                         }
-                        else if (iter_data != nextNode->pre_nodes_active.end())
+                        if (iter == nodeVec.end() - 1)
                         {
-                            nodes[findNodeIndex(*iter)->second]->next_nodes_active.push_back(nextNode->node_name);
+                            auto iter_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
+                            auto iter_active = find(nextNode->pre_nodes_active.begin(), nextNode->pre_nodes_active.end(), node->node_name);
+                            if (iter_data != nextNode->pre_nodes_data.end())
+                            {
+                                nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(nextNode->node_name);
+                            }
+                            else if (iter_data != nextNode->pre_nodes_active.end())
+                            {
+                                nodes[findNodeIndex(*iter)->second]->next_nodes_active.push_back(nextNode->node_name);
+                            }
+                        }
+                        if (iter != nodeVec.begin() && iter != nodeVec.end() - 1)
+                        {
+                            nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(*(iter - 1));
+                            nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(*(iter + 1));
                         }
                     }
-                    if(iter != nodeVec.begin() && iter != nodeVec.end() - 1)
-                    {
-                        nodes[findNodeIndex(*iter)->second]->pre_nodes_data.push_back(*(iter - 1));
-                        nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(*(iter+1));
-                    }
-                }
 
-                // Delete original node -> nextNode connection
-                // Only when ctrlRegionPath not empty, signify there has inserted a relay node
-                if (!ctrlRegionPath.empty())
-                {
+                    // Delete original node -> nextNode connection
+                    // Must ensure there has inserted a relay node
                     auto iter_data = find(node->next_nodes_data.begin(), node->next_nodes_data.end(), nextNode->node_name);
                     auto iter_active = find(node->next_nodes_active.begin(), node->next_nodes_active.end(), nextNode->node_name);
                     auto iter_next_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
@@ -910,6 +912,36 @@ void ChanGraph::addSpecialModeChan()
                         nextNode->pre_nodes_active.erase(iter_next_active);
                     }
                 }
+
+                //// Delete original node -> nextNode connection
+                //// Only when ctrlRegionPath not empty, signify there has inserted a relay node
+                //if (/*!ctrlRegionPath.empty()*/ctrlRegionPath.size() >= 2)
+                //{
+                //    auto iter_data = find(node->next_nodes_data.begin(), node->next_nodes_data.end(), nextNode->node_name);
+                //    auto iter_active = find(node->next_nodes_active.begin(), node->next_nodes_active.end(), nextNode->node_name);
+                //    auto iter_next_data = find(nextNode->pre_nodes_data.begin(), nextNode->pre_nodes_data.end(), node->node_name);
+                //    auto iter_next_active = find(nextNode->pre_nodes_active.begin(), nextNode->pre_nodes_active.end(), node->node_name);
+
+                //    if (iter_data != node->next_nodes_data.end())
+                //    {
+                //        node->next_nodes_data.erase(iter_data);
+                //    }
+
+                //    if (iter_active != node->next_nodes_active.end())
+                //    {
+                //        node->next_nodes_active.erase(iter_active);
+                //    }
+
+                //    if (iter_next_data != nextNode->pre_nodes_data.end())
+                //    {
+                //        nextNode->pre_nodes_data.erase(iter_next_data);
+                //    }
+
+                //    if (iter_next_active != nextNode->pre_nodes_active.end())
+                //    {
+                //        nextNode->pre_nodes_active.erase(iter_next_active);
+                //    }
+                //}
             }
         }
     }
@@ -1132,7 +1164,7 @@ vector<ControlRegion> ChanGraph::genLoopHierarchy(ControlTree& _controlTree)
             {
                 if (loopHierarchy[_controlTree.findControlRegionIndex(*iter)->second].controlType != "Loop")
                 {
-                    ctrlRegion.lowerControlRegion.erase(iter);
+                    iter = ctrlRegion.lowerControlRegion.erase(iter);
                 }
                 else
                 {
@@ -1147,7 +1179,7 @@ vector<ControlRegion> ChanGraph::genLoopHierarchy(ControlTree& _controlTree)
     {
         if (iter->controlType != "Loop")
         {
-            loopHierarchy.erase(iter);
+            iter = loopHierarchy.erase(iter);
         }
         else
         {
@@ -1163,8 +1195,29 @@ vector<string> ChanGraph::findShortestCtrlRegionPath(vector<string>& _preNodeCtr
     vector<string> ctrlRegionPath;
     auto s = _preNodeCtrlRegionPath;
     auto s_next = _nextNodeCtrlRegionPath;
-    auto iter = find(s.begin(), s.end(), _nextNodeCtrlRegionPath.front());
-    auto iter_next = find(s_next.begin(), s_next.end(), _preNodeCtrlRegionPath.front());
+
+    auto iter = s.end();
+    if (_nextNodeCtrlRegionPath.empty())  // If empty, signify nextNode locates at the outer-most loop, so just return preNodeCtrlRegionPath
+    {
+        return _preNodeCtrlRegionPath;
+    }
+    else
+    {
+        iter = find(s.begin(), s.end(), _nextNodeCtrlRegionPath.front());
+    }
+    
+    auto iter_next = s_next.end();
+    if (_preNodeCtrlRegionPath.empty())  // If empty, signify preNode locates at the outer-most loop, so just return nextNodeCtrlRegionPath
+    {
+        return _nextNodeCtrlRegionPath;
+    }
+    else
+    {
+        iter_next = find(s_next.begin(), s_next.end(), _preNodeCtrlRegionPath.front());
+    }
+
+    //auto iter = find(s.begin(), s.end(), _nextNodeCtrlRegionPath.front());
+    //auto iter_next = find(s_next.begin(), s_next.end(), _preNodeCtrlRegionPath.front());
 
     if (iter != s.end())
     {
