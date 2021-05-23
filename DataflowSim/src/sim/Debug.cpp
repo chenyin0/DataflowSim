@@ -843,6 +843,40 @@ void Debug::printSimNodes(ChanGraph& _chanGraph)
     }
 }
 
+void Debug::printSimInfo(const vector<Channel*>& _chans, const vector<Lc*> _lc)
+{
+    // Print chan
+    for (auto& chanPtr : _chans)
+    {
+        if (chanPtr->chanType == ChanType::Chan_Lse)
+        {
+            lsePrint(chanPtr->moduleName, dynamic_cast<Lse*>(chanPtr));
+        }
+        else
+        {
+            if (chanPtr->isLoopVar)
+            {
+                getFile() << std::endl;
+                getFile() << "************ Lc: " << chanPtr->masterName << " ***********" << std::endl;
+                chanPrint(chanPtr->moduleName, chanPtr);
+            }
+            else
+            {
+                chanPrint(chanPtr->moduleName, chanPtr);
+            }
+        }
+    }
+
+    // Print End signal
+    getFile() << std::endl;
+    getFile() << "*****************  End signal  *****************" << std::endl;
+    for (auto& lcPtr : _lc)
+    {
+        chanPrint(lcPtr->getEnd->moduleName, lcPtr->getEnd);
+        getFile() << lcPtr->moduleName << " loopEnd: " << lcPtr->loopEnd << std::endl;
+    }
+}
+
 void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)
 {
     uint clk = DFSim::ClkDomain::getInstance()->getClk();

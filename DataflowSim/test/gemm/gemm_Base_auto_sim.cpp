@@ -73,10 +73,13 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
     registry->genModule(chanGraph);
     registry->genConnect(chanGraph);
-    auto& regis = registry->getRegistryTable();
+    auto& regis = registry->getRegistryTable();  // For exposing registry in debugging
     //debug->printRegistry(registry);
     debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
+    const auto& debugPrint = registry->genDebugPrint(chanGraph);
+    auto simChans = get<0>(debugPrint);
+    auto simLcs = get<1>(debugPrint);
 
     ////*** Generate gold results
     //for (size_t i = 0; i < matrix_height; ++i)
@@ -138,9 +141,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     }
 
     // Set speedup
-    registry->setSpeedup(chanGraph, "loop_j", 2);
+    registry->setSpeedup(chanGraph, "loop_j", 5);
 
     // User defined
+    //registry->getLse("Lse_m2_data")->noLatencyMode = 1;
     registry->getLse("Lse_prod_data_update_st")->noLatencyMode = 1;
 
     //// Initiation
@@ -303,109 +307,68 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         /*end->get();*/
         Chan_end->get();	// Nop
 
-        /* std::cout << std::endl;
-         if (ldm1Cnt != lse_ld_m1->memAccessCnt)
-         {
-             std::cout << "ldm1 " << "cnt: " << lse_ld_m1->memAccessCnt << " avg: " << lse_ld_m1->avgMemAccessLat << std::endl;
-         }
-         if (ldm2Cnt != lse_ld_m2->memAccessCnt)
-         {
-             std::cout << "ldm2 " << "cnt: " << lse_ld_m2->memAccessCnt << " avg: " << lse_ld_m2->avgMemAccessLat << std::endl;
-         }
-
-         if (ldPartialCnt != lse_ld_partialSum->memAccessCnt)
-         {
-             std::cout << "ldSum " << "cnt: " << lse_ld_partialSum->memAccessCnt << " avg: " << lse_ld_partialSum->avgMemAccessLat << std::endl;
-         }
-
-         ldm1Cnt = lse_ld_m1->memAccessCnt;
-         ldm2Cnt = lse_ld_m2->memAccessCnt;
-         ldPartialCnt = lse_ld_partialSum->memAccessCnt;*/
-
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Print_detail;
-        debug->debug_mode = Debug_mode::Turn_off;
+        debug->debug_mode = Debug_mode::Print_detail;
+        //debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*37500 > iter && iter > 34500*/ iter >= 0)
         {
+            debug->printSimInfo(simChans, simLcs);
+
+            ////** Print channle
+            //debug->chanPrint("Chan_begin", Chan_begin);
             //debug->getFile() << std::endl;
-            //debug->getFile() << "Loop index jj: " << Chan_jj_lc_relay_loop_k->value << std::endl;  // Inner most relay channel
-            //debug->getFile() << "Loop index kk: " << Chan_kk_lc_relay_loop_i->value << std::endl;  // Inner most relay channel
-            //debug->getFile() << "Loop index i: " << chan_i_lc->value << std::endl;
-            //debug->getFile() << "Loop index k: " << chan_k_lc->value << std::endl;
-            //debug->getFile() << "Loop index j: " << lc_j->loopVar->value << std::endl;
-
-            ///*debug->vecPrint("Result", res, 15);*/
-
-            //** Print channle
-            debug->chanPrint("Chan_begin", Chan_begin);
-            debug->getFile() << std::endl;
-            debug->getFile() << "************ Lc: " << "Lc_jj" << "***********" << std::endl;
-            debug->chanPrint("Lc_jj->loopVar", Lc_jj->loopVar);
-            debug->chanPrint("Chan_jj_lc", Chan_jj_lc);
-            debug->chanPrint("Chan_end", Chan_end);
-            debug->getFile() << std::endl;
-            debug->getFile() << "************ Lc: " << "Lc_kk" << "***********" << std::endl;
-            debug->chanPrint("Lc_kk->loopVar", Lc_kk->loopVar);
-            debug->chanPrint("Chan_kk_lc", Chan_kk_lc);
-            debug->chanPrint("Chan_jj_lc_relay_loop_kk", Chan_jj_lc_relay_loop_kk);
-            debug->getFile() << std::endl;
-            debug->getFile() << "************ Lc: " << "Lc_i" << "***********" << std::endl;
-            debug->chanPrint("Lc_i->loopVar", Lc_i->loopVar);
-            debug->chanPrint("Chan_i_lc", Chan_i_lc);
-            debug->chanPrint("Chan_i_row", Chan_i_row);
-            debug->chanPrint("Chan_jj_lc_relay_loop_i", Chan_jj_lc_relay_loop_i);
-            debug->chanPrint("Chan_kk_lc_relay_loop_i", Chan_kk_lc_relay_loop_i);
-            debug->getFile() << std::endl;
-            debug->getFile() << "************ Lc: " << "Lc_k" << "***********" << std::endl;
-            debug->chanPrint("Lc_k->loopVar", Lc_k->loopVar);
-            debug->chanPrint("Chan_k_lc", Chan_k_lc);
-            debug->chanPrint("Chan_k_kk", Chan_k_kk);
-            debug->chanPrint("Chan_jj_lc_relay_loop_k", Chan_jj_lc_relay_loop_k);
-            debug->chanPrint("Chan_i_row_relay_loop_k", Chan_i_row_relay_loop_k);
-            debug->getFile() << std::endl;
-            debug->getFile() << "************ Lc: " << "Lc_j" << "***********" << std::endl;
-            debug->chanPrint("Lc_j->loopVar", Lc_j->loopVar);
-            debug->chanPrint("Chan_k_row", Chan_k_row);
-            debug->chanPrint("Chan_m1_addr", Chan_m1_addr);
-            debug->chanPrint("Chan_j_jj", Chan_j_jj);
-            debug->lsePrint("Lse_temp_x", dynamic_cast<Lse*>(Lse_temp_x));
-            debug->chanPrint("Chan_m2_addr", Chan_m2_addr);
-            debug->chanPrint("Chan_prod_addr", Chan_prod_addr);
-            debug->chanPrint("Chan_m1_data", Chan_m1_data);
-            debug->lsePrint("Lse_m2_data", dynamic_cast<Lse*>(Lse_m2_data));
-            debug->lsePrint("Lse_prod_data", dynamic_cast<Lse*>(Lse_prod_data));
-            debug->chanPrint("Chan_mul", Chan_mul);
-            debug->chanPrint("Chan_prod_data_update", Chan_prod_data_update);
-            debug->lsePrint("Lse_prod_data_update_st", dynamic_cast<Lse*>(Lse_prod_data_update_st));
+            //debug->getFile() << "************ Lc: " << "Lc_jj" << "***********" << std::endl;
+            //debug->chanPrint("Lc_jj->loopVar", Lc_jj->loopVar);
+            //debug->chanPrint("Chan_jj_lc", Chan_jj_lc);
+            //debug->chanPrint("Chan_end", Chan_end);
+            //debug->getFile() << std::endl;
+            //debug->getFile() << "************ Lc: " << "Lc_kk" << "***********" << std::endl;
+            //debug->chanPrint("Lc_kk->loopVar", Lc_kk->loopVar);
+            //debug->chanPrint("Chan_kk_lc", Chan_kk_lc);
+            //debug->chanPrint("Chan_jj_lc_relay_loop_kk", Chan_jj_lc_relay_loop_kk);
+            //debug->getFile() << std::endl;
+            //debug->getFile() << "************ Lc: " << "Lc_i" << "***********" << std::endl;
+            //debug->chanPrint("Lc_i->loopVar", Lc_i->loopVar);
+            //debug->chanPrint("Chan_i_lc", Chan_i_lc);
+            //debug->chanPrint("Chan_i_row", Chan_i_row);
+            //debug->chanPrint("Chan_jj_lc_relay_loop_i", Chan_jj_lc_relay_loop_i);
+            //debug->chanPrint("Chan_kk_lc_relay_loop_i", Chan_kk_lc_relay_loop_i);
+            //debug->getFile() << std::endl;
+            //debug->getFile() << "************ Lc: " << "Lc_k" << "***********" << std::endl;
+            //debug->chanPrint("Lc_k->loopVar", Lc_k->loopVar);
+            //debug->chanPrint("Chan_k_lc", Chan_k_lc);
+            //debug->chanPrint("Chan_k_kk", Chan_k_kk);
+            //debug->chanPrint("Chan_jj_lc_relay_loop_k", Chan_jj_lc_relay_loop_k);
+            //debug->chanPrint("Chan_i_row_relay_loop_k", Chan_i_row_relay_loop_k);
+            //debug->getFile() << std::endl;
+            //debug->getFile() << "************ Lc: " << "Lc_j" << "***********" << std::endl;
+            //debug->chanPrint("Lc_j->loopVar", Lc_j->loopVar);
+            //debug->chanPrint("Chan_k_row", Chan_k_row);
+            //debug->chanPrint("Chan_m1_addr", Chan_m1_addr);
+            //debug->chanPrint("Chan_j_jj", Chan_j_jj);
+            //debug->lsePrint("Lse_temp_x", dynamic_cast<Lse*>(Lse_temp_x));
+            //debug->chanPrint("Chan_m2_addr", Chan_m2_addr);
+            //debug->chanPrint("Chan_prod_addr", Chan_prod_addr);
+            //debug->chanPrint("Chan_m1_data", Chan_m1_data);
+            //debug->lsePrint("Lse_m2_data", dynamic_cast<Lse*>(Lse_m2_data));
+            //debug->lsePrint("Lse_prod_data", dynamic_cast<Lse*>(Lse_prod_data));
+            //debug->chanPrint("Chan_mul", Chan_mul);
+            //debug->chanPrint("Chan_prod_data_update", Chan_prod_data_update);
+            //debug->lsePrint("Lse_prod_data_update_st", dynamic_cast<Lse*>(Lse_prod_data_update_st));
 
 
-            debug->getFile() << std::endl;
-            debug->getFile() << "*****************  End signal  *****************" << std::endl;
-            debug->chanPrint("Lc_jj->getEnd", Lc_jj->getEnd); debug->getFile() << "Lc_jj loopEnd: " << Lc_jj->loopEnd << std::endl;
-            debug->chanPrint("Lc_kk->getEnd", Lc_kk->getEnd); debug->getFile() << "Lc_kk loopEnd: " << Lc_kk->loopEnd << std::endl;
-            debug->chanPrint("Lc_i->getEnd", Lc_i->getEnd); debug->getFile() << "Lc_i loopEnd: " << Lc_i->loopEnd << std::endl;
-            debug->chanPrint("Lc_k->getEnd", Lc_k->getEnd); debug->getFile() << "Lc_k loopEnd: " << Lc_k->loopEnd << std::endl;
-            debug->chanPrint("Lc_j->getEnd", Lc_j->getEnd); debug->getFile() << "Lc_j loopEnd: " << Lc_j->loopEnd << std::endl;
+            //debug->getFile() << std::endl;
+            //debug->getFile() << "*****************  End signal  *****************" << std::endl;
+            //debug->chanPrint("Lc_jj->getEnd", Lc_jj->getEnd); debug->getFile() << "Lc_jj loopEnd: " << Lc_jj->loopEnd << std::endl;
+            //debug->chanPrint("Lc_kk->getEnd", Lc_kk->getEnd); debug->getFile() << "Lc_kk loopEnd: " << Lc_kk->loopEnd << std::endl;
+            //debug->chanPrint("Lc_i->getEnd", Lc_i->getEnd); debug->getFile() << "Lc_i loopEnd: " << Lc_i->loopEnd << std::endl;
+            //debug->chanPrint("Lc_k->getEnd", Lc_k->getEnd); debug->getFile() << "Lc_k loopEnd: " << Lc_k->loopEnd << std::endl;
+            //debug->chanPrint("Lc_j->getEnd", Lc_j->getEnd); debug->getFile() << "Lc_j loopEnd: " << Lc_j->loopEnd << std::endl;
 
             // Print MemorySystem
-            debug->memSysPrint(memSys);
-
-            //    // Debug_yin_12.30
-            //    if (iter % 500 == 0)
-            //    {
-            //        debug->debug_mode = Debug_mode::Print_detail;
-
-            //        debug->getFile() << endl;
-            //        debug->getFile() << "*******************************" << endl;
-            //        debug->getFile() << "Lse profiling: " << std::endl;
-            //        debug->getFile() << std::endl;
-            //        profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
-            //        profiler->printLseProfiling("lse_ld_m2", lse_ld_m2);
-            //        profiler->printLseProfiling("lse_ld_partialSum", lse_ld_partialSum);
-            //        profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
-            //    }
+            //debug->memSysPrint(memSys);
         }
 
         if (!Chan_end->channel.empty())
@@ -442,34 +405,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
-
     profiler->printChanProfiling();
-
-    //profiler->printBufferMaxDataNum("chan_jj_lc", chan_jj_lc);
-    //profiler->printBufferMaxDataNum("chan_kk_lc", chan_kk_lc);
-    //profiler->printBufferMaxDataNum("chan_jj_relay_loop_kk", chan_jj_relay_loop_kk);
-    //profiler->printBufferMaxDataNum("chan_i_lc", chan_i_lc);
-    //profiler->printBufferMaxDataNum("chan_i_row", chan_i_row);
-    //profiler->printBufferMaxDataNum("chan_jj_relay_loop_i", chan_jj_relay_loop_i);
-    //profiler->printBufferMaxDataNum("chan_kk_relay_loop_i", chan_kk_relay_loop_i);
-    //profiler->printBufferMaxDataNum("chan_k_lc", chan_k_lc);
-    //profiler->printBufferMaxDataNum("chan_m1_addr", chan_m1_addr);
-    //profiler->printBufferMaxDataNum("chan_k_row", chan_k_row);
-    //profiler->printBufferMaxDataNum("chan_i_row_relay_loop_k", chan_i_row_relay_loop_k);
-    //profiler->printBufferMaxDataNum("lse_ld_m1", lse_ld_m1);
-    //profiler->printBufferMaxDataNum("chan_m1_getData", chan_m1_getData);
-    //profiler->printBufferMaxDataNum("chan_jj_relay_loop_k", chan_jj_relay_loop_k);
-    //profiler->printBufferMaxDataNum("chan_m2_addr", chan_m2_addr);
-    //profiler->printBufferMaxDataNum("chan_m2_addr_delay", chan_m2_addr_delay);
-    //profiler->printBufferMaxDataNum("lse_ld_m2", lse_ld_m2);
-    //profiler->printBufferMaxDataNum("chan_mul", chan_mul);
-    //profiler->printBufferMaxDataNum("chan_mul_delay", chan_mul_delay);
-    //profiler->printBufferMaxDataNum("chan_partialSum_addr", chan_partialSum_addr);
-    //profiler->printBufferMaxDataNum("chan_partialSum_addr_delay", chan_partialSum_addr_delay);
-    //profiler->printBufferMaxDataNum("lse_ld_partialSum", lse_ld_partialSum);
-    //profiler->printBufferMaxDataNum("chan_partialSum", chan_partialSum);
-    //profiler->printBufferMaxDataNum("lse_st_partialSum", lse_st_partialSum);
-
 
     //*** Print Lse access 
     debug->getFile() << endl;

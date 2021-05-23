@@ -517,6 +517,7 @@ Lc* Registry::genLcOuterMost(Chan_Node& _lc)
 
 Channel* Registry::genChan(Chan_Node& _chan)
 {
+    // TODO: Set AluOp and const of channel!
     Channel* chan_ = nullptr;
     if (_chan.node_name == "Chan_begin" || _chan.node_name == "Chan_end")
     {
@@ -904,50 +905,73 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
         }
     }
 
-    // gen debugPrint
-    _config_file << std::endl;
-    _config_file << "*********************************************" << std::endl;
-    _config_file << "******* Below is gen debug print *******" << std::endl;
-    _config_file << "*********************************************" << std::endl;
-    _config_file << std::endl;
+    //// gen debugPrint
+    //_config_file << std::endl;
+    //_config_file << "*********************************************" << std::endl;
+    //_config_file << "******* Below is gen debug print *******" << std::endl;
+    //_config_file << "*********************************************" << std::endl;
+    //_config_file << std::endl;
 
-    // Print chan
-    _config_file << "//** Print channle" << std::endl;
+    //// Print chan
+    //_config_file << "//** Print channle" << std::endl;
+    //for (auto& chanName : simNodes)
+    //{
+    //    auto& entry = getRegistryTableEntry(chanName);
+    //    if (entry.moduleType == ModuleType::Channel)
+    //    {
+    //        if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+    //        {
+    //            _config_file << "debug->lsePrint(\"" << chanName << "\", " << "dynamic_cast<Lse*>(" << chanName << "));" << std::endl;
+    //        }
+    //        else
+    //        {
+    //            _config_file << "debug->chanPrint(\"" << chanName << "\", " << chanName << ");" << std::endl;
+    //        }
+    //    }
+    //    else if (entry.moduleType == ModuleType::Lc)
+    //    {
+    //        _config_file << "debug->getFile() << std::endl;" << std::endl;
+    //        _config_file << "debug->getFile() << \"************ Lc: \" << \"" << chanName << "\" << \"***********\" << std::endl;" << std::endl;
+    //        _config_file << "debug->chanPrint(\"" << chanName << "->loopVar" << "\", " << chanName << "->loopVar" << ");" << std::endl;
+    //    }
+    //}
+
+    //// Print End signal
+    //_config_file << std::endl;
+    //_config_file << "debug->getFile() << std::endl;" << std::endl;
+    //_config_file << "debug->getFile() << \"*****************  End signal  *****************\" << std::endl;" << std::endl;
+    //for (auto& chanName : simNodes)
+    //{
+    //    auto& entry = getRegistryTableEntry(chanName);
+    //    if (entry.moduleType == ModuleType::Lc)
+    //    {
+    //        _config_file << "debug->chanPrint(\"" << chanName << "->getEnd" << "\", " << chanName << "->getEnd" << ");";
+    //        _config_file << "debug->getFile() << \"" << chanName << " loopEnd: \" << " << chanName << "->loopEnd << std::endl;" << std::endl;
+    //    }
+    //}
+}
+
+auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vector<Lc*>>
+{
+    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+    vector<Channel*> chans;
+    vector<Lc*> lc;
+
     for (auto& chanName : simNodes)
     {
         auto& entry = getRegistryTableEntry(chanName);
         if (entry.moduleType == ModuleType::Channel)
         {
-            if (entry.chanPtr->chanType == ChanType::Chan_Lse)
-            {
-                _config_file << "debug->lsePrint(\"" << chanName << "\", " << "dynamic_cast<Lse*>(" << chanName << "));" << std::endl;
-            }
-            else
-            {
-                _config_file << "debug->chanPrint(\"" << chanName << "\", " << chanName << ");" << std::endl;
-            }
+            chans.push_back(entry.chanPtr);
         }
         else if (entry.moduleType == ModuleType::Lc)
         {
-            _config_file << "debug->getFile() << std::endl;" << std::endl;
-            _config_file << "debug->getFile() << \"************ Lc: \" << \"" << chanName << "\" << \"***********\" << std::endl;" << std::endl;
-            _config_file << "debug->chanPrint(\"" << chanName << "->loopVar" << "\", " << chanName << "->loopVar" << ");" << std::endl;
+            chans.push_back(entry.lcPtr->loopVar);
+            lc.push_back(entry.lcPtr);
         }
     }
 
-    // Print End signal
-    _config_file << std::endl;
-    _config_file << "debug->getFile() << std::endl;" << std::endl;
-    _config_file << "debug->getFile() << \"*****************  End signal  *****************\" << std::endl;" << std::endl;
-    for (auto& chanName : simNodes)
-    {
-        auto& entry = getRegistryTableEntry(chanName);
-        if (entry.moduleType == ModuleType::Lc)
-        {
-            _config_file << "debug->chanPrint(\"" << chanName << "->getEnd" << "\", " << chanName << "->getEnd" << ");";
-            _config_file << "debug->getFile() << \"" << chanName << " loopEnd: \" << " << chanName << "->loopEnd << std::endl;" << std::endl;
-        }
-    }
+    return make_tuple(chans, lc);
 }
 
 void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup)

@@ -63,6 +63,7 @@ namespace DFSim
         // Gen configuration
         void genSimConfig(ChanGraph& _chanGraph);
         void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
+        auto genDebugPrint(ChanGraph& _chanGraph) -> tuple<vector<Channel*>, vector<Lc*>>;
         // simulation
         void sim();
 

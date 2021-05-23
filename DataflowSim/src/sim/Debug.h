@@ -31,6 +31,7 @@ namespace DFSim
         void memSysPrint(const MemSystem* _memSys);
         void printRegistry(const Registry* _registry);
         void printSimNodes(ChanGraph& _chanGraph);
+        void printSimInfo(const vector<Channel*>& _chans, const vector<Lc*> _lc);
 
         template <typename T>
         void vecPrint(const string name, const vector<T>& vec)
