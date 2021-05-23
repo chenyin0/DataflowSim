@@ -309,8 +309,8 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
         //** Print log
         // Set debug mode
-        debug->debug_mode = Debug_mode::Print_detail;
-        //debug->debug_mode = Debug_mode::Turn_off;
+        //debug->debug_mode = Debug_mode::Print_detail;
+        debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*37500 > iter && iter > 34500*/ iter >= 0)
         {
@@ -412,10 +412,11 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
-    profiler->printLseProfiling("Lse_temp_x", dynamic_cast<Lse*>(Lse_temp_x));
-    profiler->printLseProfiling("Lse_m2_data", dynamic_cast<Lse*>(Lse_m2_data));
-    profiler->printLseProfiling("Lse_prod_data", dynamic_cast<Lse*>(Lse_prod_data));
-    profiler->printLseProfiling("Lse_prod_data_update_st", dynamic_cast<Lse*>(Lse_prod_data_update_st));
+    profiler->printLseProfiling();
+    //profiler->printLseProfiling("Lse_temp_x", dynamic_cast<Lse*>(Lse_temp_x));
+    //profiler->printLseProfiling("Lse_m2_data", dynamic_cast<Lse*>(Lse_m2_data));
+    //profiler->printLseProfiling("Lse_prod_data", dynamic_cast<Lse*>(Lse_prod_data));
+    //profiler->printLseProfiling("Lse_prod_data_update_st", dynamic_cast<Lse*>(Lse_prod_data_update_st));
 
     //*** Print cache 
     debug->getFile() << endl;

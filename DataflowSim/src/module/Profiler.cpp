@@ -155,3 +155,14 @@ void Profiler::printChanProfiling()
         }
     }
 }
+
+void Profiler::printLseProfiling()
+{
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Lse)
+        {
+            printLseProfiling(entry.chanPtr->moduleName, dynamic_cast<Lse*>(entry.chanPtr));
+        }
+    }
+}

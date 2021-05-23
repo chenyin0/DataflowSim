@@ -32,6 +32,7 @@ namespace DFSim
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
         void updateChanUtilization();
         void printChanProfiling();
+        void printLseProfiling();
 
     private:
         vector<ProfilingTable> profilingTable;
