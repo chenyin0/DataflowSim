@@ -7,6 +7,7 @@
 #include "../../src/module/ClkSys.h"
 #include "../../src/sim/Debug.h"
 #include "../../src/module/Registry.h"
+#include "../../src/module/Profiler.h"
 
 /*
     Lud src code from Rodinia benchmark suite
@@ -21,12 +22,17 @@ namespace DFSimTest
     public:
         static void lud_Base(Debug* debug);
         static void lud_DGSF(Debug* debug);
+        static void lud_Base_auto(Debug* debug);
 
     private:
         static void generateData();  // Generate benchmark data
+        static void generateDfg();  // Generate Dfg with control tree
+
+        static Dfg dfg;
 
         static vector<int> matrix;
         static uint matrix_size;
+        static uint baseAddr;
 
         // Performance parameter
         // Base
