@@ -11,7 +11,8 @@ namespace DFSim
         Gemm,
         Bfs,
         Aes,
-        Lud
+        Lud,
+        FFT
     };
 
     class App_name_convert
@@ -24,13 +25,15 @@ namespace DFSim
             if (type_ == App_name::MemoryTest)
                 return "MemoryTest";
             if (type_ == App_name::Gemm)
-                return "Gemm";
+                return "gemm";
             if (type_ == App_name::Bfs)
-                return "Bfs";
+                return "bfs";
             if (type_ == App_name::Aes)
-                return "Aes";
+                return "aes";
             if (type_ == App_name::Lud)
-                return "Lud";
+                return "lud";
+            if (type_ == App_name::FFT)
+                return "fft";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

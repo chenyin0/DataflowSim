@@ -161,6 +161,7 @@
     <ClInclude Include="src\util\util.hpp" />
     <ClInclude Include="test\aes\Aes.h" />
     <ClInclude Include="test\bfs\Bfs.h" />
+    <ClInclude Include="test\fft\fft.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\lud\Lud.h" />
     <ClInclude Include="test\memory_test\MemoryTest.h" />
@@ -192,6 +193,8 @@
     <ClCompile Include="test\aes\Aes_DGSF.cpp" />
     <ClCompile Include="test\bfs\Bfs.cpp" />
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
+    <ClCompile Include="test\fft\fft.cpp" />
+    <ClCompile Include="test\fft\fft_Base.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp" />

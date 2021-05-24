@@ -13,6 +13,7 @@
 #include "../test/bfs/Bfs.h"
 #include "../test/aes/Aes.h"
 #include "../test/lud/Lud.h"
+#include "../test/fft/fft.h"
 
 #include "./module/execution/Channel.h"
 
@@ -137,6 +138,23 @@ int main()
         case ArchType::SGMF:
             //DFSimTest::LudTest::lud_SGMF(debug);
             break;
+        }
+
+        break;
+    }
+    case App_name::FFT:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::FFT_Test::fft_Base(debug);
+            break;
+        //case ArchType::DGSF:
+        //    DFSimTest::AesTest::aes_DGSF(debug);
+        //    break;
+        //case ArchType::SGMF:
+        //    //DFSimTest::AesTest::bfs_SGMF(debug);
+        //    break;
         }
 
         break;

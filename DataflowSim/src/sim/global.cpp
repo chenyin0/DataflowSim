@@ -9,7 +9,7 @@ MemoryTest
 Gemm
 Bfs
 */
-App_name Global::app_name = App_name::Gemm;
+App_name Global::app_name = App_name::FFT;
 string Global::file_path = "./resource/" + App_name_convert::toString(app_name) + "/";
 
 //** Define Arch

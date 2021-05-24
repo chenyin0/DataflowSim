@@ -44,17 +44,8 @@
     <Filter Include="resource\MemoryTest">
       <UniqueIdentifier>{45935b0d-d59b-4ba2-86b5-4557cd3dde11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resource\Gemm">
-      <UniqueIdentifier>{64aae03b-8412-4afa-9b50-7f42875185f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\Bfs">
-      <UniqueIdentifier>{5ea00ce2-2f4d-4ad9-adfa-014edd16889e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="test\aes">
       <UniqueIdentifier>{e65f8a17-0351-4275-b7aa-b2d10279fb50}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\Aes">
-      <UniqueIdentifier>{7e9db1e6-7725-4dfe-bb48-2ff6971d954e}</UniqueIdentifier>
     </Filter>
     <Filter Include="test\memory_test">
       <UniqueIdentifier>{285e521b-da57-44b1-8dfa-fffec004b6d2}</UniqueIdentifier>
@@ -64,9 +55,6 @@
     </Filter>
     <Filter Include="test\lud">
       <UniqueIdentifier>{b97ad591-1837-4e9e-858e-43d6e5f6ec4a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\Lud">
-      <UniqueIdentifier>{7bfcbddf-13a2-4bf0-97c5-15b3cb12cc4e}</UniqueIdentifier>
     </Filter>
     <Filter Include="test\viterbi">
       <UniqueIdentifier>{efe319ef-8031-4965-aca6-8e294ccc305f}</UniqueIdentifier>
@@ -97,6 +85,18 @@
     </Filter>
     <Filter Include="lib\metis">
       <UniqueIdentifier>{c05ac80f-bfa6-499d-a68e-f5a419bfea3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\aes">
+      <UniqueIdentifier>{7e9db1e6-7725-4dfe-bb48-2ff6971d954e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\bfs">
+      <UniqueIdentifier>{5ea00ce2-2f4d-4ad9-adfa-014edd16889e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\gemm">
+      <UniqueIdentifier>{64aae03b-8412-4afa-9b50-7f42875185f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\lud">
+      <UniqueIdentifier>{7bfcbddf-13a2-4bf0-97c5-15b3cb12cc4e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +196,9 @@
     </ClInclude>
     <ClInclude Include="lib\metis\metis.h">
       <Filter>lib\metis</Filter>
+    </ClInclude>
+    <ClInclude Include="test\fft\fft.h">
+      <Filter>test\fft</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -310,10 +313,16 @@
     <ClCompile Include="src\sim\global.cpp">
       <Filter>src\sim</Filter>
     </ClCompile>
+    <ClCompile Include="test\fft\fft.cpp">
+      <Filter>test\fft</Filter>
+    </ClCompile>
+    <ClCompile Include="test\fft\fft_Base.cpp">
+      <Filter>test\fft</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\Gemm\Gemm_log_Base.txt">
-      <Filter>resource\Gemm</Filter>
+      <Filter>resource\gemm</Filter>
     </Text>
     <Text Include="resource\MemoryTest\memory_test.txt">
       <Filter>resource\MemoryTest</Filter>
@@ -331,22 +340,22 @@
       <Filter>resource\SimpleFlowTest</Filter>
     </Text>
     <Text Include="resource\Bfs\Bfs_log_SGMF.txt">
-      <Filter>resource\Bfs</Filter>
+      <Filter>resource\bfs</Filter>
     </Text>
     <Text Include="resource\Gemm\Gemm_log_DGSF.txt">
-      <Filter>resource\Gemm</Filter>
+      <Filter>resource\gemm</Filter>
     </Text>
     <Text Include="resource\Aes\Aes_log_Base.txt">
-      <Filter>resource\Aes</Filter>
+      <Filter>resource\aes</Filter>
     </Text>
     <Text Include="resource\Aes\Aes_log_DGSF.txt">
-      <Filter>resource\Aes</Filter>
+      <Filter>resource\aes</Filter>
     </Text>
     <Text Include="resource\Lud\Lud_log_Base.txt">
-      <Filter>resource\Lud</Filter>
+      <Filter>resource\lud</Filter>
     </Text>
     <Text Include="resource\Lud\Lud_log_DGSF.txt">
-      <Filter>resource\Lud</Filter>
+      <Filter>resource\lud</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -354,7 +363,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\Bfs\input.data">
-      <Filter>resource\Bfs</Filter>
+      <Filter>resource\bfs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
