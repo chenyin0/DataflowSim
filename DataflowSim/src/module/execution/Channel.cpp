@@ -317,6 +317,11 @@ void Channel::pushBuffer(int _data, uint _bufferId)
     {
         uint upstreamId = _bufferId;
         Data data = upstream[upstreamId]->channel.front();
+        // If the upstream data isCond, data cond depends on the data value
+        if (upstream[upstreamId]->isCond)
+        {
+            data.cond = _data ? 1 : 0;
+        }
         data.value = _data;
         //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
 
@@ -708,29 +713,31 @@ void ChanBase::pushChannel()
         // Inherit data cond from upstream channel
         if (!getIsCond)
         {
-            if (!upstream[0]->isCond)
-            {
-                bool getCond = 0;
-                for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
-                {
-                    if (getCond)
-                    {
-                        if (data.cond != chanBuffer[chanId].front().cond)
-                        {
-                            Debug::throwError("The cond flag of each upstream channel is not consistent!", __FILE__, __LINE__);
-                        }
-                    }
-                    else
-                    {
-                        data.cond = chanBuffer[chanId].front().cond;
-                        getCond = 1;
-                    }
-                }
-            }
-            else
-            {
-                data.cond = chanBuffer[0].front().cond;
-            }
+            //if (!upstream[0]->isCond)
+            //{
+            //    bool getCond = 0;
+            //    for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
+            //    {
+            //        if (getCond)
+            //        {
+            //            if (data.cond != chanBuffer[chanId].front().cond)
+            //            {
+            //                Debug::throwError("The cond flag of each upstream channel is not consistent!", __FILE__, __LINE__);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            data.cond = chanBuffer[chanId].front().cond;
+            //            getCond = 1;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    data.cond = chanBuffer[0].front().cond;
+            //}
+
+            data.cond = chanBuffer[0].front().cond;
         }
 
         channel.push_back(data);

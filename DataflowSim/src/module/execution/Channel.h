@@ -149,6 +149,7 @@ class Channel usage:
         vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         vector<int> buffer2Alu;  // Store ChanBuffer.front().value
         ChanType chanType;
+        Alu_op aluOp = Alu_op::Nop;
 
         int value = 0;  // Channel value, for config code
         
@@ -164,7 +165,6 @@ class Channel usage:
         int currId = 1;    // Current threadID, start at 1
         //uint chanClk = 0;  // Used for func parallelize()
         //vector<int> lastPopVal;  // Record last data poped by each chanBuffer
-        Alu_op aluOp = Alu_op::Nop;
         vector<int*> operand;  // Point operand to corresponding aluInput[bufferId] in Registry according to the opcode
         vector<int> aluInput = { 1,1,1 };
         vector<int> constant;  // Store constant
