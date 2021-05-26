@@ -883,9 +883,16 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
                     }
                     else
                     {
-                        for (auto& preNode : _chanGraph.getNode(chanName)->pre_nodes_data)
+                        // Assign by chanName
+                        /*for (auto& preNode : _chanGraph.getNode(chanName)->pre_nodes_data)
                         {
                             _config_file << chanName << "->assign(" << preNode << ")";
+                        }*/
+
+                        // Assign by chanBufferId, to support add chanDGSF
+                        for (size_t bufferId = 0; bufferId < _chanGraph.getNode(chanName)->pre_nodes_data.size(); ++bufferId)
+                        {
+                            _config_file << chanName << "->assign(uint(" << bufferId << "))";
                         }
                         _config_file << ";";
                     }
