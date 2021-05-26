@@ -300,24 +300,41 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     idx_t nParts = static_cast<idx_t>(devideNum);  // Subgraph number
     idx_t objval;
     std::vector<idx_t> part(nVertices, 0);
+    idx_t options[METIS_NOPTIONS];
+    METIS_SetDefaultOptions(options);
+    options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+    options[METIS_OPTION_CONTIG] = 1;
+    options[METIS_OPTION_UFACTOR] = 1000;  // Don't care of task balancing
+
+
     // TODO: select the best graph split function!
-    if (devideNum > 8)
+    if (devideNum > 1)
     {
-        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
+        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
     }
     else
     {
-        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
+        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
     }
+
+    //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
 
     for (size_t i = 0; i < part.size(); ++i)
     {
         nodes[i]->subgraphId = part[i];
     }
 
-    //for (auto& node : dfg.nodes)
+    //// Print each subgraph
+    //for (size_t i = 0; i < devideNum; ++i)
     //{
-    //    std::cout << node.second.kPartId << std::endl;
+    //    std::cout << "SubgraphId: " << i << std::endl;
+    //    for (auto& node : nodes)
+    //    {
+    //        if (node->subgraphId == i)
+    //        {
+    //            std::cout << "\t" << node->node_name << std::endl;
+    //        }
+    //    }
     //}
 
     uint adjacentEdgeNum = 0;
@@ -363,13 +380,84 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     std::cout << std::endl;
     std::cout << ">>> Part_num: " << _subgraphNum << std::endl;
     std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
-    std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
     std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
+    std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+    std::cout << std::endl;
     std::cout << "coalesce_rate: " << coalesceRate << std::endl;
     std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
     std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
     std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
     std::cout << std::endl;
+}
+
+void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
+{
+    // Print each subgraph
+    debug->getFile() << "********** Subgraph partitiion scheme ************ " << std::endl;
+    for (size_t i = 0; i < divideNum; ++i)
+    {
+        debug->getFile() << "SubgraphId: " << i << std::endl;
+        for (auto& node:nodes)
+        {
+            if (node->subgraphId == i)
+            {
+                debug->getFile() << "\t" << node->node_name << std::endl;
+            }
+        }
+    }
+
+    uint adjacentEdgeNum = 0;
+    for (size_t i = 0; i < nodes.size(); ++i)
+    {
+        uint partId = nodes[i]->subgraphId;
+        vector<string> preNodes;
+        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+        for (auto& preNode : preNodes)
+        {
+            if (getNode(preNode)->subgraphId != partId)
+            {
+                adjacentEdgeNum++;
+            }
+        }
+    }
+
+    uint actualNodeNum = 0;
+    uint memNormAccessNum = 0;
+    for (auto& node : nodes)
+    {
+        auto nodePtr = dynamic_cast<Chan_Node*>(node);
+        if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
+        {
+            ++actualNodeNum;
+        }
+
+        if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
+        {
+            ++memNormAccessNum;
+        }
+    }
+
+    uint arraySize = 64;
+    uint maxCoalesceRate = 8;
+    // TODO: Figure out actual coalesceRate of each subgraph
+    uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
+    float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
+    float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
+    float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "********** Partition statistic ************* " << std::endl;
+    debug->getFile() << ">>> Part_num: " << divideNum << std::endl;
+    debug->getFile() << "totalActualNodeNum: " << actualNodeNum << std::endl;
+    debug->getFile() << "normalMemAccessNum: " << memNormAccessNum << std::endl;
+    debug->getFile() << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "coalesce_rate: " << coalesceRate << std::endl;
+    debug->getFile() << "mem_access_num_inter: " << memAccessInterNum << std::endl;
+    debug->getFile() << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
+    debug->getFile() << "total_mem_access_num: " << memAccessTotalNum << std::endl;
+    debug->getFile() << std::endl;
 }
 
 //void Graph::addNode(const string& _nodeName)
@@ -493,7 +581,15 @@ void Dfg::setTheTailNode(const string& targetCtrlRegion, string nodeName)
     auto& nodeType_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_type; 
     if (nodeType_ == "Normal")
     {
-        nodeName = "Chan_" + nodeName;
+        auto& nodeOp_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_op;
+        if (nodeOp_ == "Load" || nodeOp_ == "Store")
+        {
+            nodeName = "Lse_" + nodeName;
+        }
+        else
+        {
+            nodeName = "Chan_" + nodeName;
+        }
     }
     else if (nodeType_ == "Lc")
     {
@@ -873,7 +969,7 @@ void ChanGraph::addSpecialModeChan()
                             {
                                 nodes[findNodeIndex(*iter)->second]->next_nodes_data.push_back(nextNode->node_name);
                             }
-                            else if (iter_data != nextNode->pre_nodes_active.end())
+                            else if (iter_active != nextNode->pre_nodes_active.end())
                             {
                                 nodes[findNodeIndex(*iter)->second]->next_nodes_active.push_back(nextNode->node_name);
                             }

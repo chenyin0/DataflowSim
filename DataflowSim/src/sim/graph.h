@@ -4,6 +4,7 @@
 
 namespace DFSim
 {
+    class Debug;
     struct Node
     {
         Node(string _nodeName) : node_name(_nodeName) {}
@@ -76,6 +77,7 @@ namespace DFSim
         void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
         tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> csrFormat(uint _edgeWeightWithinCtrlRegion);
         void subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion);
+        void printSubgraphPartition(const uint& devideNum, Debug* debug);
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);
