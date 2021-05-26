@@ -287,7 +287,7 @@ tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> Graph::csrFormat(uint _
 
 void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion)
 {
-    uint devideNum = _subgraphNum;
+    uint divideNum = _subgraphNum;
     auto dfgCsr = csrFormat(_edgeWeightWithinCtrlRegion);
     vector<idx_t> cluster;
     vector<idx_t> xadj = std::get<0>(dfgCsr);
@@ -297,27 +297,47 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     idx_t nVertices = xadj.size() - 1;  // Vertex number
     idx_t nEdges = adjncy.size() / 2;  // Edge number
     idx_t nWeights = 1;
-    idx_t nParts = static_cast<idx_t>(devideNum);  // Subgraph number
+    idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
     idx_t objval;
     std::vector<idx_t> part(nVertices, 0);
     idx_t options[METIS_NOPTIONS];
     METIS_SetDefaultOptions(options);
     options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
     options[METIS_OPTION_CONTIG] = 1;
-    options[METIS_OPTION_UFACTOR] = 1000;  // Don't care of task balancing
 
-
-    // TODO: select the best graph split function!
-    if (devideNum > 1)
+    int ufactor = 4096;
+    bool validPartition = 1;
+    while (1)  // Ensure each subgraph at least has one node
     {
-        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-    }
-    else
-    {
-        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        validPartition = 1;
+        options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+        // TODO: select the best graph split function!
+        if (divideNum > 1)
+        {
+            int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        }
+        else
+        {
+            int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        }
+
+        for (size_t i = 0; i < divideNum; ++i)
+        {
+            if (find(part.begin(), part.end(), i) == part.end())
+            {
+                validPartition = 0;
+                ufactor >>= 1;
+                break;
+            }
+        }
+
+        if (validPartition)
+        {
+            break;
+        }
     }
 
-    //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, NULL, &objval, part.data());
+    //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
 
     for (size_t i = 0; i < part.size(); ++i)
     {
@@ -370,9 +390,9 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     }
 
     uint arraySize = 64;
-    uint maxCoalesceRate = 8;
+    uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
     // TODO: Figure out actual coalesceRate of each subgraph
-    uint coalesceRate = std::min(arraySize / (actualNodeNum / devideNum), maxCoalesceRate);
+    uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
     float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
     float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
@@ -439,7 +459,7 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
     }
 
     uint arraySize = 64;
-    uint maxCoalesceRate = 8;
+    uint maxCoalesceRate = BANK_BLOCK_SIZE/DATA_PRECISION;
     // TODO: Figure out actual coalesceRate of each subgraph
     uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
