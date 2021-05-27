@@ -312,7 +312,7 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
         validPartition = 1;
         options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
         // TODO: select the best graph split function!
-        if (divideNum > 1)
+        if (divideNum > 8)
         {
             int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
         }

@@ -14,6 +14,7 @@
 #include "../test/aes/Aes.h"
 #include "../test/lud/Lud.h"
 #include "../test/fft/fft.h"
+#include "../test/viterbi/viterbi.h"
 
 #include "./module/execution/Channel.h"
 
@@ -32,6 +33,7 @@ int main()
     debug->getFile() << std::endl;
     debug->getFile() << "******  System Config  *******" << std::endl;
     debug->getFile() << "Arch: " << xstr(ARCH) << std::endl;
+    debug->getFile() << "Benchmark: " << App_name_convert::toString(Global::app_name) << std::endl;
     debug->getFile() << std::endl;
     debug->getFile() << "******************************" << std::endl;
 #endif
@@ -130,7 +132,8 @@ int main()
         switch (Global::arch)
         {
         case ArchType::Base:
-            DFSimTest::LudTest::lud_Base(debug);
+            //DFSimTest::LudTest::lud_Base(debug);
+            DFSimTest::LudTest::lud_Base_auto(debug);
             break;
         case ArchType::DGSF:
             DFSimTest::LudTest::lud_DGSF(debug);
@@ -155,6 +158,23 @@ int main()
         //case ArchType::SGMF:
         //    //DFSimTest::AesTest::bfs_SGMF(debug);
         //    break;
+        }
+
+        break;
+    }
+    case App_name::Viterbi:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Viterbi_Test::viterbi_Base(debug);
+            break;
+            //case ArchType::DGSF:
+            //    DFSimTest::AesTest::aes_DGSF(debug);
+            //    break;
+            //case ArchType::SGMF:
+            //    //DFSimTest::AesTest::bfs_SGMF(debug);
+            //    break;
         }
 
         break;

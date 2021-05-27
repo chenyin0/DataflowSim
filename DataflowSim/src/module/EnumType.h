@@ -12,7 +12,8 @@ namespace DFSim
         Bfs,
         Aes,
         Lud,
-        FFT
+        FFT,
+        Viterbi
     };
 
     class App_name_convert
@@ -34,6 +35,8 @@ namespace DFSim
                 return "lud";
             if (type_ == App_name::FFT)
                 return "fft";
+            if (type_ == App_name::Viterbi)
+                return "viterbi";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

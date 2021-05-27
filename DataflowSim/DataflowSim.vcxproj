@@ -165,6 +165,7 @@
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\lud\Lud.h" />
     <ClInclude Include="test\memory_test\MemoryTest.h" />
+    <ClInclude Include="test\viterbi\viterbi.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -201,11 +202,14 @@
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
     <ClCompile Include="test\lud\Lud.cpp" />
     <ClCompile Include="test\lud\Lud_Base.cpp" />
+    <ClCompile Include="test\lud\lud_Base_auto.cpp" />
     <ClCompile Include="test\lud\Lud_DGSF.cpp" />
     <ClCompile Include="test\memory_test\MemoryTest.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_SGMF.cpp" />
+    <ClCompile Include="test\viterbi\viterbi.cpp" />
+    <ClCompile Include="test\viterbi\viterbi_Base.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\Aes\Aes_log_Base.txt" />

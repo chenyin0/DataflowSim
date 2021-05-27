@@ -31,6 +31,7 @@ namespace DFSim
         void updateBufferMaxDataNum();  // Record the peak data number in chanBuffer for path balancing
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
         void updateChanUtilization();
+        void updateChanUtilization(uint _currSubgraphId);
         void printChanProfiling();
         void printLseProfiling();
 
@@ -38,7 +39,7 @@ namespace DFSim
         vector<ProfilingTable> profilingTable;
         vector<uint> maxDataNum;  // Record each buffer's peak data number
         Registry* registry = nullptr;
-        Debug* debugger = nullptr;
+        Debug* debug = nullptr;
         MemSystem* memSys = nullptr;
     };
 }

@@ -19,8 +19,8 @@
 //2) SGMF: channel size = 2;
 //3) TIA(instruction-based): much less PEs; fine-grained synchronization(the channel execute cycle is longer)
 
-#define Base Base
-//#define DGSF DGSF
+//#define Base Base
+#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -88,12 +88,12 @@
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 8  //32  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 16  //32  // MemSystem reqQueue bank number, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4  // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
-#define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
+#define MEMSYS_COALESCER_ENTRY_NUM 8  // 32
 #define MEMSYS_COALESCER_SIZY_PER_ENTRY 8  // 8
 
 // SPM

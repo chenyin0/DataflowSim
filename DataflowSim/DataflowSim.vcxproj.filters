@@ -200,6 +200,9 @@
     <ClInclude Include="test\fft\fft.h">
       <Filter>test\fft</Filter>
     </ClInclude>
+    <ClInclude Include="test\viterbi\viterbi.h">
+      <Filter>test\viterbi</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -318,6 +321,15 @@
     </ClCompile>
     <ClCompile Include="test\fft\fft_Base.cpp">
       <Filter>test\fft</Filter>
+    </ClCompile>
+    <ClCompile Include="test\lud\lud_Base_auto.cpp">
+      <Filter>test\lud</Filter>
+    </ClCompile>
+    <ClCompile Include="test\viterbi\viterbi_Base.cpp">
+      <Filter>test\viterbi</Filter>
+    </ClCompile>
+    <ClCompile Include="test\viterbi\viterbi.cpp">
+      <Filter>test\viterbi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
