@@ -79,7 +79,9 @@ namespace DFSim
         auto genAdjacentMatrix()->vector<vector<uint>>;
         uint genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
         void subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion);
+        void sortSubgraphId(deque<Node*>& nodes, uint subgraphNum);  // Sort subgraphId to consistent with dataflow sequence
         void printSubgraphPartition(const uint& devideNum, Debug* debug);
+        vector<string> bfsTraverseNode();  // Generate simulation sequence
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);
@@ -141,7 +143,7 @@ namespace DFSim
         string findNodeCtrlRegionInLoopHierarchy(string _nodeName, vector<ControlRegion> _loopHierarchy);
         void insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes);  // Add a chanNode between preNodes and nextNodes (at least one of them's size must equal to one)
         //string findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy);
-        vector<string> bfsTraverseNode();  // Generate simulation sequence
+        //vector<string> bfsTraverseNode();  // Generate simulation sequence
  
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;

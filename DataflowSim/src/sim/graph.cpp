@@ -421,6 +421,8 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
         nodes[i]->subgraphId = part[i];
     }
 
+    sortSubgraphId(nodes, divideNum);
+
     //// Print each subgraph
     //for (size_t i = 0; i < devideNum; ++i)
     //{
@@ -485,6 +487,67 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
     std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
     std::cout << std::endl;
+}
+
+void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
+{
+    //auto simNodes = bfsTraverseNode();
+    vector<vector<Node*>> subgraphNodes(subgraphNum);
+    vector<uint> subgraphQueue;
+    
+    //if (!simNodes.empty())
+    //{
+    //    subgraphIdVal.insert(make_pair(getNode(simNodes.front())->subgraphId, 0));
+    //}
+
+    //// Generate a rough sort according to BFS
+    //for (auto& node : simNodes)
+    //{
+    //    const auto& nodePtr = getNode(node);
+    //    subgraphNodes[nodePtr->subgraphId].push_back(nodePtr);
+
+    //    if (find(subgraphQueue.begin(), subgraphQueue.end(), nodePtr->subgraphId) == subgraphQueue.end())
+    //    {
+    //        subgraphQueue.push_back(nodePtr->subgraphId);
+    //    }
+    //}
+
+    for (auto& node : nodes)
+    {
+        subgraphNodes[node->subgraphId].push_back(node);
+
+        if (find(subgraphQueue.begin(), subgraphQueue.end(), node->subgraphId) == subgraphQueue.end())
+        {
+            subgraphQueue.push_back(node->subgraphId);
+        }
+    }
+
+    // Sort
+    for (auto iter = subgraphQueue.begin(); iter != subgraphQueue.end(); ++iter)
+    {
+        for (auto& node : subgraphNodes[*iter])
+        {
+            vector<string> nextNodes;
+            nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
+            nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
+            for (auto& nextNode : nextNodes)
+            {
+                auto iter_ = find(subgraphQueue.begin(), subgraphQueue.end(), getNode(nextNode)->subgraphId);
+                if (iter_ < iter)
+                {
+                    swap(*iter, *iter_);
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < subgraphQueue.size(); ++i)
+    {
+        for (auto* node : subgraphNodes[subgraphQueue[i]])
+        {
+            node->subgraphId = i;  // Update subgraphId
+        }
+    }
 }
 
 void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
@@ -555,6 +618,52 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
     debug->getFile() << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
     debug->getFile() << "total_mem_access_num: " << memAccessTotalNum << std::endl;
     debug->getFile() << std::endl;
+}
+
+vector<string> Graph::bfsTraverseNode()
+{
+    vector<string> bfsNodeTree;
+    deque<string> queue;
+    for (auto& node : nodes)
+    {
+        if (node->pre_nodes_data.empty() && node->pre_nodes_active.empty())
+        {
+            queue.push_back(node->node_name);
+        }
+    }
+
+    while (!queue.empty())
+    {
+        vector<string> nextNodes;
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
+        for (auto& nextNode : nextNodes)
+        {
+            queue.push_back(nextNode);
+        }
+
+        bfsNodeTree.push_back(queue.front());
+        queue.pop_front();
+    }
+
+    // Remove redundant node
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    vector<string> hasFound;
+    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+    {
+        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+        {
+            iter = bfsNodeTree.erase(iter);
+        }
+        else
+        {
+            hasFound.push_back(*iter);
+            ++iter;
+        }
+    }
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+
+    return bfsNodeTree;
 }
 
 //void Graph::addNode(const string& _nodeName)
@@ -1478,44 +1587,44 @@ vector<string> ChanGraph::bfsTraverseControlTree(ControlTree& ctrlTree)
     return bfsCtrlTree;
 }
 
-vector<string> ChanGraph::bfsTraverseNode()
-{
-    vector<string> bfsNodeTree;
-    deque<string> queue = { "Chan_begin" };
-
-    while (!queue.empty())
-    {
-        vector<string> nextNodes;
-        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
-        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
-        for (auto& nextNode : nextNodes)
-        {
-            queue.push_back(nextNode);
-        }
-
-        bfsNodeTree.push_back(queue.front());
-        queue.pop_front();
-    }
-
-    // Remove redundant node
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
-    vector<string> hasFound;
-    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
-    {
-        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
-        {
-            iter = bfsNodeTree.erase(iter);
-        }
-        else
-        {
-            hasFound.push_back(*iter);
-            ++iter;
-        }
-    }
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
-
-    return bfsNodeTree;
-}
+//vector<string> ChanGraph::bfsTraverseNode()
+//{
+//    vector<string> bfsNodeTree;
+//    deque<string> queue = { "Chan_begin" };
+//
+//    while (!queue.empty())
+//    {
+//        vector<string> nextNodes;
+//        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
+//        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
+//        for (auto& nextNode : nextNodes)
+//        {
+//            queue.push_back(nextNode);
+//        }
+//
+//        bfsNodeTree.push_back(queue.front());
+//        queue.pop_front();
+//    }
+//
+//    // Remove redundant node
+//    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+//    vector<string> hasFound;
+//    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+//    {
+//        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+//        {
+//            iter = bfsNodeTree.erase(iter);
+//        }
+//        else
+//        {
+//            hasFound.push_back(*iter);
+//            ++iter;
+//        }
+//    }
+//    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+//
+//    return bfsNodeTree;
+//}
 
 vector<string> ChanGraph::backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy)
 {
