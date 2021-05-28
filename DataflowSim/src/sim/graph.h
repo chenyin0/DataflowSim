@@ -75,7 +75,9 @@ namespace DFSim
         auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator;
         bool findNode(const string& _nodeName);
         void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
-        tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> csrFormat(uint _edgeWeightWithinCtrlRegion);
+        auto csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
+        auto genAdjacentMatrix()->vector<vector<uint>>;
+        uint genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
         void subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion);
         void printSubgraphPartition(const uint& devideNum, Debug* debug);
 

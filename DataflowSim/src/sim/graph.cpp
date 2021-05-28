@@ -235,8 +235,76 @@ void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<strin
     }
 }
 
-tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)
+uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy)
 {
+    /*
+    * If span loop ctrlRegion: a) span loop: 
+    *                           -> loop1_rank + loop2_rank (Inner loop prior)  [loopRankFactor]
+    *                           -> loop1_size + loop2_size (Larger loop region prior)  [loopSizeFactor]
+    * 
+    * If not span loop ctrlRegion:  a) span branch  [branchFactor]
+    *                               b) between memory access  [memoryAccessFactor]
+    *                               c) normal edge [baseWgt]
+    */
+
+    uint baseWgt = 200;
+    uint loopRankFactor = 30;
+    uint loopSizeFactor = 5;
+    uint branchFactor = 20;
+    uint memoryAccessFactor = 5;
+    int edgeWgt = baseWgt;
+    
+    uint nodeLoopRank = 0;
+    uint nextNodeLoopRank = 0;
+    vector<uint> loopNodeNum;
+    for (size_t i = 0; i < _loopHierarchy.size(); ++i)
+    {
+        if (find(_loopHierarchy[i].nodes.begin(), _loopHierarchy[i].nodes.end(), node->node_name) != _loopHierarchy[i].nodes.end())
+        {
+            nodeLoopRank = i;
+        }
+        if (find(_loopHierarchy[i].nodes.begin(), _loopHierarchy[i].nodes.end(), nextNode->node_name) != _loopHierarchy[i].nodes.end())
+        {
+            nextNodeLoopRank = i;
+        }
+
+        uint nodeNum = 0;
+        for (auto& node : _loopHierarchy[i].nodes)
+        {
+            if (dynamic_cast<Chan_Node*>(getNode(node))->isPhysicalChan)
+            {
+                ++nodeNum;
+            }
+        }
+        loopNodeNum.push_back(nodeNum);
+    }
+    
+    if (nodeLoopRank != nextNodeLoopRank)
+    {
+        uint loopRank = (nodeLoopRank + nextNodeLoopRank) * loopRankFactor;
+        uint loopSize = (loopNodeNum[nodeLoopRank] + loopNodeNum[nextNodeLoopRank]) * loopSizeFactor;
+        edgeWgt -= (loopRank + loopSize);
+    }
+    else if (node->controlRegionName != nextNode->controlRegionName)
+    {
+        edgeWgt = baseWgt - branchFactor;
+    }
+
+    if (/*dynamic_cast<Chan_Node*>(node)->node_op == "Load" ||*/
+        dynamic_cast<Chan_Node*>(node)->node_op == "Store" ||
+        dynamic_cast<Chan_Node*>(nextNode)->node_op == "Load" /*||
+        dynamic_cast<Chan_Node*>(nextNode)->node_op == "Store"*/)
+    {
+        edgeWgt -= memoryAccessFactor;
+    }
+
+    return std::max(edgeWgt, 1);  // Ensure edgeWgt is positive
+}
+
+auto Graph::genAdjacentMatrix()->vector<vector<uint>>
+{
+    vector<ControlRegion> loopHierarchy_ = dynamic_cast<ChanGraph*>(this)->genLoopHierarchy(controlTree);
+
     // Generate adjacent matrix
     uint dim = nodes.size();
     vector<vector<uint>> matrix(dim, vector<uint>(dim, 0));
@@ -252,22 +320,31 @@ tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>> Graph::csrFormat(uint _
             for (auto& adjNode : adjNodes)
             {
                 uint j = findNodeIndex(adjNode)->second;
-                if (nodes[i]->controlRegionName == nodes[j]->controlRegionName)
-                {
-                    matrix[i][j] = _edgeWeightWithinCtrlRegion;  // Weight of edges within a same ctrlRegion
-                }
-                else
-                {
-                    matrix[i][j] = 1;  // Weight of edges inter two different ctrlRegion
-                }
+                //if (nodes[i]->controlRegionName == nodes[j]->controlRegionName)
+                //{
+                //    matrix[i][j] = _edgeWeightWithinCtrlRegion;  // Weight of edges within a same ctrlRegion
+                //}
+                //else
+                //{
+                //    matrix[i][j] = 1;  // Weight of edges inter two different ctrlRegion
+                //}
+                matrix[i][j] = genEdgeWeight(nodes[i], nodes[j], loopHierarchy_);
             }
         }
     }
+
+    return matrix;
+}
+
+auto Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>
+{
+    auto matrix = genAdjacentMatrix();
 
     // Generate CSR format by adjacent matrix
     vector<int64_t> indPtr(0);
     vector<int64_t> ind(0);
     vector<int64_t> val(0);
+    uint dim = nodes.size();
     for (int i = 0; i < dim; i++)
     {
         indPtr.push_back(ind.size());
