@@ -146,7 +146,7 @@ int Channel::getChanId(Channel* chan)
         }
     }
 
-    Debug::throwError("Not find this channle in upstream vector!", __FILE__, __LINE__);
+    Debug::throwError("Not find this channel in upstream vector!", __FILE__, __LINE__);
     return -1;
 }
 

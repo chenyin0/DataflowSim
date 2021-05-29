@@ -134,19 +134,19 @@ namespace DFSim
         void genChanGraphFromDfg(Dfg& dfg_);  // Generate chanGraph from DFG
         void addSpecialModeChan();  // Add relayMode and drainMode channel
         void addNodeDelay();
+        void addChanDGSF();
         void pathBalance();
-        
+        vector<ControlRegion> genLoopHierarchy(ControlTree& _controlTree);
+       
+    private:
+        void printDotNodeLabel(std::fstream& fileName_) override;
         vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
         vector<string> findShortestCtrlRegionPath(vector<string>& _preNodeCtrlRegionPath, vector<string>& _nextNodeCtrlRegionPath);
         vector<string> backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy);
-        vector<ControlRegion> genLoopHierarchy(ControlTree& _controlTree);
         string findNodeCtrlRegionInLoopHierarchy(string _nodeName, vector<ControlRegion> _loopHierarchy);
         void insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes);  // Add a chanNode between preNodes and nextNodes (at least one of them's size must equal to one)
         //string findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy);
         //vector<string> bfsTraverseNode();  // Generate simulation sequence
- 
-    private:
-        void printDotNodeLabel(std::fstream& fileName_) override;
 
    /* public:
         ControlTree controlTree;*/

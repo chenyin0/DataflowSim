@@ -446,36 +446,38 @@ void Registry::checkChanDGSF(Channel* _chan)
 void Registry::genModule(ChanGraph& _chanGraph)
 {
     auto _nodes = _chanGraph.nodes;
-    for (auto& _module : _nodes)
+    for (auto& node : _nodes)
     {
-        auto controlRegion = _chanGraph.controlTree.getCtrlRegion(_module->controlRegionName);
+        auto controlRegion = _chanGraph.controlTree.getCtrlRegion(node->controlRegionName);
         auto controlType = controlRegion.controlType;
         auto branchPath = controlRegion.branchPath;
-        auto _node_type = dynamic_cast<Chan_Node*>(_module)->node_type;
+        auto _node_type = dynamic_cast<Chan_Node*>(node)->node_type;
         if (_node_type == "ChanBase" || _node_type == "ChanDGSF" || _node_type == "ChanPartialMux")
         {
-            auto chanPtr = genChan(*dynamic_cast<Chan_Node*>(_module));
+            auto chanPtr = genChan(*dynamic_cast<Chan_Node*>(node));
+            chanPtr->subgraphId = node->subgraphId;
             if (controlType == "Branch")
             {
                 chanPtr->branchMode = true;
                 chanPtr->channelCond = branchPath;
             }
             // Set cond for Cmp operation
-            if (dynamic_cast<Chan_Node*>(_module)->node_op == "Cmp")
+            if (dynamic_cast<Chan_Node*>(node)->node_op == "Cmp")
             {
                 chanPtr->isCond = true;
             }
         }
         else if (_node_type == "Lc")
         {
-            auto& controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(_module->controlRegionName)->second];
+            auto& controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(node->controlRegionName)->second];
             if (controlRegion.upperControlRegion.empty())
             {
-                genLcOuterMost(*dynamic_cast<Chan_Node*>(_module));
+                genLcOuterMost(*dynamic_cast<Chan_Node*>(node));
             }
             else
             {
-                auto lcPtr = genLc(*dynamic_cast<Chan_Node*>(_module));
+                auto lcPtr = genLc(*dynamic_cast<Chan_Node*>(node));
+                lcPtr->subgraphId = node->subgraphId;
                 // TODO: not sure whether lc in branchMode works well
                 if (controlType == "Branch")
                 {
@@ -486,8 +488,9 @@ void Registry::genModule(ChanGraph& _chanGraph)
         }
         else if (_node_type == "Lse_ld" || _node_type == "Lse_st")
         {
-            auto lsePtr = genLse(*dynamic_cast<Chan_Node*>(_module));
-            lsePtr->baseAddr = dynamic_cast<Chan_Node*>(_module)->baseAddr;
+            auto lsePtr = genLse(*dynamic_cast<Chan_Node*>(node));
+            lsePtr->subgraphId = node->subgraphId;
+            lsePtr->baseAddr = dynamic_cast<Chan_Node*>(node)->baseAddr;
             if (controlType == "Branch")
             {
                 lsePtr->branchMode = true;
@@ -496,7 +499,8 @@ void Registry::genModule(ChanGraph& _chanGraph)
         }
         else if (_node_type == "Mux")
         {
-            genMux(*dynamic_cast<Chan_Node*>(_module));
+            auto muxPtr = genMux(*dynamic_cast<Chan_Node*>(node));
+            muxPtr->subgraphId = node->subgraphId;
         }
     }
 }
@@ -805,6 +809,56 @@ void Registry::genConnect(ChanGraph& _chanGraph)
 
             auto downstream_ = Util::removeDuplicatesKeepSequence(registryEntry.chanPtr->downstream);
             registryEntry.chanPtr->downstream.assign(downstream_.begin(), downstream_.end());
+        }
+    }
+}
+
+void Registry::configGraphScheduler(GraphScheduler* _graphScheduler)
+{
+    for (auto& entry : registryTable)
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_DGSF)
+        {
+            const auto& _chanPtr = dynamic_cast<ChanDGSF*>(entry.chanPtr);
+            if (_chanPtr->upstream.size() != 1)
+            {
+                Debug::throwError("The upstream of a chanDGSF must equal to 1!", __FILE__, __LINE__);
+            }
+            else
+            {
+                // Inherit branch mode from the upstream channel
+                _chanPtr->isCond = _chanPtr->upstream[0]->isCond;
+                _chanPtr->branchMode = _chanPtr->upstream[0]->branchMode;
+                _chanPtr->channelCond = _chanPtr->upstream[0]->channelCond;
+
+                // Add consumerChan
+                _graphScheduler->addSubgraph(_chanPtr->subgraphId, {}, { _chanPtr });
+                // Add producerChan
+                for (auto& downstreamChan : _chanPtr->downstream)
+                {
+                    _graphScheduler->addSubgraph(downstreamChan->subgraphId, { _chanPtr }, { });
+                }
+
+                // For branch
+                if (_chanPtr->isCond)
+                {
+                    _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, { _chanPtr }, {}, {});
+                }
+                for (auto& downstreamChan : _chanPtr->downstream)
+                {
+                    if (downstreamChan->branchMode)
+                    {
+                        if (downstreamChan->channelCond == true)
+                        {
+                            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {_chanPtr}, {});
+                        }
+                        else
+                        {
+                            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {}, { _chanPtr });
+                        }
+                    }
+                }
+            }
         }
     }
 }

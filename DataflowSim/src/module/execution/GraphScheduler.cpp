@@ -15,13 +15,70 @@ void GraphScheduler::schedulerInit()
 
 void GraphScheduler::addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan, vector<ChanDGSF*> consumerChan)
 {
-    subgraphTable.insert(make_pair(subgraphId, make_pair(producerChan, consumerChan)));
+    if (subgraphTable.find(subgraphId) == subgraphTable.end())
+    {
+        subgraphTable.insert(make_pair(subgraphId, make_pair(producerChan, consumerChan)));
+    }
+    else
+    {
+        for (auto& chan : producerChan)
+        {
+            if (count(subgraphTable[subgraphId].first.begin(), subgraphTable[subgraphId].first.end(), chan) == 0)
+            {
+                subgraphTable[subgraphId].first.push_back(chan);
+            }
+        }
+
+        for (auto& chan : consumerChan)
+        {
+            if (count(subgraphTable[subgraphId].second.begin(), subgraphTable[subgraphId].second.end(), chan) == 0)
+            {
+                subgraphTable[subgraphId].second.push_back(chan);
+            }
+        }
+
+        //subgraphTable[subgraphId].first.insert(subgraphTable[subgraphId].first.end(), producerChan.begin(), producerChan.end());
+        //subgraphTable[subgraphId].second.insert(subgraphTable[subgraphId].second.end(), consumerChan.begin(), consumerChan.end());
+    }
 }
 
 void GraphScheduler::addDivergenceSubgraph(uint subgraphId, vector<ChanDGSF*> commonChan, vector<ChanDGSF*> truePathChan, vector<ChanDGSF*> falsePathChan)
 {
-    vector<vector<ChanDGSF*>> diverGraph = { commonChan, truePathChan, falsePathChan };
-    divergenceGraph.insert(make_pair(subgraphId, diverGraph));
+    if (divergenceGraph.find(subgraphId) == divergenceGraph.end())
+    {
+        vector<vector<ChanDGSF*>> diverGraph = { commonChan, truePathChan, falsePathChan };
+        divergenceGraph.insert(make_pair(subgraphId, diverGraph));
+    }
+    else
+    {
+        for (auto& chan : commonChan)
+        {
+            if (count(divergenceGraph[subgraphId][0].begin(), divergenceGraph[subgraphId][0].end(), chan) == 0)
+            {
+                divergenceGraph[subgraphId][0].push_back(chan);
+            }
+        }
+
+        for (auto& chan : truePathChan)
+        {
+            if (count(divergenceGraph[subgraphId][1].begin(), divergenceGraph[subgraphId][1].end(), chan) == 0)
+            {
+                divergenceGraph[subgraphId][1].push_back(chan);
+            }
+        }
+
+        for (auto& chan : falsePathChan)
+        {
+            if (count(divergenceGraph[subgraphId][2].begin(), divergenceGraph[subgraphId][2].end(), chan) == 0)
+            {
+                divergenceGraph[subgraphId][2].push_back(chan);
+            }
+        }
+
+        //divergenceGraph[subgraphId][0].insert(divergenceGraph[subgraphId][0].end(), commonChan.begin(), commonChan.end());
+        //divergenceGraph[subgraphId][1].insert(divergenceGraph[subgraphId][1].end(), truePathChan.begin(), truePathChan.end());
+        //divergenceGraph[subgraphId][2].insert(divergenceGraph[subgraphId][2].end(), falsePathChan.begin(), falsePathChan.end());
+    }
 }
 
 void GraphScheduler::graphUpdate()

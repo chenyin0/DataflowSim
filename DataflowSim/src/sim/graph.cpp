@@ -228,7 +228,7 @@ void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<strin
 {
     uint index = controlTree.findControlRegionIndex(targetCtrlRegion)->second;
     controlTree.controlRegionTable[index].nodes.insert(controlTree.controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
-    
+
     for (auto& node : nodes_)
     {
         nodes[findNodeIndex(node)->second]->controlRegionName = targetCtrlRegion;
@@ -238,10 +238,10 @@ void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<strin
 uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy)
 {
     /*
-    * If span loop ctrlRegion: a) span loop: 
+    * If span loop ctrlRegion: a) span loop:
     *                           -> loop1_rank + loop2_rank (Inner loop prior)  [loopRankFactor]
     *                           -> loop1_size + loop2_size (Larger loop region prior)  [loopSizeFactor]
-    * 
+    *
     * If not span loop ctrlRegion:  a) span branch  [branchFactor]
     *                               b) between memory access  [memoryAccessFactor]
     *                               c) normal edge [baseWgt]
@@ -253,7 +253,7 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
     uint branchFactor = 20;
     uint memoryAccessFactor = 5;
     int edgeWgt = baseWgt;
-    
+
     uint nodeLoopRank = 0;
     uint nextNodeLoopRank = 0;
     vector<uint> loopNodeNum;
@@ -278,7 +278,7 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
         }
         loopNodeNum.push_back(nodeNum);
     }
-    
+
     if (nodeLoopRank != nextNodeLoopRank)
     {
         uint loopRank = (nodeLoopRank + nextNodeLoopRank) * loopRankFactor;
@@ -494,7 +494,7 @@ void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
     //auto simNodes = bfsTraverseNode();
     vector<vector<Node*>> subgraphNodes(subgraphNum);
     vector<uint> subgraphQueue;
-    
+
     //if (!simNodes.empty())
     //{
     //    subgraphIdVal.insert(make_pair(getNode(simNodes.front())->subgraphId, 0));
@@ -557,7 +557,7 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
     for (size_t i = 0; i < divideNum; ++i)
     {
         debug->getFile() << "SubgraphId: " << i << std::endl;
-        for (auto& node:nodes)
+        for (auto& node : nodes)
         {
             if (node->subgraphId == i)
             {
@@ -599,7 +599,7 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
     }
 
     uint arraySize = 64;
-    uint maxCoalesceRate = BANK_BLOCK_SIZE/DATA_PRECISION;
+    uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
     // TODO: Figure out actual coalesceRate of each subgraph
     uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
@@ -784,7 +784,7 @@ void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<s
 
 void Dfg::setTheTailNode(const string& targetCtrlRegion, string nodeName)
 {
-    auto& nodeType_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_type; 
+    auto& nodeType_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_type;
     if (nodeType_ == "Normal")
     {
         auto& nodeOp_ = dynamic_cast<Dfg_Node*>(getNode(nodeName))->node_op;
@@ -841,7 +841,7 @@ void Dfg::printDotNodeLabel(std::fstream& fileName_)
             {
                 label = nodeName + " [shape=box, fillcolor=\"khaki2\", style=filled]";
             }
-        }     
+        }
 
         fileName_ << label << std::endl;
     }
@@ -914,19 +914,22 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         label = nodeName + " [";
         if (nodeType == "ChanBase" || nodeType == "ChanDGSF" || nodeType == "Lse_ld" || nodeType == "Lse_st")
         {
-            label += "label=\"" + nodeName + "\\n" + 
+            label += "label=\"" + nodeName + "\\n" +
                 "Size:" + to_string(size_) + " "
-                "Cyc:"+ to_string(cycle_) + " "
+                "Cyc:" + to_string(cycle_) + " "
                 "Speed:" + to_string(speedup_) + "\\n" +
-                nodeType + "\"";
+                nodeType + " "
+                "Graph: " + to_string(node->subgraphId) + 
+                "\"";
 
             if (nodeType == "ChanDGSF")
             {
-                label += ", fillcolor=\"cadetblue2\", style=filled";
+                /*label += ", fillcolor=\"cadetblue2\", style=filled";*/
+                label += ", shape=octagon";
             }
             else if (nodeType == "Lse_ld" || nodeType == "Lse_st")
             {
-                label += "fillcolor=\"chartreuse2\", style=filled";
+                label += ", fillcolor=\"chartreuse2\", style=filled";
             }
         }
         else if (nodeType == "Lc" || nodeType == "Mux")
@@ -963,7 +966,7 @@ void ChanGraph::genChanGraphFromDfg(Dfg& dfg_)
     {
         controlRegion.nodes.clear();  // Clear dfgNode
     }
-    
+
     // Construct chanNode
     vector<string> chanNodeName(dfg_.nodes.size());  // Keep chanNodeName to corresponding dfgNode
     string nodeName;
@@ -1328,7 +1331,7 @@ void ChanGraph::insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vec
     {
         Debug::throwError("At least one of them's size must equal to one!", __FILE__, __LINE__);
     }
-    else if(chanNode.controlRegionName == "")
+    else if (chanNode.controlRegionName == "")
     {
         Debug::throwError("The controlRegionName of this chanNode did not declare!", __FILE__, __LINE__);
     }
@@ -1507,7 +1510,7 @@ vector<string> ChanGraph::findShortestCtrlRegionPath(vector<string>& _preNodeCtr
     {
         iter = find(s.begin(), s.end(), _nextNodeCtrlRegionPath.front());
     }
-    
+
     auto iter_next = s_next.end();
     if (_preNodeCtrlRegionPath.empty())  // If empty, signify preNode locates at the outer-most loop, so just return nextNodeCtrlRegionPath
     {
@@ -1698,6 +1701,93 @@ void ChanGraph::addNodeDelay()
         else
         {
             chanNodePtr->cycle = 1;
+        }
+    }
+}
+
+void ChanGraph::addChanDGSF()
+{
+    unordered_map<uint, vector<Node*>> subgraphNodes;
+    for (auto& node : nodes)
+    {
+        if (subgraphNodes.count(node->subgraphId) == 0)
+        {
+            vector<Node*> tmp = { node };
+            subgraphNodes.insert(make_pair(node->subgraphId, tmp));
+        }
+        else
+        {
+            subgraphNodes[node->subgraphId].push_back(node);
+        }
+    }
+
+    for (auto& subgraph : subgraphNodes)
+    {
+        for (auto& node : subgraph.second)
+        {
+            bool insertDGSF = false;
+            vector<string> nextNodes;
+            nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
+            nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
+            for (auto& nextNode : nextNodes)
+            {
+                if (getNode(nextNode)->subgraphId != node->subgraphId)
+                {
+                    insertDGSF = true;
+                    break;
+                }
+            }
+
+            if (insertDGSF)
+            {
+                string nodeName = node->node_name + "_DGSF";
+                addNode(nodeName, "ChanDGSF", "Nop", "Normal", node->controlRegionName);
+                dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
+                addNodes2CtrlTree(node->controlRegionName, { nodeName });
+                const auto& chanDGSFNode = dynamic_cast<Chan_Node*>(getNode(nodeName));
+                const auto& chanNode = dynamic_cast<Chan_Node*>(node);
+
+                // Gen connect
+                for (auto& nextNodeData : chanNode->next_nodes_data)
+                {
+                    auto& preNodesData = getNode(nextNodeData)->pre_nodes_data;
+                    auto iter = find(preNodesData.begin(), preNodesData.end(), chanNode->node_name);
+                    if (iter != preNodesData.end())
+                    {
+                        *iter = chanDGSFNode->node_name;
+                    }
+
+                    chanDGSFNode->next_nodes_data.push_back(nextNodeData);
+                }
+
+                for (auto& nextNodeActive : chanNode->next_nodes_active)
+                {
+                    auto& preNodesActive = getNode(nextNodeActive)->pre_nodes_active;
+                    auto iter = find(preNodesActive.begin(), preNodesActive.end(), chanNode->node_name);
+                    if (iter != preNodesActive.end())
+                    {
+                        *iter = chanDGSFNode->node_name;
+                    }
+
+                    chanDGSFNode->next_nodes_active.push_back(nextNodeActive);
+                }
+
+                chanNode->next_nodes_active.clear();
+                chanNode->next_nodes_data.clear();
+                chanNode->next_nodes_data.push_back(chanDGSFNode->node_name);
+
+                chanDGSFNode->pre_nodes_data.push_back(chanNode->node_name);
+
+                // Check whether preNode is in keepMode
+                if (chanNode->chan_mode == "Keep_mode")
+                {
+                    chanNode->chan_mode = "Normal";
+                    chanDGSFNode->chan_mode = "Keep_mode";
+                }
+
+                // Note: Branch setting and graphScheduler configuration are in the Registry!
+
+            }
         }
     }
 }

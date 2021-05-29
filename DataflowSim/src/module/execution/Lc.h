@@ -62,6 +62,7 @@ namespace DFSim
         deque<uint> loopNumQ; // Store each loop number
         bool isOuterMostLoop = 0;  // Signify this is the outer-most loop, used in assigning "lastOuter" to the outer-most loop 
         //deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
+        uint subgraphId = 0;
 
     public:
         ChanBase* getEnd = nullptr;

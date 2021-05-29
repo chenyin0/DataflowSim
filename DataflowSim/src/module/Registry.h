@@ -7,6 +7,7 @@
 //#include "../sim/Debug.h"
 #include "../sim/graph.h"
 #include "./mem/MemSystem.h"
+#include "../module/execution/GraphScheduler.h"
 
 /*
 Module Register
@@ -58,6 +59,8 @@ namespace DFSim
         Channel* genChan(Chan_Node& _chan);
         Lse* genLse(Chan_Node& _lse);
         Mux* genMux(Chan_Node& _mux);
+        // Config graphScheduler
+        void configGraphScheduler(GraphScheduler* _graphScheduler);
         // Generate interconnect
         void genConnect(ChanGraph& _chanGraph);
         // Gen configuration
