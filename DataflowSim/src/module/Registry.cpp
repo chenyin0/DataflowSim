@@ -5,7 +5,7 @@
 using namespace DFSim;
 
 uint Registry::moduleId = 0;
-vector<RegistryTable> Registry::registryTable;
+vector<RegistryTableEntry> Registry::registryTable;
 unordered_map<string, uint> Registry::registryDict;
 
 Registry::Registry(MemSystem* _memSys) : memSys(_memSys)
@@ -42,7 +42,7 @@ int Registry::registerChan(Channel* chan)
     }
     else
     {
-        RegistryTable entry;
+        RegistryTableEntry entry;
         entry.chanPtr = chan;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Channel;
@@ -62,7 +62,7 @@ int Registry::registerLc(Lc* lc)
     }
     else
     {
-        RegistryTable entry;
+        RegistryTableEntry entry;
         entry.lcPtr = lc;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Lc;
@@ -82,7 +82,7 @@ int Registry::registerMux(Mux* mux)
     }
     else
     {
-        RegistryTable entry;
+        RegistryTableEntry entry;
         entry.muxPtr = mux;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Mux;
@@ -108,7 +108,7 @@ int Registry::registerChan(const string& moduleName_, Channel* chan_)
         return -1;
     }
     
-    RegistryTable entry;
+    RegistryTableEntry entry;
     entry.chanPtr = chan_;
     entry.moduleId = Registry::moduleId;
     entry.moduleType = ModuleType::Channel;
@@ -136,7 +136,7 @@ int Registry::registerLc(const string& moduleName_, Lc* lc_)
 
     else
     {
-        RegistryTable entry;
+        RegistryTableEntry entry;
         entry.lcPtr = lc_;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Lc;
@@ -165,7 +165,7 @@ int Registry::registerMux(const string& moduleName_, Mux* mux_)
 
     else
     {
-        RegistryTable entry;
+        RegistryTableEntry entry;
         entry.muxPtr = mux_;
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Mux;
@@ -205,11 +205,12 @@ Mux* Registry::getMux(const string& moduleName_)
     return registryTable[registryDict[moduleName_]].muxPtr;
 }
 
-void Registry::tableInit()
+void Registry::init()
 {
     initChannel();
     checkConnectRule();
     checkLc();
+    initChanDGSFVec();
 }
 
 void Registry::pathBalance()
@@ -439,6 +440,17 @@ void Registry::checkChanDGSF(Channel* _chan)
         if (!_chan->noUpstream && _chan->upstream.size() > 1)
         {
             Debug::throwError("The number of ChanDGSF's upstream can not exceed 1 !", __FILE__, __LINE__);
+        }
+    }
+}
+
+void Registry::initChanDGSFVec()
+{
+    for (auto& entry : registryTable)
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType==ChanType::Chan_DGSF)
+        {
+            vecChanDGSF.push_back(dynamic_cast<ChanDGSF*>(entry.chanPtr));
         }
     }
 }
@@ -876,7 +888,7 @@ auto Registry::findRegistryEntryIndex(const string& _moduleName)->unordered_map<
     }
 }
 
-RegistryTable& Registry::getRegistryTableEntry(const string& _moduleName)
+RegistryTableEntry& Registry::getRegistryTableEntry(const string& _moduleName)
 {
     return registryTable[findRegistryEntryIndex(_moduleName)->second];
 }
@@ -926,8 +938,15 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
             auto& entry = getRegistryTableEntry(chanName);
             if (entry.moduleType == ModuleType::Channel)
             {
-                string& op = dynamic_cast<Chan_Node*>(_chanGraph.getNode(chanName))->node_op;
-                _config_file << chanName << "->get();" << "\t// " << op << std::endl;
+                const auto& chanPtr = dynamic_cast<Chan_Node*>(_chanGraph.getNode(chanName));
+                string& op = chanPtr->node_op;
+                _config_file << chanName << "->get();" << "\t// " << op << "\t";
+                for (size_t i = 0; i < chanPtr->pre_nodes_data.size(); ++i)
+                {
+                    _config_file << "[" << i << "]" << chanPtr->pre_nodes_data[i] << " ";
+                }
+                _config_file << std::endl;
+
                 if (op != "Store")
                 {
                     _config_file << chanName << "->value = ";
@@ -1051,8 +1070,17 @@ void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, u
     }
 }
 
+void Registry::updateChanDGSF()
+{
+    for (auto& chanDGSF : vecChanDGSF)
+    {
+        chanDGSF->get();
+        chanDGSF->value = chanDGSF->assign(uint(0));
+    }
+}
+
 #ifdef DEBUG_MODE  // Get private instance for debug
-const vector<RegistryTable>& Registry::getRegistryTable() const
+const vector<RegistryTableEntry>& Registry::getRegistryTable() const
 {
     return registryTable;
 }

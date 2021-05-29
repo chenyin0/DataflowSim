@@ -1,5 +1,6 @@
 #include "./Gemm.h"
 #include "../../src/sim/Watchdog.h"
+#include "../../src/module/execution/GraphScheduler.h"
 
 using namespace DFSimTest;
 
@@ -43,21 +44,6 @@ Config tips:
 
 void GemmTest::gemm_Base_auto_sim(Debug* debug)
 {
-    // Generate DFG
-    generateDfg();
-
-    // Generate ChanGraph
-    ChanGraph chanGraph(GemmTest::dfg);
-    chanGraph.addSpecialModeChan();
-    chanGraph.subgraphPartition(2, 10);
-    chanGraph.addNodeDelay();
-    chanGraph.plotDot();
-
-
-    // Generate benchmark data
-    generateData();
-
-
     //******  Define module  ******//
     //*** Declare memory
     MemSystem* memSys = new MemSystem();
@@ -71,27 +57,38 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     //*** Declare Watchdog
     Watchdog watchdog = Watchdog(pow(2, 7), 50);
 
+    //*** Define subgraph scheduler
+    GraphScheduler* graphScheduler = new GraphScheduler();
+
+    // Generate DFG
+    generateDfg();
+
+    // Generate ChanGraph
+    ChanGraph chanGraph(GemmTest::dfg);
+    chanGraph.addSpecialModeChan();
+
+    uint splitNum = 2;
+    chanGraph.subgraphPartition(splitNum, 10);
+    chanGraph.printSubgraphPartition(splitNum, debug);
+    chanGraph.addChanDGSF();
+
+    chanGraph.addNodeDelay();
+    chanGraph.plotDot();
+
+
+    // Generate benchmark data
+    generateData();
+
     registry->genModule(chanGraph);
     registry->genConnect(chanGraph);
+    registry->configGraphScheduler(graphScheduler);
     auto& regis = registry->getRegistryTable();  // For exposing registry in debugging
     //debug->printRegistry(registry);
-    debug->printSimNodes(chanGraph);
+    //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
     auto simChans = get<0>(debugPrint);
     auto simLcs = get<1>(debugPrint);
-
-    ////*** Generate gold results
-    //for (size_t i = 0; i < matrix_height; ++i)
-    //{
-    //    for (size_t j = 0; j < matrix_width; ++j)
-    //    {
-    //        for (size_t k = 0; k < matrix_height; ++k)
-    //        {
-    //            result[i][j] += m1[i][k] * m2[k][j];
-    //        }
-    //    }
-    //}
 
 
     ////*** Simulate
@@ -141,14 +138,14 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     }
 
     // Set speedup
-    registry->setSpeedup(chanGraph, "loop_j", 5);
+    registry->setSpeedup(chanGraph, "loop_j", 1);
 
     // User defined
     //registry->getLse("Lse_m2_data")->noLatencyMode = 1;
     registry->getLse("Lse_prod_data_update_st")->noLatencyMode = 1;
 
-    //// Initiation
-    registry->tableInit();  // Update registry and initial all the module in registry
+    // Initiation
+    registry->init();  // Update registry and initial all the module in registry
     registry->pathBalance();
     profiler->init();
     watchdog.addCheckPointChan({ Lc_jj->getEnd, Lc_kk->getEnd, Lc_i->getEnd, Lc_j->getEnd });
@@ -297,12 +294,18 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lse_prod_data_update_st->get();	// Store
 
 
+        //** Update each chanDGSF
+        registry->updateChanDGSF();
+
+        //** GraphScheduler update
+        graphScheduler->graphUpdate();
+
         //** MemorySystem update
         memSys->MemSystemUpdate();
 
         //** Profiler update
         profiler->updateBufferMaxDataNum();
-        profiler->updateChanUtilization();
+        profiler->updateChanUtilization(0);
 
         /*end->get();*/
         Chan_end->get();	// Nop
@@ -436,4 +439,5 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     delete registry;  // All the Module pointers have been deleted when destruct registry
     delete memSys;
     delete profiler;
+    delete graphScheduler;
 }

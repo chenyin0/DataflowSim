@@ -19,7 +19,7 @@ TODO:
 
 namespace DFSim
 {
-    struct RegistryTable
+    struct RegistryTableEntry
     {
         Channel* chanPtr = nullptr;
         Lc* lcPtr = nullptr;
@@ -47,9 +47,9 @@ namespace DFSim
         Mux* getMux(const string& moduleName_);
         Lse* getLse(const string& moduleName_);
         auto findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator;
-        RegistryTable& getRegistryTableEntry(const string& _moduleName);
+        RegistryTableEntry& getRegistryTableEntry(const string& _moduleName);
 
-        void tableInit();
+        void init();
         void pathBalance();  // Resize channel buffer size to avoid path imbalance
 
         // Generate module
@@ -69,6 +69,7 @@ namespace DFSim
         auto genDebugPrint(ChanGraph& _chanGraph) -> tuple<vector<Channel*>, vector<Lc*>>;
         // simulation
         void sim();
+        void updateChanDGSF();
 
 
         /*template <typename T>
@@ -87,7 +88,7 @@ namespace DFSim
                 return -1;
             }
 
-            RegistryTable entry;
+            RegistryTableEntry entry;
             if (std::is_same<decltype(module_), decltype(entry.chanPtr)>::value)
             {
                 entry.chanPtr = module_;
@@ -114,7 +115,7 @@ namespace DFSim
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const vector<RegistryTable>& getRegistryTable() const;
+        const vector<RegistryTableEntry>& getRegistryTable() const;
 #endif // DEBUG_MODE
 
     private:
@@ -127,6 +128,7 @@ namespace DFSim
         void initAluInput(Channel* _chan);
         void initChannel();  // Initial vector inputFifo's size and vector bp's size to the number of upstream
         void initLse(Lse* _lse);  // Initial Lse reqQueue size
+        void initChanDGSFVec();  // Push chanDGSF in vecChanDGSF
 
         void checkConnectRule();  // Check connection rules
         void checkChanConnect(Channel* _chan);  // Check the connection of all the channels
@@ -137,8 +139,9 @@ namespace DFSim
 
     private:
         static uint moduleId;
-        static vector<RegistryTable> registryTable;
+        static vector<RegistryTableEntry> registryTable;
         static unordered_map<string, uint> registryDict;
+        vector<ChanDGSF*> vecChanDGSF;
 
         MemSystem* memSys = nullptr;
     };
