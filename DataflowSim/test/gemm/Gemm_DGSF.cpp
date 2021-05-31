@@ -70,7 +70,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     Lse* lse_ld_partialSum = new Lse(LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, false, memSys, DGSF_loop_j_speedup);  // load partial sum
     //lse_ld_partialSum->noLatencyMode = 1;
     Lse* lse_st_partialSum = new Lse(20*LSE_QUEUE_SIZE * DGSF_loop_j_speedup, 0, true, memSys, DGSF_loop_j_speedup);  // Store back partial sum
-    //lse_st_partialSum->noLatencyMode = 1;
+    lse_st_partialSum->noLatencyMode = 1;
 
 
     //*** Declare Lc
@@ -365,6 +365,54 @@ void GemmTest::gemm_DGSF(Debug* debug)
     // Subgraph 2
     graphScheduler->addSubgraph(2, { chan_m1_getData_DGSF_DAE, lse_ld_m2_DGSF_DAE }, {});
 
+    //GraphScheduler* graphScheduler = new GraphScheduler();
+    //// Subgraph 0
+    //graphScheduler->addSubgraph(0, {}, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP });
+    //// Subgraph 1
+    //graphScheduler->addSubgraph(1, { chan_k_lc_DGSF_LOOP, chan_jj_relay_loop_k_DGSF_LOOP, chan_i_row_relay_loop_k_DGSF_LOOP, chan_k_row_DGSF_LOOP, chan_m1_getData_DGSF_LOOP }, { });
+
+    // Set subgraphId
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            entry.chanPtr->subgraphId = 100;  // Initial a fake id
+        }
+    }
+
+    lc_jj->loopVar->subgraphId = 0;
+    chan_jj_lc->subgraphId = 0;
+    lc_kk->loopVar->subgraphId = 0;
+    chan_kk_lc->subgraphId = 0;
+    chan_jj_relay_loop_kk->subgraphId = 0;
+    lc_i->loopVar->subgraphId = 0;
+    chan_i_lc->subgraphId = 0;
+    chan_kk_relay_loop_i->subgraphId = 0;
+    chan_i_row->subgraphId = 0;
+    chan_jj_relay_loop_i->subgraphId = 0;
+    lc_k->loopVar->subgraphId = 0;
+    chan_m1_addr->subgraphId = 0;
+    chan_m1_addr_delay->subgraphId = 0;
+    lse_ld_m1->subgraphId = 0;
+    chan_k_row->subgraphId = 0;
+    chan_k_row_delay->subgraphId = 0;
+    chan_jj_relay_loop_k->subgraphId = 0;
+    chan_i_row_relay_loop_k->subgraphId = 0;
+
+    lc_j->loopVar->subgraphId = 1;
+    chan_m2_addr->subgraphId = 1;
+    chan_partialSum_addr->subgraphId = 1;
+    chan_m2_addr_delay->subgraphId = 1;
+    chan_m1_getData_DGSF_DAE_temp->subgraphId = 1;
+    lse_ld_m2->subgraphId = 1;
+
+    chan_mul->subgraphId = 2;
+    //chan_partialSum_addr_delay->subgraphId = 2;
+    chan_mul_delay->subgraphId = 2;
+    lse_ld_partialSum->subgraphId = 2;
+    chan_partialSum->subgraphId = 2;
+    lse_st_partialSum->subgraphId = 2;
+
 
     //// Debug_yin
     //GraphScheduler* graphScheduler = new GraphScheduler();
@@ -389,7 +437,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     //*** Simulate
     // Initiation
-    registry->tableInit();  // Update registry and initial all the module in registry
+    registry->init();  // Update registry and initial all the module in registry
     registry->pathBalance();
     profiler->init();
     watchdog.addCheckPointChan({ lc_jj_getEnd, lc_kk_getEnd, lc_i_getEnd, lc_k_getEnd, lc_j_getEnd });
@@ -480,7 +528,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_jj_relay_loop_kk->get();
         chan_jj_relay_loop_kk->value = chan_jj_relay_loop_kk->assign(chan_jj_lc);
         // Debug_yin_04.15
-        auto& _data1 = chan_jj_relay_loop_kk->channel.front();
+        //auto& _data1 = chan_jj_relay_loop_kk->channel.front();
         //if (_data1.last && _data1.lastOuter && chan_jj_relay_loop_kk->valid)
         //{
         //    std::cout << "Catch the last signal -> chan_jj_relay_loop_kk" << std::endl;
@@ -632,6 +680,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
         //** Profiler update
         profiler->updateBufferMaxDataNum();
+        profiler->updateChanUtilization(graphScheduler->currSubgraphId);
 
         if (graphId != graphScheduler->currSubgraphId)
         {
@@ -796,6 +845,47 @@ void GemmTest::gemm_DGSF(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Profiling" << std::endl;
     debug->getFile() << "*******************************" << std::endl;
+
+    debug->getFile() << "******* Channel Utilization *********" << std::endl;
+
+    uint chanNum = 0;
+    uint avgWeight = 0;
+    float chanUtilAvg = 0;
+    uint chanActiveNumTotal = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->subgraphId != 100)
+        {
+            uint activeNum = entry.chanPtr->activeCnt;
+            float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt)) * 100, float(100));
+            //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
+
+            // TODO: Exclude channel in "Nop"
+            if (entry.chanPtr->moduleName != "Chan_begin"
+                && entry.chanPtr->moduleName != "Chan_end"
+                //&& (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)
+                && (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1))
+            {
+                debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" 
+                    << "\t" << entry.chanPtr->subgraphId 
+                    << "\t" << entry.chanPtr->activeCnt
+                    << "\t" << entry.chanPtr->activeClkCnt << std::endl;
+                ++chanNum;
+                avgWeight += entry.chanPtr->activeClkCnt;
+                chanUtilAvg += utilization * entry.chanPtr->activeClkCnt;
+
+                chanActiveNumTotal += activeNum;
+            }
+        }
+    }
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / (/*chanNum * */avgWeight) << setprecision(2) << "%" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
+    debug->getFile() << "Total ALU Active Times: " << chanActiveNumTotal << std::endl;
+    debug->getFile() << "Total Reg Access Times: " << chanActiveNumTotal * 3 << std::endl;
 
     profiler->printBufferMaxDataNum("chan_i_lc", chan_i_lc);
     profiler->printBufferMaxDataNum("chan_i_row", chan_i_row);

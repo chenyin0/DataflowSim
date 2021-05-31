@@ -558,6 +558,7 @@ Channel* Registry::genChan(Chan_Node& _chan)
     else if (_chan.node_type == "ChanDGSF")
     {
         ChanDGSF* chan = new ChanDGSF(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
+        chan->size = DGSF_INPUT_BUFF_SIZE;
 
         if (_chan.chan_mode == "Keep_mode")
         {
@@ -848,6 +849,11 @@ void Registry::configGraphScheduler(GraphScheduler* _graphScheduler)
                 // Add producerChan
                 for (auto& downstreamChan : _chanPtr->downstream)
                 {
+                    //if (downstreamChan->subgraphId != _chanPtr->subgraphId)
+                    //{
+                    //    _graphScheduler->addSubgraph(downstreamChan->subgraphId, { _chanPtr }, { });
+                    //}
+
                     _graphScheduler->addSubgraph(downstreamChan->subgraphId, { _chanPtr }, { });
                 }
 
@@ -936,7 +942,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
         if (chanName != "Chan_begin" && chanName != "Chan_end")
         {
             auto& entry = getRegistryTableEntry(chanName);
-            if (entry.moduleType == ModuleType::Channel)
+            if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType != ChanType::Chan_DGSF)
             {
                 const auto& chanPtr = dynamic_cast<Chan_Node*>(_chanGraph.getNode(chanName));
                 string& op = chanPtr->node_op;

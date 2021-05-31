@@ -30,7 +30,7 @@ namespace DFSim
     public:
         uint currSubgraphId = 0;  // Current subgraph Id, default start at 0;
        
-    private:
+    public:
         // <subgraphId, pair<producer channels, consumer channels>>
         unordered_map<uint, pair<vector<ChanDGSF*>, vector<ChanDGSF*>>> subgraphTable;
         unordered_map<uint, vector<vector<ChanDGSF*>>> divergenceGraph;  // Store branch-divergence subgraph

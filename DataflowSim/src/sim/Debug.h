@@ -32,6 +32,7 @@ namespace DFSim
         void printRegistry(const Registry* _registry);
         void printSimNodes(ChanGraph& _chanGraph);
         void printSimInfo(const vector<Channel*>& _chans, const vector<Lc*> _lc);
+        void printGraphScheduler(const GraphScheduler* _graphScheduler);
 
         template <typename T>
         void vecPrint(const string name, const vector<T>& vec)

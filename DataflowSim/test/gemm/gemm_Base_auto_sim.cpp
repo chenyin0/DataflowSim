@@ -93,6 +93,38 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
     ////*** Simulate
     // Declare
+
+    //const auto& Chan_begin = registry->getChan("Chan_begin");
+    //const auto& Lc_jj = registry->getLc("Lc_jj");
+    //const auto& Chan_jj_lc = registry->getChan("Chan_jj_lc");
+    //const auto& Chan_end = registry->getChan("Chan_end");
+    //const auto& Lc_kk = registry->getLc("Lc_kk");
+    //const auto& Chan_kk_lc = registry->getChan("Chan_kk_lc");
+    //const auto& Chan_jj_lc_relay_loop_kk = registry->getChan("Chan_jj_lc_relay_loop_kk");
+    //const auto& Lc_i = registry->getLc("Lc_i");
+    //const auto& Chan_i_lc = registry->getChan("Chan_i_lc");
+    //const auto& Chan_i_row = registry->getChan("Chan_i_row");
+    //const auto& Chan_jj_lc_relay_loop_i = registry->getChan("Chan_jj_lc_relay_loop_i");
+    //const auto& Chan_kk_lc_relay_loop_i = registry->getChan("Chan_kk_lc_relay_loop_i");
+    //const auto& Lc_k = registry->getLc("Lc_k");
+    //const auto& Chan_k_lc = registry->getChan("Chan_k_lc");
+    //const auto& Chan_k_kk = registry->getChan("Chan_k_kk");
+    //const auto& Chan_jj_lc_relay_loop_k = registry->getChan("Chan_jj_lc_relay_loop_k");
+    //const auto& Chan_i_row_relay_loop_k = registry->getChan("Chan_i_row_relay_loop_k");
+    //const auto& Lc_j = registry->getLc("Lc_j");
+    //const auto& Chan_k_row = registry->getChan("Chan_k_row");
+    //const auto& Chan_m1_addr = registry->getChan("Chan_m1_addr");
+    //const auto& Chan_j_jj = registry->getChan("Chan_j_jj");
+    //const auto& Lse_temp_x = registry->getChan("Lse_temp_x");
+    //const auto& Chan_m2_addr = registry->getChan("Chan_m2_addr");
+    //const auto& Chan_prod_addr = registry->getChan("Chan_prod_addr");
+    //const auto& Chan_m1_data = registry->getChan("Chan_m1_data");
+    //const auto& Lse_m2_data = registry->getChan("Lse_m2_data");
+    //const auto& Lse_prod_data = registry->getChan("Lse_prod_data");
+    //const auto& Chan_mul = registry->getChan("Chan_mul");
+    //const auto& Chan_prod_data_update = registry->getChan("Chan_prod_data_update");
+    //const auto& Lse_prod_data_update_st = registry->getChan("Lse_prod_data_update_st");
+
     const auto& Chan_begin = registry->getChan("Chan_begin");
     const auto& Lc_jj = registry->getLc("Lc_jj");
     const auto& Chan_jj_lc = registry->getChan("Chan_jj_lc");
@@ -106,6 +138,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     const auto& Chan_jj_lc_relay_loop_i = registry->getChan("Chan_jj_lc_relay_loop_i");
     const auto& Chan_kk_lc_relay_loop_i = registry->getChan("Chan_kk_lc_relay_loop_i");
     const auto& Lc_k = registry->getLc("Lc_k");
+    const auto& Lc_k_DGSF = registry->getChan("Lc_k_DGSF");
     const auto& Chan_k_lc = registry->getChan("Chan_k_lc");
     const auto& Chan_k_kk = registry->getChan("Chan_k_kk");
     const auto& Chan_jj_lc_relay_loop_k = registry->getChan("Chan_jj_lc_relay_loop_k");
@@ -113,11 +146,15 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     const auto& Lc_j = registry->getLc("Lc_j");
     const auto& Chan_k_row = registry->getChan("Chan_k_row");
     const auto& Chan_m1_addr = registry->getChan("Chan_m1_addr");
-    const auto& Chan_j_jj = registry->getChan("Chan_j_jj");
+    const auto& Chan_jj_lc_relay_loop_k_DGSF = registry->getChan("Chan_jj_lc_relay_loop_k_DGSF");
+    const auto& Chan_i_row_relay_loop_k_DGSF = registry->getChan("Chan_i_row_relay_loop_k_DGSF");
+    const auto& Chan_k_row_DGSF = registry->getChan("Chan_k_row_DGSF");
     const auto& Lse_temp_x = registry->getChan("Lse_temp_x");
+    const auto& Chan_j_jj = registry->getChan("Chan_j_jj");
+    const auto& Chan_m1_data = registry->getChan("Chan_m1_data");
     const auto& Chan_m2_addr = registry->getChan("Chan_m2_addr");
     const auto& Chan_prod_addr = registry->getChan("Chan_prod_addr");
-    const auto& Chan_m1_data = registry->getChan("Chan_m1_data");
+    const auto& Chan_m1_data_DGSF = registry->getChan("Chan_m1_data_DGSF");
     const auto& Lse_m2_data = registry->getChan("Lse_m2_data");
     const auto& Lse_prod_data = registry->getChan("Lse_prod_data");
     const auto& Chan_mul = registry->getChan("Chan_mul");
@@ -128,7 +165,9 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     {
         if (entry.chanPtr != nullptr)
         {
-            if (entry.chanPtr->masterName == "None" && entry.chanPtr->moduleName != "Chan_begin" && entry.chanPtr->moduleName != "Chan_end")
+            if (entry.chanPtr->masterName == "None"
+                && (entry.chanPtr->moduleName != "Chan_begin" && entry.chanPtr->moduleName != "Chan_end")
+                && entry.chanPtr->chanType != ChanType::Chan_DGSF)
             {
                 entry.chanPtr->size = 30;
                 //entry.chanPtr->cycle = 0;
@@ -146,7 +185,8 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
     // Initiation
     registry->init();  // Update registry and initial all the module in registry
-    registry->pathBalance();
+    graphScheduler->schedulerInit();  // Initial graph scheduler
+    //registry->pathBalance();
     profiler->init();
     watchdog.addCheckPointChan({ Lc_jj->getEnd, Lc_kk->getEnd, Lc_i->getEnd, Lc_j->getEnd });
 
@@ -182,6 +222,118 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         debug->getFile() << "\n" << "**************** " << "Exe:" << iter << "  ";
         debug->getFile() << " Clk:" << clk << " ********************" << std::endl;
 
+        //Lc_jj->var = Lc_jj->mux->mux(Lc_jj->var, 0, Lc_jj->sel);
+        //Lc_jj->mux->muxUpdate(Lc_jj->sel);
+        //Lc_jj->mux->outChan->value = Lc_jj->var;
+        //Lc_jj->loopVar->get();
+        //Lc_jj->loopVar->value = Lc_jj->loopVar->assign(Lc_jj->mux->outChan);  // After get(), must update chan's value
+        //Lc_jj->var = Lc_jj->loopVar->value + block_size;
+        //Lc_jj->lcUpdate(Lc_jj->var < matrix_height);
+
+        //// Clear begin
+        //Chan_begin->valid = 0;
+
+        //Chan_jj_lc->get();	// Nop
+        //Chan_jj_lc->value = Chan_jj_lc->assign(Lc_jj->loopVar);
+
+        //Lc_kk->var = Lc_kk->mux->mux(Lc_kk->var, 0, Lc_kk->sel);
+        //Lc_kk->mux->muxUpdate(Lc_kk->sel);
+        //Lc_kk->mux->outChan->value = Lc_kk->var;
+        //Lc_kk->loopVar->get();
+        //Lc_kk->loopVar->value = Lc_kk->loopVar->assign(Lc_kk->mux->outChan);  // After get(), must update chan's value
+        //Lc_kk->var = Lc_kk->loopVar->value + block_size;
+        //Lc_kk->lcUpdate(Lc_kk->var < matrix_height);
+
+        //Chan_kk_lc->get();	// Nop
+        //Chan_kk_lc->value = Chan_kk_lc->assign(Lc_kk->loopVar);
+
+        //Chan_jj_lc_relay_loop_kk->get();	// Nop
+        //Chan_jj_lc_relay_loop_kk->value = Chan_jj_lc_relay_loop_kk->assign(Chan_jj_lc);
+
+        //Lc_i->var = Lc_i->mux->mux(Lc_i->var, 0, Lc_i->sel);
+        //Lc_i->mux->muxUpdate(Lc_i->sel);
+        //Lc_i->mux->outChan->value = Lc_i->var;
+        //Lc_i->loopVar->get();
+        //Lc_i->loopVar->value = Lc_i->loopVar->assign(Lc_i->mux->outChan);  // After get(), must update chan's value
+        //Lc_i->var = Lc_i->loopVar->value + 1;
+        //Lc_i->lcUpdate(Lc_i->var < matrix_height);
+
+        //Chan_i_lc->get();	// Nop
+        //Chan_i_lc->value = Chan_i_lc->assign(Lc_i->loopVar);
+
+        //Chan_i_row->get();	// Mul
+        //Chan_i_row->value = Chan_i_row->assign(Lc_i->loopVar) * matrix_width;
+
+        //Chan_jj_lc_relay_loop_i->get();	// Nop
+        //Chan_jj_lc_relay_loop_i->value = Chan_jj_lc_relay_loop_i->assign(Chan_jj_lc_relay_loop_kk);
+
+        //Chan_kk_lc_relay_loop_i->get();	// Nop
+        //Chan_kk_lc_relay_loop_i->value = Chan_kk_lc_relay_loop_i->assign(Chan_kk_lc);
+
+        //Lc_k->var = Lc_k->mux->mux(Lc_k->var, 0, Lc_k->sel);
+        //Lc_k->mux->muxUpdate(Lc_k->sel);
+        //Lc_k->mux->outChan->value = Lc_k->var;
+        //Lc_k->loopVar->get();
+        //Lc_k->loopVar->value = Lc_k->loopVar->assign(Lc_k->mux->outChan);  // After get(), must update chan's value
+        //Lc_k->var = Lc_k->loopVar->value + 1;
+        //Lc_k->lcUpdate(Lc_k->var < block_size);
+
+        //Chan_k_lc->get();	// Nop
+        //Chan_k_lc->value = Chan_k_lc->assign(Lc_k->loopVar);
+
+        //Chan_k_kk->get();	// Add
+        //Chan_k_kk->value = Chan_k_kk->assign(Lc_k->loopVar) + Chan_k_kk->assign(Chan_kk_lc_relay_loop_i);
+
+        //Chan_jj_lc_relay_loop_k->get();	// Nop
+        //Chan_jj_lc_relay_loop_k->value = Chan_jj_lc_relay_loop_k->assign(Chan_jj_lc_relay_loop_i);
+
+        //Chan_i_row_relay_loop_k->get();	// Nop
+        //Chan_i_row_relay_loop_k->value = Chan_i_row_relay_loop_k->assign(Chan_i_row);
+
+        //Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
+        //Lc_j->mux->muxUpdate(Lc_j->sel);
+        //Lc_j->mux->outChan->value = Lc_j->var;
+        //Lc_j->loopVar->get();
+        //Lc_j->loopVar->value = Lc_j->loopVar->assign(Lc_j->mux->outChan);  // After get(), must update chan's value
+        //Lc_j->var = Lc_j->loopVar->value + 1;
+        //Lc_j->lcUpdate(Lc_j->var < block_size);
+
+        //Chan_k_row->get();	// Mul
+        //Chan_k_row->value = Chan_k_row->assign(Chan_k_kk) * matrix_width;
+
+        //Chan_m1_addr->get();	// Add
+        //Chan_m1_addr->value = Chan_m1_addr->assign(Chan_i_row) + Chan_m1_addr->assign(Chan_k_kk)/* + m1_BaseAddr*/;
+
+        //Chan_j_jj->get();	// Add
+        //Chan_j_jj->value = Chan_j_jj->assign(Lc_j->loopVar) + Chan_j_jj->assign(Chan_jj_lc_relay_loop_k);
+
+        //Lse_temp_x->get();	// Load
+        //Lse_temp_x->value = m1_[Lse_temp_x->assign()/* - m1_BaseAddr*/];
+
+        //Chan_m2_addr->get();	// Add
+        //Chan_m2_addr->value = Chan_m2_addr->assign(Chan_k_row) + Chan_m2_addr->assign(Chan_j_jj)/* + m2_BaseAddr*/;
+
+        //Chan_prod_addr->get();	// Add
+        //Chan_prod_addr->value = Chan_prod_addr->assign(Chan_j_jj) + Chan_prod_addr->assign(Chan_i_row_relay_loop_k)/* + partialSum_BaseAddr*/;
+
+        //Chan_m1_data->get();	// Nop
+        //Chan_m1_data->value = Chan_m1_data->assign(Lse_temp_x);
+
+        //Lse_m2_data->get();	// Load
+        //Lse_m2_data->value = m2_[Lse_m2_data->assign()/* - m2_BaseAddr*/];
+
+        //Lse_prod_data->get();	// Load
+        //Lse_prod_data->value = prod_[Lse_prod_data->assign()/* - partialSum_BaseAddr*/];
+
+        //Chan_mul->get();	// Mul
+        //Chan_mul->value = Chan_mul->assign(Chan_m1_data) * Chan_mul->assign(Lse_m2_data);
+
+        //Chan_prod_data_update->get();	// Add
+        //Chan_prod_data_update->value = Chan_prod_data_update->assign(Lse_prod_data) + Chan_prod_data_update->assign(Chan_mul);
+
+        //Lse_prod_data_update_st->get();	// Store
+
+
         Lc_jj->var = Lc_jj->mux->mux(Lc_jj->var, 0, Lc_jj->sel);
         Lc_jj->mux->muxUpdate(Lc_jj->sel);
         Lc_jj->mux->outChan->value = Lc_jj->var;
@@ -193,8 +345,8 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         // Clear begin
         Chan_begin->valid = 0;
 
-        Chan_jj_lc->get();	// Nop
-        Chan_jj_lc->value = Chan_jj_lc->assign(Lc_jj->loopVar);
+        Chan_jj_lc->get();	// Nop	[0]Lc_jj 
+        Chan_jj_lc->value = Chan_jj_lc->assign(uint(0));
 
         Lc_kk->var = Lc_kk->mux->mux(Lc_kk->var, 0, Lc_kk->sel);
         Lc_kk->mux->muxUpdate(Lc_kk->sel);
@@ -204,11 +356,11 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_kk->var = Lc_kk->loopVar->value + block_size;
         Lc_kk->lcUpdate(Lc_kk->var < matrix_height);
 
-        Chan_kk_lc->get();	// Nop
-        Chan_kk_lc->value = Chan_kk_lc->assign(Lc_kk->loopVar);
+        Chan_kk_lc->get();	// Nop	[0]Lc_kk 
+        Chan_kk_lc->value = Chan_kk_lc->assign(uint(0));
 
-        Chan_jj_lc_relay_loop_kk->get();	// Nop
-        Chan_jj_lc_relay_loop_kk->value = Chan_jj_lc_relay_loop_kk->assign(Chan_jj_lc);
+        Chan_jj_lc_relay_loop_kk->get();	// Nop	[0]Chan_jj_lc 
+        Chan_jj_lc_relay_loop_kk->value = Chan_jj_lc_relay_loop_kk->assign(uint(0));
 
         Lc_i->var = Lc_i->mux->mux(Lc_i->var, 0, Lc_i->sel);
         Lc_i->mux->muxUpdate(Lc_i->sel);
@@ -218,17 +370,17 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_i->var = Lc_i->loopVar->value + 1;
         Lc_i->lcUpdate(Lc_i->var < matrix_height);
 
-        Chan_i_lc->get();	// Nop
-        Chan_i_lc->value = Chan_i_lc->assign(Lc_i->loopVar);
+        Chan_i_lc->get();	// Nop	[0]Lc_i 
+        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
 
-        Chan_i_row->get();	// Mul
-        Chan_i_row->value = Chan_i_row->assign(Lc_i->loopVar) * matrix_width;
+        Chan_i_row->get();	// Mul	[0]Lc_i 
+        Chan_i_row->value = Chan_i_row->assign(uint(0)) * matrix_width;
 
-        Chan_jj_lc_relay_loop_i->get();	// Nop
-        Chan_jj_lc_relay_loop_i->value = Chan_jj_lc_relay_loop_i->assign(Chan_jj_lc_relay_loop_kk);
+        Chan_jj_lc_relay_loop_i->get();	// Nop	[0]Chan_jj_lc_relay_loop_kk 
+        Chan_jj_lc_relay_loop_i->value = Chan_jj_lc_relay_loop_i->assign(uint(0));
 
-        Chan_kk_lc_relay_loop_i->get();	// Nop
-        Chan_kk_lc_relay_loop_i->value = Chan_kk_lc_relay_loop_i->assign(Chan_kk_lc);
+        Chan_kk_lc_relay_loop_i->get();	// Nop	[0]Chan_kk_lc 
+        Chan_kk_lc_relay_loop_i->value = Chan_kk_lc_relay_loop_i->assign(uint(0));
 
         Lc_k->var = Lc_k->mux->mux(Lc_k->var, 0, Lc_k->sel);
         Lc_k->mux->muxUpdate(Lc_k->sel);
@@ -238,17 +390,17 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_k->var = Lc_k->loopVar->value + 1;
         Lc_k->lcUpdate(Lc_k->var < block_size);
 
-        Chan_k_lc->get();	// Nop
-        Chan_k_lc->value = Chan_k_lc->assign(Lc_k->loopVar);
+        Chan_k_lc->get();	// Nop	[0]Lc_k_DGSF 
+        Chan_k_lc->value = Chan_k_lc->assign(uint(0));
 
-        Chan_k_kk->get();	// Add
-        Chan_k_kk->value = Chan_k_kk->assign(Lc_k->loopVar) + Chan_k_kk->assign(Chan_kk_lc_relay_loop_i);
+        Chan_k_kk->get();	// Add	[0]Lc_k_DGSF [1]Chan_kk_lc_relay_loop_i 
+        Chan_k_kk->value = Chan_k_kk->assign(uint(0)) + Chan_k_kk->assign(uint(1));
 
-        Chan_jj_lc_relay_loop_k->get();	// Nop
-        Chan_jj_lc_relay_loop_k->value = Chan_jj_lc_relay_loop_k->assign(Chan_jj_lc_relay_loop_i);
+        Chan_jj_lc_relay_loop_k->get();	// Nop	[0]Chan_jj_lc_relay_loop_i 
+        Chan_jj_lc_relay_loop_k->value = Chan_jj_lc_relay_loop_k->assign(uint(0));
 
-        Chan_i_row_relay_loop_k->get();	// Nop
-        Chan_i_row_relay_loop_k->value = Chan_i_row_relay_loop_k->assign(Chan_i_row);
+        Chan_i_row_relay_loop_k->get();	// Nop	[0]Chan_i_row 
+        Chan_i_row_relay_loop_k->value = Chan_i_row_relay_loop_k->assign(uint(0));
 
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
         Lc_j->mux->muxUpdate(Lc_j->sel);
@@ -258,40 +410,40 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_j->var = Lc_j->loopVar->value + 1;
         Lc_j->lcUpdate(Lc_j->var < block_size);
 
-        Chan_k_row->get();	// Mul
-        Chan_k_row->value = Chan_k_row->assign(Chan_k_kk) * matrix_width;
+        Chan_k_row->get();	// Mul	[0]Chan_k_kk 
+        Chan_k_row->value = Chan_k_row->assign(uint(0)) * matrix_width;
 
-        Chan_m1_addr->get();	// Add
-        Chan_m1_addr->value = Chan_m1_addr->assign(Chan_i_row) + Chan_m1_addr->assign(Chan_k_kk)/* + m1_BaseAddr*/;
+        Chan_m1_addr->get();	// Add	[0]Chan_i_row [1]Chan_k_kk 
+        Chan_m1_addr->value = Chan_m1_addr->assign(uint(0)) + Chan_m1_addr->assign(uint(1));
 
-        Chan_j_jj->get();	// Add
-        Chan_j_jj->value = Chan_j_jj->assign(Lc_j->loopVar) + Chan_j_jj->assign(Chan_jj_lc_relay_loop_k);
+        Lse_temp_x->get();	// Load	[0]Chan_m1_addr 
+        Lse_temp_x->value = m1_[Lse_temp_x->assign()];
 
-        Lse_temp_x->get();	// Load
-        Lse_temp_x->value = m1_[Lse_temp_x->assign()/* - m1_BaseAddr*/];
+        Chan_j_jj->get();	// Add	[0]Lc_j [1]Chan_jj_lc_relay_loop_k_DGSF 
+        Chan_j_jj->value = Chan_j_jj->assign(uint(0)) + Chan_j_jj->assign(uint(1));
 
-        Chan_m2_addr->get();	// Add
-        Chan_m2_addr->value = Chan_m2_addr->assign(Chan_k_row) + Chan_m2_addr->assign(Chan_j_jj)/* + m2_BaseAddr*/;
+        Chan_m1_data->get();	// Nop	[0]Lse_temp_x 
+        Chan_m1_data->value = Chan_m1_data->assign(uint(0));
 
-        Chan_prod_addr->get();	// Add
-        Chan_prod_addr->value = Chan_prod_addr->assign(Chan_j_jj) + Chan_prod_addr->assign(Chan_i_row_relay_loop_k)/* + partialSum_BaseAddr*/;
+        Chan_m2_addr->get();	// Add	[0]Chan_k_row_DGSF [1]Chan_j_jj 
+        Chan_m2_addr->value = Chan_m2_addr->assign(uint(0)) + Chan_m2_addr->assign(uint(1));
 
-        Chan_m1_data->get();	// Nop
-        Chan_m1_data->value = Chan_m1_data->assign(Lse_temp_x);
+        Chan_prod_addr->get();	// Add	[0]Chan_j_jj [1]Chan_i_row_relay_loop_k_DGSF 
+        Chan_prod_addr->value = Chan_prod_addr->assign(uint(0)) + Chan_prod_addr->assign(uint(1));
 
-        Lse_m2_data->get();	// Load
-        Lse_m2_data->value = m2_[Lse_m2_data->assign()/* - m2_BaseAddr*/];
+        Lse_m2_data->get();	// Load	[0]Chan_m2_addr 
+        Lse_m2_data->value = m2_[Lse_m2_data->assign()];
 
-        Lse_prod_data->get();	// Load
-        Lse_prod_data->value = prod_[Lse_prod_data->assign()/* - partialSum_BaseAddr*/];
+        Lse_prod_data->get();	// Load	[0]Chan_prod_addr 
+        Lse_prod_data->value = prod_[Lse_prod_data->assign()];
 
-        Chan_mul->get();	// Mul
-        Chan_mul->value = Chan_mul->assign(Chan_m1_data) * Chan_mul->assign(Lse_m2_data);
+        Chan_mul->get();	// Mul	[0]Chan_m1_data_DGSF [1]Lse_m2_data 
+        Chan_mul->value = Chan_mul->assign(uint(0)) * Chan_mul->assign(uint(1));
 
-        Chan_prod_data_update->get();	// Add
-        Chan_prod_data_update->value = Chan_prod_data_update->assign(Lse_prod_data) + Chan_prod_data_update->assign(Chan_mul);
+        Chan_prod_data_update->get();	// Add	[0]Lse_prod_data [1]Chan_mul 
+        Chan_prod_data_update->value = Chan_prod_data_update->assign(uint(0)) + Chan_prod_data_update->assign(uint(1));
 
-        Lse_prod_data_update_st->get();	// Store
+        Lse_prod_data_update_st->get();	// Store	[0]Chan_prod_addr [1]Chan_prod_data_update 
 
 
         //** Update each chanDGSF
@@ -312,12 +464,13 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
 
         //** Print log
         // Set debug mode
-        //debug->debug_mode = Debug_mode::Print_detail;
-        debug->debug_mode = Debug_mode::Turn_off;
+        debug->debug_mode = Debug_mode::Print_detail;
+        //debug->debug_mode = Debug_mode::Turn_off;
 
         if (/*37500 > iter && iter > 34500*/ iter >= 0)
         {
             debug->printSimInfo(simChans, simLcs);
+            debug->printGraphScheduler(graphScheduler);
 
             ////** Print channle
             //debug->chanPrint("Chan_begin", Chan_begin);

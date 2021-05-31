@@ -877,6 +877,32 @@ void Debug::printSimInfo(const vector<Channel*>& _chans, const vector<Lc*> _lc)
     }
 }
 
+void Debug::printGraphScheduler(const GraphScheduler* _graphScheduler)
+{
+    getFile() << std::endl;
+    getFile() << "*****************  Subgraph status *****************" << std::endl;
+    getFile() << "Current SubgraphId: " << _graphScheduler->currSubgraphId << std::endl;
+    auto& subgraphStatus = _graphScheduler->getSubgraphStatus();
+    for (size_t i = 0; i < subgraphStatus.size(); ++i)
+    {
+        getFile() << "SubgraphId: " << i << "\tisOver: " << subgraphStatus[i] << std::endl;
+
+        getFile() << "Producer: ";
+        for (auto& producer : _graphScheduler->subgraphTable.at(i).first)
+        {
+            getFile() << producer->moduleName << " ";
+        }
+        getFile() << std::endl;
+
+        getFile() << "Consumer: ";
+        for (auto& consumer : _graphScheduler->subgraphTable.at(i).second)
+        {
+            getFile() << consumer->moduleName << " ";
+        }
+        getFile() << std::endl;
+    }
+}
+
 void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)
 {
     uint clk = DFSim::ClkDomain::getInstance()->getClk();

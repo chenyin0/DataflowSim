@@ -1748,32 +1748,52 @@ void ChanGraph::addChanDGSF()
                 const auto& chanNode = dynamic_cast<Chan_Node*>(node);
 
                 // Gen connect
-                for (auto& nextNodeData : chanNode->next_nodes_data)
+                for (auto it = chanNode->next_nodes_data.begin(); it != chanNode->next_nodes_data.end(); /*auto& *it : chanNode->next_nodes_data*/)
                 {
-                    auto& preNodesData = getNode(nextNodeData)->pre_nodes_data;
-                    auto iter = find(preNodesData.begin(), preNodesData.end(), chanNode->node_name);
-                    if (iter != preNodesData.end())
+                    if (getNode(*it)->subgraphId != chanNode->subgraphId)
                     {
-                        *iter = chanDGSFNode->node_name;
+                        auto& preNodesData = getNode(*it)->pre_nodes_data;
+                        auto iter = find(preNodesData.begin(), preNodesData.end(), chanNode->node_name);
+                        if (iter != preNodesData.end())
+                        {
+                            *iter = chanDGSFNode->node_name;
+                            chanDGSFNode->next_nodes_data.push_back(*it);
+                            it = chanNode->next_nodes_data.erase(it);
+                        }
+                        else
+                        {
+                            ++it;
+                        }
                     }
-
-                    chanDGSFNode->next_nodes_data.push_back(nextNodeData);
+                    else
+                    {
+                        ++it;
+                    }
                 }
 
-                for (auto& nextNodeActive : chanNode->next_nodes_active)
+                for (auto it = chanNode->next_nodes_active.begin(); it != chanNode->next_nodes_active.end(); )
                 {
-                    auto& preNodesActive = getNode(nextNodeActive)->pre_nodes_active;
-                    auto iter = find(preNodesActive.begin(), preNodesActive.end(), chanNode->node_name);
-                    if (iter != preNodesActive.end())
+                    if (getNode(*it)->subgraphId != chanNode->subgraphId)
                     {
-                        *iter = chanDGSFNode->node_name;
+                        auto& preNodesActive = getNode(*it)->pre_nodes_active;
+                        auto iter = find(preNodesActive.begin(), preNodesActive.end(), chanNode->node_name);
+                        if (iter != preNodesActive.end())
+                        {
+                            *iter = chanDGSFNode->node_name;
+                            chanDGSFNode->next_nodes_active.push_back(*it);
+                            it = chanNode->next_nodes_active.erase(it);
+                        }
+                        else
+                        {
+                            ++it;
+                        }
                     }
-
-                    chanDGSFNode->next_nodes_active.push_back(nextNodeActive);
+                    else
+                    {
+                        ++it;
+                    }
                 }
 
-                chanNode->next_nodes_active.clear();
-                chanNode->next_nodes_data.clear();
                 chanNode->next_nodes_data.push_back(chanDGSFNode->node_name);
 
                 chanDGSFNode->pre_nodes_data.push_back(chanNode->node_name);

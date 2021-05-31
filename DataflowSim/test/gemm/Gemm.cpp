@@ -7,9 +7,9 @@ Dfg GemmTest::dfg;
 //ChanGraph GemmTest::chanGraph;
 //ControlTree GemmTest::chanGraphControlTree;
 
-const uint GemmTest::matrix_width = 60;
+const uint GemmTest::matrix_width = 10;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 30;
+const uint GemmTest::block_size = 5;
 
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
@@ -31,8 +31,8 @@ vector<int> GemmTest::prod_;
 uint GemmTest::Base_loop_j_speedup = 1;
 
 // DGSF
-uint GemmTest::DGSF_loop_k_speedup = 5;
-uint GemmTest::DGSF_loop_j_speedup = 5;
+uint GemmTest::DGSF_loop_k_speedup = 1;
+uint GemmTest::DGSF_loop_j_speedup = 4;
 
 
 void GemmTest::generateData()

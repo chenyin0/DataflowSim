@@ -19,8 +19,8 @@
 //2) SGMF: channel size = 2;
 //3) TIA(instruction-based): much less PEs; fine-grained synchronization(the channel execute cycle is longer)
 
-//#define Base Base
-#define DGSF DGSF
+#define Base Base
+//#define DGSF DGSF
 //#define SGMF SGMF
 //#define TIA TIA
 

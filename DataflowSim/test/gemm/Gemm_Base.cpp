@@ -339,7 +339,7 @@ void GemmTest::gemm_Base(Debug* debug)
 
     //*** Simulate
     // Initiation
-    registry->tableInit();  // Update registry and initial all the module in registry
+    registry->init();  // Update registry and initial all the module in registry
     registry->pathBalance();
     profiler->init();
     watchdog.addCheckPointChan({ lc_jj_getEnd, lc_kk_getEnd, lc_i_getEnd, lc_k_getEnd, lc_j_getEnd });
