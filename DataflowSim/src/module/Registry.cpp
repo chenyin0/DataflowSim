@@ -490,6 +490,7 @@ void Registry::genModule(ChanGraph& _chanGraph)
             {
                 auto lcPtr = genLc(*dynamic_cast<Chan_Node*>(node));
                 lcPtr->subgraphId = node->subgraphId;
+                lcPtr->loopVar->subgraphId = node->subgraphId;
                 // TODO: not sure whether lc in branchMode works well
                 if (controlType == "Branch")
                 {
