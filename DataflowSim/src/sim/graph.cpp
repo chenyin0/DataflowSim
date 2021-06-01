@@ -365,61 +365,72 @@ auto Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, 
 void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion)
 {
     uint divideNum = _subgraphNum;
-    auto dfgCsr = csrFormat(_edgeWeightWithinCtrlRegion);
-    vector<idx_t> cluster;
-    vector<idx_t> xadj = std::get<0>(dfgCsr);
-    vector<idx_t> adjncy = std::get<1>(dfgCsr);
-    vector<idx_t> adjwgt = std::get<2>(dfgCsr);
-
-    idx_t nVertices = xadj.size() - 1;  // Vertex number
-    idx_t nEdges = adjncy.size() / 2;  // Edge number
-    idx_t nWeights = 1;
-    idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
-    idx_t objval;
-    std::vector<idx_t> part(nVertices, 0);
-    idx_t options[METIS_NOPTIONS];
-    METIS_SetDefaultOptions(options);
-    options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
-    options[METIS_OPTION_CONTIG] = 1;
-
-    int ufactor = 4096;
-    bool validPartition = 1;
-    while (1)  // Ensure each subgraph at least has one node
+    if (_subgraphNum > 1)
     {
-        validPartition = 1;
-        options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
-        // TODO: select the best graph split function!
-        if (divideNum > 8)
-        {
-            int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        }
-        else
-        {
-            int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        }
+        auto dfgCsr = csrFormat(_edgeWeightWithinCtrlRegion);
+        vector<idx_t> cluster;
+        vector<idx_t> xadj = std::get<0>(dfgCsr);
+        vector<idx_t> adjncy = std::get<1>(dfgCsr);
+        vector<idx_t> adjwgt = std::get<2>(dfgCsr);
 
-        for (size_t i = 0; i < divideNum; ++i)
+        idx_t nVertices = xadj.size() - 1;  // Vertex number
+        idx_t nEdges = adjncy.size() / 2;  // Edge number
+        idx_t nWeights = 1;
+        idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
+        idx_t objval;
+        std::vector<idx_t> part(nVertices, 0);
+        idx_t options[METIS_NOPTIONS];
+        METIS_SetDefaultOptions(options);
+        options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+        options[METIS_OPTION_CONTIG] = 1;
+
+        int ufactor = 4096;
+        bool validPartition = 1;
+        while (1)  // Ensure each subgraph at least has one node
         {
-            if (find(part.begin(), part.end(), i) == part.end())
+            validPartition = 1;
+            options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+            // TODO: select the best graph split function!
+            if (divideNum > 8)
             {
-                validPartition = 0;
-                ufactor >>= 1;
+                int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+            }
+            else
+            {
+                int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+            }
+
+            for (size_t i = 0; i < divideNum; ++i)
+            {
+                if (find(part.begin(), part.end(), i) == part.end())
+                {
+                    validPartition = 0;
+                    ufactor >>= 1;
+                    break;
+                }
+            }
+
+            if (validPartition)
+            {
                 break;
             }
         }
 
-        if (validPartition)
+        //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+
+        for (size_t i = 0; i < part.size(); ++i)
         {
-            break;
+            nodes[i]->subgraphId = part[i];
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < nodes.size(); ++i)
+        {
+            nodes[i]->subgraphId = 0;
         }
     }
 
-    //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-
-    for (size_t i = 0; i < part.size(); ++i)
-    {
-        nodes[i]->subgraphId = part[i];
-    }
 
     sortSubgraphId(nodes, divideNum);
 
@@ -1267,6 +1278,7 @@ void ChanGraph::addSpecialModeChan()
             next_nodes.insert(next_nodes.end(), nodePtr->next_nodes_active.begin(), nodePtr->next_nodes_active.end());
 
             string lastLowerCtrlRegion;
+            vector<string> nextNodesInLowerCtrlRegion;
             for (auto& nextNode : next_nodes)
             {
                 auto iter = find(ctrlRegion.lowerControlRegion.begin(), ctrlRegion.lowerControlRegion.end(), findNodeCtrlRegionInLoopHierarchy(nextNode, loopHierarchy_));
@@ -1283,11 +1295,96 @@ void ChanGraph::addSpecialModeChan()
                             Debug::throwError("The lowerCtrlRegions are not same!", __FILE__, __LINE__);
                         }
                     }
+
+                    if (dynamic_cast<Chan_Node*>(getNode(nextNode))->node_type != "Lc")
+                    {
+                        nextNodesInLowerCtrlRegion.push_back(nextNode);
+                    }
                 }
             }
             if (lastLowerCtrlRegion != "")
             {
                 dynamic_cast<Chan_Node*>(nodePtr)->chan_mode = "Keep_mode";
+                //for (auto& nextNodeData : nodePtr->next_nodes_data)
+                //{
+                //    const auto& nextNodeDataPtr = getNode(nextNodeData);
+                //    for (auto iter = nextNodeDataPtr->pre_nodes_data.begin(); iter != nextNodeDataPtr->pre_nodes_data.end();)
+                //    {
+                //        if (*iter == nodePtr->node_name)
+                //        {
+                //            iter = nextNodeDataPtr->pre_nodes_data.erase(iter);
+                //        }
+                //        else
+                //        {
+                //            ++iter;
+                //        }
+                //    }
+                //    getNode(nextNodeData)->pre_nodes_active.push_back(nodePtr->node_name);
+                //}
+
+                //for (auto& nextNodeActive : nodePtr->next_nodes_active)
+                //{
+                //    const auto& nextNodeActivePtr = getNode(nextNodeActive);
+                //    for (auto iter = nextNodeActivePtr->pre_nodes_active.begin(); iter != nextNodeActivePtr->pre_nodes_active.end();)
+                //    {
+                //        if (*iter == nodePtr->node_name)
+                //        {
+                //            iter = nextNodeActivePtr->pre_nodes_active.erase(iter);
+                //        }
+                //        else
+                //        {
+                //            ++iter;
+                //        }
+                //    }
+                //}
+
+
+                // If the next node number in the lower loop region is more than one, create a fake chan in the lower loop as a shadow channel
+                // TODO: If it exist a relayMode channel in the nextNodes, it can set the relayMode channel in Scatter mode rather than create a new one
+                if (nextNodesInLowerCtrlRegion.size() > 1)  
+                {
+                    string nodeName = nodePtr->node_name + "_scatter_" + lastLowerCtrlRegion;
+                    addNode(nodeName, "ChanBase", "Nop", "Scatter_mode", lastLowerCtrlRegion);  // Add scatter mode
+                    dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
+                    addNodes2CtrlTree(lastLowerCtrlRegion, { nodeName });
+
+                    // Add active connect between Scatter_mode node and Lc
+                    for (auto& node_ : controlTree.getCtrlRegion(lastLowerCtrlRegion).nodes)
+                    {
+                        auto nodePtr = dynamic_cast<Chan_Node*>(nodes[findNodeIndex(node_)->second]);
+                        if (nodePtr->node_type == "Lc")
+                        {
+                            nodes[findNodeIndex(nodeName)->second]->pre_nodes_active.push_back(nodePtr->node_name);
+                            break;
+                        }
+                    }
+
+                    // Gen connect
+                    for (auto& nextNodeData : nodePtr->next_nodes_data)
+                    {
+                        auto iter = find(getNode(nextNodeData)->pre_nodes_data.begin(), getNode(nextNodeData)->pre_nodes_data.end(), nodePtr->node_name);
+                        if (iter != getNode(nextNodeData)->pre_nodes_data.end())
+                        {
+                            *iter = nodeName;
+                            getNode(nodeName)->next_nodes_data.push_back(nextNodeData);
+                        }
+                    }
+                    for (auto& nextNodeActive : nodePtr->next_nodes_active)
+                    {
+                        auto iter = find(getNode(nextNodeActive)->pre_nodes_active.begin(), getNode(nextNodeActive)->pre_nodes_active.end(), nodePtr->node_name);
+                        if (iter != getNode(nextNodeActive)->pre_nodes_active.end())
+                        {
+                            *iter = nodeName;
+                            getNode(nodeName)->next_nodes_active.push_back(nextNodeActive);
+                        }
+                    }
+
+                    nodePtr->next_nodes_data.clear();
+                    nodePtr->next_nodes_active.clear();
+                    nodePtr->next_nodes_data.push_back(nodeName);
+
+                    getNode(nodeName)->pre_nodes_data.push_back(nodePtr->node_name);
+                }
             }
 
             // DrainMode
@@ -1319,6 +1416,9 @@ void ChanGraph::addSpecialModeChan()
             }
         }
     }
+
+    completeConnect();
+    removeRedundantConnect();
 }
 
 void ChanGraph::insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes)

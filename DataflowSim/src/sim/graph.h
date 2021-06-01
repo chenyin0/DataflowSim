@@ -43,7 +43,9 @@ namespace DFSim
         Chan_Node(string _nodeName) : Node(_nodeName) {}
         string node_type = "ChanBase";  // Lc, Mux, ChanPartialMux, ChanBase, ChanDGSF, Lse_ld, Lse_st
         string node_op;  // Inherit from Dfg_Node 
-        string chan_mode = "Normal";  // Normal, Keep_mode, Drain_mode
+        string chan_mode = "Normal";  // 1) Normal; 2) Keep_mode; 3) Drain_mode; 
+                                      // 4) Scatter_mode (Usage: if a Keep_mode channel has more than one nextNode in the lower loop region, 
+                                      //    add a scatter channel to distribute the data in the lower loop region)
         bool isPhysicalChan = true;  // This chan is only a logic chan (e.g. Relay_mode)
         
         uint size = 2;
