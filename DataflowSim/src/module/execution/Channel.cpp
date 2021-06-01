@@ -178,7 +178,7 @@ vector<int> Channel::get(const vector<int>& data)
 
     //// Update channel value
     //funcUpdate();  
-    
+
     //bpUpdate(); 
     if (speedup > 1)
     {
@@ -349,17 +349,68 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         }
 
         // Avoid receive extra poison data when upstream is in keepMode
-        if (!upstream[_bufferId]->keepMode)
+        bool hasUpstreamInKeepMode = false;
+        for (auto& upstreamChan : upstream)
+        {
+            if (upstreamChan->keepMode)
+            {
+                hasUpstreamInKeepMode = true;
+                break;
+            }
+        }
+
+        if (!hasUpstreamInKeepMode)
         {
             chanBuffer[_bufferId].push_back(data);
             ++chanBufferDataCnt[_bufferId];
         }
         else
         {
-            if (chanBuffer[_bufferId].empty())
+            if (isLoopVar)
             {
-                chanBuffer[_bufferId].push_back(data);
-                ++chanBufferDataCnt[_bufferId];
+                if (chanBuffer[_bufferId].empty())
+                {
+                    chanBuffer[_bufferId].push_back(data);
+                    ++chanBufferDataCnt[_bufferId];
+
+                    // Note: LoopVar channel send last tag when popChannel!
+                }
+            }
+            else
+            {
+                if (upstream.size() != 2)
+                {
+                    Debug::throwError("[Config Error] The upstream channel number of a channel which has a upstream channel in keepMode must equal to 2 !", __FILE__, __LINE__);
+                }
+                else
+                {
+                    if (!upstream[_bufferId]->keepMode)  // For the chanBuffer which upstream inherits from Lc
+                    {
+                        chanBuffer[_bufferId].push_back(data);
+                        ++chanBufferDataCnt[_bufferId];
+
+                        // Send lastTag to each upstream channel in keepMode
+                        // 1) Normal channel send last tag to upstream channels in keepMode when pushBuffer;
+                        // 2) But LoopVar channel send last tag when popChannel!
+                        if (data.last)
+                        {
+                            sendLastTag();
+                        }
+                    }
+                    else  // For the chanBuffer which upstream is in keepMode 
+                    {
+                        uint theOtherChannelId = (_bufferId + 1) % 2;
+                        // Only when the chanBuffer which upstream is Lc receive a data, the chanBuffer which upstream is in keepMode can receive a data
+                        // But the chanBufferId sequence of Lc and keepMode is uncertain, so need discuss in two situations
+                        // 1) Lc is prior than keepMode; 2) keepMode is prior than Lc
+                        if (chanBuffer[_bufferId].size() < chanBuffer[theOtherChannelId].size() ||
+                            upstream[theOtherChannelId]->valid)
+                        {
+                            chanBuffer[_bufferId].push_back(data);
+                            ++chanBufferDataCnt[_bufferId];
+                        }
+                    }
+                }
             }
         }
     }
@@ -378,12 +429,12 @@ bool Channel::checkSend(Data _data, Channel* _upstream)
 {
     bool sendable = 1;
     uint bufferId = getChanId(_upstream);
-    //// Find corresponding bufferId of upstream
+    //// Find corresponding i of upstream
     //for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
     //{
     //    if (upstream[chanId] == _upstream)
     //    {
-    //        bufferId = chanId;
+    //        i = chanId;
     //        break;
     //    }
     //}
@@ -438,15 +489,15 @@ void Channel::funcUpdate()
 int Channel::aluUpdate()
 {
     //vector<int> operands;
-    //for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+    //for (size_t i = 0; i < chanBuffer.size(); ++i)
     //{
-    //    if (!chanBuffer[bufferId].empty())
+    //    if (!chanBuffer[i].empty())
     //    {
-    //        operands.push_back(chanBuffer[bufferId].front().value);
+    //        operands.push_back(chanBuffer[i].front().value);
     //    }
     //    else
     //    {
-    //        operands.push_back(lastPopVal[bufferId]);
+    //        operands.push_back(lastPopVal[i]);
     //    }
     //}
 
@@ -542,13 +593,13 @@ int Channel::aluUpdate()
 
 
 // class ChanBase
-ChanBase::ChanBase(uint _size, uint _cycle) : 
+ChanBase::ChanBase(uint _size, uint _cycle) :
     Channel(_size, _cycle)
 {
     initial();
 }
 
-ChanBase::ChanBase(uint _size, uint _cycle, uint _speedup) : 
+ChanBase::ChanBase(uint _size, uint _cycle, uint _speedup) :
     Channel(_size, _cycle, _speedup)
 {
     initial();
@@ -576,7 +627,7 @@ void ChanBase::initial()
     chanType = ChanType::Chan_Base;
 }
 
-//bool ChanBase::checkUpstream(uint bufferId)
+//bool ChanBase::checkUpstream(uint i)
 //{
 //    bool ready = 1;
 //    if (!noUpstream)
@@ -589,7 +640,7 @@ void ChanBase::initial()
 //        //        break;
 //        //    }
 //        //}
-//        uint chanId = bufferId;
+//        uint chanId = i;
 //        if (!upstream[chanId]->valid)
 //        {
 //            ready = 0;
@@ -599,7 +650,7 @@ void ChanBase::initial()
 //    {
 //        //if (channel.size() == size)  // When channel is full
 //        //    ready = 0;
-//        if (chanBuffer[bufferId].size() == size)  // When channel is full
+//        if (chanBuffer[i].size() == size)  // When channel is full
 //            ready = 0;
 //    }
 //
@@ -632,27 +683,13 @@ void ChanBase::pushChannel()
         // Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
         updateDataStatus(data);
 
-        //// Push getLast
-        //if (data.last)
-        //    getLast.push_back(1);
-
-        // Send lastTag to each upstream channel in keepMode
-        // 1) Normal channel send last tag to upstream channels in keepMode when pushChannel;
-        // 2) But LoopVar channel send last tag when popChannel!
-        if (data.last && !isLoopVar)
-        {
-            //if (isLoopVar)
-            //{
-            //    data.last = 0;  //Reset data last flag, due to loopVar not receive last, only receive lastOuter
-            //    getLast.push_back(1);
-            //}
-            //else
-            //{
-            //    sendLastTag();
-            //}
-
-            sendLastTag();
-        }    
+        //// Send lastTag to each upstream channel in keepMode
+        //// 1) Normal channel send last tag to upstream channels in keepMode when pushChannel;
+        //// 2) But LoopVar channel send last tag when popChannel!
+        //if (data.last && !isLoopVar)
+        //{
+        //    sendLastTag();
+        //}    
 
         bool getIsCond = 0;  // Signify has got a cond
         if (branchMode)
@@ -777,14 +814,14 @@ void ChanBase::updateDataStatus(Data& data)
     {
         // Due to a channel in keepMode may repeatly send a data with a last for many times
         // The data received by a drainMode channel is always with a last flag, so ignore it
-        if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
+        if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to i
         {
             data.last |= chanBuffer[bufferId].front().last;
             data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
         }
         else
         {
-            //if (chanBuffer[bufferId].front().last && isLoopVar)
+            //if (chanBuffer[i].front().last && isLoopVar)
             //{
             //    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
             //}
@@ -795,7 +832,7 @@ void ChanBase::updateDataStatus(Data& data)
             }
         }
 
-        //data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
+        //data.lastOuter |= chanBuffer[i].front().lastOuter;
         data.graphSwitch |= chanBuffer[bufferId].front().graphSwitch;
     }
 }
@@ -933,12 +970,12 @@ vector<int> ChanBase::pop()
 //    }
 //}
 
-//vector<int> ChanBase::push(int data, uint bufferId)
+//vector<int> ChanBase::push(int data, uint i)
 //{
 //    // Push data in channel
-//    if (checkUpstream(bufferId))
+//    if (checkUpstream(i))
 //    {
-//        pushBuffer(data, bufferId);
+//        pushBuffer(data, i);
 //        return { 1, data };
 //    }
 //    else
@@ -1041,18 +1078,18 @@ bool ChanBase::checkDataMatch()
 //bool ChanBase::checkSend(Data _data, Channel* _upstream)
 //{
 //    bool sendable = 1;
-//    uint bufferId = getChanId(_upstream);
-//    //// Find corresponding bufferId of upstream
+//    uint i = getChanId(_upstream);
+//    //// Find corresponding i of upstream
 //    //for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
 //    //{
 //    //    if (upstream[chanId] == _upstream)
 //    //    {
-//    //        bufferId = chanId;
+//    //        i = chanId;
 //    //        break;
 //    //    }
 //    //}
 //
-//    if (bp[bufferId] == 1)
+//    if (bp[i] == 1)
 //    {
 //        sendable = 0;
 //    }
@@ -1066,15 +1103,15 @@ bool ChanBase::checkDataMatch()
 //    //else
 //    //    bp = 1;
 //
-//    for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+//    for (size_t i = 0; i < chanBuffer.size(); ++i)
 //    {
-//        if (chanBuffer[bufferId].size() < size)
+//        if (chanBuffer[i].size() < size)
 //        {
-//            bp[bufferId] = 0;
+//            bp[i] = 0;
 //        }
 //        else
 //        {
-//            bp[bufferId] = 1;
+//            bp[i] = 1;
 //        }
 //    }
 //}
@@ -1101,7 +1138,7 @@ bool ChanBase::checkDataMatch()
 //}
 //
 //// Assign channel value to program varieties
-//int ChanBase::assign(uint bufferId)
+//int ChanBase::assign(uint i)
 //{
 //    //if (!this->channel.empty())
 //    //{
@@ -1111,12 +1148,12 @@ bool ChanBase::checkDataMatch()
 //    //else
 //    //    return lastPopVal;
 //
-//    if (!this->chanBuffer[bufferId].empty())
+//    if (!this->chanBuffer[i].empty())
 //    {
-//        return chanBuffer[bufferId].front().value;
+//        return chanBuffer[i].front().value;
 //    }
 //    else
-//        return lastPopVal[bufferId];
+//        return lastPopVal[i];
 //}
 
 
@@ -1233,10 +1270,10 @@ bool ChanDGSF::checkGetLastData(uint bufferId)
 //        channel.pop_front();
 //        popSuccess = 1;
 //        //popData = data.value;
-//        for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+//        for (size_t i = 0; i < chanBuffer.size(); ++i)
 //        {
-//            lastPopVal[bufferId] = chanBuffer[bufferId].front().value;  // For LC->loopVar, record last pop data when the channel pop empty
-//            chanBuffer[bufferId].pop_front();
+//            lastPopVal[i] = chanBuffer[i].front().value;  // For LC->loopVar, record last pop data when the channel pop empty
+//            chanBuffer[i].pop_front();
 //        }
 //        //lastPopVal = data.value;
 //
@@ -1470,7 +1507,7 @@ bool ChanDGSF::checkGetLastData(uint bufferId)
 
 
 // class ChanSGMF
-ChanSGMF::ChanSGMF(uint _size, uint _cycle) : 
+ChanSGMF::ChanSGMF(uint _size, uint _cycle) :
     ChanBase(_size, _cycle)/*, chanSize(_size)*/
 {
     init();
@@ -1968,14 +2005,14 @@ void ChanSGMF::pushChannel(uint tag)
         {
             // Due to a channel in keepMode may repeatly send a data with a last for many times
             // The data received by a drainMode channel is always with a last flag, so ignore it
-            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
+            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to i
             {
                 data.last |= chanBuffer[bufferId][tag].last;
                 data.lastOuter |= chanBuffer[bufferId][tag].lastOuter;
             }
             else
             {
-                //if (chanBuffer[bufferId].front().last && isLoopVar)
+                //if (chanBuffer[i].front().last && isLoopVar)
                 //{
                 //    data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
                 //}
@@ -1985,9 +2022,9 @@ void ChanSGMF::pushChannel(uint tag)
                     data.lastOuter = 1;  // Signify inner loop has received a last from outer loop
                 }
 
-                //data.lastOuter |= chanBuffer[bufferId][0].lastOuter;  // If a buffer's corresponding upstream is in keepMode, only store its data in [0]
+                //data.lastOuter |= chanBuffer[i][0].lastOuter;  // If a buffer's corresponding upstream is in keepMode, only store its data in [0]
             }
-            //data.graphSwitch |= chanBuffer[bufferId][tag].graphSwitch;
+            //data.graphSwitch |= chanBuffer[i][tag].graphSwitch;
         }
 
         //// Push getLast
@@ -2061,17 +2098,17 @@ void ChanSGMF::pushChannel(uint tag)
             //else
             //{
             //    // Clear data in the chanBuffer directly
-            //    for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+            //    for (size_t i = 0; i < chanBuffer.size(); ++i)
             //    {
-            //        if (!upstream[bufferId]->keepMode)
+            //        if (!upstream[i]->keepMode)
             //        {
             //            uint round = size / tagSize;
             //            uint addr = (round - 1) * tagSize + tag;
-            //            chanBuffer[bufferId][addr].valid = 0;  // Clear data
+            //            chanBuffer[i][addr].valid = 0;  // Clear data
             //        }
             //        else
             //        {
-            //            chanBuffer[bufferId][0].valid = 0;
+            //            chanBuffer[i][0].valid = 0;
             //        }
             //    }
             //}
@@ -2128,7 +2165,7 @@ void ChanSGMF::pushChannel(uint tag)
         data.valid = 1;
         //data.value = _data;
         data.cycle = ClkDomain::getInstance()->getClk();
-        channel.push_back(data);  
+        channel.push_back(data);
         //for (size_t i = _tag; i < chanBundle[chanId].size(); i = i + chanSize)
         //{
         //    if (!chanBundle[chanId][i].valid)
@@ -2150,7 +2187,7 @@ void ChanSGMF::statusUpdate()
     shiftDataInChanBuffer();
     // Check tag match among channels, and send match ready data into matchQueue
     checkTagMatch();
-    
+
     uint clk = ClkDomain::getInstance()->getClk();
     // Check whether downstream channel avaliable to receive data
     if (!noDownstream && channel.empty())
@@ -2168,7 +2205,7 @@ void ChanSGMF::statusUpdate()
                 //        sendable = 0;
                 //    }
                 //}
-                if(!keepMode)
+                if (!keepMode)
                 {
                     for (auto& channel : downstream)
                     {
@@ -2265,7 +2302,7 @@ void ChanSGMF::checkTagMatch()
                 data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
             }
 
-            //data.cycle = std::max(data.cycle, chanBuffer[bufferId][addr].cycle);  // Update the cycle as the max among each channel
+            //data.cycle = std::max(data.cycle, chanBuffer[i][addr].cycle);  // Update the cycle as the max among each channel
 
             //else
             //{
@@ -2438,7 +2475,7 @@ int ChanSGMF::assign(Channel* chan)
 {
     uint bufferId = getChanId(chan);
 
-    return this->assign(bufferId);  
+    return this->assign(bufferId);
 }
 
 
@@ -2470,7 +2507,7 @@ bool ChanPartialMux::checkDataMatch()
 {
     uint clk = ClkDomain::getInstance()->getClk();
     bool match = 1;
-    
+
     if (!chanBuffer[0].empty())
     {
         bool cond = chanBuffer[0].front().cond;
@@ -2511,7 +2548,7 @@ vector<int> ChanPartialMux::popChannel(bool popReady, bool popLastReady)
             if ((upstream[bufferId]->branchMode && upstream[bufferId]->channelCond == cond) || !upstream[bufferId]->branchMode)
             {
                 lastPopVal[bufferId] = chanBuffer[bufferId].front().value;  // For LC->loopVar, record last pop data when the channel pop empty
-                chanBuffer[bufferId].pop_front();         
+                chanBuffer[bufferId].pop_front();
             }
         }
 
@@ -2539,7 +2576,7 @@ void ChanPartialMux::updateDataStatus(Data& data)
         {
             // Due to a channel in keepMode may repeatly send a data with a last for many times
             // The data received by a drainMode channel is always with a last flag, so ignore it
-            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to bufferId
+            if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to i
             {
                 data.last |= chanBuffer[bufferId].front().last;
                 data.lastOuter |= chanBuffer[bufferId].front().lastOuter;
@@ -2553,6 +2590,6 @@ void ChanPartialMux::updateDataStatus(Data& data)
             }
         }
 
-        //data.graphSwitch |= chanBuffer[bufferId].front().graphSwitch;
+        //data.graphSwitch |= chanBuffer[i].front().graphSwitch;
     }
 }
