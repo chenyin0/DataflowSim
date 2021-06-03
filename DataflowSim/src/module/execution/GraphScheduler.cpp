@@ -326,17 +326,20 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         }
     }
 
-    // Select a subgraph to execute in round-robin 
-    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
-    {
-        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
-        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
-        {
-            return subgraphId;  // Return a subgraph randomly
-        }
-    }
+    return currSubgraphId;
 
-    Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
+    // Debug_yin_21.06.01 (Disable try another subgraph randomly)
+    //// Select a subgraph to execute in round-robin 
+    //for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
+    //{
+    //    uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //    if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
+    //    {
+    //        return subgraphId;  // Return a subgraph randomly
+    //    }
+    //}
+
+    //Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
 }
 
 bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
@@ -514,7 +517,7 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
                 // If producer channel has sent enough data, disable popChannel
                 chan->popChannelEnable = 0;
             }
-            else if (!chan->chanBuffer[bufferId].empty())
+            else if (!chan->chanBuffer[bufferId].empty() && !chan->keepMode)
             {
                 finish = 0;
                 break;
