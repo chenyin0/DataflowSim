@@ -1341,7 +1341,9 @@ void ChanGraph::addSpecialModeChan()
 
                 // If the next node number in the lower loop region is more than one, create a fake chan in the lower loop as a shadow channel
                 // TODO: If it exist a relayMode channel in the nextNodes, it can set the relayMode channel in Scatter mode rather than create a new one
-                if (nextNodesInLowerCtrlRegion.size() > 1)  
+                // Note: Compulsorily add a scatterMode channel for each keepMode channel to ensure correctness. Remove this rule in the future
+                if (nodePtr->next_nodes_active.empty() || 
+                    (!nodePtr->next_nodes_active.empty() && dynamic_cast<Chan_Node*>(getNode(nodePtr->next_nodes_active.front()))->node_type != "Lc")/*nextNodesInLowerCtrlRegion.size() > 1*/)
                 {
                     string nodeName = nodePtr->node_name + "_scatter_" + lastLowerCtrlRegion;
                     addNode(nodeName, "ChanBase", "Nop", "Scatter_mode", lastLowerCtrlRegion);  // Add scatter mode
@@ -1844,6 +1846,7 @@ void ChanGraph::addChanDGSF()
                 addNode(nodeName, "ChanDGSF", "Nop", "Normal", node->controlRegionName);
                 dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
                 addNodes2CtrlTree(node->controlRegionName, { nodeName });
+                getNode(nodeName)->subgraphId = node->subgraphId;
                 const auto& chanDGSFNode = dynamic_cast<Chan_Node*>(getNode(nodeName));
                 const auto& chanNode = dynamic_cast<Chan_Node*>(node);
 
