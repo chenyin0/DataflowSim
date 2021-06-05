@@ -402,9 +402,14 @@ void Channel::pushBuffer(int _data, uint _bufferId)
                         uint theOtherChannelId = (_bufferId + 1) % 2;
                         // Only when the chanBuffer which upstream is Lc receive a data, the chanBuffer which upstream is in keepMode can receive a data
                         // But the chanBufferId sequence of Lc and keepMode is uncertain, so need discuss in two situations
-                        // 1) Lc is prior than keepMode; 2) keepMode is prior than Lc
+                        // 1) Lc is prior than keepMode; 
+                        // 2) If keepMode upstream is prior than Lc upstream
+                        // 3) The data of the upstream in keepMode at least be received once before pop.
+                        // (Condition 3: Given the two upstreams are Lc and chanDGSF. Avoid the situation that when this current channel get the data from the Lc upstream after a stalling, 
+                        // but the chanDGSF is turn into diable for subgraph switching)    
                         if (chanBuffer[_bufferId].size() < chanBuffer[theOtherChannelId].size() ||
-                            upstream[theOtherChannelId]->valid)
+                            upstream[theOtherChannelId]->valid ||
+                            chanBuffer[_bufferId].size() < 1)
                         {
                             chanBuffer[_bufferId].push_back(data);
                             ++chanBufferDataCnt[_bufferId];
