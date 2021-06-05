@@ -484,7 +484,9 @@ void Registry::genModule(ChanGraph& _chanGraph)
             auto& controlRegion = _chanGraph.controlTree.controlRegionTable[_chanGraph.controlTree.findControlRegionIndex(node->controlRegionName)->second];
             if (controlRegion.upperControlRegion.empty())
             {
-                genLcOuterMost(*dynamic_cast<Chan_Node*>(node));
+                auto lcPtr = genLcOuterMost(*dynamic_cast<Chan_Node*>(node));
+                lcPtr->subgraphId = node->subgraphId;
+                lcPtr->loopVar->subgraphId = node->subgraphId;
             }
             else
             {
@@ -559,7 +561,7 @@ Channel* Registry::genChan(Chan_Node& _chan)
     else if (_chan.node_type == "ChanDGSF")
     {
         ChanDGSF* chan = new ChanDGSF(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
-        chan->size = DGSF_INPUT_BUFF_SIZE;
+        //chan->size = DGSF_INPUT_BUFF_SIZE;
 
         if (_chan.chan_mode == "Keep_mode")
         {
@@ -1066,16 +1068,95 @@ void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, u
     auto& ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
     for (auto& chanNode : ctrlRegion.nodes)
     {
-        auto& registryEntry = getRegistryTableEntry(chanNode);
-        if (registryEntry.moduleType == ModuleType::Channel)
+        auto& nodeName = _chanGraph.getNode(chanNode)->node_name;
+        if (nodeName != "Chan_begin" && nodeName != "Chan_end")
         {
-            if (registryEntry.chanPtr->masterName == "None")
+            auto& registryEntry = getRegistryTableEntry(chanNode);
+            if (registryEntry.moduleType == ModuleType::Channel)
             {
-                registryEntry.chanPtr->speedup = _speedup;
+                if (registryEntry.chanPtr->masterName == "None")
+                {
+                    registryEntry.chanPtr->speedup = _speedup;
+                }
             }
         }
     }
 }
+
+//uint Registry::getSubgraphPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion)
+//{
+//    uint nodeNum = 0;
+//    auto ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
+//    for (auto& nodeName : ctrlRegion.nodes)
+//    {
+//        const auto& node = dynamic_cast<Chan_Node*>(_chanGraph.getNode(nodeName));
+//        if (node->isPhysicalChan)
+//        {
+//            ++nodeNum;
+//        }
+//    }
+//
+//    return nodeNum;
+//}
+
+//void Registry::setSpeedup(ChanGraph& _chanGraph)
+//{
+//    unordered_map<uint, vector<Chan_Node*>> subgraphNodes;  // <uint, vector<Chan_Node*>> = <subgraphId, nodesInThisSubgraph>
+//    for (auto& node : _chanGraph.nodes)
+//    {
+//        if (dynamic_cast<Chan_Node*>(node)->isPhysicalChan)
+//        {
+//            if (subgraphNodes.count(node->subgraphId) == 0)
+//            {
+//                vector<Chan_Node*> tmp = { dynamic_cast<Chan_Node*>(node) };
+//                subgraphNodes.insert(make_pair(node->subgraphId, tmp));
+//            }
+//            else
+//            {
+//                subgraphNodes[node->subgraphId].push_back(dynamic_cast<Chan_Node*>(node));
+//            }
+//        }
+//    }
+//
+//    vector<uint> subgraphSpeedupTable(subgraphNodes.size());
+//    for (auto& subgraph : subgraphNodes)
+//    {
+//        uint nodeNum = subgraph.second.size();
+//        uint speedup = ARRAY_SIZE / nodeNum;
+//        subgraphSpeedupTable[subgraph.first] = speedup;  // Record speedup of each subgraph
+//        if (speedup < 1)
+//        {
+//            Debug::throwError("[Config Error] Current subgraph size is larger than array size", __FILE__, __LINE__);
+//        }
+//        else
+//        {
+//            for (auto& node : subgraph.second)
+//            {
+//                auto& nodeName = node->node_name;
+//                if (nodeName != "Chan_begin" && nodeName != "Chan_end")
+//                {
+//                    auto& registryEntry = getRegistryTableEntry(nodeName);
+//                    if (registryEntry.moduleType == ModuleType::Channel)
+//                    {
+//                        if (registryEntry.chanPtr->masterName == "None")
+//                        {
+//                            registryEntry.chanPtr->speedup = speedup;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    // Print subgraph speedup
+//    std::cout << std::endl;
+//    std::cout << "********* Subgraph speedup *********" << std::endl;
+//    for (size_t i = 0; i < subgraphSpeedupTable.size(); ++i)
+//    {
+//        std::cout << "SubgraphId: " << i << "\t" << "Speedup: " << subgraphSpeedupTable[i] << std::endl;
+//    }
+//    std::cout << std::endl;
+//}
 
 void Registry::updateChanDGSF()
 {

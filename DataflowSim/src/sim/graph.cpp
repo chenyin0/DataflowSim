@@ -609,10 +609,10 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
         }
     }
 
-    uint arraySize = 64;
+    //uint arraySize = 64;
     uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
     // TODO: Figure out actual coalesceRate of each subgraph
-    uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
+    uint coalesceRate = std::min(ARRAY_SIZE / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
     float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
     float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
@@ -1348,6 +1348,7 @@ void ChanGraph::addSpecialModeChan()
                     string nodeName = nodePtr->node_name + "_scatter_" + lastLowerCtrlRegion;
                     addNode(nodeName, "ChanBase", "Nop", "Scatter_mode", lastLowerCtrlRegion);  // Add scatter mode
                     dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
+                    //dynamic_cast<Chan_Node*>(getNode(nodeName))->speedup = dynamic_cast<Chan_Node*>(nodePtr)->speedup;
                     addNodes2CtrlTree(lastLowerCtrlRegion, { nodeName });
 
                     // Add active connect between Scatter_mode node and Lc
@@ -1809,17 +1810,18 @@ void ChanGraph::addNodeDelay()
 
 void ChanGraph::addChanDGSF()
 {
-    unordered_map<uint, vector<Node*>> subgraphNodes;
+    unordered_map<uint, vector<Chan_Node*>> subgraphNodes;
     for (auto& node : nodes)
     {
+        const auto& chanNodePtr = dynamic_cast<Chan_Node*>(node);
         if (subgraphNodes.count(node->subgraphId) == 0)
         {
-            vector<Node*> tmp = { node };
+            vector<Chan_Node*> tmp = { chanNodePtr };
             subgraphNodes.insert(make_pair(node->subgraphId, tmp));
         }
         else
         {
-            subgraphNodes[node->subgraphId].push_back(node);
+            subgraphNodes[node->subgraphId].push_back(chanNodePtr);
         }
     }
 
@@ -1844,9 +1846,13 @@ void ChanGraph::addChanDGSF()
             {
                 string nodeName = node->node_name + "_DGSF";
                 addNode(nodeName, "ChanDGSF", "Nop", "Normal", node->controlRegionName);
-                dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
+                const auto& chanPtr = dynamic_cast<Chan_Node*>(getNode(nodeName));
+                chanPtr->isPhysicalChan = false;
+                chanPtr->size = DGSF_INPUT_BUFF_SIZE;
+                //chanPtr->speedup = dynamic_cast<Chan_Node*>(node)->speedup;
                 addNodes2CtrlTree(node->controlRegionName, { nodeName });
                 getNode(nodeName)->subgraphId = node->subgraphId;
+
                 const auto& chanDGSFNode = dynamic_cast<Chan_Node*>(getNode(nodeName));
                 const auto& chanNode = dynamic_cast<Chan_Node*>(node);
 
@@ -1913,4 +1919,53 @@ void ChanGraph::addChanDGSF()
             }
         }
     }
+}
+
+void ChanGraph::setSpeedup()
+{
+    unordered_map<uint, uint> subgraphNodes;  // <uint, uint> = <subgraphId, physicalNodeNum>
+    for (auto& node : nodes)
+    {
+        if (dynamic_cast<Chan_Node*>(node)->isPhysicalChan)
+        {
+            if (subgraphNodes.count(node->subgraphId) == 0)
+            {
+                subgraphNodes.insert(make_pair(node->subgraphId, 1));
+            }
+            else
+            {
+                ++subgraphNodes[node->subgraphId];
+            }
+        }
+    }
+
+    vector<uint> subgraphSpeedupTable(subgraphNodes.size());
+    for (auto& subgraph : subgraphNodes)
+    {
+        uint nodeNum = subgraph.second;
+        uint _speedup = ARRAY_SIZE / nodeNum;
+        subgraphSpeedupTable[subgraph.first] = _speedup;  // Record _speedup of each subgraph
+        if (_speedup < 1)
+        {
+            Debug::throwError("[Config Error] Current subgraph size is larger than array size", __FILE__, __LINE__);
+        }
+    }
+
+    for (auto& node : nodes)
+    {
+        auto& nodeName = node->node_name;
+        if (nodeName != "Chan_begin" && nodeName != "Chan_end")
+        {
+            dynamic_cast<Chan_Node*>(node)->speedup = subgraphSpeedupTable[node->subgraphId];
+        }
+    }
+
+    // Print subgraph _speedup
+    std::cout << std::endl;
+    std::cout << "********* Subgraph speedup *********" << std::endl;
+    for (size_t i = 0; i < subgraphSpeedupTable.size(); ++i)
+    {
+        std::cout << "SubgraphId: " << i << "\t" << "Speedup: " << subgraphSpeedupTable[i] << std::endl;
+    }
+    std::cout << std::endl;
 }

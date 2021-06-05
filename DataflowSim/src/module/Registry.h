@@ -65,7 +65,7 @@ namespace DFSim
         void genConnect(ChanGraph& _chanGraph);
         // Gen configuration
         void genSimConfig(ChanGraph& _chanGraph);
-        void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
+        //void setSpeedup(ChanGraph& _chanGraph);  // Remove to ChanGraph
         auto genDebugPrint(ChanGraph& _chanGraph) -> tuple<vector<Channel*>, vector<Lc*>>;
         // simulation
         void sim();
@@ -136,6 +136,9 @@ namespace DFSim
         void checkChanPartialMux(Channel* _chan);  // Check the connection rule of PartialMux
         void checkLc();  // Check whether set outer-most loop
         void checkChanDGSF(Channel* _chan);
+
+        void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
+        //uint getCtrlRegionPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion);
 
     private:
         static uint moduleId;

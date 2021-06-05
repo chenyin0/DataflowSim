@@ -137,6 +137,7 @@ namespace DFSim
         void addSpecialModeChan();  // Add relayMode and drainMode channel
         void addNodeDelay();
         void addChanDGSF();
+        void setSpeedup();
         void pathBalance();
         vector<ControlRegion> genLoopHierarchy(ControlTree& _controlTree);
        
