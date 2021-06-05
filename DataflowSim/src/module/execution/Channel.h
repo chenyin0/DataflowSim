@@ -96,6 +96,13 @@ class Channel usage:
         virtual void sendLastTag();  // Send last tag to all the upstream channels in keepMode
         int getChanId(Channel* chan);  // Get the index of a channel in the upstream vector(It is also the index of chanBuffer, bp, lastPopVal vector)
 
+#ifdef DEBUG_MODE
+        inline uint getCurrId() const
+        {
+            return currId;
+        }
+#endif
+
     protected:
         //virtual void checkConnect(const vector<int>& inputData);  // Check upstream and downstream can't be empty
         //virtual void checkConnect();  // Check upstream and downstream can't be empty
@@ -159,6 +166,7 @@ class Channel usage:
         uint activeCnt = 0;
         uint activeClkCnt = 0;
         uint subgraphId = 0;
+        bool isPhysicalChan = 1;
 
     protected:
         //uint size;    // chanBuffer size

@@ -202,7 +202,7 @@ vector<int> Channel::get()
         pushState = push(upstream[i]->value, i);
     }
 
-    if (/*isLoopVar || */currId <= speedup || ClkDomain::checkClkAdd())
+    if (/*isLoopVar || */currId <= speedup || ClkDomain::checkClkAdd() || chanType == ChanType::Chan_DGSF)
     {
         statusUpdate(); // Set valid according to the downstream channels' status
     }
