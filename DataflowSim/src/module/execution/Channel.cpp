@@ -209,6 +209,7 @@ vector<int> Channel::get()
     else
     {
         valid = 0;
+        pushChannelSuccess = 0;
     }
 
     bpUpdate();
@@ -1007,6 +1008,11 @@ void ChanBase::statusUpdate()
     if (match && channel.empty())  // Channel size is 1
     {
         pushChannel();
+        pushChannelSuccess = 1;
+    }
+    else
+    {
+        pushChannelSuccess = 0;
     }
 
     if (channel.empty() || !enable)

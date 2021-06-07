@@ -384,6 +384,7 @@ void Lse::pushChannel()
     uint clk = ClkDomain::getInstance()->getClk();
     //uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
     bool getValid = 0;
+    pushChannelSuccess = 0;  // Clear pushChannelSuccess
 
     if (channel.size() < size)
     {
@@ -398,6 +399,7 @@ void Lse::pushChannel()
                     channel.push_back(req.second);
                     req.first.hasPushChan = 1;
                     sendChanPtr = (++sendChanPtr) % reqQueue.size();
+                    pushChannelSuccess = 1;
                     break;
                 }
 
@@ -448,6 +450,7 @@ void Lse::pushChannel()
                 req.first.hasPushChan = 1;
                 ++currReqId;
                 sendChanPtr = (++sendChanPtr) % reqQueue.size();
+                pushChannelSuccess = 1;
             }
         }
     }

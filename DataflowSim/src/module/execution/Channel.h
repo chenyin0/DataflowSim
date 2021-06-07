@@ -167,6 +167,7 @@ class Channel usage:
         uint activeClkCnt = 0;
         uint subgraphId = 0;
         bool isPhysicalChan = 1;
+        bool pushChannelSuccess = 0;  // For counting channel utilization
 
     protected:
         //uint size;    // chanBuffer size

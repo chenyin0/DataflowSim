@@ -110,13 +110,53 @@ void Profiler::updateChanUtilization()
     }
 }
 
+//void Profiler::updateChanUtilization(uint _currSubgraphId)
+//{
+//    for (auto& entry : registry->getRegistryTable())
+//    {
+//        if (entry.moduleType == ModuleType::Channel)
+//        {
+//            if (entry.chanPtr->valid)
+//            {
+//                if (entry.chanPtr->branchMode)
+//                {
+//                    if (entry.chanPtr->channel.front().cond == entry.chanPtr->channelCond)
+//                    {
+//                        entry.chanPtr->activeCnt++;
+//                    }
+//                }
+//                else
+//                {
+//                    entry.chanPtr->activeCnt++;
+//                }
+//
+//                if (ClkDomain::checkClkAdd())
+//                {
+//                    ++entry.chanPtr->activeClkCnt;
+//                }
+//            }
+//            else
+//            {
+//                if (entry.chanPtr->subgraphId == _currSubgraphId)
+//                {
+//                    if (ClkDomain::checkClkAdd())
+//                    {
+//                        ++entry.chanPtr->activeClkCnt;
+//                    }
+//                }
+//            }
+//
+//        }
+//    }
+//}
+
 void Profiler::updateChanUtilization(uint _currSubgraphId)
 {
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)
         {
-            if (entry.chanPtr->valid)
+            if (entry.chanPtr->pushChannelSuccess)
             {
                 if (entry.chanPtr->branchMode)
                 {
@@ -129,23 +169,17 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
                 {
                     entry.chanPtr->activeCnt++;
                 }
+            }
 
+            if (entry.chanPtr->subgraphId == _currSubgraphId ||
+                entry.chanPtr->pushChannelSuccess ||
+                entry.chanPtr->valid)
+            {
                 if (ClkDomain::checkClkAdd())
                 {
                     ++entry.chanPtr->activeClkCnt;
                 }
             }
-            else
-            {
-                if (entry.chanPtr->subgraphId == _currSubgraphId)
-                {
-                    if (ClkDomain::checkClkAdd())
-                    {
-                        ++entry.chanPtr->activeClkCnt;
-                    }
-                }
-            }
-
         }
     }
 }
@@ -163,14 +197,16 @@ void Profiler::printChanProfiling()
         if (entry.moduleType == ModuleType::Channel)
         {
             uint activeNum = entry.chanPtr->activeCnt;
+            //float utilization = static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100;
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100, float(100));
             //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
             
             // TODO: Exclude channel in "Nop"
-            if (entry.chanPtr->moduleName != "Chan_begin" 
-                && entry.chanPtr->moduleName != "Chan_end" 
-                && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar) 
-                && (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1))
+            if (entry.chanPtr->moduleName != "Chan_begin" &&
+                entry.chanPtr->moduleName != "Chan_end" &&
+                entry.chanPtr->isPhysicalChan &&
+                (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)/* &&
+                (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1)*/)
             {
                 debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
                 ++chanNum;
@@ -183,7 +219,7 @@ void Profiler::printChanProfiling()
     }
 
     debug->getFile() << std::endl;
-    debug->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / avgWeight << setprecision(2) << "%" << std::endl;
+    debug->getFile() << "Avg channel utilization: " << std::fixed << float(chanActiveNumTotal * 100) / float(ARRAY_SIZE * ClkDomain::getClk())/*chanUtilAvg / avgWeight*/ << setprecision(2) << "%" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
