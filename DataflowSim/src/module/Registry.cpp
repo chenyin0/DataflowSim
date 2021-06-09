@@ -579,6 +579,11 @@ Channel* Registry::genChan(Chan_Node& _chan)
         ChanPartialMux* chan = new ChanPartialMux(_chan.node_name, _chan.size, _chan.cycle, _chan.speedup);
         chan_ = chan;
     }
+    
+    if (chan_ != nullptr)
+    {
+        chan_->isPhysicalChan = _chan.isPhysicalChan;
+    }
 
     return chan_;
 }
@@ -1078,6 +1083,22 @@ void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, u
                 {
                     registryEntry.chanPtr->speedup = _speedup;
                 }
+            }
+        }
+    }
+}
+
+void Registry::setChanSize()
+{
+    for (auto& entry : registryTable)
+    {
+        if (entry.chanPtr != nullptr)
+        {
+            if (entry.chanPtr->masterName == "None"
+                && (entry.chanPtr->moduleName != "Chan_begin" && entry.chanPtr->moduleName != "Chan_end")
+                && entry.chanPtr->chanType != ChanType::Chan_DGSF)
+            {
+                entry.chanPtr->size = 10 * std::max(entry.chanPtr->cycle, uint(1)) * entry.chanPtr->speedup;
             }
         }
     }
