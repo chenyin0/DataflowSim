@@ -34,6 +34,10 @@ namespace DFSim
         void updateChanUtilization(uint _currSubgraphId);
         void printChanProfiling();
         void printLseProfiling();
+        void printPowerProfiling();
+
+    private:
+        float transEnergy2Power(float _energy);  // Energy: pJ; Power: mW
 
     private:
         vector<ProfilingTable> profilingTable;
@@ -41,5 +45,11 @@ namespace DFSim
         Registry* registry = nullptr;
         Debug* debug = nullptr;
         MemSystem* memSys = nullptr;
+
+        // Channel
+        uint chanActiveNumTotal = 0;
+        // GraphSchduler
+        uint lastSubgraphId = 0;
+        uint graphSwitchTimes = 0;
     };
 }

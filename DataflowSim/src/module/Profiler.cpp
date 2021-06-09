@@ -1,4 +1,5 @@
 #include "./Profiler.h"
+#include "../define/hw_para.hpp"
 
 using namespace DFSim;
 
@@ -182,6 +183,13 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
             }
         }
     }
+
+    // For graphScheduler profiling
+    if (_currSubgraphId != lastSubgraphId)
+    {
+        ++graphSwitchTimes;
+        lastSubgraphId = _currSubgraphId;
+    }
 }
 
 void Profiler::printChanProfiling()
@@ -191,7 +199,6 @@ void Profiler::printChanProfiling()
     uint chanNum = 0;
     uint avgWeight = 0;
     float chanUtilAvg = 0;
-    uint chanActiveNumTotal = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)
@@ -253,4 +260,63 @@ void Profiler::printLseProfiling()
             printLseProfiling(entry.chanPtr->moduleName, dynamic_cast<Lse*>(entry.chanPtr));
         }
     }
+}
+
+void Profiler::printPowerProfiling()
+{
+    // PE array
+    //uint aluActiveTimes = chanActiveNumTotal;
+    uint regActiveTimes = chanActiveNumTotal * 3;
+    uint peCtrlActiveTimes = chanActiveNumTotal;
+    uint contextBufferActiveTimes = graphSwitchTimes * ARRAY_SIZE;
+
+    float aluEnergy = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Base)
+        {
+            aluEnergy += static_cast<float>(entry.chanPtr->activeCnt) * Hardware_Para::getAluEnergy();
+        }
+    }
+    float regEnergy = static_cast<float>(regActiveTimes) * Hardware_Para::getRegAccessEnergy();
+    float peCtrlEnergy = static_cast<float>(peCtrlActiveTimes) * Hardware_Para::getPeCtrlEnergy();
+    float contextBufferEnergy = static_cast<float>(contextBufferActiveTimes) * Hardware_Para::getContextBufferAccessEnergy();
+
+    // On-chip buffer
+    uint dataBufferAccessTimes = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Lse)
+        {
+            uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
+            dataBufferAccessTimes += entry.chanPtr->activeCnt / coalesceRate;
+        }
+    }
+    //uint dataBufferCtrlLogicActiveTimes = dataBufferAccessTimes;
+    float dataBufferEnergy = static_cast<float>(dataBufferAccessTimes) * (Hardware_Para::getDataBufferAccessEnergy() + Hardware_Para::getDataBufferCtrlEnergy());
+
+    // GraphScheduler
+    uint graphSchedulerActiveTimes = graphSwitchTimes;
+    float graphSchedulerEnergy = static_cast<float>(graphSchedulerActiveTimes) * Hardware_Para::getGraphSchedulerEnergy();
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "******* Power profiling *********" << std::endl;
+    debug->getFile() << ">>> PE Array: " << std::endl;
+    debug->getFile() << "ALU power: " << transEnergy2Power(aluEnergy) << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Reg power: " << transEnergy2Power(regEnergy) << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Ctrl logic power: " << transEnergy2Power(peCtrlEnergy) << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Context Buffer power: " << transEnergy2Power(contextBufferEnergy) << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << ">>> On-chip Buffer: " << std::endl;
+    debug->getFile() << "Access power: " << transEnergy2Power(dataBufferEnergy) << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << ">>> Graph Scheduler: " << std::endl;
+    debug->getFile() << "Graph switch power: " << transEnergy2Power(graphSchedulerEnergy) << setprecision(2) << " mW" << std::endl;
+}
+
+float Profiler::transEnergy2Power(float _energy)
+{
+    float totalEnergy = _energy * static_cast<float>(ClkDomain::getClk());  // pJ
+    float power = totalEnergy * static_cast<float>(FREQ);  // uW
+    return power / (10^3);  // Transfer to mW
 }
