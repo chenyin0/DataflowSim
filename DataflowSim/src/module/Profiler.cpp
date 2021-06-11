@@ -302,21 +302,26 @@ void Profiler::printPowerProfiling()
     debug->getFile() << std::endl;
     debug->getFile() << "******* Power profiling *********" << std::endl;
     debug->getFile() << ">>> PE Array: " << std::endl;
+    debug->getFile() << "PE active total times: " << chanActiveNumTotal << std::endl;
     debug->getFile() << "ALU power: " << transEnergy2Power(aluEnergy) << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "Reg power: " << transEnergy2Power(regEnergy) << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "Ctrl logic power: " << transEnergy2Power(peCtrlEnergy) << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "Context Buffer power: " << transEnergy2Power(contextBufferEnergy) << setprecision(2) << " mW" << std::endl;
 
+    debug->getFile() << std::endl;
     debug->getFile() << ">>> On-chip Buffer: " << std::endl;
+    debug->getFile() << "Access times: " << dataBufferAccessTimes << std::endl;
     debug->getFile() << "Access power: " << transEnergy2Power(dataBufferEnergy) << setprecision(2) << " mW" << std::endl;
 
+    debug->getFile() << std::endl;
     debug->getFile() << ">>> Graph Scheduler: " << std::endl;
+    debug->getFile() << "Graph switch times: " << graphSchedulerActiveTimes << std::endl;
     debug->getFile() << "Graph switch power: " << transEnergy2Power(graphSchedulerEnergy) << setprecision(2) << " mW" << std::endl;
 }
 
 float Profiler::transEnergy2Power(float _energy)
 {
-    float totalEnergy = _energy * static_cast<float>(ClkDomain::getClk());  // pJ
-    float power = totalEnergy * static_cast<float>(FREQ);  // uW
-    return power / (10^3);  // Transfer to mW
+    float energy = _energy / static_cast<float>(ClkDomain::getClk());  // pJ
+    float power = energy * static_cast<float>(FREQ);  // uW
+    return power / 1000;  // Transfer to mW
 }

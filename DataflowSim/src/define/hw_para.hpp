@@ -9,8 +9,10 @@ namespace DFSim {
         // PE
         static float getAluEnergy()
         {
-            static float aluEnergy = 4.0125;  // pJ
-            return aluEnergy;
+            // TODO: return according to the PE's op
+            static float mul_32b = 4.0125;  // pJ (Mul)
+            static float add_32b = 0.0501;  // pJ
+            return mul_32b;
         }
 
         static float getPeCtrlEnergy()
