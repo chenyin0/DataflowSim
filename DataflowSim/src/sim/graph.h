@@ -1,6 +1,7 @@
 #pragma once
 #include "../define/Define.hpp"
 #include "./control_tree.h"
+#include "../../lib/metis/metis.h"
 
 namespace DFSim
 {
@@ -77,13 +78,14 @@ namespace DFSim
         auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator;
         bool findNode(const string& _nodeName);
         void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
-        auto csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
+        auto csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
         auto genAdjacentMatrix()->vector<vector<uint>>;
         uint genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
-        void subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion);
+        void subgraphPartition(uint _subgraphNum, Debug* _debug);
         void sortSubgraphId(deque<Node*>& nodes, uint subgraphNum);  // Sort subgraphId to consistent with dataflow sequence
-        void printSubgraphPartition(const uint& devideNum, Debug* debug);
-        vector<string> bfsTraverseNode();  // Generate simulation sequence
+        vector<string> bfsTraverseNodes();  // Generate simulation sequence
+        vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
+        vector<string> bfsTraverseNodes(vector<string> dfgNodes);
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);
@@ -92,6 +94,8 @@ namespace DFSim
         //vector<pair<string, uint>> traverseControlRegionsDfs(ControlTree& _controlTree);  // pair<controlRegionName, level>
         void printDotControlRegion(std::fstream& fileName_, ControlTree& _controlTree);
         //void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_, vector<string>& nodes_, string& controlType_);
+        vector<idx_t> metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint divideNum);
+        void printSubgraphPartition(const uint& divideNum, Debug* debug);
 
     public:
         deque<Node*> nodes;
@@ -137,19 +141,21 @@ namespace DFSim
         void addSpecialModeChan();  // Add relayMode and drainMode channel
         void addNodeDelay();
         void addChanDGSF();
-        void setSpeedup();
+        void setSpeedup(Debug* debug);
         void pathBalance();
         vector<ControlRegion> genLoopHierarchy(ControlTree& _controlTree);
+        void subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug);
        
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;
-        vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
+        //vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
         vector<string> findShortestCtrlRegionPath(vector<string>& _preNodeCtrlRegionPath, vector<string>& _nextNodeCtrlRegionPath);
         vector<string> backTrackPath(string& nodeName, vector<ControlRegion>& loopHierarchy);
         string findNodeCtrlRegionInLoopHierarchy(string _nodeName, vector<ControlRegion> _loopHierarchy);
         void insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vector<string> nextNodes);  // Add a chanNode between preNodes and nextNodes (at least one of them's size must equal to one)
         //string findCtrlRegion(string& ctrlRegionName, vector<ControlRegion>& loopHierarchy);
-        //vector<string> bfsTraverseNode();  // Generate simulation sequence
+        //vector<string> bfsTraverseNodes();  // Generate simulation sequence
+        auto csrFormat(vector<string> _dfgNodes)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
 
    /* public:
         ControlTree controlTree;*/

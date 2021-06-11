@@ -1,7 +1,7 @@
 #include "./graph.h"
 #include "./Debug.h"
 #include "../sim/global.h"
-#include "../../lib/metis/metis.h"
+//#include "../../lib/metis/metis.h"
 
 using namespace DFSim;
 
@@ -247,10 +247,10 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
     *                               c) normal edge [baseWgt]
     */
 
-    uint baseWgt = 200;
+    uint baseWgt = 100;
     uint loopRankFactor = 30;
-    uint loopSizeFactor = 5;
-    uint branchFactor = 20;
+    uint loopSizeFactor = 1;
+    uint branchFactor = 70;
     uint memoryAccessFactor = 5;
     int edgeWgt = baseWgt;
 
@@ -336,7 +336,7 @@ auto Graph::genAdjacentMatrix()->vector<vector<uint>>
     return matrix;
 }
 
-auto Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>
+auto Graph::csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>
 {
     auto matrix = genAdjacentMatrix();
 
@@ -362,59 +362,111 @@ auto Graph::csrFormat(uint _edgeWeightWithinCtrlRegion)->tuple<vector<int64_t>, 
     return make_tuple(indPtr, ind, val);
 }
 
-void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegion)
+vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint divideNum)
+{
+    idx_t nVertices = xadj.size() - 1;  // Vertex number
+    idx_t nEdges = adjncy.size() / 2;  // Edge number
+    idx_t nWeights = 1;
+    idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
+    idx_t objval;
+    std::vector<idx_t> part(nVertices, 0);
+    idx_t options[METIS_NOPTIONS];
+    METIS_SetDefaultOptions(options);
+    options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+    options[METIS_OPTION_CONTIG] = 1;
+    options[METIS_OPTION_NITER] = 100;
+
+    int ufactor = 4096;
+    bool validPartition = 1;
+    while (1)  // Ensure each subgraph at least has one node
+    {
+        validPartition = 1;
+        options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+        // TODO: select the best graph split function!
+        if (divideNum > 8)
+        {
+            int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        }
+        else
+        {
+            int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        }
+
+        for (size_t i = 0; i < divideNum; ++i)
+        {
+            if (find(part.begin(), part.end(), i) == part.end())
+            {
+                validPartition = 0;
+                ufactor >>= 1;
+                break;
+            }
+        }
+
+        if (validPartition)
+        {
+            break;
+        }
+    }
+
+    return part;
+}
+
+void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
 {
     uint divideNum = _subgraphNum;
     if (_subgraphNum > 1)
     {
-        auto dfgCsr = csrFormat(_edgeWeightWithinCtrlRegion);
+        auto dfgCsr = csrFormat();
         vector<idx_t> cluster;
         vector<idx_t> xadj = std::get<0>(dfgCsr);
         vector<idx_t> adjncy = std::get<1>(dfgCsr);
         vector<idx_t> adjwgt = std::get<2>(dfgCsr);
 
-        idx_t nVertices = xadj.size() - 1;  // Vertex number
-        idx_t nEdges = adjncy.size() / 2;  // Edge number
-        idx_t nWeights = 1;
-        idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
-        idx_t objval;
-        std::vector<idx_t> part(nVertices, 0);
-        idx_t options[METIS_NOPTIONS];
-        METIS_SetDefaultOptions(options);
-        options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
-        options[METIS_OPTION_CONTIG] = 1;
+        //idx_t nVertices = xadj.size() - 1;  // Vertex number
+        //idx_t nEdges = adjncy.size() / 2;  // Edge number
+        //idx_t nWeights = 1;
+        //idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
+        //idx_t objval;
+        //std::vector<idx_t> part(nVertices, 0);
+        //idx_t options[METIS_NOPTIONS];
+        //METIS_SetDefaultOptions(options);
+        //options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+        //options[METIS_OPTION_CONTIG] = 1;
+        //options[METIS_OPTION_NITER] = 100;
 
-        int ufactor = 4096;
-        bool validPartition = 1;
-        while (1)  // Ensure each subgraph at least has one node
-        {
-            validPartition = 1;
-            options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
-            // TODO: select the best graph split function!
-            if (divideNum > 8)
-            {
-                int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-            }
-            else
-            {
-                int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-            }
+        //int ufactor = 4096;
+        //bool validPartition = 1;
+        //while (1)  // Ensure each subgraph at least has one node
+        //{
+        //    validPartition = 1;
+        //    options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+        //    // TODO: select the best graph split function!
+        //    if (divideNum > 8)
+        //    {
+        //        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        //    }
+        //    else
+        //    {
+        //        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+        //    }
 
-            for (size_t i = 0; i < divideNum; ++i)
-            {
-                if (find(part.begin(), part.end(), i) == part.end())
-                {
-                    validPartition = 0;
-                    ufactor >>= 1;
-                    break;
-                }
-            }
+        //    for (size_t i = 0; i < divideNum; ++i)
+        //    {
+        //        if (find(part.begin(), part.end(), i) == part.end())
+        //        {
+        //            validPartition = 0;
+        //            ufactor >>= 1;
+        //            break;
+        //        }
+        //    }
 
-            if (validPartition)
-            {
-                break;
-            }
-        }
+        //    if (validPartition)
+        //    {
+        //        break;
+        //    }
+        //}
+
+        auto part = metisGraphPartition(xadj, adjncy, adjwgt, divideNum);
 
         //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
 
@@ -431,7 +483,6 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
         }
     }
 
-
     sortSubgraphId(nodes, divideNum);
 
     //// Print each subgraph
@@ -447,64 +498,67 @@ void Graph::subgraphPartition(uint _subgraphNum, uint _edgeWeightWithinCtrlRegio
     //    }
     //}
 
-    uint adjacentEdgeNum = 0;
-    for (size_t i = 0; i < nodes.size(); ++i)
-    {
-        uint partId = nodes[i]->subgraphId;
-        vector<string> preNodes;
-        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
-        preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
-        for (auto& preNode : preNodes)
-        {
-            if (getNode(preNode)->subgraphId != partId)
-            {
-                adjacentEdgeNum++;
-            }
-        }
-    }
+    //uint adjacentEdgeNum = 0;
+    //for (size_t i = 0; i < nodes.size(); ++i)
+    //{
+    //    uint partId = nodes[i]->subgraphId;
+    //    vector<string> preNodes;
+    //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+    //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+    //    for (auto& preNode : preNodes)
+    //    {
+    //        if (getNode(preNode)->subgraphId != partId)
+    //        {
+    //            adjacentEdgeNum++;
+    //        }
+    //    }
+    //}
 
-    uint actualNodeNum = 0;
-    uint memNormAccessNum = 0;
-    for (auto& node : nodes)
-    {
-        auto nodePtr = dynamic_cast<Chan_Node*>(node);
-        if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
-        {
-            ++actualNodeNum;
-        }
+    //uint actualNodeNum = 0;
+    //uint memNormAccessNum = 0;
+    //for (auto& node : nodes)
+    //{
+    //    auto nodePtr = dynamic_cast<Chan_Node*>(node);
+    //    if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
+    //    {
+    //        ++actualNodeNum;
+    //    }
 
-        if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
-        {
-            ++memNormAccessNum;
-        }
-    }
+    //    if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
+    //    {
+    //        ++memNormAccessNum;
+    //    }
+    //}
 
-    uint arraySize = 64;
-    uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
-    // TODO: Figure out actual coalesceRate of each subgraph
-    uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
-    float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
-    float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
-    float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
+    //uint arraySize = 64;
+    //uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
+    //// TODO: Figure out actual coalesceRate of each subgraph
+    //uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
+    //float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
+    //float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
+    //float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
 
-    std::cout << std::endl;
-    std::cout << ">>> Part_num: " << _subgraphNum << std::endl;
-    std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
-    std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
-    std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
-    std::cout << std::endl;
-    std::cout << "coalesce_rate: " << coalesceRate << std::endl;
-    std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
-    std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
-    std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    //std::cout << ">>> Part_num: " << _partitionNum << std::endl;
+    //std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
+    //std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
+    //std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+    //std::cout << std::endl;
+    //std::cout << "coalesce_rate: " << coalesceRate << std::endl;
+    //std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
+    //std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
+    //std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
+    //std::cout << std::endl;
+
+    printSubgraphPartition(divideNum, _debug);
 }
 
 void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
 {
-    //auto simNodes = bfsTraverseNode();
+    //auto simNodes = bfsTraverseNodes();
     vector<vector<Node*>> subgraphNodes(subgraphNum);
     vector<uint> subgraphQueue;
+    vector<string> controlTreeBfs = bfsTraverseControlTree(controlTree);
 
     //if (!simNodes.empty())
     //{
@@ -541,10 +595,12 @@ void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
             vector<string> nextNodes;
             nextNodes.insert(nextNodes.end(), node->next_nodes_data.begin(), node->next_nodes_data.end());
             nextNodes.insert(nextNodes.end(), node->next_nodes_active.begin(), node->next_nodes_active.end());
+            auto nodeCtrlRegionIter = find(controlTreeBfs.begin(), controlTreeBfs.end(), node->controlRegionName);
             for (auto& nextNode : nextNodes)
             {
                 auto iter_ = find(subgraphQueue.begin(), subgraphQueue.end(), getNode(nextNode)->subgraphId);
-                if (iter_ < iter)
+                auto nextNodeCtrlRegionIter = find(controlTreeBfs.begin(), controlTreeBfs.end(), node->controlRegionName);
+                if (iter_ < iter && nodeCtrlRegionIter < nextNodeCtrlRegionIter)
                 {
                     swap(*iter, *iter_);
                 }
@@ -631,7 +687,7 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
     debug->getFile() << std::endl;
 }
 
-vector<string> Graph::bfsTraverseNode()
+vector<string> Graph::bfsTraverseNodes()
 {
     vector<string> bfsNodeTree;
     deque<string> queue;
@@ -675,6 +731,91 @@ vector<string> Graph::bfsTraverseNode()
     reverse(bfsNodeTree.begin(), bfsNodeTree.end());
 
     return bfsNodeTree;
+}
+
+vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
+{
+    vector<string> bfsNodeTree;
+    deque<string> queue;
+    for (auto& node : dfgNodes)
+    {
+        bool isRootNode = true;
+        vector<string> preNodes;
+        preNodes.insert(preNodes.end(), getNode(node)->pre_nodes_data.begin(), getNode(node)->pre_nodes_data.end());
+        preNodes.insert(preNodes.end(), getNode(node)->pre_nodes_active.begin(), getNode(node)->pre_nodes_active.end());
+        for (auto& preNode : preNodes)
+        {
+            if (count(dfgNodes.begin(), dfgNodes.end(), preNode) != 0)
+            {
+                isRootNode = false;
+                break;
+            }
+        }
+
+        if (isRootNode)
+        {
+            queue.push_back(node);
+        }
+    }
+
+    while (!queue.empty())
+    {
+        vector<string> nextNodes;
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
+        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
+        for (auto& nextNode : nextNodes)
+        {
+            if (count(dfgNodes.begin(), dfgNodes.end(), nextNode) != 0)
+            {
+                queue.push_back(nextNode);
+            }
+        }
+
+        bfsNodeTree.push_back(queue.front());
+        queue.pop_front();
+    }
+
+    // Remove redundant node
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    vector<string> hasFound;
+    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+    {
+        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+        {
+            iter = bfsNodeTree.erase(iter);
+        }
+        else
+        {
+            hasFound.push_back(*iter);
+            ++iter;
+        }
+    }
+    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+
+    return bfsNodeTree;
+}
+
+vector<string> Graph::bfsTraverseControlTree(ControlTree& ctrlTree)
+{
+    vector<string> bfsCtrlTree;
+    deque<string> queue;
+    if (!ctrlTree.controlRegionTable.empty())
+    {
+        queue.push_back(ctrlTree.controlRegionTable[0].controlRegionName);
+    }
+
+    while (!queue.empty())
+    {
+        for (auto& lowerCtrlRegion : ctrlTree.controlRegionTable[ctrlTree.findControlRegionIndex(queue.front())->second].lowerControlRegion)
+        {
+            queue.push_back(lowerCtrlRegion);
+        }
+
+        bfsCtrlTree.push_back(queue.front());
+        queue.pop_front();
+    }
+
+    return bfsCtrlTree;
 }
 
 //void Graph::addNode(const string& _nodeName)
@@ -1567,18 +1708,19 @@ vector<ControlRegion> ChanGraph::genLoopHierarchy(ControlTree& _controlTree)
                 loopHierarchy[_controlTree.findControlRegionIndex(lowerCtrlRegion)->second].upperControlRegion = ctrlRegion.controlRegionName;
             }
 
-            // Delete non-loop controlRegion in each lowerCtrlRegion
-            for (auto iter = ctrlRegion.lowerControlRegion.begin(); iter != ctrlRegion.lowerControlRegion.end(); )
-            {
-                if (loopHierarchy[_controlTree.findControlRegionIndex(*iter)->second].controlType != "Loop")
-                {
-                    iter = ctrlRegion.lowerControlRegion.erase(iter);
-                }
-                else
-                {
-                    ++iter;
-                }
-            }
+            // Debug_yin_21.06.11
+            //// Delete non-loop controlRegion in each lowerCtrlRegion
+            //for (auto iter = ctrlRegion.lowerControlRegion.begin(); iter != ctrlRegion.lowerControlRegion.end(); )
+            //{
+            //    if (loopHierarchy[_controlTree.findControlRegionIndex(*iter)->second].controlType != "Loop")
+            //    {
+            //        iter = ctrlRegion.lowerControlRegion.erase(iter);
+            //    }
+            //    else
+            //    {
+            //        ++iter;
+            //    }
+            //}
         }
     }
 
@@ -1670,30 +1812,7 @@ vector<string> ChanGraph::findShortestCtrlRegionPath(vector<string>& _preNodeCtr
     return ctrlRegionPath;
 }
 
-vector<string> ChanGraph::bfsTraverseControlTree(ControlTree& ctrlTree)
-{
-    vector<string> bfsCtrlTree;
-    deque<string> queue;
-    if (!ctrlTree.controlRegionTable.empty())
-    {
-        queue.push_back(ctrlTree.controlRegionTable[0].controlRegionName);
-    }
-
-    while (!queue.empty())
-    {
-        for (auto& lowerCtrlRegion : ctrlTree.controlRegionTable[ctrlTree.findControlRegionIndex(queue.front())->second].lowerControlRegion)
-        {
-            queue.push_back(lowerCtrlRegion);
-        }
-
-        bfsCtrlTree.push_back(queue.front());
-        queue.pop_front();
-    }
-
-    return bfsCtrlTree;
-}
-
-//vector<string> ChanGraph::bfsTraverseNode()
+//vector<string> ChanGraph::bfsTraverseNodes()
 //{
 //    vector<string> bfsNodeTree;
 //    deque<string> queue = { "Chan_begin" };
@@ -1781,29 +1900,36 @@ void ChanGraph::addNodeDelay()
     for (auto& chanNode : nodes)
     {
         const auto& chanNodePtr = dynamic_cast<Chan_Node*>(chanNode);
-        if (chanNodePtr->node_op == "Nop")
+        if (chanNodePtr->node_type == "ChanDGSF")
         {
-            chanNodePtr->cycle = 0;
-        }
-        else if (chanNodePtr->node_op == "Mul")
-        {
-            chanNodePtr->cycle = MUL;
-        }
-        else if (chanNodePtr->node_op == "Add")
-        {
-            chanNodePtr->cycle = ADD;
-        }
-        else if (chanNodePtr->node_op == "Sub")
-        {
-            chanNodePtr->cycle = SUB;
-        }
-        else if (chanNodePtr->node_op == "Div")
-        {
-            chanNodePtr->cycle = DIV;
+            chanNodePtr->cycle = BRAM_ACCESS_DELAY;
         }
         else
         {
-            chanNodePtr->cycle = 1;
+            if (chanNodePtr->node_op == "Nop")
+            {
+                chanNodePtr->cycle = 0;
+            }
+            else if (chanNodePtr->node_op == "Mul")
+            {
+                chanNodePtr->cycle = MUL;
+            }
+            else if (chanNodePtr->node_op == "Add")
+            {
+                chanNodePtr->cycle = ADD;
+            }
+            else if (chanNodePtr->node_op == "Sub")
+            {
+                chanNodePtr->cycle = SUB;
+            }
+            else if (chanNodePtr->node_op == "Div")
+            {
+                chanNodePtr->cycle = DIV;
+            }
+            else
+            {
+                chanNodePtr->cycle = 1;
+            }
         }
     }
 }
@@ -1921,7 +2047,7 @@ void ChanGraph::addChanDGSF()
     }
 }
 
-void ChanGraph::setSpeedup()
+void ChanGraph::setSpeedup(Debug* debug)
 {
     unordered_map<uint, uint> subgraphNodes;  // <uint, uint> = <subgraphId, physicalNodeNum>
     for (auto& node : nodes)
@@ -1961,11 +2087,252 @@ void ChanGraph::setSpeedup()
     }
 
     // Print subgraph _speedup
-    std::cout << std::endl;
-    std::cout << "********* Subgraph speedup *********" << std::endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "********* Subgraph speedup *********" << std::endl;
     for (size_t i = 0; i < subgraphSpeedupTable.size(); ++i)
     {
-        std::cout << "SubgraphId: " << i << "\t" << "Speedup: " << subgraphSpeedupTable[i] << std::endl;
+        debug->getFile() << "SubgraphId: " << i << "\t" << "Speedup: " << subgraphSpeedupTable[i] << std::endl;
     }
-    std::cout << std::endl;
+    debug->getFile() << std::endl;
+}
+
+void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
+{
+    // 1) Inner-loop prior
+    // 2) If select a loop, branch in this loop prior
+    // 3) If all ctrlRegions have been partitioned, use metis make inner ctrlRegion partition  
+
+    uint divideNum = _partitionNum;
+    uint graphNum = 1;
+    uint partitionCnt = 0;
+    bool over = 0;
+    if (_partitionNum > 1)
+    {
+        //** Inter-controlRegion partition
+        auto loopRegions = genLoopHierarchy(controlTree);
+        reverse(loopRegions.begin(), loopRegions.end());
+        for (auto iter = loopRegions.begin(); iter != loopRegions.end(); ++iter)
+        {
+            //++graphNum;
+            if (!(*iter).nodes.empty())
+            {
+                for (auto& nodeName : (*iter).nodes)
+                {
+                    getNode(nodeName)->subgraphId = graphNum;
+                }
+
+                if (iter != loopRegions.end() - 1)
+                {
+                    ++partitionCnt;
+                }
+            }
+
+            if (partitionCnt >= divideNum - 1)
+            {
+                over = 1;
+                break;
+            }
+            else
+            {
+                ++graphNum;
+                for(auto& ctrlRegion:(*iter).lowerControlRegion)
+                {
+                    if (controlTree.getCtrlRegion(ctrlRegion).controlType != "Loop")
+                    {
+                        if (!controlTree.getCtrlRegion(ctrlRegion).nodes.empty())
+                        {
+                            for (auto& nodeName : controlTree.getCtrlRegion(ctrlRegion).nodes)
+                            {
+                                getNode(nodeName)->subgraphId = graphNum;
+                            }
+                            ++partitionCnt;
+                        }
+
+                        if (partitionCnt >= divideNum - 1)
+                        {
+                            over = 1;
+                            break;
+                        }
+                        else
+                        {
+                            ++graphNum;
+                        }
+                    }
+                }
+
+                // TODO: Add partition according to memory reqs
+
+            }
+
+            if (over)
+            {
+                break;
+            }
+        }
+
+        //** Inner-controlRegion partition
+        if (partitionCnt < divideNum - 1)
+        {
+            vector<vector<string>> subgraphNodes(partitionCnt + 1);
+            for (auto& node : nodes)
+            {
+                --node->subgraphId;  // Decrease subgraphId, due to there is no subgraphId_0 
+                subgraphNodes[node->subgraphId].push_back(node->node_name);
+            }
+            //// Remove empty subgraphId
+            //for (auto iter = subgraphNodes.begin(); iter != subgraphNodes.end(); )
+            //{
+            //    if ((*iter).empty())
+            //    {
+            //        iter = subgraphNodes.erase(iter);
+            //    }
+            //    else
+            //    {
+            //        for (auto& nodeName : *iter)
+            //        {
+            //            uint i = getNode(nodeName)->subgraphId;
+            //            getNode(nodeName)->subgraphId--;  // Due to there is no subgraph_0 
+            //        }
+            //        ++iter;
+            //    }
+            //}
+
+            graphNum = partitionCnt;  // Due to there is no subgraph_0, so decrease the graphNum
+            while (partitionCnt < divideNum - 1)
+            {
+                ++graphNum;
+                uint maxNodesubgraphId = 0;
+                uint maxNodeNum = 0;
+                // Select the largest one
+                for (size_t i = 0; i < subgraphNodes.size(); ++i)
+                {
+                    if (subgraphNodes[i].size() > maxNodeNum)
+                    {
+                        maxNodeNum = subgraphNodes[i].size();
+                        maxNodesubgraphId = i;
+                    }
+                }
+
+                // Partition the largest one
+                vector<string> dfgNodes = subgraphNodes[maxNodesubgraphId];
+                /*auto dfgCsr = csrFormat(dfgNodes);
+                vector<idx_t> xadj = std::get<0>(dfgCsr);
+                vector<idx_t> adjncy = std::get<1>(dfgCsr);
+                vector<idx_t> adjwgt = std::get<2>(dfgCsr);
+
+                auto part = metisGraphPartition(xadj, adjncy, adjwgt, 2);*/
+
+                // Replace to bfs partition
+                // 1) Load/store prior
+                // 2) node-balance
+
+                vector<string> dfgNodesBfs = bfsTraverseNodes(dfgNodes);
+
+                uint splitPoint = 0;
+                //for (size_t i = 0; i < dfgNodesBfs.size(); ++i)
+                //{
+                //    if (dynamic_cast<Chan_Node*>(getNode(dfgNodesBfs[i]))->node_op == "Load")
+                //    {
+                //        splitPoint = i;  // Split according to Load req
+                //        break;
+                //    }
+                //}
+
+                if (splitPoint == 0)
+                {
+                    splitPoint = dfgNodesBfs.size() / 2;  // Split according to node-balance
+                }
+
+                vector<uint> part(dfgNodesBfs.size());
+                for (size_t i = 0; i < part.size(); ++i)
+                {
+                    if (i <= splitPoint)
+                    {
+                        part[i] = 0;
+                    }
+                    else
+                    {
+                        part[i] = 1;
+                    }
+                }
+
+                subgraphNodes[maxNodesubgraphId].clear();
+                vector<string> tmp;
+                subgraphNodes.push_back(tmp);
+                for (size_t i = 0; i < part.size(); ++i)
+                {
+                    if (part[i] == 0)
+                    {
+                        getNode(dfgNodesBfs[i])->subgraphId = maxNodesubgraphId;
+                        subgraphNodes[maxNodesubgraphId].push_back(dfgNodesBfs[i]);
+                    }
+                    else
+                    {
+                        getNode(dfgNodesBfs[i])->subgraphId = graphNum;
+                        subgraphNodes.back().push_back(dfgNodesBfs[i]);
+                    }
+                }
+
+                ++partitionCnt;
+            }
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < nodes.size(); ++i)
+        {
+            nodes[i]->subgraphId = 0;
+        }
+    }
+
+    //sortSubgraphId(nodes, divideNum);
+    sortSubgraphId(nodes, divideNum);
+    printSubgraphPartition(divideNum, _debug);
+}
+
+auto ChanGraph::csrFormat(vector<string> _dfgNodes)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>
+{
+    // Generate adjacent matrix
+    uint dim = _dfgNodes.size();
+    vector<vector<uint>> matrix(dim, vector<uint>(dim, 0));
+    for (uint i = 0; i < dim; ++i)
+    {
+        for (size_t i = 0; i < _dfgNodes.size(); ++i)
+        {
+            vector<string> adjNodes;
+            adjNodes.insert(adjNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->next_nodes_data.begin(), nodes[i]->next_nodes_data.end());
+            adjNodes.insert(adjNodes.end(), nodes[i]->next_nodes_active.begin(), nodes[i]->next_nodes_active.end());
+            for (auto& adjNode : adjNodes)
+            {
+                auto iter = find(_dfgNodes.begin(), _dfgNodes.end(), adjNode);
+                if (iter != _dfgNodes.end())
+                {
+                    uint j = iter - _dfgNodes.begin();
+                    matrix[i][j] = 1;
+                }
+            }
+        }
+    }
+
+    // Generate CSR format by adjacent matrix
+    vector<int64_t> indPtr(0);
+    vector<int64_t> ind(0);
+    vector<int64_t> val(0);
+    for (int i = 0; i < dim; i++)
+    {
+        indPtr.push_back(ind.size());
+        for (uint j = 0; j < dim; ++j)
+        {
+            if (matrix[i][j] > 0)
+            {
+                ind.push_back(j);
+                val.push_back(matrix[i][j]);
+            }
+        }
+    }
+    indPtr.push_back(ind.size());
+
+    return make_tuple(indPtr, ind, val);
 }
