@@ -28,7 +28,7 @@ namespace DFSim
         bool checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans);
 
     public:
-        uint currSubgraphId = 0;  // Current subgraph Id, default start at 0;
+        static uint currSubgraphId;  // Current subgraph Id, default start at 0;
        
     public:
         // <subgraphId, pair<producer channels, consumer channels>>
@@ -36,9 +36,15 @@ namespace DFSim
         unordered_map<uint, vector<vector<ChanDGSF*>>> divergenceGraph;  // Store branch-divergence subgraph
         deque<bool> subgraphIsOver;
 
+    private:
+        //uint subgraphTimeout = 0;
+
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const deque<bool>& getSubgraphStatus() const;
+        inline const deque<bool>& getSubgraphStatus() const
+        {
+            return subgraphIsOver;
+        }
 #endif // DEBUG_MODE 
     };
 }

@@ -3,6 +3,8 @@
 
 using namespace DFSim;
 
+uint GraphScheduler::currSubgraphId = 0;  // Current subgraph Id, default start at 0;
+
 GraphScheduler::GraphScheduler()
 {
 }
@@ -166,7 +168,8 @@ void GraphScheduler::graphUpdate()
     //// Check whether current sub-graph is over
     //subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
 
-    if (producerChanFinish || consumerChanFinish)
+    // Fix: the threshold of subgraphTimeout
+    if ((producerChanFinish || consumerChanFinish))
     {
         // Check whether current sub-graph is over
         subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
@@ -177,7 +180,13 @@ void GraphScheduler::graphUpdate()
         configChan(currSubgraphId);
         // Clear the chanDataCnt of subgraph's producer channels
         resetSubgraph(currSubgraphId);
+
+        //subgraphTimeout = 0;  // Reset timeout counter
     }
+    //else
+    //{
+    //    ++subgraphTimeout;
+    //}
 
     //if (/*producerChanFinish && */consumerChanFinish || (subgraphTable[currSubgraphId].second.empty() && producerChanFinish))
     //{
@@ -211,21 +220,51 @@ void GraphScheduler::configChan(uint subgraphId)
                 for (auto& chan : subgraphTable[id].first)
                 {
                     chan->pushBufferEnable = 1;
-                    chan->popChannelEnable = 0;
+                    /*chan->popChannelEnable = 0;*/
+                    if (chan->keepMode && !chan->downstream[0]->isLoopVar)
+                    {
+                        chan->popChannelEnable = 1;
+                    }
+                    else
+                    {
+                        chan->popChannelEnable = 0;
+                    }
                 }
 
                 for (auto& chan : subgraphTable[id].second)
                 {
+                    /*chan->pushBufferEnable = 1;
+                    chan->popChannelEnable = 0;*/
+
+                    // Debug_yin_21.06.10
                     chan->pushBufferEnable = 1;
-                    chan->popChannelEnable = 0;
+                    if (chan->keepMode && !chan->downstream[0]->isLoopVar)
+                    {
+                        chan->popChannelEnable = 1;
+                    }
+                    else
+                    {
+                        chan->popChannelEnable = 0;
+                    }
                 }
             }
             else
             {
                 for (auto& chan : subgraphTable[id].second)
                 {
+                    /*chan->pushBufferEnable = 0;
+                    chan->popChannelEnable = 0;*/
+
+                    // Debug_yin_21.06.10
                     chan->pushBufferEnable = 0;
-                    chan->popChannelEnable = 0;
+                    if (chan->keepMode && !chan->downstream[0]->isLoopVar)
+                    {
+                        chan->popChannelEnable = 1;
+                    }
+                    else
+                    {
+                        chan->popChannelEnable = 0;
+                    }
                 }
             }
         }
@@ -311,14 +350,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
             {
                 return subgraphId;
             }
-        }
-    }
 
-    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
-    {
-        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
-        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
-        {
             if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
                 return subgraphId;
@@ -326,9 +358,52 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         }
     }
 
+    // Select a non-over subgraph
+    if (subgraphIsOver[_currSubgraphId])
+    {
+        for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
+        {
+            uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+            if (!subgraphIsOver[subgraphId])
+            {
+                return subgraphId;
+            }
+        }
+    }
+
+    //for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
+    //{
+    //    uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //    if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
+    //    {
+    //        if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+    //        {
+    //            return subgraphId;
+    //        }
+    //    }
+    //}
+
+    //if (subgraphTimeout < DGSF_INPUT_BUFF_SIZE * 20)
+    //{
+    //    return currSubgraphId;
+    //}
+    //else
+    //{
+    //    // Debug_yin_21.06.01 (Disable try another subgraph randomly)
+    //    // Select a subgraph to execute in round-robin 
+    //    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
+    //    {
+    //        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
+    //        {
+    //            return subgraphId;  // Return a subgraph randomly
+    //        }
+    //    }
+    //}
+
     return currSubgraphId;
 
-    // Debug_yin_21.06.01 (Disable try another subgraph randomly)
+    //// Debug_yin_21.06.01
     //// Select a subgraph to execute in round-robin 
     //for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
     //{
@@ -390,12 +465,15 @@ bool GraphScheduler::checkProducerChanIsFull(vector<ChanDGSF*> producerChans)
 
     for (auto& chan : producerChans)
     {
-        for (auto& buffer : chan->chanBuffer)
+        if (!chan->getTheLastData.front())  // If has received the last data, regard as channel is full
         {
-            if (buffer.size() < chan->size)
+            for (auto& buffer : chan->chanBuffer)
             {
-                isFull = 0;
-                return isFull;
+                if (buffer.size() < chan->size)
+                {
+                    isFull = 0;
+                    return isFull;
+                }
             }
         }
     }
@@ -500,35 +578,62 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
 {
     bool finish = 1;
 
-    for (auto& chan : producerChans)
+    if (!subgraphTable[currSubgraphId].second.empty())
     {
-        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+        for (auto& chan : producerChans)
         {
-            //// If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
-            //if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt == DGSF_INPUT_BUFF_SIZE))
-            //{
-            //    producerChanFinish = 0;
-            //    break;
-            //}
-
-            // If producer channal is empty or has sent out enough data, it is able to switch sub-graph 
-            if (!subgraphTable[currSubgraphId].second.empty() && chan->chanDataCnt >= DGSF_INPUT_BUFF_SIZE)
+            for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                // If producer channel has sent enough data, disable popChannel
-                chan->popChannelEnable = 0;
+                if (!chan->chanBuffer[bufferId].empty() && chan->chanDataCnt < DGSF_INPUT_BUFF_SIZE)
+                {
+                    finish = 0;
+                    break;
+                }
+                //else
+                //{
+                //    // If producer channel has sent enough data, disable popChannel
+                //    chan->popChannelEnable = 0;
+                //}
             }
-            else if (!chan->chanBuffer[bufferId].empty() && !chan->keepMode)
-            {
-                finish = 0;
-                break;
-            }
-        }
-
-        if (!finish)
-        {
-            break;
         }
     }
+    else
+    {
+        for (auto& chan : producerChans)
+        {
+            for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+            {
+                if (!chan->chanBuffer[bufferId].empty())
+                {
+                    finish = 0;
+                    break;
+                }
+                //else
+                //{
+                //    // If producer channel has sent enough data, disable popChannel
+                //    chan->popChannelEnable = 0;
+                //}
+            }
+        }
+    }
+
+    //if (subgraphTimeout > DGSF_INPUT_BUFF_SIZE * 2)
+    //{
+    //    for (auto& chan : producerChans)
+    //    {
+    //        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+    //        {
+    //            if (chan->chanBuffer[bufferId].empty() || chan->chanDataCnt >= DGSF_INPUT_BUFF_SIZE)
+    //            {
+    //                finish = 1;
+    //                // If producer channel has sent enough data, disable popChannel
+    //                chan->popChannelEnable = 0;
+    //            }
+    //        }
+    //    }
+
+    //    return finish;
+    //}
 
     return finish;
 }
@@ -544,14 +649,14 @@ bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
             if (!chan->chanBuffer[bufferId].empty())
             {
                 // When 1)the chanBuffer has received the last data; or 2)the chanBuffer is full, this consumer channel is finish
-                if (!((chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last) || 
-                    chan->chanBuffer[bufferId].size() >= chan->size))  
+                if (!((chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last) ||
+                    chan->chanBuffer[bufferId].size() >= chan->size))
                 {
                     finish = 0;
                     break;
                 }
             }
-            else if(!chan->getTheLastData.front())  // The number of ChanDGSF's upstreams is limited to 1
+            else if (!chan->getTheLastData.front())  // The number of ChanDGSF's upstreams is limited to 1
             {
                 finish = 0;
                 break;
@@ -597,25 +702,25 @@ bool GraphScheduler::checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChan
     //}
 
     //return getLast;
-
+    
     bool getLast = 1;
-    for (auto& chan : consumerChans)
+    if (!consumerChans.empty())
     {
-        for (auto& i : chan->getTheLastData)
+        for (auto& chan : consumerChans)
         {
-            if (i == 0)
+            for (auto& i : chan->getTheLastData)
             {
-                return getLast = 0;
+                if (i == 0)
+                {
+                    return getLast = 0;
+                }
             }
         }
+    }
+    else
+    {
+        getLast = 0;
     }
 
     return getLast;
 }
-
-#ifdef DEBUG_MODE  // Get private instance for debug
-const deque<bool>& GraphScheduler::getSubgraphStatus() const
-{
-    return subgraphIsOver;
-}
-#endif // DEBUG_MODE 
