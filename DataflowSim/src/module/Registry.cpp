@@ -487,12 +487,14 @@ void Registry::genModule(ChanGraph& _chanGraph)
                 auto lcPtr = genLcOuterMost(*dynamic_cast<Chan_Node*>(node));
                 lcPtr->subgraphId = node->subgraphId;
                 lcPtr->loopVar->subgraphId = node->subgraphId;
+                lcPtr->loopVar->speedup = dynamic_cast<Chan_Node*>(node)->speedup;
             }
             else
             {
                 auto lcPtr = genLc(*dynamic_cast<Chan_Node*>(node));
                 lcPtr->subgraphId = node->subgraphId;
                 lcPtr->loopVar->subgraphId = node->subgraphId;
+                lcPtr->loopVar->speedup = dynamic_cast<Chan_Node*>(node)->speedup;
                 // TODO: not sure whether lc in branchMode works well
                 if (controlType == "Branch")
                 {
@@ -909,7 +911,7 @@ RegistryTableEntry& Registry::getRegistryTableEntry(const string& _moduleName)
 
 void Registry::genSimConfig(ChanGraph& _chanGraph)
 {
-    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+    vector<string> simNodes = _chanGraph.bfsTraverseNodes();
     
     std::ofstream _config_file;
     _config_file.open(Global::file_path + App_name_convert::toString(Global::app_name) + string("_config_") + string(xstr(ARCH)) + string(".txt"));
@@ -1047,7 +1049,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
 
 auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vector<Lc*>>
 {
-    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+    vector<string> simNodes = _chanGraph.bfsTraverseNodes();
     vector<Channel*> chans;
     vector<Lc*> lc;
 
@@ -1068,25 +1070,25 @@ auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vec
     return make_tuple(chans, lc);
 }
 
-void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup)
-{
-    auto& ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
-    for (auto& chanNode : ctrlRegion.nodes)
-    {
-        auto& nodeName = _chanGraph.getNode(chanNode)->node_name;
-        if (nodeName != "Chan_begin" && nodeName != "Chan_end")
-        {
-            auto& registryEntry = getRegistryTableEntry(chanNode);
-            if (registryEntry.moduleType == ModuleType::Channel)
-            {
-                if (registryEntry.chanPtr->masterName == "None")
-                {
-                    registryEntry.chanPtr->speedup = _speedup;
-                }
-            }
-        }
-    }
-}
+//void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup)
+//{
+//    auto& ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
+//    for (auto& chanNode : ctrlRegion.nodes)
+//    {
+//        auto& nodeName = _chanGraph.getNode(chanNode)->node_name;
+//        if (nodeName != "Chan_begin" && nodeName != "Chan_end")
+//        {
+//            auto& registryEntry = getRegistryTableEntry(chanNode);
+//            if (registryEntry.moduleType == ModuleType::Channel)
+//            {
+//                if (registryEntry.chanPtr->masterName == "None")
+//                {
+//                    registryEntry.chanPtr->speedup = _speedup;
+//                }
+//            }
+//        }
+//    }
+//}
 
 void Registry::setChanSize()
 {

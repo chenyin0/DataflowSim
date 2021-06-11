@@ -138,7 +138,7 @@ namespace DFSim
         void checkLc();  // Check whether set outer-most loop
         void checkChanDGSF(Channel* _chan);
 
-        void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
+        //void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
         //uint getCtrlRegionPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion);
 
     private:
