@@ -4,7 +4,7 @@ using namespace DFSimTest;
 
 Dfg FFT_Test::dfg;
 
-const uint FFT_Test::fft_size = 1024;
+const uint FFT_Test::fft_size = 4096;
 vector<int> FFT_Test::real;
 vector<int> FFT_Test::img;
 vector<int> FFT_Test::real_twid;
@@ -74,11 +74,11 @@ void FFT_Test::generateDfg()
     dfg.addNode("tt", "Shl", {"even", "log"});
     dfg.addNode("rootindex", "And", { "tt", "FFT_SIZE" });
 
-    dfg.addNode("rootindex_cmp", "Bne", { "rootindex" });  // rootindex != 0
+    dfg.addNode("rootindex_cmp", "Cmp", { "rootindex" });  // rootindex != 0
 
     dfg.addNode("rootindex_active", "Nop", { "rootindex_cmp", "rootindex" });  // rootindex != 0
-    dfg.addNode("real_twid_val", "Load", { "rootindex_active", "rootindex_active" }, &real_twid, real_twid_BaseAddr);
-    dfg.addNode("img_twid_val", "Load", { "rootindex_active", "rootindex_active" }, &img_twid, img_twid_BaseAddr);
+    dfg.addNode("real_twid_val", "Load", { "rootindex_active"/*, "rootindex_active" */}, &real_twid, real_twid_BaseAddr);
+    dfg.addNode("img_twid_val", "Load", { "rootindex_active"/*, "rootindex_active" */}, &img_twid, img_twid_BaseAddr);
 
     dfg.addNode("real_twid_real", "Mul", { "real_twid_val", "real_odd_val_update" });
     dfg.addNode("img_twid_img", "Mul", { "img_twid_val", "img_odd_val_update" });
@@ -97,11 +97,11 @@ void FFT_Test::generateDfg()
     dfg.addNodes2CtrlTree("loop_span", { "begin", "end", "span", "span_lc" });
     dfg.addNodes2CtrlTree("loop_odd", { "odd_lp", "odd", "even", "real_even_val", "real_odd_val", 
         "img_even_val", "img_odd_val", "real_even_val_update", "real_odd_val_update", "img_even_val_update", "img_odd_val_update", "log", "tt", "rootindex", "rootindex_cmp", "branch_merge" });
-    dfg.addNodes2CtrlTree("branch_rootindex", { "rootindex_active", "real_twid_val", "img_twid_val", "real_twid_real", "img_twid_img", "real_twid_img", "img_twid_real", "img_odd_update", "real_odd_update" });
+    dfg.addNodes2CtrlTree("branch_rootindex", { "rootindex_active", "real_twid_val", "img_twid_val", "real_twid_real", "img_twid_img", "real_twid_img", "img_twid_real", "img_odd_update", "real_odd_update"});
 
     //** Indicate the tail node for each loop region
     dfg.setTheTailNode("loop_span", "odd_lp");
-    dfg.setTheTailNode("loop_odd", "branch_merge");
+    dfg.setTheTailNode("loop_odd", "branch_merge" /*"real_odd_update"*/);
 
     dfg.plotDot();
 }
