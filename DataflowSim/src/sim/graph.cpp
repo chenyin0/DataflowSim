@@ -1483,8 +1483,21 @@ void ChanGraph::addSpecialModeChan()
                 // If the next node number in the lower loop region is more than one, create a fake chan in the lower loop as a shadow channel
                 // TODO: If it exist a relayMode channel in the nextNodes, it can set the relayMode channel in Scatter mode rather than create a new one
                 // Note: Compulsorily add a scatterMode channel for each keepMode channel to ensure correctness. Remove this rule in the future
-                if (nodePtr->next_nodes_active.empty() || 
-                    (!nodePtr->next_nodes_active.empty() && dynamic_cast<Chan_Node*>(getNode(nodePtr->next_nodes_active.front()))->node_type != "Lc")/*nextNodesInLowerCtrlRegion.size() > 1*/)
+                vector<string> nextNodes;
+                nextNodes.insert(nextNodes.end(), nodePtr->next_nodes_data.begin(), nodePtr->next_nodes_data.end());
+                nextNodes.insert(nextNodes.end(), nodePtr->next_nodes_active.begin(), nodePtr->next_nodes_active.end());
+                bool needScatterNode = false;
+                for (auto& nodeName : nextNodes)
+                {
+                    // If there exists another downstream except of a Lc, need insert a scatterMode channel
+                    if (dynamic_cast<Chan_Node*>(getNode(nodeName))->node_type != "Lc")
+                    {
+                        needScatterNode = true;
+                    }
+                }
+                if (needScatterNode
+                    /*nodePtr->next_nodes_active.empty() || 
+                    (!nodePtr->next_nodes_active.empty() && dynamic_cast<Chan_Node*>(getNode(nodePtr->next_nodes_active.front()))->node_type != "Lc")*//*nextNodesInLowerCtrlRegion.size() > 1*/)
                 {
                     string nodeName = nodePtr->node_name + "_scatter_" + lastLowerCtrlRegion;
                     addNode(nodeName, "ChanBase", "Nop", "Scatter_mode", lastLowerCtrlRegion);  // Add scatter mode
@@ -1506,25 +1519,55 @@ void ChanGraph::addSpecialModeChan()
                     // Gen connect
                     for (auto& nextNodeData : nodePtr->next_nodes_data)
                     {
-                        auto iter = find(getNode(nextNodeData)->pre_nodes_data.begin(), getNode(nextNodeData)->pre_nodes_data.end(), nodePtr->node_name);
-                        if (iter != getNode(nextNodeData)->pre_nodes_data.end())
+                        if (dynamic_cast<Chan_Node*>(getNode(nextNodeData))->node_type != "Lc")
                         {
-                            *iter = nodeName;
-                            getNode(nodeName)->next_nodes_data.push_back(nextNodeData);
+                            auto iter = find(getNode(nextNodeData)->pre_nodes_data.begin(), getNode(nextNodeData)->pre_nodes_data.end(), nodePtr->node_name);
+                            if (iter != getNode(nextNodeData)->pre_nodes_data.end())
+                            {
+                                *iter = nodeName;
+                                getNode(nodeName)->next_nodes_data.push_back(nextNodeData);
+                            }
                         }
                     }
                     for (auto& nextNodeActive : nodePtr->next_nodes_active)
                     {
-                        auto iter = find(getNode(nextNodeActive)->pre_nodes_active.begin(), getNode(nextNodeActive)->pre_nodes_active.end(), nodePtr->node_name);
-                        if (iter != getNode(nextNodeActive)->pre_nodes_active.end())
+                        if (dynamic_cast<Chan_Node*>(getNode(nextNodeActive))->node_type != "Lc")
                         {
-                            *iter = nodeName;
-                            getNode(nodeName)->next_nodes_active.push_back(nextNodeActive);
+                            auto iter = find(getNode(nextNodeActive)->pre_nodes_active.begin(), getNode(nextNodeActive)->pre_nodes_active.end(), nodePtr->node_name);
+                            if (iter != getNode(nextNodeActive)->pre_nodes_active.end())
+                            {
+                                *iter = nodeName;
+                                getNode(nodeName)->next_nodes_active.push_back(nextNodeActive);
+                            }
                         }
                     }
 
-                    nodePtr->next_nodes_data.clear();
-                    nodePtr->next_nodes_active.clear();
+                    /*nodePtr->next_nodes_data.clear();
+                    nodePtr->next_nodes_active.clear();*/
+                    for (auto iter = nodePtr->next_nodes_data.begin(); iter != nodePtr->next_nodes_data.end(); )
+                    {
+                        if (dynamic_cast<Chan_Node*>(getNode(*iter))->node_type != "Lc")
+                        {
+                            iter = nodePtr->next_nodes_data.erase(iter);
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
+                    }
+
+                    for (auto iter = nodePtr->next_nodes_active.begin(); iter != nodePtr->next_nodes_active.end(); )
+                    {
+                        if (dynamic_cast<Chan_Node*>(getNode(*iter))->node_type != "Lc")
+                        {
+                            iter = nodePtr->next_nodes_active.erase(iter);
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
+                    }
+
                     nodePtr->next_nodes_data.push_back(nodeName);
 
                     getNode(nodeName)->pre_nodes_data.push_back(nodePtr->node_name);
@@ -2114,6 +2157,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
         for (auto iter = loopRegions.begin(); iter != loopRegions.end(); ++iter)
         {
             //++graphNum;
+            // Partition loop region
             if (!(*iter).nodes.empty())
             {
                 for (auto& nodeName : (*iter).nodes)
@@ -2135,6 +2179,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
             else
             {
                 ++graphNum;
+                // Partition branch region
                 for(auto& ctrlRegion:(*iter).lowerControlRegion)
                 {
                     if (controlTree.getCtrlRegion(ctrlRegion).controlType != "Loop")
@@ -2228,15 +2273,22 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
 
                 vector<string> dfgNodesBfs = bfsTraverseNodes(dfgNodes);
 
-                uint splitPoint = 0;
-                //for (size_t i = 0; i < dfgNodesBfs.size(); ++i)
+                //// Debug_yin_21.06.12
+                //std::cout << ">>>>>>>>>>>>>>" << std::endl;
+                //for (auto& i : dfgNodesBfs)
                 //{
-                //    if (dynamic_cast<Chan_Node*>(getNode(dfgNodesBfs[i]))->node_op == "Load")
-                //    {
-                //        splitPoint = i;  // Split according to Load req
-                //        break;
-                //    }
+                //    std::cout << i << std::endl;
                 //}
+
+                uint splitPoint = 0;
+                for (size_t i = 0; i < dfgNodesBfs.size(); ++i)
+                {
+                    if (dynamic_cast<Chan_Node*>(getNode(dfgNodesBfs[i]))->node_op == "Load")
+                    {
+                        splitPoint = i;  // Split according to Load req
+                        break;
+                    }
+                }
 
                 if (splitPoint == 0)
                 {
