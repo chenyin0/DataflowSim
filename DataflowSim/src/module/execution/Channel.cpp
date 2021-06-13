@@ -266,7 +266,16 @@ vector<int> Channel::push(int data, uint bufferId)
     // Push data in channel
     if (checkUpstream(bufferId))
     {
+        //// Push chanBuffer only when this buffer has not gotten the last data
+        //if (!getTheLastData[bufferId])
+        //{
+        //    Channel::pushBuffer(data, bufferId);
+        //    getTheLastData[bufferId] = checkGetLastData(bufferId);  // Update getTheLastData
+        //}
+
+        // TODO: pushBuffer in Channel is not consist with it in ChanDGSF now
         pushBuffer(data, bufferId);
+        getTheLastData[bufferId] = checkGetLastData(bufferId);  // Update getTheLastData
         return { 1, data };
     }
     else
@@ -546,6 +555,35 @@ int Channel::aluUpdate()
     default:
         Debug::throwError("Undefined Alu_op!", __FILE__, __LINE__);
     }
+}
+
+bool Channel::checkGetLastData(uint bufferId) const
+{
+    bool getLastData = 0;
+    if (!chanBuffer[bufferId].empty())
+    {
+        //if (!isLoopVar)
+        //{
+        //    if (chanBuffer[bufferId].back().lastOuter && chanBuffer[bufferId].back().last)
+        //    {
+        //        getLastData = 1;
+        //    }
+        //}
+        //else
+        //{
+        //    if (chanBuffer[bufferId].front().lastOuter && chanBuffer[bufferId].front().last)
+        //    {
+        //        getLastData = 1;
+        //    }
+        //}
+
+        if (chanBuffer[bufferId].back().lastOuter && chanBuffer[bufferId].back().last)
+        {
+            getLastData = 1;
+        }
+    }
+
+    return getLastData;
 }
 
 //int Channel::funcUpdate()
@@ -1256,19 +1294,19 @@ void ChanDGSF::bpUpdate()
     }
 }
 
-bool ChanDGSF::checkGetLastData(uint bufferId)
-{
-    bool getLastData = 0;
-    if (!chanBuffer[bufferId].empty())
-    {
-        if (chanBuffer[bufferId].back().lastOuter && chanBuffer[bufferId].back().last)
-        {
-            getLastData = 1;
-        }
-    }
-
-    return getLastData;
-}
+//bool ChanDGSF::checkGetLastData(uint bufferId)
+//{
+//    bool getLastData = 0;
+//    if (!chanBuffer[bufferId].empty())
+//    {
+//        if (chanBuffer[bufferId].back().lastOuter && chanBuffer[bufferId].back().last)
+//        {
+//            getLastData = 1;
+//        }
+//    }
+//
+//    return getLastData;
+//}
 
 //vector<int> ChanDGSF::popChannel(bool popReady, bool popLastReady)
 //{

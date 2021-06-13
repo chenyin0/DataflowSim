@@ -115,6 +115,7 @@ class Channel usage:
         int aluUpdate();
         int(*fp)(vector<int*>& operand_) = nullptr;
         //int funcUpdate();
+        bool checkGetLastData(uint bufferId) const;
 
     public:
         string moduleName;
@@ -250,7 +251,7 @@ class ChanDGSF usage:
         vector<int> push(int data, uint bufferId) override;
         void pushBuffer(int data, uint bufferId) override;
         void bpUpdate() override;
-        virtual bool checkGetLastData(uint bufferId);
+        //virtual bool checkGetLastData(uint bufferId);
         //vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void statusUpdate() override;
         //void checkGraphSwitch();

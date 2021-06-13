@@ -30,10 +30,21 @@ void Debug::chanPrint(const string name, const Channel* channel)
         /*_output_file << "getLast: " << !channel->getLast.empty();
         _output_file << "  ";*/
         _output_file << "en: " << channel->enable; /*<< std::endl;*/
-#ifdef DGSF
         _output_file << "  ";
-        _output_file << "getLast: " << channel->getTheLastData.front();
-#endif
+        _output_file << "currId: " << channel->getCurrId();
+        _output_file << "  ";
+        _output_file << "speedup: " << channel->speedup;
+        _output_file << "  ";
+        _output_file << "graphId: " << channel->subgraphId;
+        /*if (channel->chanType == ChanType::Chan_DGSF)
+        {*/
+            _output_file << "  ";
+            _output_file << "currGraphId: " << GraphScheduler::currSubgraphId;
+        //}
+//#ifdef DGSF
+        /*_output_file << "  ";
+        _output_file << "getLast: " << channel->getTheLastData.front();*/
+//#endif
         //if (channel->isLoopVar)
         //{
         //    _output_file << "  ";
@@ -46,7 +57,8 @@ void Debug::chanPrint(const string name, const Channel* channel)
         {
             _output_file << "chBuf_" << i << "(bp=" << channel->bp[i] << ")";
             _output_file << "(cnt=" << channel->chanBufferDataCnt[i] << ",";
-            _output_file << "num=" << channel->chanBuffer[i].size() << "): ";
+            _output_file << "num=" << channel->chanBuffer[i].size() << ",";
+            _output_file << "theLast=" << channel->getTheLastData[i] << "): ";
             for (auto& data : channel->chanBuffer[i])
             {
                 if (data.valid)
@@ -189,7 +201,11 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
         // Print each chanBuffer
         for (size_t i = 0; i < _lse->chanBuffer.size(); ++i)
         {
-            _output_file << "chanBuffer_" << i << "(bp=" << _lse->bp[i] << "):(cnt=" << _lse->chanBufferDataCnt[i] << "): ";
+            _output_file << "chanBuffer_" << i;
+            _output_file << "(bp=" << _lse->bp[i] << ")";
+            _output_file << "(cnt=" << _lse->chanBufferDataCnt[i] << ",";
+            _output_file << "theLast:" << _lse->getTheLastData[i] << "): ";
+
             for (auto& data : _lse->chanBuffer[i])
             {
                 if (data.valid)
@@ -818,7 +834,7 @@ void Debug::printRegistry(const Registry* _registry)
 
 void Debug::printSimNodes(ChanGraph& _chanGraph)
 {
-    vector<string> simNodes = _chanGraph.bfsTraverseNode();
+    vector<string> simNodes = _chanGraph.bfsTraverseNodes();
 
     _output_file << std::endl;
     _output_file << "Sim Nodes: " << std::endl;
@@ -882,6 +898,7 @@ void Debug::printGraphScheduler(const GraphScheduler* _graphScheduler)
     getFile() << std::endl;
     getFile() << "*****************  Subgraph status *****************" << std::endl;
     getFile() << "Current SubgraphId: " << _graphScheduler->currSubgraphId << std::endl;
+    getFile() << std::endl;
     auto& subgraphStatus = _graphScheduler->getSubgraphStatus();
     for (size_t i = 0; i < subgraphStatus.size(); ++i)
     {
@@ -899,6 +916,7 @@ void Debug::printGraphScheduler(const GraphScheduler* _graphScheduler)
         {
             getFile() << consumer->moduleName << " ";
         }
+        getFile() << std::endl;
         getFile() << std::endl;
     }
 }
