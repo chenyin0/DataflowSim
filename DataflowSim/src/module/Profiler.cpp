@@ -301,7 +301,8 @@ void Profiler::printPowerProfiling()
     uint dataBuffer_access_times = 0;
     for (auto& entry : registry->getRegistryTable())
     {
-        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Lse)
+        if (entry.moduleType == ModuleType::Channel 
+            && (entry.chanPtr->chanType == ChanType::Chan_Lse || entry.chanPtr->chanType == ChanType::Chan_DGSF))
         {
             uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
             dataBuffer_access_times += entry.chanPtr->activeCnt / coalesceRate;
@@ -358,8 +359,8 @@ void Profiler::printPowerProfiling()
     debug->getFile() << ">>> Graph Scheduler: " << std::endl;
     debug->getFile() << "Graph switch times: " << graphScheduler_active_times << std::endl;
     debug->getFile() << "Graph switch power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << graphScheduler_dynamic_power << setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << graphScheduler_dynamic_power << setprecision(4) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << setprecision(4) << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Total power: "  << total_power << setprecision(2) << " mW" << std::endl;
