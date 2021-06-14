@@ -7,9 +7,9 @@ Dfg GemmTest::dfg;
 //ChanGraph GemmTest::chanGraph;
 //ControlTree GemmTest::chanGraphControlTree;
 
-const uint GemmTest::matrix_width = 10;
+const uint GemmTest::matrix_width = 60;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 5;
+const uint GemmTest::block_size = 10;
 
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
