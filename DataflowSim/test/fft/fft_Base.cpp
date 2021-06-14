@@ -68,8 +68,9 @@ void FFT_Test::fft_Base(Debug* debug)
     const auto& Chan_span_lc = registry->getChan("Chan_span_lc");
     const auto& Chan_end = registry->getChan("Chan_end");
     const auto& Lc_odd_lp = registry->getLc("Lc_odd_lp");
-    const auto& Chan_odd = registry->getChan("Chan_odd");
     const auto& Chan_log = registry->getChan("Chan_log");
+    const auto& Chan_span_lc_scatter_loop_odd = registry->getChan("Chan_span_lc_scatter_loop_odd");
+    const auto& Chan_odd = registry->getChan("Chan_odd");
     const auto& Chan_even = registry->getChan("Chan_even");
     const auto& Lse_real_odd_val = registry->getChan("Lse_real_odd_val");
     const auto& Lse_img_odd_val = registry->getChan("Lse_img_odd_val");
@@ -107,9 +108,6 @@ void FFT_Test::fft_Base(Debug* debug)
 
     registry->getChan("Chan_begin")->get({ 1 });
     uint iter = 0;
-
-    //vector<int> res;  // Result
-    //vector<int> temp; // temp_result
 
     uint max_iter = 5000000;// 5000000;
     uint segment = max_iter / 100;
@@ -164,11 +162,14 @@ void FFT_Test::fft_Base(Debug* debug)
         Lc_odd_lp->var = Lc_odd_lp->loopVar->value + 1;
         Lc_odd_lp->lcUpdate(Lc_odd_lp->var < fft_size);
 
-        Chan_odd->get();	// Or	[0]Lc_odd_lp [1]Chan_span_lc 
-        Chan_odd->value = Chan_odd->assign(uint(0)) | Chan_odd->assign(uint(1));
-
         Chan_log->get();	// Add	
         Chan_log->value = Chan_log->value + 1;
+
+        Chan_span_lc_scatter_loop_odd->get();	// Nop	[0]Chan_span_lc 
+        Chan_span_lc_scatter_loop_odd->value = Chan_span_lc_scatter_loop_odd->assign(uint(0));
+
+        Chan_odd->get();	// Or	[0]Lc_odd_lp [1]Chan_span_lc 
+        Chan_odd->value = Chan_odd->assign(uint(0)) | Chan_odd->assign(uint(1));
 
         Chan_even->get();	// Xor	[0]Chan_odd [1]Chan_span_lc 
         Chan_even->value = Chan_even->assign(uint(0)) ^ Chan_even->assign(uint(1));
@@ -242,7 +243,7 @@ void FFT_Test::fft_Base(Debug* debug)
         registry->updateChanDGSF();
 
         //** GraphScheduler update
-        if (splitNum > 1)
+        if (splitNum > 1 && ClkDomain::getInstance()->checkClkAdd())
         {
             graphScheduler->graphUpdate();
         }
