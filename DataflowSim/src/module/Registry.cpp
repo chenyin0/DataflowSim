@@ -1045,6 +1045,17 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
     //        _config_file << "debug->getFile() << \"" << chanName << " loopEnd: \" << " << chanName << "->loopEnd << std::endl;" << std::endl;
     //    }
     //}
+
+    // gen subgraph manually partition config
+    _config_file << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << "******* Below is subgraph manually partition config *******" << std::endl;
+    _config_file << "*********************************************" << std::endl;
+    _config_file << std::endl;
+    for (auto& chanName : simNodes)
+    {
+        _config_file << "chanGraph.getNode(\"" << chanName << "\")->subgraphId = 0;" << std::endl;
+    }
 }
 
 auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vector<Lc*>>
