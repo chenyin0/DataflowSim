@@ -172,9 +172,10 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
                 }
             }
 
-            if (entry.chanPtr->subgraphId == _currSubgraphId ||
-                entry.chanPtr->pushChannelSuccess ||
-                entry.chanPtr->valid)
+            if (entry.chanPtr->subgraphId == _currSubgraphId
+                /*|| entry.chanPtr->pushChannelSuccess*/
+                /*|| entry.chanPtr->valid
+                && entry.chanPtr->enable*/)
             {
                 if (ClkDomain::checkClkAdd())
                 {
@@ -192,7 +193,7 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
     }
 }
 
-void Profiler::printChanProfiling()
+void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
 {
     debug->getFile() << "******* Channel Utilization *********" << std::endl;
 
@@ -207,13 +208,18 @@ void Profiler::printChanProfiling()
             //float utilization = static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100;
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100, float(100));
             //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
-            
+
             // TODO: Exclude channel in "Nop"
             if (entry.chanPtr->moduleName != "Chan_begin" &&
                 entry.chanPtr->moduleName != "Chan_end" &&
                 entry.chanPtr->isPhysicalChan &&
                 (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)/* &&
-                (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1)*/)
+                (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1)*/
+                && entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
+                && entry.chanPtr->moduleName != "Lse_a_update_j1"
+                && entry.chanPtr->moduleName != "Chan_sum_update_k2_drain"
+                && entry.chanPtr->moduleName != "Chan_sum_div"
+                && entry.chanPtr->moduleName != "Lse_a_update_j2")
             {
                 debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
                 ++chanNum;
@@ -225,8 +231,46 @@ void Profiler::printChanProfiling()
         }
     }
 
+    vector<uint> subgraphNodeNum(_graphScheduler->subgraphActiveCnt.size());
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel 
+            && entry.chanPtr->isPhysicalChan
+            && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)
+            && entry.chanPtr->moduleName != "Chan_begin"
+            && entry.chanPtr->moduleName != "Chan_end"
+            /*&& entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
+            && entry.chanPtr->moduleName != "Lse_a_update_j1"
+            && entry.chanPtr->moduleName != "Chan_sum_update_k2_drain"
+            && entry.chanPtr->moduleName != "Chan_sum_div"
+            && entry.chanPtr->moduleName != "Lse_a_update_j2"*/)
+        {
+            subgraphNodeNum[entry.chanPtr->subgraphId]++;
+        }
+    }
+
+    uint totalPeCycle = 0;
+    if (subgraphNodeNum.size() > 1)
+    {
+        for (size_t subgraphId = 0; subgraphId < subgraphNodeNum.size(); ++subgraphId)
+        {
+            totalPeCycle += (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] * _graphScheduler->subgraphActiveCnt[subgraphId];
+            std::cout << "graphId: " << subgraphId 
+                << "\t ActiveNum: " << _graphScheduler->subgraphActiveCnt[subgraphId] 
+                << "\t NodeNum: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] << std::endl;
+        }
+    }
+    else
+    {
+        totalPeCycle = (ARRAY_SIZE / subgraphNodeNum[0]) * subgraphNodeNum[0] * ClkDomain::getClk();
+    }
+
+    //float avgChanUtilization = float(chanActiveNumTotal * 100) / float(ARRAY_SIZE * ClkDomain::getClk());
+    float avgChanUtilization = float(chanActiveNumTotal * 100) / float(totalPeCycle);
+    //float avgChanUtilization = chanUtilAvg / avgWeight;
     debug->getFile() << std::endl;
-    debug->getFile() << "Avg channel utilization: " << std::fixed << float(chanActiveNumTotal * 100) / float(ARRAY_SIZE * ClkDomain::getClk())/*chanUtilAvg / avgWeight*/ << setprecision(2) << "%" << std::endl;
+    debug->getFile() << "Avg channel utilization: " << avgChanUtilization << setprecision(2) << "%" << std::endl;
+    std::cout << "Avg channel utilization: " << avgChanUtilization << setprecision(2) << "%" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
@@ -299,15 +343,25 @@ void Profiler::printPowerProfiling()
 
     // On-chip buffer
     uint dataBuffer_access_times = 0;
+    uint dataBuffer_mem_req_access_times = 0;
+    uint dataBuffer_intermediate_data_access_times = 0;
     for (auto& entry : registry->getRegistryTable())
     {
-        if (entry.moduleType == ModuleType::Channel 
-            && (entry.chanPtr->chanType == ChanType::Chan_Lse || entry.chanPtr->chanType == ChanType::Chan_DGSF))
+        if (entry.moduleType == ModuleType::Channel)
         {
-            uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
-            dataBuffer_access_times += entry.chanPtr->activeCnt / coalesceRate;
+            if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+            {
+                uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
+                dataBuffer_mem_req_access_times += entry.chanPtr->activeCnt / coalesceRate;
+            }
+            else if (entry.chanPtr->chanType == ChanType::Chan_DGSF)
+            {
+                uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
+                dataBuffer_intermediate_data_access_times += entry.chanPtr->activeCnt / coalesceRate;
+            }
         }
     }
+    dataBuffer_access_times = dataBuffer_mem_req_access_times + dataBuffer_intermediate_data_access_times;
     float dataBuffer_dynamic_energy = static_cast<float>(dataBuffer_access_times) * (Hardware_Para::getDataBufferAccessEnergy() + Hardware_Para::getDataBufferCtrlEnergy());
     float dataBuffer_dynamic_power = transEnergy2Power(dataBuffer_dynamic_energy);
     float dataBuffer_leakage_power = Hardware_Para::getDataBufferLeakagePower() + Hardware_Para::getDataBufferCtrlLeakagePower();
@@ -351,6 +405,8 @@ void Profiler::printPowerProfiling()
     debug->getFile() << std::endl;
     debug->getFile() << ">>> On-chip Buffer: " << std::endl;
     debug->getFile() << "Access times: " << dataBuffer_access_times << std::endl;
+    debug->getFile() << "\t Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
+    debug->getFile() << "\t Intermediate data access times: " << dataBuffer_intermediate_data_access_times << std::endl;
     debug->getFile() << "On-chip buffer power: " << dataBuffer_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Dynamic power: " << dataBuffer_dynamic_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Leakage power: " << dataBuffer_leakage_power << setprecision(2) << " mW" << std::endl;
@@ -364,6 +420,15 @@ void Profiler::printPowerProfiling()
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Total power: "  << total_power << setprecision(2) << " mW" << std::endl;
+
+    // Print
+    std::cout << std::endl;
+    std::cout << "Total power: " << total_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "GraphSwitch Times: " << graphSwitchTimes << std::endl;
+    std::cout << std::endl;
+    std::cout << "Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
+    std::cout << "Intermediate access times: " << dataBuffer_intermediate_data_access_times << std::endl;
+    std::cout << "EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
 }
 
 float Profiler::transEnergy2Power(float _energy)

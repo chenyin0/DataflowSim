@@ -4,6 +4,7 @@
 #include "./Registry.h"
 #include "../sim/Debug.h"
 #include "./mem/MemSystem.h"
+#include "./execution/GraphScheduler.h"
 
 namespace DFSim
 {
@@ -32,7 +33,7 @@ namespace DFSim
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
         void updateChanUtilization();
         void updateChanUtilization(uint _currSubgraphId);
-        void printChanProfiling();
+        void printChanProfiling(GraphScheduler* _graphScheduler);
         void printLseProfiling();
         void printPowerProfiling();
 
