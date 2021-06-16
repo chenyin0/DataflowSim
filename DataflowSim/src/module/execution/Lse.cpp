@@ -177,7 +177,8 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
     MemReq req;
     req.valid = 1;
     //req.addr = chanBuffer[0].front().value;  // Address must stored in chanBuffer[0]!!!
-    req.addr = chanBuffer[0].front().value + baseAddr;  // Address must stored in chanBuffer[0]!!!
+    //req.addr = chanBuffer[0].front().value + baseAddr;  // Address must stored in chanBuffer[0]!!!
+    req.addr = chanBuffer[0].front().value * (DATA_PRECISION / 8) + baseAddr;  // Address must stored in chanBuffer[0] (Byte)
     req.isWrite = isWrite;
     req.lseId = lseId;
 
@@ -503,11 +504,11 @@ uint Lse::assign()
     if (!this->channel.empty())
     {
         uint index = channel.front().lseReqQueueIndex;
-        return reqQueue[index].first.addr - baseAddr;
+        return (reqQueue[index].first.addr - baseAddr) / (DATA_PRECISION / 8);
     }
     else
     {
-        return lastPopVal >= baseAddr ? lastPopVal - baseAddr : 0;
+        return lastPopVal >= baseAddr ? (lastPopVal - baseAddr) / (DATA_PRECISION / 8) : 0;
     }
 }
 
