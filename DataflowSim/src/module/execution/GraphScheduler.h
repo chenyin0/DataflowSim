@@ -35,9 +35,9 @@ namespace DFSim
         unordered_map<uint, pair<vector<ChanDGSF*>, vector<ChanDGSF*>>> subgraphTable;
         unordered_map<uint, vector<vector<ChanDGSF*>>> divergenceGraph;  // Store branch-divergence subgraph
         deque<bool> subgraphIsOver;
-
-    private:
-        //uint subgraphTimeout = 0;
+        uint subgraphTimeout = 0;
+        vector<uint> subgraphActiveCnt;  // Count the active cycle of each subgraph
+        bool graphSwitchO3 = 1;
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
@@ -45,6 +45,8 @@ namespace DFSim
         {
             return subgraphIsOver;
         }
+
+        void switchGraphManually();
 #endif // DEBUG_MODE 
     };
 }

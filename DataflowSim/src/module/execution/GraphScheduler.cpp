@@ -13,6 +13,7 @@ void GraphScheduler::schedulerInit()
 {
     subgraphIsOver.resize(subgraphTable.size());
     configChan(currSubgraphId);
+    subgraphActiveCnt.resize(subgraphTable.size());
 }
 
 void GraphScheduler::addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan, vector<ChanDGSF*> consumerChan)
@@ -168,25 +169,32 @@ void GraphScheduler::graphUpdate()
     //// Check whether current sub-graph is over
     //subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
 
-    // Fix: the threshold of subgraphTimeout
     if ((producerChanFinish || consumerChanFinish))
     {
         // Check whether current sub-graph is over
         subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
         // Select a new subgraph
-        //currSubgraphId = selectSubgraphInOrder(currSubgraphId);
-        currSubgraphId = selectSubgraphO3(currSubgraphId);
+        if (graphSwitchO3)
+        {
+            currSubgraphId = selectSubgraphO3(currSubgraphId);
+        }
+        else
+        {
+            currSubgraphId = selectSubgraphInOrder(currSubgraphId);
+        }
         // Config all channels in new subgraph
         configChan(currSubgraphId);
         // Clear the chanDataCnt of subgraph's producer channels
         resetSubgraph(currSubgraphId);
 
-        //subgraphTimeout = 0;  // Reset timeout counter
+        subgraphTimeout = 0;  // Reset timeout counter
     }
-    //else
-    //{
-    //    ++subgraphTimeout;
-    //}
+    else
+    {
+        ++subgraphTimeout;
+    }
+
+    ++subgraphActiveCnt[currSubgraphId];
 
     //if (/*producerChanFinish && */consumerChanFinish || (subgraphTable[currSubgraphId].second.empty() && producerChanFinish))
     //{
@@ -724,3 +732,18 @@ bool GraphScheduler::checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChan
 
     return getLast;
 }
+
+#ifdef DEBUG_MODE 
+void GraphScheduler::switchGraphManually()
+{
+    subgraphTimeout = 0;
+    subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
+    // Select a new subgraph
+    currSubgraphId = selectSubgraphInOrder(currSubgraphId);
+    //currSubgraphId = selectSubgraphO3(currSubgraphId);
+    // Config all channels in new subgraph
+    configChan(currSubgraphId);
+    // Clear the chanDataCnt of subgraph's producer channels
+    resetSubgraph(currSubgraphId);
+}
+#endif
