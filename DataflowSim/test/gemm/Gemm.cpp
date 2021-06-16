@@ -9,14 +9,14 @@ Dfg GemmTest::dfg;
 
 const uint GemmTest::matrix_width = 60;
 const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 10;
+const uint GemmTest::block_size = 15;
 
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
 const uint GemmTest::m1_BaseAddr = 0;
-const uint GemmTest::m2_BaseAddr = 5280;// matrix_width* matrix_height;
-const uint GemmTest::partialSum_BaseAddr = 26890;// matrix_width* matrix_height * 2;
-const uint GemmTest::prod_BaseAddr = 26890;// matrix_width * matrix_height * 2;
+const uint GemmTest::m2_BaseAddr = 164 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height;
+const uint GemmTest::partialSum_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height * 2;
+const uint GemmTest::prod_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width * matrix_height * 2;
 
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;

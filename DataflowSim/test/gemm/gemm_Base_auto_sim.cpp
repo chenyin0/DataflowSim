@@ -1,6 +1,7 @@
 #include "./Gemm.h"
 #include "../../src/sim/Watchdog.h"
 #include "../../src/module/execution/GraphScheduler.h"
+#include "./gemm_graph_partition.hpp"
 
 using namespace DFSimTest;
 
@@ -17,7 +18,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     Profiler* profiler = new Profiler(registry, memSys, debug);
 
     //*** Declare Watchdog
-    Watchdog watchdog = Watchdog(pow(2, 7), 50);
+    Watchdog watchdog = Watchdog(pow(2, 7), 500);
 
     //*** Define subgraph scheduler
     GraphScheduler* graphScheduler = new GraphScheduler();
@@ -30,7 +31,34 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     chanGraph.addSpecialModeChan();
 
     uint splitNum = 6;
-    chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
+    //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
+
+    switch (splitNum)
+    {
+    case 1:
+        GraphPartition::graphPartition_1(chanGraph);
+        break;
+    case 2:
+        GraphPartition::graphPartition_2(chanGraph);
+        break;
+    case 3:
+        GraphPartition::graphPartition_3(chanGraph);
+        break;
+    case 4:
+        GraphPartition::graphPartition_4(chanGraph);
+        break;
+    case 5:
+        GraphPartition::graphPartition_5(chanGraph);
+        break;
+    case 6:
+        GraphPartition::graphPartition_6(chanGraph);
+        break;
+    case 7:
+        GraphPartition::graphPartition_7(chanGraph);
+        break;
+    default:
+        Debug::throwError("Not define this subgraph number!", __FILE__, __LINE__);
+    }
 
     //chanGraph.printSubgraphPartition(splitNum, debug);
     chanGraph.addChanDGSF();
@@ -311,13 +339,13 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (234810 > iter && iter > 0 /*iter >= 0*/)
+        if (6016 > iter && iter > 4016 /*iter >= 0*/)
         {
             debug->printSimInfo(simChans, simLcs);
             debug->printGraphScheduler(graphScheduler);
 
             // Print MemorySystem
-            //debug->memSysPrint(memSys);
+            debug->memSysPrint(memSys);
         }
 
         if (!Chan_end->channel.empty())
@@ -354,7 +382,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
-    profiler->printChanProfiling();
+    profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
     debug->getFile() << endl;

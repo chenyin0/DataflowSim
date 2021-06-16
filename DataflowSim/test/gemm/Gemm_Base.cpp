@@ -695,7 +695,7 @@ void GemmTest::gemm_Base(Debug* debug)
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
 
-    profiler->printChanProfiling();
+    //->printChanProfiling(graphScheduler);
 
     // Print buffer usage
     debug->getFile() << std::endl;
