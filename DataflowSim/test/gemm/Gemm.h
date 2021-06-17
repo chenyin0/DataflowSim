@@ -85,6 +85,7 @@ namespace DFSimTest
         static void generateData();  // Generate benchmark data
         static void generateDfg();  // Generate Dfg with control tree
         //static void generateChanGraph();  // Generate chanGraph with control tree
+        static void graphPartition(ChanGraph& chanGraph, int partitionNum);
 
         // Construct DFG and chanGraph
         static Dfg dfg;

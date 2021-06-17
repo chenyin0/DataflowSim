@@ -1,7 +1,6 @@
 #include "./Gemm.h"
 #include "../../src/sim/Watchdog.h"
 #include "../../src/module/execution/GraphScheduler.h"
-#include "./gemm_graph_partition.hpp"
 
 using namespace DFSimTest;
 
@@ -30,35 +29,9 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     ChanGraph chanGraph(GemmTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 6;
+    int splitNum = 1;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
-
-    switch (splitNum)
-    {
-    case 1:
-        GraphPartition::graphPartition_1(chanGraph);
-        break;
-    case 2:
-        GraphPartition::graphPartition_2(chanGraph);
-        break;
-    case 3:
-        GraphPartition::graphPartition_3(chanGraph);
-        break;
-    case 4:
-        GraphPartition::graphPartition_4(chanGraph);
-        break;
-    case 5:
-        GraphPartition::graphPartition_5(chanGraph);
-        break;
-    case 6:
-        GraphPartition::graphPartition_6(chanGraph);
-        break;
-    case 7:
-        GraphPartition::graphPartition_7(chanGraph);
-        break;
-    default:
-        Debug::throwError("Not define this subgraph number!", __FILE__, __LINE__);
-    }
+    GemmTest::graphPartition(chanGraph, splitNum);
 
     //chanGraph.printSubgraphPartition(splitNum, debug);
     chanGraph.addChanDGSF();
