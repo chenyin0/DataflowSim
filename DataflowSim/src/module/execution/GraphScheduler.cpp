@@ -169,7 +169,7 @@ void GraphScheduler::graphUpdate()
     //// Check whether current sub-graph is over
     //subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
 
-    if ((producerChanFinish || consumerChanFinish))
+    if (producerChanFinish || consumerChanFinish)
     {
         // Check whether current sub-graph is over
         subgraphIsOver[currSubgraphId] = checkSubgraphIsOver(currSubgraphId);
@@ -603,6 +603,11 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
                 //    chan->popChannelEnable = 0;
                 //}
             }
+
+            if (!finish)
+            {
+                break;
+            }
         }
     }
     else
@@ -621,6 +626,11 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
                 //    // If producer channel has sent enough data, disable popChannel
                 //    chan->popChannelEnable = 0;
                 //}
+            }
+
+            if (!finish)
+            {
+                break;
             }
         }
     }
@@ -650,31 +660,38 @@ bool GraphScheduler::checkConsumerChanFinish(vector<ChanDGSF*> consumerChans)
 {
     bool finish = 1;
 
-    for (auto& chan : consumerChans)
+    if (!consumerChans.empty())
     {
-        for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
+        for (auto& chan : consumerChans)
         {
-            if (!chan->chanBuffer[bufferId].empty())
+            for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                // When 1)the chanBuffer has received the last data; or 2)the chanBuffer is full, this consumer channel is finish
-                if (!((chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last) ||
-                    chan->chanBuffer[bufferId].size() >= chan->size))
+                if (!chan->chanBuffer[bufferId].empty())
+                {
+                    // When 1)the chanBuffer has received the last data; or 2)the chanBuffer is full, this consumer channel is finish
+                    if (!((chan->chanBuffer[bufferId].back().lastOuter && chan->chanBuffer[bufferId].back().last) ||
+                        chan->chanBuffer[bufferId].size() >= chan->size))
+                    {
+                        finish = 0;
+                        break;
+                    }
+                }
+                else if (!chan->getTheLastData.front())  // The number of ChanDGSF's upstreams is limited to 1
                 {
                     finish = 0;
                     break;
                 }
             }
-            else if (!chan->getTheLastData.front())  // The number of ChanDGSF's upstreams is limited to 1
+
+            if (finish == 0)
             {
-                finish = 0;
                 break;
             }
         }
-
-        if (finish == 0)
-        {
-            break;
-        }
+    }
+    else
+    {
+        finish = 0;
     }
 
     return finish;
