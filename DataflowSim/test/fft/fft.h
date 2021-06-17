@@ -23,6 +23,7 @@ namespace DFSimTest
     private:
         static void generateData();  // Generate benchmark data
         static void generateDfg();  // Generate Dfg with control tree
+        static void graphPartition(ChanGraph& chanGraph, int partitionNum);
 
         static Dfg dfg;
         static const uint fft_size;

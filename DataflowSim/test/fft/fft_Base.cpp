@@ -16,7 +16,7 @@ void FFT_Test::fft_Base(Debug* debug)
     Profiler* profiler = new Profiler(registry, memSys, debug);
 
     //*** Declare Watchdog
-    Watchdog watchdog = Watchdog(pow(2, 7), 50);
+    Watchdog watchdog = Watchdog(pow(2, 7), 500);
 
     //*** Define subgraph scheduler
     GraphScheduler* graphScheduler = new GraphScheduler();
@@ -28,9 +28,10 @@ void FFT_Test::fft_Base(Debug* debug)
     ChanGraph chanGraph(FFT_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 5;
+    int splitNum = 7;
     //chanGraph.subgraphPartition(splitNum, debug);
-    chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
+    //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
+    FFT_Test::graphPartition(chanGraph, splitNum);
 
     // User defined patch (User defined subgraphId)
     chanGraph.getNode("Chan_branch_merge")->subgraphId = chanGraph.getNode("Chan_real_odd_update")->subgraphId;
@@ -96,13 +97,14 @@ void FFT_Test::fft_Base(Debug* debug)
     //***********************************************************************
 
     // User-defined (Chan size)
-    Chan_branch_merge->size = 2000;
+    Chan_branch_merge->size = 200;
 
     // User defined (Mem req bypass -> noLatencyMode)
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry
     graphScheduler->schedulerInit();  // Initial graph scheduler
+    //graphScheduler->graphSwitchO3 = false;
     profiler->init();
     watchdog.addCheckPointChan({ Lc_span->getEnd, Lc_odd_lp->getEnd });
 
@@ -246,6 +248,16 @@ void FFT_Test::fft_Base(Debug* debug)
         if (splitNum > 1 && ClkDomain::getInstance()->checkClkAdd())
         {
             graphScheduler->graphUpdate();
+
+            //// Patch
+            //if (watchdog.getFeedTimes() > 50/4 /*&& graphScheduler->subgraphTimeout > 100*/)
+            //{
+            //    graphScheduler->switchGraphManually();
+            //}
+            //else
+            //{
+            //    graphScheduler->graphUpdate();
+            //}
         }
 
         //** MemorySystem update
@@ -263,7 +275,7 @@ void FFT_Test::fft_Base(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (1848832 > iter && iter > 1847832 /*iter >= 0*/)
+        if (29440 > iter && iter > 0 /*iter >= 0*/)
         {
             // Print channel
             debug->printSimInfo(simChans, simLcs);
@@ -307,7 +319,7 @@ void FFT_Test::fft_Base(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
-    profiler->printChanProfiling();
+    profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
     debug->getFile() << endl;
