@@ -142,19 +142,36 @@ namespace DFSim
         //const char OPERATION_LOCK = 'k';
         //const char OPERATION_UNLOCK = 'u';
 
-        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
-        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
-        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
+        // 2 level cache
+        //vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
+        //vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
+        //vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
 
-        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  
-        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
-        vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
-        vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
-                                             make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
-        vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
-        vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
-        vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
+        //vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
+        //vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  
+        //vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
+        //vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
+        //vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
+        //                                     make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
+
+        //vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
+        //vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
+        //vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
+
+        // 1 level cache
+        vector<uint> a_cache_size = { CACHE_SIZE_L1};  // Cache size of each level (byte)
+        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1};  // Cacheline size of each level (byte)
+        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1};  // Way number in each set
+
+        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1};  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1};
+        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1};
+        vector<uint> bankNum = { CACHE_BANK_NUM_L1};  // L1 = 8, L2 = 16
+        vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1)};
+
+        vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU };
+        vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK };
+        vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE };
 
         /** Cache size of each level£¬byte */
         vector<uint> cache_size = vector<uint>(CACHE_MAXLEVEL);
