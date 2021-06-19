@@ -207,9 +207,10 @@ Mux* Registry::getMux(const string& moduleName_)
 
 void Registry::init()
 {
-    initChannel();
     checkConnectRule();
     checkLc();
+
+    initChannel();
     initChanDGSFVec();
 }
 
@@ -230,9 +231,9 @@ void Registry::initLastTagQueue(Channel* _chan)
 {
     //for (auto& entry : registryTable)
     //{
-    //    if (entry.chanPtr != nullptr)
+    //    if (entry.nodePtr != nullptr)
     //    {
-    //        Channel* chan = entry.chanPtr;
+    //        Channel* chan = entry.nodePtr;
     //        if (chan->keepMode)
     //        {
     //            chan->lastTagQueue.resize(chan->downstream.size());  // Resize a queue for each downstream channel
@@ -455,11 +456,48 @@ void Registry::initChanDGSFVec()
     }
 }
 
+void Registry::checkNodeRule(ChanGraph& _chanGraph, string& _node)
+{
+    auto nodePtr = dynamic_cast<Chan_Node*>(_chanGraph.getNode(_node));
+
+    // Check keepMode
+    if (nodePtr->chan_mode == "Keep_mode")
+    {
+        if (nodePtr->node_type == "Lse_ld" || nodePtr->node_type == "Lse_st")
+        {
+            Debug::throwError("Lse " + nodePtr->node_name + " can not be set in keepMode, need insert a shadow channel !", __FILE__, __LINE__);
+        }
+        else
+        {
+            string nextNodeCtrlRegion;
+            vector<string> nextNodes;
+            nextNodes.insert(nextNodes.end(), nodePtr->next_nodes_data.begin(), nodePtr->next_nodes_data.end());
+            nextNodes.insert(nextNodes.end(), nodePtr->next_nodes_active.begin(), nodePtr->next_nodes_active.end());
+            for (auto nextNode : nextNodes)
+            {
+                if (nextNodeCtrlRegion == "")
+                {
+                    nextNodeCtrlRegion = _chanGraph.getNode(nextNode)->controlRegionName;
+                }
+                else
+                {
+                    if (nextNodeCtrlRegion != _chanGraph.getNode(nextNode)->controlRegionName)
+                    {
+                        Debug::throwError("The nextNode's ctrlRegions of " + nodePtr->node_name + " are not same, need insert a shadow channel", __FILE__, __LINE__);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Registry::genModule(ChanGraph& _chanGraph)
 {
     auto _nodes = _chanGraph.nodes;
     for (auto& node : _nodes)
     {
+        checkNodeRule(_chanGraph, node->node_name);
+
         auto controlRegion = _chanGraph.controlTree.getCtrlRegion(node->controlRegionName);
         auto controlType = controlRegion.controlType;
         auto branchPath = controlRegion.branchPath;
@@ -821,11 +859,11 @@ void Registry::genConnect(ChanGraph& _chanGraph)
     {
         if (registryEntry.chanPtr != nullptr)
         {
-            //set<Channel*> upstreamChans(registryEntry.chanPtr->upstream.begin(), registryEntry.chanPtr->upstream.end());
-            //registryEntry.chanPtr->upstream.assign(upstreamChans.begin(), upstreamChans.end());
+            //set<Channel*> upstreamChans(registryEntry.nodePtr->upstream.begin(), registryEntry.nodePtr->upstream.end());
+            //registryEntry.nodePtr->upstream.assign(upstreamChans.begin(), upstreamChans.end());
 
-            //set<Channel*> downstreamChans(registryEntry.chanPtr->downstream.begin(), registryEntry.chanPtr->downstream.end());
-            //registryEntry.chanPtr->downstream.assign(downstreamChans.begin(), downstreamChans.end());
+            //set<Channel*> downstreamChans(registryEntry.nodePtr->downstream.begin(), registryEntry.nodePtr->downstream.end());
+            //registryEntry.nodePtr->downstream.assign(downstreamChans.begin(), downstreamChans.end());
 
             auto upstream_ = Util::removeDuplicatesKeepSequence(registryEntry.chanPtr->upstream);
             registryEntry.chanPtr->upstream.assign(upstream_.begin(), upstream_.end());
@@ -1015,7 +1053,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
     //    auto& entry = getRegistryTableEntry(chanName);
     //    if (entry.moduleType == ModuleType::Channel)
     //    {
-    //        if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+    //        if (entry.nodePtr->chanType == ChanType::Chan_Lse)
     //        {
     //            _config_file << "debug->lsePrint(\"" << chanName << "\", " << "dynamic_cast<Lse*>(" << chanName << "));" << std::endl;
     //        }
@@ -1092,9 +1130,9 @@ auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vec
 //            auto& registryEntry = getRegistryTableEntry(chanNode);
 //            if (registryEntry.moduleType == ModuleType::Channel)
 //            {
-//                if (registryEntry.chanPtr->masterName == "None")
+//                if (registryEntry.nodePtr->masterName == "None")
 //                {
-//                    registryEntry.chanPtr->speedup = _speedup;
+//                    registryEntry.nodePtr->speedup = _speedup;
 //                }
 //            }
 //        }
@@ -1112,6 +1150,15 @@ void Registry::setChanSize()
                 && entry.chanPtr->chanType != ChanType::Chan_DGSF)
             {
                 entry.chanPtr->size = 10 * std::max(entry.chanPtr->cycle, uint(1)) * entry.chanPtr->speedup;
+
+                /*if (entry.nodePtr->chanType == ChanType::Chan_Lse)
+                {
+                    entry.nodePtr->size = 20 * std::max(entry.nodePtr->cycle, uint(1)) * entry.nodePtr->speedup;
+                }
+                else
+                {
+                    entry.nodePtr->size = 10 * std::max(entry.nodePtr->cycle, uint(1)) * entry.nodePtr->speedup;
+                }*/
             }
         }
     }
@@ -1172,9 +1219,9 @@ void Registry::setChanSize()
 //                    auto& registryEntry = getRegistryTableEntry(nodeName);
 //                    if (registryEntry.moduleType == ModuleType::Channel)
 //                    {
-//                        if (registryEntry.chanPtr->masterName == "None")
+//                        if (registryEntry.nodePtr->masterName == "None")
 //                        {
-//                            registryEntry.chanPtr->speedup = speedup;
+//                            registryEntry.nodePtr->speedup = speedup;
 //                        }
 //                    }
 //                }
