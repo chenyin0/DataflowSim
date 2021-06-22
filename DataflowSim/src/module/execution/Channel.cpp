@@ -105,17 +105,31 @@ void Channel::parallelize()
     //    currId = 1;
     //}
 
+    //if (ClkDomain::checkClkAdd())
+    //{
+    //    currId = 1;
+    //}
+    //if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
+    //{
+    //    if (currId < speedup)
+    //    {
+    //        ClkDomain::getInstance()->addClkStall();
+    //    }
+    //    ++currId;
+    //}
+
     if (ClkDomain::checkClkAdd())
     {
         currId = 1;
     }
-    if (currId <= speedup /*&& !channel.empty()*/)  // If the parallel execution dosen't finish, stall the system clock;
+    else
     {
-        if (currId < speedup)
-        {
-            ClkDomain::getInstance()->addClkStall();
-        }
         ++currId;
+    }
+
+    if (currId < speedup)
+    {
+        ClkDomain::getInstance()->addClkStall();
     }
 }
 
@@ -153,9 +167,13 @@ int Channel::getChanId(Channel* chan)
 // Channel get data from the program variable 
 vector<int> Channel::get(const vector<int>& data)
 {
+    if (speedup > 1)
+    {
+        parallelize();
+    }
+
     vector<int> pushState(2);
     vector<int> popState(2);
-
     //checkConnect();
     popState = pop(); // Data lifetime in nested loop
 
@@ -180,10 +198,10 @@ vector<int> Channel::get(const vector<int>& data)
     //funcUpdate();  
 
     //bpUpdate(); 
-    if (speedup > 1)
+  /*  if (speedup > 1)
     {
         parallelize();
-    }
+    }*/
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -191,9 +209,13 @@ vector<int> Channel::get(const vector<int>& data)
 // Channel get data from the program variable 
 vector<int> Channel::get()
 {
+    if (speedup > 1)
+    {
+        parallelize();
+    }
+
     vector<int> pushState(2);
     vector<int> popState(2);
-
     popState = pop(); // Data lifetime in nested loop
 
     for (size_t i = 0; i < upstream.size(); ++i)
@@ -218,11 +240,11 @@ vector<int> Channel::get()
     //// Update channel value
     //funcUpdate();
 
-    //bpUpdate();
-    if (speedup > 1)
-    {
-        parallelize();
-    }
+    ////bpUpdate();
+    //if (speedup > 1)
+    //{
+    //    parallelize();
+    //}
 
     return { pushState[0], pushState[1], popState[0], popState[1] };
 }
@@ -1120,6 +1142,16 @@ bool ChanBase::checkDataMatch()
             break;
         }
     }
+
+    //// Debug_yin_21.06.13
+    //for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
+    //{
+    //    if ((chanBuffer[bufferId].empty() && !getTheLastData[bufferId]) || (!chanBuffer[bufferId].empty() && chanBuffer[bufferId].front().cycle > clk))
+    //    {
+    //        match = 0;
+    //        break;
+    //    }
+    //}
 
     return match;
 }
