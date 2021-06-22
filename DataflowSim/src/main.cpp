@@ -15,6 +15,8 @@
 #include "../test/lud/Lud.h"
 #include "../test/fft/fft.h"
 #include "../test/viterbi/viterbi.h"
+#include "../test/cfd/cfd.h"
+#include "../test/gesummv/gesummv.h"
 
 #include "./module/execution/Channel.h"
 
@@ -175,6 +177,28 @@ int main()
             //case ArchType::SGMF:
             //    //DFSimTest::AesTest::bfs_SGMF(debug);
             //    break;
+        }
+
+        break;
+    }
+    case App_name::Cfd:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Cfd_Test::cfd_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::Gesummv:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Gesummv_Test::gesummv_Base(debug);
+            break;
         }
 
         break;
