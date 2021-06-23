@@ -158,7 +158,15 @@ void GraphScheduler::graphUpdate()
             bool truePathChanIsFinish = checkConsumerChanFinish(divergenceGraph[currSubgraphId][1]);
             bool falsePathChanGetIsFinish = checkConsumerChanFinish(divergenceGraph[currSubgraphId][2]);
 
-            consumerChanFinish = commonChanIsFinish && (truePathChanIsFinish || falsePathChanGetIsFinish);
+            // Debug_yin_21.06.23
+            if (divergenceGraph[currSubgraphId][1].empty() && divergenceGraph[currSubgraphId][2].empty())
+            {
+                consumerChanFinish = commonChanIsFinish;
+            }
+            else
+            {
+                consumerChanFinish = commonChanIsFinish && (truePathChanIsFinish || falsePathChanGetIsFinish);
+            }
         }
     }
     else
@@ -444,7 +452,14 @@ bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
             bool truePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
             bool falsePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
 
-            isOver = commonChanIsOver && (truePathChanIsOver || falsePathChanIsOver);
+            if (divergenceGraph[currSubgraphId][1].empty() && divergenceGraph[currSubgraphId][2].empty())
+            {
+                isOver = commonChanIsOver;
+            }
+            else
+            {
+                isOver = commonChanIsOver && (truePathChanIsOver || falsePathChanIsOver);
+            }
         }
 
         //for (auto& chan : subgraphTable[_subgraphId].second)
@@ -592,7 +607,7 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
         {
             for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                if (!chan->chanBuffer[bufferId].empty() && chan->chanDataCnt < DGSF_INPUT_BUFF_SIZE)
+                if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt < DGSF_INPUT_BUFF_SIZE))
                 {
                     finish = 0;
                     break;
