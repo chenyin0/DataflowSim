@@ -906,22 +906,58 @@ void Registry::configGraphScheduler(GraphScheduler* _graphScheduler)
                 }
 
                 // For branch
+                // Cond chan
                 if (_chanPtr->isCond)
                 {
                     _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, { _chanPtr }, {}, {});
                 }
+
+                //for (auto& downstreamChan : _chanPtr->downstream)
+                //{
+                //    if (downstreamChan->branchMode)
+                //    {
+                //        if (downstreamChan->channelCond == true)
+                //        {
+                //            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {_chanPtr}, {});
+                //        }
+                //        else
+                //        {
+                //            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {}, { _chanPtr });
+                //        }
+                //    }
+                //}
+
+                bool isTruePathChan = 0;
+                bool isFalsePathChan = 0;
                 for (auto& downstreamChan : _chanPtr->downstream)
                 {
                     if (downstreamChan->branchMode)
                     {
                         if (downstreamChan->channelCond == true)
                         {
-                            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {_chanPtr}, {});
+                            isTruePathChan = 1;
                         }
                         else
                         {
-                            _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {}, { _chanPtr });
+                            isFalsePathChan = 1;
                         }
+                    }
+                }
+
+                if (isTruePathChan && isFalsePathChan)
+                {
+                    _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, { _chanPtr }, {}, {});  // Common chan
+                }
+                else
+                {
+                    if (isTruePathChan)
+                    {
+                        _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, { _chanPtr }, {});  // TruePath chan
+                    }
+
+                    if (isFalsePathChan)
+                    {
+                        _graphScheduler->addDivergenceSubgraph(_chanPtr->subgraphId, {}, {}, { _chanPtr });  // FalsePath chan
                     }
                 }
             }
