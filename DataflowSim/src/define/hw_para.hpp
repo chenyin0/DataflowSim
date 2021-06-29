@@ -12,7 +12,7 @@ namespace DFSim {
             // TODO: return according to the PE's op
             static float mul_32b = 4.0125;  // pJ (Mul)
             static float add_32b = 0.0501;  // pJ
-            return mul_32b;
+            return mul_32b * 0.5 + add_32b * 0.5;
         }
 
         static float getAluLeakagePower()
@@ -33,6 +33,18 @@ namespace DFSim {
             return pe_ctrl_leakage_power;
         }
 
+        static float getTiaPeCtrlEnergyDynamic()
+        {
+            static float tia_pe_ctrl_energy = 1.719;  // pJ
+            return tia_pe_ctrl_energy;
+        }
+
+        static float getTiaPeCtrlLeakagePower()
+        {
+            static float tia_pe_ctrl_leakage_power = 0.0443;  // mW
+            return tia_pe_ctrl_leakage_power;
+        }
+
         static float getRegAccessEnergy()
         {
             static float regAccessEnergy = 0.317;  // pJ
@@ -45,28 +57,40 @@ namespace DFSim {
             return reg_leakage_power;
         }
 
-        static float getContextBufferAccessEnergy()
+        static float getContextBufferAccessEnergy()  // 48bit * 8 entry
         {
             static float contextBufferAccessEnergy = 3.867;  // pJ
             return contextBufferAccessEnergy;
         }
 
-        static float getContextBufferLeakagePower()
+        static float getContextBufferLeakagePower()  // 48bit * 8 entry
         {
             static float contextBuffer_leakage_power = 0.0376;  // mW
             return contextBuffer_leakage_power;
         }
 
+        static float getTiaInstructionBufferAccessEnergy()  // 128bit * 16 entry
+        {
+            static float tia_instr_buffer_access_energy = 4.359;  // pJ
+            return tia_instr_buffer_access_energy;
+        }
+
+        static float getTiaInstructionBufferLeakagePower()  // 128bit * 16 entry
+        {
+            static float tia_instr_buffer_leakage_power = 0.0808;  // mW
+            return tia_instr_buffer_leakage_power;
+        }
+
         // On-chip buffer
         static float getDataBufferAccessEnergy()
         {
-            static float dataBufferAccessEnergy = 1020;  // pJ
+            static float dataBufferAccessEnergy = 15;  // pJ  (128KB, 16 Bank, 64B)
             return dataBufferAccessEnergy;
         }
 
         static float getDataBufferLeakagePower()
         {
-            static float dataBuffer_leakage_power = 65.67;  // mW
+            static float dataBuffer_leakage_power = 14.998;  // mW (64KB, 16 Bank, 64B)
             return dataBuffer_leakage_power;
         }
 
@@ -85,7 +109,7 @@ namespace DFSim {
         // Graph scheduler
         static float getGraphSchedulerEnergyDynamic()
         {
-            static float graphSchedulerEnergy = 0.322;  // pJ
+            static float graphSchedulerEnergy = 1.719;  // 0.322 // pJ
             return graphSchedulerEnergy;
         }
 
