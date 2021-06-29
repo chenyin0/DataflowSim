@@ -55,7 +55,7 @@ void LudTest::generateDfg()
 
     // loop_j1
     dfg.addNode("j1", "Loop_head", {}, { "i_lc1" });
-    dfg.addNode("j1_lc", "Nop", {}, { "j1" });
+    dfg.addNode("j1_lc", "Nop", { "j1" }, { });
     dfg.addNode("i_size", "Mul", { "i_lc1", "SIZE" }, { "j1" });
     dfg.addNode("i_size_shadow", "Nop", { "i_size" });
     dfg.addNode("i_size_j", "Add", { "i_size", "j1" });
@@ -76,7 +76,7 @@ void LudTest::generateDfg()
 
     // loop_j2
     dfg.addNode("j2", "Loop_head", {}, { "i_lc2" });
-    dfg.addNode("j2_lc", "Nop", {}, { "j2" });
+    dfg.addNode("j2_lc", "Nop", { "j2" }, { });
     dfg.addNode("j_size", "Mul", { "j2", "SIZE" });
     dfg.addNode("j_size_shadow", "Nop", { "j_size" });
     dfg.addNode("j_size_i", "Add", { "j_size", "i_lc2" });
@@ -118,4 +118,737 @@ void LudTest::generateDfg()
     dfg.setTheTailNode("loop_k2", "sum_update_k2");
 
     dfg.plotDot();
+}
+
+// Graph partition
+void LudTest::graphPartition(ChanGraph& chanGraph, int partitionNum)
+{
+    switch (partitionNum)
+    {
+    case 1:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 0;
+        chanGraph.getNode("Lse_a2")->subgraphId = 0;
+        chanGraph.getNode("Lse_a1")->subgraphId = 0;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 0;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 0;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 0;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 0;
+        chanGraph.getNode("Lse_a3")->subgraphId = 0;
+        chanGraph.getNode("Lse_a4")->subgraphId = 0;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 0;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 0;
+
+        break;
+    }
+    case 2:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 0;
+        chanGraph.getNode("Lse_a2")->subgraphId = 0;
+        chanGraph.getNode("Lse_a1")->subgraphId = 0;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 0;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 1;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 1;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 1;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 1;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 1;
+        chanGraph.getNode("Lse_a3")->subgraphId = 1;
+        chanGraph.getNode("Lse_a4")->subgraphId = 1;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 1;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 1;
+
+        break;
+    }
+    case 3:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 0;
+        chanGraph.getNode("Lse_a2")->subgraphId = 0;
+        chanGraph.getNode("Lse_a1")->subgraphId = 0;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 0;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 1;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 1;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 1;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 2;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 2;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 2;
+        chanGraph.getNode("Lse_a3")->subgraphId = 2;
+        chanGraph.getNode("Lse_a4")->subgraphId = 2;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 2;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 2;
+
+        break;
+    }
+    case 4:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 1;
+        chanGraph.getNode("Lse_a2")->subgraphId = 1;
+        chanGraph.getNode("Lse_a1")->subgraphId = 1;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 1;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 2;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 2;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 2;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 3;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 3;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 3;
+        chanGraph.getNode("Lse_a3")->subgraphId = 3;
+        chanGraph.getNode("Lse_a4")->subgraphId = 3;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 3;
+
+        break;
+    }
+    case 5:
+    {
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 2;
+        chanGraph.getNode("Lse_a2")->subgraphId = 2;
+        chanGraph.getNode("Lse_a1")->subgraphId = 2;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 2;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 3;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 3;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 4;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 4;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 4;
+        chanGraph.getNode("Lse_a3")->subgraphId = 4;
+        chanGraph.getNode("Lse_a4")->subgraphId = 4;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 4;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 4;*/
+
+
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 1;
+        chanGraph.getNode("Lse_a2")->subgraphId = 1;
+        chanGraph.getNode("Lse_a1")->subgraphId = 1;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 1;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 2;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 2;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 3;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 4;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 4;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 4;
+        chanGraph.getNode("Lse_a3")->subgraphId = 4;
+        chanGraph.getNode("Lse_a4")->subgraphId = 4;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 4;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 4;
+
+        break;
+    }
+    case 6:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 2;
+        chanGraph.getNode("Lse_a2")->subgraphId = 2;
+        chanGraph.getNode("Lse_a1")->subgraphId = 2;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 2;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 3;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 3;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 4;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 4;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 4;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 5;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 5;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 5;
+        chanGraph.getNode("Lse_a3")->subgraphId = 5;
+        chanGraph.getNode("Lse_a4")->subgraphId = 5;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 5;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 5;
+
+
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_j1")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_size")->subgraphId = 0;
+        //chanGraph.getNode("Chan_j1_lc")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_size_j")->subgraphId = 0;
+        //chanGraph.getNode("Lse_sum_j1")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 0;
+        //chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_k1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_k1_size")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_k_size_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_size_k")->subgraphId = 1;
+        //chanGraph.getNode("Lse_a2")->subgraphId = 2;
+        //chanGraph.getNode("Lse_a1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_a1_a2")->subgraphId = 2;
+        //chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 2;
+        //chanGraph.getNode("Lse_a_update_j1")->subgraphId = 2;
+
+        //chanGraph.getNode("Lc_j2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_j_size")->subgraphId = 3;
+        //chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_i_size_")->subgraphId = 3;
+        //chanGraph.getNode("Chan_j_size_i")->subgraphId = 3;
+        //chanGraph.getNode("Chan_i_size_i")->subgraphId = 3;
+        //chanGraph.getNode("Lse_sum_j2")->subgraphId = 3;
+        //chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 3;
+        //chanGraph.getNode("Chan_j2_lc")->subgraphId = 3;
+        //chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 3;
+
+        //chanGraph.getNode("Lc_k2")->subgraphId = 4;
+        //chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 4;
+        //chanGraph.getNode("Chan_k2_size")->subgraphId = 4;
+        //chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 4;
+        //chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 4;
+        //chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 4;
+        //chanGraph.getNode("Chan_j_size_k")->subgraphId = 4;
+        //chanGraph.getNode("Chan_k_size_i")->subgraphId = 4;
+        //chanGraph.getNode("Lse_a3")->subgraphId = 5;
+        //chanGraph.getNode("Lse_a4")->subgraphId = 5;
+        //chanGraph.getNode("Chan_a3_a4")->subgraphId = 5;
+        //chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 5;
+        //chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 5;
+        //chanGraph.getNode("Chan_sum_div")->subgraphId = 5;
+        //chanGraph.getNode("Lse_a_update_j2")->subgraphId = 5;
+
+        break;
+    }
+    case 7:
+    {
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 2;
+        chanGraph.getNode("Lse_a2")->subgraphId = 3;
+        chanGraph.getNode("Lse_a1")->subgraphId = 3;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 4;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 4;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 4;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 4;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 5;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 5;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 5;
+        chanGraph.getNode("Lse_a3")->subgraphId = 6;
+        chanGraph.getNode("Lse_a4")->subgraphId = 6;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 6;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 6;*/
+
+
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 3;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 3;
+        chanGraph.getNode("Lse_a2")->subgraphId = 3;
+        chanGraph.getNode("Lse_a1")->subgraphId = 3;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 4;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 5;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 5;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 5;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 6;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 6;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 6;
+        chanGraph.getNode("Lse_a3")->subgraphId = 6;
+        chanGraph.getNode("Lse_a4")->subgraphId = 6;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 6;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 6;
+
+        break;
+    }
+    case 8:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 1;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 1;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 2;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 2;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 2;
+        chanGraph.getNode("Lse_a2")->subgraphId = 3;
+        chanGraph.getNode("Lse_a1")->subgraphId = 3;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 3;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 4;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 4;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 5;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 5;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 5;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 5;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 6;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 6;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 6;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 6;
+        chanGraph.getNode("Lse_a3")->subgraphId = 7;
+        chanGraph.getNode("Lse_a4")->subgraphId = 7;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 7;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 7;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 7;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 7;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 7;
+
+        break;
+    }
+    case 9:
+    {
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc1")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc2")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_lc1_scatter_loop_j1")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size")->subgraphId = 1;
+        chanGraph.getNode("Chan_j1_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_i_size_j")->subgraphId = 1;
+        chanGraph.getNode("Lse_sum_j1")->subgraphId = 2;
+        chanGraph.getNode("Chan_i_size_shadow")->subgraphId = 2;
+        chanGraph.getNode("Chan_sum_j1_shadow")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_k1_size")->subgraphId = 3;
+        chanGraph.getNode("Chan_j1_lc_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_shadow_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_sum_j1_shadow_scatter_loop_k1")->subgraphId = 3;
+        chanGraph.getNode("Chan_k_size_j")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_size_k")->subgraphId = 3;
+        chanGraph.getNode("Lse_a2")->subgraphId = 4;
+        chanGraph.getNode("Lse_a1")->subgraphId = 4;
+        chanGraph.getNode("Chan_a1_a2")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k1")->subgraphId = 4;
+        chanGraph.getNode("Chan_sum_update_k1_drain")->subgraphId = 4;
+        chanGraph.getNode("Lse_a_update_j1")->subgraphId = 4;
+
+        chanGraph.getNode("Lc_j2")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_lc2_scatter_loop_j2")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_size_")->subgraphId = 5;
+        chanGraph.getNode("Chan_j_size_i")->subgraphId = 5;
+        chanGraph.getNode("Chan_i_size_i")->subgraphId = 5;
+        chanGraph.getNode("Lse_sum_j2")->subgraphId = 6;
+        chanGraph.getNode("Lse_a_i_size_i")->subgraphId = 6;
+        chanGraph.getNode("Chan_j2_lc")->subgraphId = 6;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2")->subgraphId = 6;
+        chanGraph.getNode("Chan_sum_j2_shadow")->subgraphId = 6;
+
+        chanGraph.getNode("Lc_k2")->subgraphId = 7;
+        chanGraph.getNode("Chan_j_size_shadow")->subgraphId = 7;
+        chanGraph.getNode("Chan_k2_size")->subgraphId = 7;
+        chanGraph.getNode("Chan_j_size_shadow_scatter_loop_k2")->subgraphId = 7;
+        chanGraph.getNode("Chan_i_lc2_relay_loop_j2_scatter_loop_k2")->subgraphId = 7;
+        chanGraph.getNode("Chan_sum_j2_shadow_scatter_loop_k2")->subgraphId = 7;
+        chanGraph.getNode("Chan_j_size_k")->subgraphId = 7;
+        chanGraph.getNode("Chan_k_size_i")->subgraphId = 7;
+        chanGraph.getNode("Lse_a3")->subgraphId = 8;
+        chanGraph.getNode("Lse_a4")->subgraphId = 8;
+        chanGraph.getNode("Chan_a3_a4")->subgraphId = 8;
+        chanGraph.getNode("Chan_sum_update_k2")->subgraphId = 8;
+        chanGraph.getNode("Chan_sum_update_k2_drain")->subgraphId = 8;
+        chanGraph.getNode("Chan_sum_div")->subgraphId = 8;
+        chanGraph.getNode("Lse_a_update_j2")->subgraphId = 8;
+
+        break;
+    }
+    default:
+        Debug::throwError("Not define this subgraph number!", __FILE__, __LINE__);
+    }
 }

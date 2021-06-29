@@ -28,7 +28,7 @@ void FFT_Test::fft_Base(Debug* debug)
     ChanGraph chanGraph(FFT_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 7;
+    int splitNum = 4;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     FFT_Test::graphPartition(chanGraph, splitNum);
@@ -341,6 +341,16 @@ void FFT_Test::fft_Base(Debug* debug)
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
+
+    //*** TIA profiling
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "TIA profiling " << std::endl;
+    debug->getFile() << std::endl;
+    if (splitNum == 1)
+    {
+        profiler->tiaProfiling();
+    }
 
     //*** Record run time
     endTime = clock();

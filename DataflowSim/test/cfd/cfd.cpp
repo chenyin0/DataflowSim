@@ -516,9 +516,9 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_momentum_nb_y_addr")->subgraphId = 3;
         chanGraph.getNode("Chan_momentum_nb_z_addr")->subgraphId = 3;
         chanGraph.getNode("Chan_density_energy_nb_addr")->subgraphId = 3;
-        chanGraph.getNode("Lse_normal_x")->subgraphId = 4;
-        chanGraph.getNode("Lse_normal_y")->subgraphId = 4;
-        chanGraph.getNode("Lse_normal_z")->subgraphId = 4;
+        chanGraph.getNode("Lse_normal_x")->subgraphId = 3;
+        chanGraph.getNode("Lse_normal_y")->subgraphId = 3;
+        chanGraph.getNode("Lse_normal_z")->subgraphId = 3;
         chanGraph.getNode("Chan_normal_x_2")->subgraphId = 4;
         chanGraph.getNode("Chan_normal_y_2")->subgraphId = 4;
         chanGraph.getNode("Chan_normal_z_2")->subgraphId = 4;

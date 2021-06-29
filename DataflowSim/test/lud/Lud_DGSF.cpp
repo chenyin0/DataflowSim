@@ -274,7 +274,7 @@ void LudTest::lud_DGSF(Debug* debug)
 
     //*** Simulate
     // Initiation
-    registry->tableInit();  // Update registry and initial all the module in registry
+    registry->init();  // Update registry and initial all the module in registry
 
     begin->get({ 1 });
     uint iter = 0;

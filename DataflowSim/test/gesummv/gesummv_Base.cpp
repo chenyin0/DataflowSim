@@ -287,6 +287,16 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
+    //*** TIA profiling
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "TIA profiling " << std::endl;
+    debug->getFile() << std::endl;
+    if (splitNum == 1)
+    {
+        profiler->tiaProfiling();
+    }
+
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;

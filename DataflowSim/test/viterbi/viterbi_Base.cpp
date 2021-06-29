@@ -29,7 +29,7 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     ChanGraph chanGraph(Viterbi_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 1;
+    uint splitNum = 6;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Viterbi_Test::graphPartition(chanGraph, splitNum);
 
@@ -340,6 +340,16 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
+
+    //*** TIA profiling
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "TIA profiling " << std::endl;
+    debug->getFile() << std::endl;
+    if (splitNum == 1)
+    {
+        profiler->tiaProfiling();
+    }
 
     //*** Record run time
     endTime = clock();

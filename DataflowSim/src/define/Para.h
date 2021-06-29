@@ -39,7 +39,9 @@
 
 // Array para
 #define MAX (std::numeric_limits<int>::max)()
-#define FREQ 500 // System freq 500MHz
+#define FREQ 800 // System freq 800MHz
+#define ARRAY_SIZE 48
+#define TIA_ARRAY_SIZE 20
 
 // Base
 #define BASE_INPUT_BUFF_SIZE 4
@@ -47,7 +49,7 @@
 // DGSF
 #define BRAM_BANK_DEPTH 128  // SPM bank depth
 #define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
-#define BRAM_ACCESS_DELAY 1  // Access BRAM delay
+#define BRAM_ACCESS_DELAY 2  // Access BRAM delay, emulate subgraph switch overhead
 
 // SGMF
 #define SGMF_INPUT_BUFF_SIZE 32  // chanBuffer size of PE; Note: INPUT_BUFF_SIZE should be integer multiplies of TAG_SIZE
@@ -89,12 +91,12 @@
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
 #define MEMSYS_QUEUE_BANK_NUM 16  //32  // MemSystem reqQueue bank number, emulate bandwidth contention
-#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4  // reqQueue size per bank (default size = 1)
-#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4  // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK  4 // reqQueue size per bank (default size = 1)
+#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK  4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
-#define MEMSYS_COALESCER_ENTRY_NUM 8  // 32
-#define MEMSYS_COALESCER_SIZY_PER_ENTRY 8  // 8
+#define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
+#define MEMSYS_COALESCER_SIZY_PER_ENTRY 16 //(BANK_BLOCK_SIZE/DATA_PRECISION)  // 8
 
 // SPM
 #define SPM_ENABLE 0
@@ -105,22 +107,22 @@
 
 // Cache
 #define CACHE_ENABLE 1
-#define CACHE_ALL_HIT 1
+#define CACHE_ALL_HIT 0
 #define REQ_QUEUE_TO_MEM_SIZE 32 
 
-#define CACHE_MAXLEVEL 2  // Max cache heriarachy level 
+#define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 16*1024  // byte
+#define CACHE_SIZE_L1 64*1024  // byte
 #define CACHE_SIZE_L2 256*1024  // byte
 
 //#define CACHE_SIZE_L1 1*1024  // byte
 //#define CACHE_SIZE_L2 16*1024  // byte
 
-//// SGMF paper parameter
+// SGMF paper parameter
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 128  // byte
+#define CACHE_LINE_SIZE_L1 64  // byte
 #define CACHE_LINE_SIZE_L2 32  // byte
 
 #define CACHE_MAPPING_WAY_L1 4

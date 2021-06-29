@@ -29,7 +29,7 @@ void Cfd_Test::cfd_Base(Debug* debug)
     ChanGraph chanGraph(Cfd_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 7;
+    int splitNum = 5;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Cfd_Test::graphPartition(chanGraph, splitNum);
 
@@ -136,9 +136,9 @@ void Cfd_Test::cfd_Base(Debug* debug)
 
     // User defined
     //registry->getLse("Lse_temp_x")->noLatencyMode = 1;
-    //registry->getLse("Lse_m2_data")->noLatencyMode = 1;
-    //registry->getLse("Lse_prod_data")->noLatencyMode = 1;
-    //registry->getLse("Lse_prod_data_update_st")->noLatencyMode = 1;
+    registry->getLse("Lse_momentum_y")->noLatencyMode = 1;
+    registry->getLse("Lse_momentum_z")->noLatencyMode = 1;
+    registry->getLse("Lse_density_energy_i")->noLatencyMode = 1;
 
     // Initiation
     registry->init();  // Update registry and initial all the module in registry
@@ -447,7 +447,7 @@ void Cfd_Test::cfd_Base(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (8680 > iter && iter > 5680 /*iter >= 0*/)
+        if (527104 > iter && iter > 525104 /*iter >= 0*/)
         {
             debug->printSimInfo(simChans, simLcs);
             debug->printGraphScheduler(graphScheduler);
@@ -512,6 +512,16 @@ void Cfd_Test::cfd_Base(Debug* debug)
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
+
+    //*** TIA profiling
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "TIA profiling " << std::endl;
+    debug->getFile() << std::endl;
+    if (splitNum == 1)
+    {
+        profiler->tiaProfiling();
+    }
 
     //*** Record run time
     endTime = clock();

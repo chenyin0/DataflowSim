@@ -29,7 +29,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     ChanGraph chanGraph(GemmTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 1;
+    int splitNum = 7;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     GemmTest::graphPartition(chanGraph, splitNum);
 
@@ -318,7 +318,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
             debug->printGraphScheduler(graphScheduler);
 
             // Print MemorySystem
-            debug->memSysPrint(memSys);
+            //debug->memSysPrint(memSys);
         }
 
         if (!Chan_end->channel.empty())
@@ -385,6 +385,15 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 
+    //*** TIA profiling
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "TIA profiling " << std::endl;
+    debug->getFile() << std::endl;
+    if (splitNum == 1)
+    {
+        profiler->tiaProfiling();
+    }
 
     delete registry;  // All the Module pointers have been deleted when destruct registry
     delete memSys;
