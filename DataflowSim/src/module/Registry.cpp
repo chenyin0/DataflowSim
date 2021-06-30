@@ -489,6 +489,29 @@ void Registry::checkNodeRule(ChanGraph& _chanGraph, string& _node)
             }
         }
     }
+
+    // Check drainMode
+    if (nodePtr->chan_mode == "Drain_mode")
+    {
+        string preNodeCtrlRegion;
+        vector<string> preNodes;
+        preNodes.insert(preNodes.end(), nodePtr->pre_nodes_data.begin(), nodePtr->pre_nodes_data.end());
+        preNodes.insert(preNodes.end(), nodePtr->pre_nodes_active.begin(), nodePtr->pre_nodes_active.end());
+        for (auto preNode : preNodes)
+        {
+            if (preNodeCtrlRegion == "")
+            {
+                preNodeCtrlRegion = _chanGraph.getNode(preNode)->controlRegionName;
+            }
+            else
+            {
+                if (preNodeCtrlRegion != _chanGraph.getNode(preNode)->controlRegionName)
+                {
+                    Debug::throwError("The preNode's ctrlRegions of " + nodePtr->node_name + " are not same, need insert a shadow channel", __FILE__, __LINE__);
+                }
+            }
+        }
+    }
 }
 
 void Registry::genModule(ChanGraph& _chanGraph)
