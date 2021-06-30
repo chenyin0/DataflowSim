@@ -22,7 +22,9 @@ namespace DFSim
         bool checkProducerChanIsFull(vector<ChanDGSF*> producerChans);
         bool checkProducerChanNotEmpty(vector<ChanDGSF*> producerChans);
         bool checkProducerChanAllEmpty(vector<ChanDGSF*> producerChans);
+        bool checkProducerDownstreamChanAllEnable(vector<ChanDGSF*> producerChans);
         bool checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans);
+        bool checkConsumerChanIsEmpty(vector<ChanDGSF*> consumerChans);
         bool checkProducerChanFinish(vector<ChanDGSF*> producerChans);
         bool checkConsumerChanFinish(vector<ChanDGSF*> consumerChans);
         bool checkConsumerChanGetLastData(vector<ChanDGSF*> consumerChans);

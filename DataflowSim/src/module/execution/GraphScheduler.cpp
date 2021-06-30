@@ -317,7 +317,19 @@ void GraphScheduler::configChan(uint subgraphId)
 
 uint GraphScheduler::selectSubgraphInOrder(uint _currSubgraphId)
 {
-    return (++_currSubgraphId) % subgraphTable.size();
+    //return (++_currSubgraphId) % subgraphTable.size();
+
+    // Debug_yin_21.06.30
+    for (size_t i = 0; i < subgraphTable.size(); ++i)
+    {
+        uint subgraphId = (_currSubgraphId + 1 + i) % subgraphTable.size();
+        if (checkProducerDownstreamChanAllEnable(subgraphTable[subgraphId].first))
+        {
+            return subgraphId;
+        }
+    }
+
+    Debug::throwError("Not find a enable subgraph!", __FILE__, __LINE__);
 }
 
 //uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
@@ -362,12 +374,27 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
         uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
         if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
         {
-            if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+           /* if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
                 return subgraphId;
             }
 
             if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+            {
+                return subgraphId;
+            }*/
+
+            // Debug_yin_21.06.30
+            if (checkProducerChanIsFull(subgraphTable[subgraphId].first)
+                && checkProducerDownstreamChanAllEnable(subgraphTable[subgraphId].first)
+                && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
+            {
+                return subgraphId;
+            }
+
+            if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) 
+                && checkProducerDownstreamChanAllEnable(subgraphTable[subgraphId].first)
+                && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
             {
                 return subgraphId;
             }
@@ -443,14 +470,23 @@ bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
         {
             //isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second);
 
-            // Debug_yin_12.26
+            // Debug_yin_21.06.24
             isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second) && checkProducerChanAllEmpty(subgraphTable[_subgraphId].first);
+
+            //// Debug_yin_21.06.24
+            //isOver = checkConsumerChanGetLastData(subgraphTable[_subgraphId].second) 
+            //    && checkConsumerChanIsEmpty(subgraphTable[_subgraphId].second)
+            //    && checkProducerChanAllEmpty(subgraphTable[_subgraphId].first);
         }
         else
         {
             bool commonChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]);
             bool truePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]);
             bool falsePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]);
+
+            /*bool commonChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][0]) && checkConsumerChanIsEmpty(divergenceGraph[currSubgraphId][0]);
+            bool truePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][1]) && checkConsumerChanIsEmpty(divergenceGraph[currSubgraphId][1]);
+            bool falsePathChanIsOver = checkConsumerChanGetLastData(divergenceGraph[currSubgraphId][2]) && checkConsumerChanIsEmpty(divergenceGraph[currSubgraphId][2]);*/
 
             if (divergenceGraph[currSubgraphId][1].empty() && divergenceGraph[currSubgraphId][2].empty())
             {
@@ -542,6 +578,25 @@ bool GraphScheduler::checkProducerChanAllEmpty(vector<ChanDGSF*> producerChans)
     return allEmpty;
 }
 
+bool GraphScheduler::checkProducerDownstreamChanAllEnable(vector<ChanDGSF*> producerChans)
+{
+    bool allEnable = 1;
+
+    for (auto& chan : producerChans)
+    {
+        for (auto& downstream : chan->downstream)
+        {
+            if (!downstream->enable)
+            {
+                allEnable = 0;
+                break;
+            }
+        }
+    }
+
+    return allEnable;
+}
+
 bool GraphScheduler::checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans)
 {
     //bool notFull = 1;
@@ -582,6 +637,32 @@ bool GraphScheduler::checkConsumerChanNotFull(vector<ChanDGSF*> consumerChans)
     }
 
     return notFull;
+}
+
+bool GraphScheduler::checkConsumerChanIsEmpty(vector<ChanDGSF*> consumerChans)
+{
+    bool isEmpty = 1;
+
+    if (!consumerChans.empty())
+    {
+        for (auto& chan : consumerChans)
+        {
+            for (auto& buffer : chan->chanBuffer)
+            {
+                if (!buffer.empty())
+                {
+                    isEmpty = 0;
+                    return isEmpty;
+                }
+            }
+        }
+    }
+    else
+    {
+        isEmpty = 1;
+    }
+
+    return isEmpty;
 }
 
 void GraphScheduler::resetSubgraph(uint _subgraphId)
