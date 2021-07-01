@@ -17,6 +17,8 @@
 #include "../test/viterbi/viterbi.h"
 #include "../test/cfd/cfd.h"
 #include "../test/gesummv/gesummv.h"
+#include "../test/sort/sort.h"
+#include "../test/ge/ge.h"
 
 #include "./module/execution/Channel.h"
 
@@ -198,6 +200,28 @@ int main()
         {
         case ArchType::Base:
             DFSimTest::Gesummv_Test::gesummv_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::Sort:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Sort_Test::sort_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::Ge:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Ge_Test::ge_Base(debug);
             break;
         }
 

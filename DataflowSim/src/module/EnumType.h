@@ -15,7 +15,9 @@ namespace DFSim
         FFT,
         Viterbi,
         Cfd,
-        Gesummv
+        Gesummv,
+        Sort,
+        Ge
     };
 
     class App_name_convert
@@ -43,6 +45,10 @@ namespace DFSim
                 return "cfd";
             if (type_ == App_name::Gesummv)
                 return "gesummv";
+            if (type_ == App_name::Sort)
+                return "sort";
+            if (type_ == App_name::Ge)
+                return "ge";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }
