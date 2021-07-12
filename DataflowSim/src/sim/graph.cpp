@@ -689,48 +689,56 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
 
 vector<string> Graph::bfsTraverseNodes()
 {
-    vector<string> bfsNodeTree;
-    deque<string> queue;
+    //vector<string> bfsNodeTree;
+    //deque<string> queue;
+    //for (auto& node : nodes)
+    //{
+    //    if (node->pre_nodes_data.empty() && node->pre_nodes_active.empty())
+    //    {
+    //        queue.push_back(node->node_name);
+    //    }
+    //}
+
+    //while (!queue.empty())
+    //{
+    //    vector<string> nextNodes;
+    //    nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
+    //    nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
+    //    for (auto& nextNode : nextNodes)
+    //    {
+    //        queue.push_back(nextNode);
+    //    }
+
+    //    bfsNodeTree.push_back(queue.front());
+    //    queue.pop_front();
+    //}
+
+    //// Remove redundant node
+    //reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    //vector<string> hasFound;
+    //for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+    //{
+    //    if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+    //    {
+    //        iter = bfsNodeTree.erase(iter);
+    //    }
+    //    else
+    //    {
+    //        hasFound.push_back(*iter);
+    //        ++iter;
+    //    }
+    //}
+    //reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+
+    //return bfsNodeTree;
+
+    vector<string> dfgNodes;
     for (auto& node : nodes)
     {
-        if (node->pre_nodes_data.empty() && node->pre_nodes_active.empty())
-        {
-            queue.push_back(node->node_name);
-        }
+        dfgNodes.push_back(node->node_name);
     }
 
-    while (!queue.empty())
-    {
-        vector<string> nextNodes;
-        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_data.begin(), getNode(queue.front())->next_nodes_data.end());
-        nextNodes.insert(nextNodes.end(), getNode(queue.front())->next_nodes_active.begin(), getNode(queue.front())->next_nodes_active.end());
-        for (auto& nextNode : nextNodes)
-        {
-            queue.push_back(nextNode);
-        }
-
-        bfsNodeTree.push_back(queue.front());
-        queue.pop_front();
-    }
-
-    // Remove redundant node
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
-    vector<string> hasFound;
-    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
-    {
-        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
-        {
-            iter = bfsNodeTree.erase(iter);
-        }
-        else
-        {
-            hasFound.push_back(*iter);
-            ++iter;
-        }
-    }
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
-
-    return bfsNodeTree;
+    return bfsTraverseNodes(dfgNodes);
 }
 
 vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
@@ -1502,7 +1510,7 @@ void ChanGraph::addSpecialModeChan()
                     string nodeName = nodePtr->node_name + "_scatter_" + lastLowerCtrlRegion;
                     addNode(nodeName, "ChanBase", "Nop", "Scatter_mode", lastLowerCtrlRegion);  // Add scatter mode
                     dynamic_cast<Chan_Node*>(getNode(nodeName))->isPhysicalChan = false;
-                    //dynamic_cast<Chan_Node*>(getNode(nodeName))->speedup = dynamic_cast<Chan_Node*>(nodePtr)->speedup;
+                    //dynamic_cast<Chan_Node*>(getNode(dfgNodes))->speedup = dynamic_cast<Chan_Node*>(nodePtr)->speedup;
                     addNodes2CtrlTree(lastLowerCtrlRegion, { nodeName });
 
                     // Add active connect between Scatter_mode node and Lc
@@ -2233,10 +2241,10 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
             //    }
             //    else
             //    {
-            //        for (auto& nodeName : *iter)
+            //        for (auto& dfgNodes : *iter)
             //        {
-            //            uint i = getNode(nodeName)->subgraphId;
-            //            getNode(nodeName)->subgraphId--;  // Due to there is no subgraph_0 
+            //            uint i = getNode(dfgNodes)->subgraphId;
+            //            getNode(dfgNodes)->subgraphId--;  // Due to there is no subgraph_0 
             //        }
             //        ++iter;
             //    }
@@ -2285,7 +2293,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
                 {
                     if (dynamic_cast<Chan_Node*>(getNode(dfgNodesBfs[i]))->node_op == "Load")
                     {
-                        splitPoint = i;  // Split according to Load req
+                        splitPoint = i - 1;  // Split according to Load req
                         break;
                     }
                 }
