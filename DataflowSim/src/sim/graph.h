@@ -86,6 +86,7 @@ namespace DFSim
         vector<string> bfsTraverseNodes();  // Generate simulation sequence
         vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
         vector<string> bfsTraverseNodes(vector<string> dfgNodes);
+        vector<string> bfsTraverseNodesWithCtrlRegionSequence();  // Generate debug print sequence
 
     protected:
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);

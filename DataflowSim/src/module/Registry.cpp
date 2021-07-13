@@ -1009,6 +1009,7 @@ RegistryTableEntry& Registry::getRegistryTableEntry(const string& _moduleName)
 void Registry::genSimConfig(ChanGraph& _chanGraph)
 {
     vector<string> simNodes = _chanGraph.bfsTraverseNodes();
+    vector<string> configNodes = _chanGraph.bfsTraverseNodesWithCtrlRegionSequence();
     
     std::ofstream _config_file;
     _config_file.open(Global::file_path + App_name_convert::toString(Global::app_name) + string("_config_") + string(xstr(ARCH)) + string(".txt"));
@@ -1019,7 +1020,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
     _config_file << "******* Below is gen channel declare *******" << std::endl;
     _config_file << "*********************************************" << std::endl;
     _config_file << std::endl;
-    for (auto& chanName : simNodes)
+    for (auto& chanName : configNodes)
     {
         _config_file << "const auto& " << chanName << " = registry->";
         auto& entry = getRegistryTableEntry(chanName);
@@ -1149,7 +1150,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
     _config_file << "******* Below is subgraph manually partition config *******" << std::endl;
     _config_file << "*********************************************" << std::endl;
     _config_file << std::endl;
-    for (auto& chanName : simNodes)
+    for (auto& chanName : configNodes)
     {
         _config_file << "chanGraph.getNode(\"" << chanName << "\")->subgraphId = 0;" << std::endl;
     }
@@ -1157,7 +1158,22 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
 
 auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vector<Lc*>>
 {
-    vector<string> simNodes = _chanGraph.bfsTraverseNodes();
+    vector<string> simNodes = _chanGraph.bfsTraverseNodesWithCtrlRegionSequence();
+    //unordered_map<string, vector<string>> simNodesWithCtrlRegion;  // string: ctrlRegion; vector<string>: Nodes in each ctrlRegion
+    //for (auto& nodeName : simNodes)
+    //{
+    //    string ctrlRegionName = _chanGraph.getNode(nodeName)->controlRegionName;
+    //    auto iter = simNodesWithCtrlRegion.find(ctrlRegionName);
+    //    if (iter == simNodesWithCtrlRegion.end())
+    //    {
+    //        simNodesWithCtrlRegion.insert(make_pair(ctrlRegionName, vector<string>{nodeName}));
+    //    }
+    //    else
+    //    {
+    //        iter->second.push_back(nodeName);
+    //    }
+    //}
+
     vector<Channel*> chans;
     vector<Lc*> lc;
 
@@ -1174,6 +1190,37 @@ auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vec
             lc.push_back(entry.lcPtr);
         }
     }
+
+    //for (auto& chanName : simNodes)
+    //{
+    //    auto& entry = getRegistryTableEntry(chanName);
+    //    if (entry.moduleType == ModuleType::Channel)
+    //    {
+    //        chans.push_back(entry.chanPtr);
+    //    }
+    //    else if (entry.moduleType == ModuleType::Lc)
+    //    {
+    //        chans.push_back(entry.lcPtr->loopVar);
+    //        lc.push_back(entry.lcPtr);
+    //    }
+    //}
+
+    /*for (auto iter = simNodesWithCtrlRegion.begin(); iter != simNodesWithCtrlRegion.end(); ++iter)
+    {
+        for (auto& chanName : iter->second)
+        {
+            auto& entry = getRegistryTableEntry(chanName);
+            if (entry.moduleType == ModuleType::Channel)
+            {
+                chans.push_back(entry.chanPtr);
+            }
+            else if (entry.moduleType == ModuleType::Lc)
+            {
+                chans.push_back(entry.lcPtr->loopVar);
+                lc.push_back(entry.lcPtr);
+            }
+        }
+    }*/
 
     return make_tuple(chans, lc);
 }

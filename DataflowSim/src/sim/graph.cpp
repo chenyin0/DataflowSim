@@ -803,6 +803,73 @@ vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
     return bfsNodeTree;
 }
 
+vector<string> Graph::bfsTraverseNodesWithCtrlRegionSequence()
+{
+    vector<string> simNodes = bfsTraverseNodes();
+
+    unordered_map<string, vector<string>> simNodesWithCtrlRegion;  // string: ctrlRegion; vector<string>: Nodes in each ctrlRegion
+    for (auto& ctrlRegion : controlTree.controlRegionTable)
+    {
+        simNodesWithCtrlRegion.insert(make_pair(ctrlRegion.controlRegionName, vector<string>{}));
+    }
+
+    for (auto& nodeName : simNodes)
+    {
+        string ctrlRegionName = getNode(nodeName)->controlRegionName;
+        auto iter = simNodesWithCtrlRegion.find(ctrlRegionName);
+        if (iter == simNodesWithCtrlRegion.end())
+        {
+            //simNodesWithCtrlRegion.insert(make_pair(ctrlRegionName, vector<string>{nodeName}));
+            Debug::throwError("Error: Not find this ctrlRegion!", __FILE__, __LINE__);
+        }
+        else
+        {
+            iter->second.push_back(nodeName);
+        }
+    }
+
+    vector<string> _nodes;
+    for (auto iter = simNodesWithCtrlRegion.begin(); iter != simNodesWithCtrlRegion.end(); ++iter)
+    {
+        for (auto& nodeName : iter->second)
+        {
+            _nodes.push_back(nodeName);
+        }
+    }
+
+    // Adjust node sequence according to bfs
+    for (auto iter = _nodes.begin(); iter != _nodes.end(); )
+    {
+        vector<string> preNodes;
+        auto nodePtr = getNode(*iter);
+        preNodes.insert(preNodes.end(), nodePtr->pre_nodes_data.begin(), nodePtr->pre_nodes_data.end());
+        preNodes.insert(preNodes.end(), nodePtr->pre_nodes_active.begin(), nodePtr->pre_nodes_active.end());
+
+        auto maxIter = _nodes.begin();
+        for (auto& preNode : preNodes)
+        {
+            auto preNodeIter = find(_nodes.begin(), _nodes.end(), preNode);
+            if (preNodeIter > maxIter)
+            {
+                maxIter = preNodeIter;
+            }
+        }
+
+        if (maxIter > iter)
+        {
+            auto bias = iter - _nodes.begin();
+            _nodes.insert(maxIter + 1, *iter);
+            iter = _nodes.erase(_nodes.begin() + bias);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    return _nodes;
+}
+
 vector<string> Graph::bfsTraverseControlTree(ControlTree& ctrlTree)
 {
     vector<string> bfsCtrlTree;
