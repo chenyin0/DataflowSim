@@ -516,9 +516,16 @@ void Registry::checkNodeRule(ChanGraph& _chanGraph, string& _node)
 
 void Registry::genModule(ChanGraph& _chanGraph)
 {
-    auto _nodes = _chanGraph.nodes;
-    for (auto& node : _nodes)
+    unordered_map<string, Node*> nodeDict;
+    for (auto& nodePtr : _chanGraph.nodes)
     {
+        nodeDict.insert(make_pair(nodePtr->node_name, nodePtr));
+    }
+    vector<string> nodeList = _chanGraph.bfsTraverseNodesWithCtrlRegionSequence();
+    //auto _nodes = _chanGraph.nodes;
+    for (auto& nodeName : nodeList)
+    {
+        auto node = nodeDict[nodeName];
         checkNodeRule(_chanGraph, node->node_name);
 
         auto controlRegion = _chanGraph.controlTree.getCtrlRegion(node->controlRegionName);
