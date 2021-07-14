@@ -17,7 +17,8 @@ namespace DFSim
         Cfd,
         Gesummv,
         Sort,
-        Ge
+        Ge,
+        Cholesky
     };
 
     class App_name_convert
@@ -49,6 +50,8 @@ namespace DFSim
                 return "sort";
             if (type_ == App_name::Ge)
                 return "ge";
+            if (type_ == App_name::Cholesky)
+                return "cholesky";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

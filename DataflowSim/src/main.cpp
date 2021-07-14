@@ -19,6 +19,7 @@
 #include "../test/gesummv/gesummv.h"
 #include "../test/sort/sort.h"
 #include "../test/ge/ge.h"
+#include "../test/cholesky/cholesky.h"
 
 #include "./module/execution/Channel.h"
 
@@ -222,6 +223,17 @@ int main()
         {
         case ArchType::Base:
             DFSimTest::Ge_Test::ge_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::Cholesky:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::Cholesky_Test::cholesky_Base(debug);
             break;
         }
 
