@@ -36,9 +36,11 @@ namespace DFSim
         void printChanProfiling(GraphScheduler* _graphScheduler);
         void printLseProfiling();
         void printPowerProfiling();
+        void tiaProfiling();
 
     private:
         float transEnergy2Power(float _energy);  // Energy: pJ; Power: mW
+        float transEnergy2Power(float _energy, uint _cycle);  // Energy: pJ; Power: mW
 
     private:
         vector<ProfilingTable> profilingTable;

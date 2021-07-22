@@ -203,6 +203,24 @@
     <ClInclude Include="test\viterbi\viterbi.h">
       <Filter>test\viterbi</Filter>
     </ClInclude>
+    <ClInclude Include="src\define\hw_para.hpp">
+      <Filter>src\define</Filter>
+    </ClInclude>
+    <ClInclude Include="test\cfd\cfd.h">
+      <Filter>test\cfd</Filter>
+    </ClInclude>
+    <ClInclude Include="test\gesummv\gesummv.h">
+      <Filter>test\gesummv</Filter>
+    </ClInclude>
+    <ClInclude Include="test\sort\sort.h">
+      <Filter>test\sort</Filter>
+    </ClInclude>
+    <ClInclude Include="test\ge\ge.h">
+      <Filter>test\ge</Filter>
+    </ClInclude>
+    <ClInclude Include="test\cholesky\cholesky.h">
+      <Filter>test\cholesky</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -330,6 +348,36 @@
     </ClCompile>
     <ClCompile Include="test\viterbi\viterbi.cpp">
       <Filter>test\viterbi</Filter>
+    </ClCompile>
+    <ClCompile Include="test\cfd\cfd.cpp">
+      <Filter>test\cfd</Filter>
+    </ClCompile>
+    <ClCompile Include="test\cfd\cfd_Base.cpp">
+      <Filter>test\cfd</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gesummv\gesummv.cpp">
+      <Filter>test\gesummv</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gesummv\gesummv_Base.cpp">
+      <Filter>test\gesummv</Filter>
+    </ClCompile>
+    <ClCompile Include="test\sort\sort.cpp">
+      <Filter>test\sort</Filter>
+    </ClCompile>
+    <ClCompile Include="test\sort\sort_Base.cpp">
+      <Filter>test\sort</Filter>
+    </ClCompile>
+    <ClCompile Include="test\ge\ge.cpp">
+      <Filter>test\ge</Filter>
+    </ClCompile>
+    <ClCompile Include="test\ge\ge_Base.cpp">
+      <Filter>test\ge</Filter>
+    </ClCompile>
+    <ClCompile Include="test\cholesky\cholesky.cpp">
+      <Filter>test\cholesky</Filter>
+    </ClCompile>
+    <ClCompile Include="test\cholesky\cholesky_Base.cpp">
+      <Filter>test\cholesky</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

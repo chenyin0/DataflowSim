@@ -257,7 +257,8 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
             totalPeCycle += (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] * _graphScheduler->subgraphActiveCnt[subgraphId];
             std::cout << "graphId: " << subgraphId 
                 << "\t ActiveNum: " << _graphScheduler->subgraphActiveCnt[subgraphId] 
-                << "\t NodeNum: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] << std::endl;
+                << "\t NodeNum: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId]
+                << "\t Speedup: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) << std::endl;
         }
     }
     else
@@ -315,16 +316,17 @@ void Profiler::printPowerProfiling()
     uint contextBuffer_active_times = graphSwitchTimes * ARRAY_SIZE;
 
     float alu_dynamic_energy = 0;
-    for (auto& entry : registry->getRegistryTable())
-    {
-        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Base)
-        {
-            alu_dynamic_energy += static_cast<float>(entry.chanPtr->activeCnt) * Hardware_Para::getAluDynamicEnergy();
-        }
-    }
+    //for (auto& entry : registry->getRegistryTable())
+    //{
+    //    if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Base)
+    //    {
+    //        alu_dynamic_energy += static_cast<float>(entry.chanPtr->activeCnt) * Hardware_Para::getAluDynamicEnergy();
+    //    }
+    //}
+    alu_dynamic_energy = chanActiveNumTotal * Hardware_Para::getAluDynamicEnergy();
     float alu_dynamic_power = transEnergy2Power(alu_dynamic_energy);
     float alu_leakage_power = Hardware_Para::getAluLeakagePower();
-    float alu_power = alu_dynamic_power + alu_dynamic_power;
+    float alu_power = alu_dynamic_power + alu_leakage_power;
 
     float reg_dynamic_energy = static_cast<float>(reg_active_times) * Hardware_Para::getRegAccessEnergy();
     float reg_dynamic_power = transEnergy2Power(reg_dynamic_energy);
@@ -362,13 +364,25 @@ void Profiler::printPowerProfiling()
         }
     }
     dataBuffer_access_times = dataBuffer_mem_req_access_times + dataBuffer_intermediate_data_access_times;
-    float dataBuffer_dynamic_energy = static_cast<float>(dataBuffer_access_times) * (Hardware_Para::getDataBufferAccessEnergy() + Hardware_Para::getDataBufferCtrlEnergy());
-    float dataBuffer_dynamic_power = transEnergy2Power(dataBuffer_dynamic_energy);
-    float dataBuffer_leakage_power = Hardware_Para::getDataBufferLeakagePower() + Hardware_Para::getDataBufferCtrlLeakagePower();
+
+    // On-chip buffer ctrl
+    float dataBuffer_ctrl_dynamic_energy = static_cast<float>(dataBuffer_access_times) * Hardware_Para::getDataBufferCtrlEnergy();
+    float dataBuffer_ctrl_dynamic_power = transEnergy2Power(dataBuffer_ctrl_dynamic_energy);
+    float dataBuffer_ctrl_leakage_power = Hardware_Para::getDataBufferCtrlLeakagePower();
+    float dataBuffer_ctrl_power = dataBuffer_ctrl_dynamic_power + dataBuffer_ctrl_leakage_power;
+    // On-chip buffer sram
+    float dataBuffer_sram_dynamic_energy = static_cast<float>(dataBuffer_access_times) * Hardware_Para::getDataBufferAccessEnergy();
+    float dataBuffer_sram_dynamic_power = transEnergy2Power(dataBuffer_sram_dynamic_energy);
+    float dataBuffer_sram_leakage_power = Hardware_Para::getDataBufferLeakagePower();
+    float dataBuffer_sram_power = dataBuffer_sram_dynamic_power + dataBuffer_sram_leakage_power;
+    // On-chip buffer total
+    float dataBuffer_dynamic_power = dataBuffer_ctrl_dynamic_power + dataBuffer_sram_dynamic_power;
+    float dataBuffer_leakage_power = dataBuffer_ctrl_leakage_power + dataBuffer_sram_leakage_power;
     float dataBuffer_power = dataBuffer_dynamic_power + dataBuffer_leakage_power;
 
     // GraphScheduler
-    uint graphScheduler_active_times = graphSwitchTimes;
+    //uint graphScheduler_active_times = graphSwitchTimes;
+    uint graphScheduler_active_times = ClkDomain::getClk();
     float graphScheduler_dynamic_energy = static_cast<float>(graphScheduler_active_times) * Hardware_Para::getGraphSchedulerEnergyDynamic();
     float graphScheduler_dynamic_power = transEnergy2Power(graphScheduler_dynamic_energy);
     float graphScheduler_leakage_power = Hardware_Para::getGraphSchedulerLeakagePower();
@@ -407,19 +421,26 @@ void Profiler::printPowerProfiling()
     debug->getFile() << "Access times: " << dataBuffer_access_times << std::endl;
     debug->getFile() << "\t Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
     debug->getFile() << "\t Intermediate data access times: " << dataBuffer_intermediate_data_access_times << std::endl;
-    debug->getFile() << "On-chip buffer power: " << dataBuffer_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer total power: " << dataBuffer_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Dynamic power: " << dataBuffer_dynamic_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Leakage power: " << dataBuffer_leakage_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer ctrl power: " << dataBuffer_ctrl_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << dataBuffer_ctrl_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << dataBuffer_ctrl_leakage_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer sram power: " << dataBuffer_sram_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << dataBuffer_sram_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << dataBuffer_sram_leakage_power << setprecision(2) << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Graph Scheduler: " << std::endl;
     debug->getFile() << "Graph switch times: " << graphScheduler_active_times << std::endl;
-    debug->getFile() << "Graph switch power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Graph scheduler power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Dynamic power: " << graphScheduler_dynamic_power << setprecision(4) << " mW" << std::endl;
     debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << setprecision(4) << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Total power: "  << total_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << ">>> EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
 
     // Print
     std::cout << std::endl;
@@ -429,11 +450,177 @@ void Profiler::printPowerProfiling()
     std::cout << "Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
     std::cout << "Intermediate access times: " << dataBuffer_intermediate_data_access_times << std::endl;
     std::cout << "EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "ALU power: " << alu_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "Reg power: " << reg_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "PE-ctrl power: " << pe_ctrl_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "Instr power: " << 0 << setprecision(2) << " mW" << std::endl;
+    std::cout << "Context power: " << contextBuffer_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "DMem-sram power: " << dataBuffer_sram_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "DMem-ctrl power: " << dataBuffer_ctrl_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "Graph-sched. power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
+    std::cout << std::endl;
 }
 
 float Profiler::transEnergy2Power(float _energy)
 {
-    float energy = _energy / static_cast<float>(ClkDomain::getClk());  // pJ
+    return transEnergy2Power(_energy, ClkDomain::getClk());
+}
+
+float Profiler::transEnergy2Power(float _energy, uint _cycle)
+{
+    float energy = _energy / static_cast<float>(_cycle);  // pJ
     float power = energy * static_cast<float>(FREQ);  // uW
     return power / 1000;  // Transfer to mW
+}
+
+void Profiler::tiaProfiling()
+{
+    // Performance
+    uint totalOpNum = chanActiveNumTotal;
+    float totalReqBlockRate = 0;
+    float avgReqBlockRate = 0;
+    uint reqNum = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Lse)
+        {
+            if (dynamic_cast<Lse*>(entry.chanPtr)->memReqCnt != 0)
+            {
+                totalReqBlockRate += float(dynamic_cast<Lse*>(entry.chanPtr)->memReqBlockCnt) / float(dynamic_cast<Lse*>(entry.chanPtr)->memReqCnt);
+                reqNum++;
+            }
+        }
+    }
+    avgReqBlockRate = totalReqBlockRate / static_cast<float>(reqNum);
+
+    float resII = 1.2;
+    uint cycle = (totalOpNum / TIA_ARRAY_SIZE) / (1 - avgReqBlockRate) * resII;
+    float utilization = (1 - avgReqBlockRate) / resII;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "******* TIA Performance profiling *********" << std::endl;
+    debug->getFile() << "Total cycle: " << cycle << setprecision(2) << std::endl;
+    debug->getFile() << "PE utilization: " << utilization * 100 << setprecision(2) << "%" << std::endl;
+
+    // Power
+    uint reg_active_times = chanActiveNumTotal * 3;
+    uint pe_ctrl_active_times = chanActiveNumTotal;
+    uint instr_buffer_active_times = chanActiveNumTotal;
+    // ALU
+    float alu_dynamic_energy = 0;
+
+    //for (auto& entry : registry->getRegistryTable())
+    //{
+    //    if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Base)
+    //    {
+    //        alu_dynamic_energy += static_cast<float>(entry.chanPtr->activeCnt) * Hardware_Para::getAluDynamicEnergy();
+    //    }
+    //}
+
+    alu_dynamic_energy = static_cast<float>(chanActiveNumTotal) * Hardware_Para::getAluDynamicEnergy();
+    float alu_dynamic_power = transEnergy2Power(alu_dynamic_energy, cycle);
+    float alu_leakage_power = Hardware_Para::getAluLeakagePower();
+    float alu_power = alu_dynamic_power + alu_leakage_power;
+
+    // RF
+    float reg_dynamic_energy = static_cast<float>(reg_active_times) * Hardware_Para::getRegAccessEnergy();
+    float reg_dynamic_power = transEnergy2Power(reg_dynamic_energy, cycle);
+    float reg_leakage_power = Hardware_Para::getRegLeakagePower();
+    float reg_power = reg_dynamic_power + reg_leakage_power;
+
+    // PE ctrl
+    float pe_ctrl_dynamic_energy = static_cast<float>(pe_ctrl_active_times) * Hardware_Para::getTiaPeCtrlEnergyDynamic();
+    float pe_ctrl_dynamic_power = transEnergy2Power(pe_ctrl_dynamic_energy, cycle);
+    float pe_ctrl_leakage_power = Hardware_Para::getTiaPeCtrlLeakagePower();
+    float pe_ctrl_power = pe_ctrl_dynamic_power + pe_ctrl_leakage_power;
+
+    // Instr. buffer
+    float instr_buffer_dynamic_energy = static_cast<float>(instr_buffer_active_times) * Hardware_Para::getTiaInstructionBufferAccessEnergy();
+    float instr_buffer_dynamic_power = transEnergy2Power(instr_buffer_dynamic_energy, cycle);
+    float instr_buffer_leakage_power = Hardware_Para::getTiaInstructionBufferLeakagePower();
+    float instr_buffer_power = instr_buffer_dynamic_power + instr_buffer_leakage_power;
+
+    // On-chip buffer
+    uint dataBuffer_access_times = 0;
+    uint dataBuffer_mem_req_access_times = 0;
+    uint dataBuffer_intermediate_data_access_times = 0;
+    for (auto& entry : registry->getRegistryTable())
+    {
+        if (entry.moduleType == ModuleType::Channel)
+        {
+            if (entry.chanPtr->chanType == ChanType::Chan_Lse)
+            {
+                dataBuffer_mem_req_access_times += entry.chanPtr->activeCnt;
+            }
+            //else if (entry.chanPtr->chanType == ChanType::Chan_DGSF)
+            //{
+            //    dataBuffer_intermediate_data_access_times += entry.chanPtr->activeCnt;
+            //}
+        }
+    }
+    dataBuffer_access_times = dataBuffer_mem_req_access_times + dataBuffer_intermediate_data_access_times;
+
+    // On-chip buffer ctrl
+    float dataBuffer_ctrl_dynamic_energy = static_cast<float>(dataBuffer_access_times) * Hardware_Para::getDataBufferCtrlEnergy();
+    float dataBuffer_ctrl_dynamic_power = transEnergy2Power(dataBuffer_ctrl_dynamic_energy, cycle);
+    float dataBuffer_ctrl_leakage_power = Hardware_Para::getDataBufferCtrlLeakagePower();
+    float dataBuffer_ctrl_power = dataBuffer_ctrl_dynamic_power + dataBuffer_ctrl_leakage_power;
+    // On-chip buffer sram
+    float dataBuffer_sram_dynamic_energy = static_cast<float>(dataBuffer_access_times) * Hardware_Para::getDataBufferAccessEnergy();
+    float dataBuffer_sram_dynamic_power = transEnergy2Power(dataBuffer_sram_dynamic_energy, cycle);
+    float dataBuffer_sram_leakage_power = Hardware_Para::getDataBufferLeakagePower();
+    float dataBuffer_sram_power = dataBuffer_sram_dynamic_power + dataBuffer_sram_leakage_power;
+    // On-chip buffer total
+    float dataBuffer_dynamic_power = dataBuffer_ctrl_dynamic_power + dataBuffer_sram_dynamic_power;
+    float dataBuffer_leakage_power = dataBuffer_ctrl_leakage_power + dataBuffer_sram_leakage_power;
+    float dataBuffer_power = dataBuffer_dynamic_power + dataBuffer_leakage_power;
+
+    float total_power = alu_power +
+                        reg_power +
+                        pe_ctrl_power +
+                        instr_buffer_power +
+                        dataBuffer_power;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "******* TIA Power profiling *********" << std::endl;
+    debug->getFile() << ">>> TIA PE Array: " << std::endl;
+    debug->getFile() << "PE active total times: " << chanActiveNumTotal << std::endl;
+
+    debug->getFile() << "ALU power: " << alu_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << alu_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << alu_leakage_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << "Reg power: " << reg_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << reg_dynamic_power << setprecision(4) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << reg_leakage_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << "TIA PE Ctrl logic power: " << pe_ctrl_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << pe_ctrl_dynamic_power << setprecision(4) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << pe_ctrl_leakage_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << "Instruction Buffer power: " << instr_buffer_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << instr_buffer_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << instr_buffer_leakage_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> On-chip Buffer: " << std::endl;
+    debug->getFile() << "Access times: " << dataBuffer_access_times << std::endl;
+    debug->getFile() << "\t Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
+    debug->getFile() << "\t Intermediate data access times: " << dataBuffer_intermediate_data_access_times << std::endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "Buffer total power: " << dataBuffer_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << dataBuffer_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << dataBuffer_leakage_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer sram power: " << dataBuffer_sram_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << dataBuffer_sram_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << dataBuffer_sram_leakage_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer ctrl power: " << dataBuffer_ctrl_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << dataBuffer_ctrl_dynamic_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << dataBuffer_ctrl_leakage_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> Total power: " << total_power << setprecision(2) << " mW" << std::endl;
+    debug->getFile() << ">>> EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
 }

@@ -135,6 +135,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\define\Define.hpp" />
     <ClInclude Include="src\define\Para.h" />
+    <ClInclude Include="src\define\hw_para.hpp" />
     <ClInclude Include="src\module\ClkSys.h" />
     <ClInclude Include="src\module\DataType.h" />
     <ClInclude Include="src\module\EnumType.h" />
@@ -161,10 +162,15 @@
     <ClInclude Include="src\util\util.hpp" />
     <ClInclude Include="test\aes\Aes.h" />
     <ClInclude Include="test\bfs\Bfs.h" />
+    <ClInclude Include="test\cfd\cfd.h" />
+    <ClInclude Include="test\cholesky\cholesky.h" />
     <ClInclude Include="test\fft\fft.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
+    <ClInclude Include="test\gesummv\gesummv.h" />
+    <ClInclude Include="test\ge\ge.h" />
     <ClInclude Include="test\lud\Lud.h" />
     <ClInclude Include="test\memory_test\MemoryTest.h" />
+    <ClInclude Include="test\sort\sort.h" />
     <ClInclude Include="test\viterbi\viterbi.h" />
   </ItemGroup>
   <ItemGroup>
@@ -194,12 +200,20 @@
     <ClCompile Include="test\aes\Aes_DGSF.cpp" />
     <ClCompile Include="test\bfs\Bfs.cpp" />
     <ClCompile Include="test\bfs\Bfs_SGMF.cpp" />
+    <ClCompile Include="test\cfd\cfd.cpp" />
+    <ClCompile Include="test\cfd\cfd_Base.cpp" />
+    <ClCompile Include="test\cholesky\cholesky.cpp" />
+    <ClCompile Include="test\cholesky\cholesky_Base.cpp" />
     <ClCompile Include="test\fft\fft.cpp" />
     <ClCompile Include="test\fft\fft_Base.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp" />
     <ClCompile Include="test\gemm\Gemm_DGSF.cpp" />
+    <ClCompile Include="test\gesummv\gesummv.cpp" />
+    <ClCompile Include="test\gesummv\gesummv_Base.cpp" />
+    <ClCompile Include="test\ge\ge.cpp" />
+    <ClCompile Include="test\ge\ge_Base.cpp" />
     <ClCompile Include="test\lud\Lud.cpp" />
     <ClCompile Include="test\lud\Lud_Base.cpp" />
     <ClCompile Include="test\lud\lud_Base_auto.cpp" />
@@ -208,6 +222,8 @@
     <ClCompile Include="test\simpleflow\SimpleFlow_Base.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_DGSF.cpp" />
     <ClCompile Include="test\simpleflow\SimpleFlow_SGMF.cpp" />
+    <ClCompile Include="test\sort\sort.cpp" />
+    <ClCompile Include="test\sort\sort_Base.cpp" />
     <ClCompile Include="test\viterbi\viterbi.cpp" />
     <ClCompile Include="test\viterbi\viterbi_Base.cpp" />
   </ItemGroup>

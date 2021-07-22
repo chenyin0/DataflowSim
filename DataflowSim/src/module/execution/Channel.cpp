@@ -880,7 +880,7 @@ void ChanBase::updateDataStatus(Data& data)
     {
         // Due to a channel in keepMode may repeatly send a data with a last for many times
         // The data received by a drainMode channel is always with a last flag, so ignore it
-        if (upstream[bufferId]->keepMode == 0 && this->drainMode == 0)  // upstreamId is equal to i
+        if (!upstream[bufferId]->keepMode && !this->drainMode)  // upstreamId is equal to i
         {
             data.last |= chanBuffer[bufferId].front().last;
             data.lastOuter |= chanBuffer[bufferId].front().lastOuter;

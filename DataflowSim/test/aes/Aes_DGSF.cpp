@@ -163,7 +163,7 @@ void AesTest::aes_DGSF(Debug* debug)
 
     //*** Simulate
     // Initiation
-    registry->tableInit();  // Update registry and initial all the module in registry
+    registry->init();  // Update registry and initial all the module in registry
     graphScheduler->schedulerInit();  // Initial graph scheduler
 
     begin->get({ 1 });

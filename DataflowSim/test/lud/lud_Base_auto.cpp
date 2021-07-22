@@ -420,7 +420,7 @@ void LudTest::lud_Base_auto(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (114432 > iter && iter > 113432 /*iter >= 0*/)
+        if (5376 > iter && iter > 0 /*iter >= 0*/)
         {
             // Print channel
             debug->printSimInfo(simChans, simLcs);

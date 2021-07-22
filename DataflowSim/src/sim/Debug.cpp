@@ -919,6 +919,7 @@ void Debug::printGraphScheduler(const GraphScheduler* _graphScheduler)
         getFile() << std::endl;
         getFile() << std::endl;
     }
+    getFile() <<"graphTimeoutCnt: " << _graphScheduler->subgraphTimeout <<std::endl;
 }
 
 void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)

@@ -11,6 +11,10 @@ namespace DFSim
         void addCheckPointChan(vector<Channel*> _chanVec);
         void feedDog(uint _iter);
         void dogBark();
+        inline uint getFeedTimes()
+        {
+            return feedTimes;
+        }
 
     private:
         uint timer;  // Interval time, recommend set to the power of 2 (e.g 128)

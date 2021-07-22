@@ -313,7 +313,7 @@ void Viterbi_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
     }
     case 6:
     {
-        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_t")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
         chanGraph.getNode("Chan_end")->subgraphId = 0;
@@ -347,13 +347,85 @@ void Viterbi_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_llike_transition_")->subgraphId = 4;
         chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 5;
         chanGraph.getNode("Lse_emission_")->subgraphId = 5;
+        chanGraph.getNode("Chan_p")->subgraphId = 5;*/
+
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_t")->subgraphId = 0;
+        chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_scatter_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N_obs")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr_shadow")->subgraphId = 1;
+        chanGraph.getNode("Lse_llike")->subgraphId = 2;
+        chanGraph.getNode("Lse_emission")->subgraphId = 2;
+        chanGraph.getNode("Lse_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_llike_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_min_p")->subgraphId = 3;
+        chanGraph.getNode("Lse_llike_update")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_curr_shadow_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_curr_lc_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_curr_")->subgraphId = 4;
+        chanGraph.getNode("Chan_curr_N_")->subgraphId = 4;
+        chanGraph.getNode("Lse_llike_")->subgraphId = 5;
+        chanGraph.getNode("Lse_transition_")->subgraphId = 5;
+        chanGraph.getNode("Chan_llike_transition_")->subgraphId = 5;
+        chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 5;
+        chanGraph.getNode("Lse_emission_")->subgraphId = 5;
         chanGraph.getNode("Chan_p")->subgraphId = 5;
+
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_t")->subgraphId = 0;
+        chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_scatter_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N_obs")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr_shadow")->subgraphId = 1;
+        chanGraph.getNode("Lse_llike")->subgraphId = 2;
+        chanGraph.getNode("Lse_emission")->subgraphId = 2;
+        chanGraph.getNode("Lse_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_llike_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_min_p")->subgraphId = 2;
+        chanGraph.getNode("Lse_llike_update")->subgraphId = 2;
+
+        chanGraph.getNode("Lc_prev_")->subgraphId = 3;
+        chanGraph.getNode("Chan_prev_N_")->subgraphId = 3;
+        chanGraph.getNode("Chan_prev_N_curr_shadow_scatter_loop_prev_")->subgraphId = 3;
+        chanGraph.getNode("Chan_curr_lc_scatter_loop_prev_")->subgraphId = 3;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr_scatter_loop_prev_")->subgraphId = 3;
+        chanGraph.getNode("Chan_prev_N_curr_")->subgraphId = 3;
+        chanGraph.getNode("Chan_curr_N_")->subgraphId = 3;
+        chanGraph.getNode("Lse_llike_")->subgraphId = 4;
+        chanGraph.getNode("Lse_transition_")->subgraphId = 4;
+        chanGraph.getNode("Chan_llike_transition_")->subgraphId = 4;
+        chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 4;
+        chanGraph.getNode("Lse_emission_")->subgraphId = 5;
+        chanGraph.getNode("Chan_p")->subgraphId = 5;*/
 
         break;
     }
     case 7:
     {
-        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_t")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
         chanGraph.getNode("Chan_end")->subgraphId = 0;
@@ -386,6 +458,78 @@ void Viterbi_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Lse_transition_")->subgraphId = 5;
         chanGraph.getNode("Chan_llike_transition_")->subgraphId = 5;
         chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 6;
+        chanGraph.getNode("Lse_emission_")->subgraphId = 6;
+        chanGraph.getNode("Chan_p")->subgraphId = 6;*/
+
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_t")->subgraphId = 0;
+        chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_scatter_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N_obs")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr")->subgraphId = 2;
+        chanGraph.getNode("Chan_prev_N_curr_shadow")->subgraphId = 2;
+        chanGraph.getNode("Lse_llike")->subgraphId = 2;
+        chanGraph.getNode("Lse_emission")->subgraphId = 3;
+        chanGraph.getNode("Lse_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_llike_transition")->subgraphId = 3;
+        chanGraph.getNode("Chan_min_p")->subgraphId = 4;
+        chanGraph.getNode("Lse_llike_update")->subgraphId = 4;
+
+        chanGraph.getNode("Lc_prev_")->subgraphId = 5;
+        chanGraph.getNode("Chan_prev_N_")->subgraphId = 5;
+        chanGraph.getNode("Chan_prev_N_curr_shadow_scatter_loop_prev_")->subgraphId = 5;
+        chanGraph.getNode("Chan_curr_lc_scatter_loop_prev_")->subgraphId = 5;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr_scatter_loop_prev_")->subgraphId = 5;
+        chanGraph.getNode("Chan_prev_N_curr_")->subgraphId = 5;
+        chanGraph.getNode("Chan_curr_N_")->subgraphId = 5;
+        chanGraph.getNode("Lse_llike_")->subgraphId = 6;
+        chanGraph.getNode("Lse_transition_")->subgraphId = 6;
+        chanGraph.getNode("Chan_llike_transition_")->subgraphId = 6;
+        chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 6;
+        chanGraph.getNode("Lse_emission_")->subgraphId = 6;
+        chanGraph.getNode("Chan_p")->subgraphId = 6;*/
+
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_t")->subgraphId = 0;
+        chanGraph.getNode("Chan_t_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_scatter_loop_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_N_obs")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N")->subgraphId = 1;
+        chanGraph.getNode("Chan_prev_N_curr")->subgraphId = 1;
+        chanGraph.getNode("Chan_curr_lc")->subgraphId = 1;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr")->subgraphId = 2;
+        chanGraph.getNode("Chan_prev_N_curr_shadow")->subgraphId = 2;
+        chanGraph.getNode("Lse_llike")->subgraphId = 2;
+        chanGraph.getNode("Lse_emission")->subgraphId = 3;
+        chanGraph.getNode("Lse_transition")->subgraphId = 2;
+        chanGraph.getNode("Chan_llike_transition")->subgraphId = 3;
+        chanGraph.getNode("Chan_min_p")->subgraphId = 3;
+        chanGraph.getNode("Lse_llike_update")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_curr_shadow_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_curr_lc_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_t_lc_relay_loop_curr_scatter_loop_prev_")->subgraphId = 4;
+        chanGraph.getNode("Chan_prev_N_curr_")->subgraphId = 4;
+        chanGraph.getNode("Chan_curr_N_")->subgraphId = 4;
+        chanGraph.getNode("Lse_llike_")->subgraphId = 5;
+        chanGraph.getNode("Lse_transition_")->subgraphId = 5;
+        chanGraph.getNode("Chan_llike_transition_")->subgraphId = 5;
+        chanGraph.getNode("Chan_curr_N_obs_")->subgraphId = 5;
         chanGraph.getNode("Lse_emission_")->subgraphId = 6;
         chanGraph.getNode("Chan_p")->subgraphId = 6;
 
