@@ -745,6 +745,7 @@ vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
 {
     vector<string> bfsNodeTree;
     deque<string> queue;
+    vector<string> hasVisited;
     for (auto& node : dfgNodes)
     {
         bool isRootNode = true;
@@ -763,6 +764,7 @@ vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
         if (isRootNode)
         {
             queue.push_back(node);
+            hasVisited.push_back(node);
         }
     }
 
@@ -775,7 +777,11 @@ vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
         {
             if (count(dfgNodes.begin(), dfgNodes.end(), nextNode) != 0)
             {
-                queue.push_back(nextNode);
+                if (count(hasVisited.begin(), hasVisited.end(), nextNode) == 0)
+                {
+                    queue.push_back(nextNode);
+                    hasVisited.push_back(nextNode);
+                }
             }
         }
 
@@ -783,22 +789,22 @@ vector<string> Graph::bfsTraverseNodes(vector<string> dfgNodes)
         queue.pop_front();
     }
 
-    // Remove redundant node
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
-    vector<string> hasFound;
-    for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
-    {
-        if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
-        {
-            iter = bfsNodeTree.erase(iter);
-        }
-        else
-        {
-            hasFound.push_back(*iter);
-            ++iter;
-        }
-    }
-    reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    //// Remove redundant node
+    //reverse(bfsNodeTree.begin(), bfsNodeTree.end());
+    //vector<string> hasFound;
+    //for (auto iter = bfsNodeTree.begin(); iter != bfsNodeTree.end(); )
+    //{
+    //    if (find(hasFound.begin(), hasFound.end(), *iter) != hasFound.end())
+    //    {
+    //        iter = bfsNodeTree.erase(iter);
+    //    }
+    //    else
+    //    {
+    //        hasFound.push_back(*iter);
+    //        ++iter;
+    //    }
+    //}
+    //reverse(bfsNodeTree.begin(), bfsNodeTree.end());
 
     return bfsNodeTree;
 }
@@ -1076,6 +1082,8 @@ void Dfg::printDotNodeLabel(std::fstream& fileName_)
 
 void Dfg::plotDot()
 {
+    std::cout << std::endl;
+    std::cout << ">>> DFG node num: " << this->nodes.size() << std::endl;
     Graph::plotDot(dfg_dot, controlTree);
 }
 
