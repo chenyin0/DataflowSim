@@ -352,7 +352,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         // If the upstream data isCond, data cond depends on the data value
         if (upstream[upstreamId]->isCond)
         {
-            data.cond = _data ? 1 : 0;
+            data.cond = data.cond && !(channelCond ^ _data);
         }
         data.value = _data;
         //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
@@ -365,7 +365,8 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         {
             if (branchMode)
             {
-                if (data.cond == channelCond)
+                //if (data.cond == channelCond)
+                if (data.cond)
                 {
                     data.cycle = ClkDomain::getInstance()->getClk() + cycle;
                 }
@@ -765,6 +766,7 @@ void ChanBase::pushChannel()
             {
                 if (upstream[chanId]->isCond)
                 {
+                    //bool _cond = chanBuffer[chanId].front().cond && ~(channelCond ^ chanBuffer[chanId].front().value);
                     if (getIsCond)
                     {
                         if (data.cond != chanBuffer[chanId].front().cond)
@@ -1280,7 +1282,8 @@ vector<int> ChanDGSF::push(int data, uint bufferId)
         if (checkUpstream(bufferId))
         {
             // If in branch mode, only push data in the same condition
-            if ((branchMode && upstream[bufferId]->channel.front().cond == channelCond) || !branchMode)
+            //if ((branchMode && upstream[bufferId]->channel.front().cond == channelCond) || !branchMode)
+            if ((branchMode && upstream[bufferId]->channel.front().cond) || !branchMode)
             {
                 pushBuffer(data, bufferId);
                 return { 1, data };
@@ -1705,7 +1708,8 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
     //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
     if (branchMode)
     {
-        if (data.cond == channelCond)
+        //if (data.cond == channelCond)
+        if (data.cond)
         {
             data.cycle = ClkDomain::getInstance()->getClk() + cycle;
         }

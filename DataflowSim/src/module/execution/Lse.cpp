@@ -326,7 +326,8 @@ void Lse::statusUpdate()
                 else
                 {
                     // If Lse in the false path, not send req to memory and sendback ack directly
-                    if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
+                    //if (branchMode && reqQueue[sendMemPtr].second.cond != channelCond)
+                    if (branchMode && !reqQueue[sendMemPtr].second.cond)
                     {
                         reqQueue[req.lseReqQueueIndex].first.inflight = 1;  // Set to inflight virtually
                         ackCallback(req);
