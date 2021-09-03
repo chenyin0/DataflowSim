@@ -350,10 +350,11 @@ void Channel::pushBuffer(int _data, uint _bufferId)
         uint upstreamId = _bufferId;
         Data data = upstream[upstreamId]->channel.front();
         // If the upstream data isCond, data cond depends on the data value
-        if (upstream[upstreamId]->isCond)
+        if (upstream[upstreamId]->isCond && branchMode)
         {
             data.cond = data.cond && !(channelCond ^ _data);
         }
+
         data.value = _data;
         //data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
 
@@ -766,7 +767,6 @@ void ChanBase::pushChannel()
             {
                 if (upstream[chanId]->isCond)
                 {
-                    //bool _cond = chanBuffer[chanId].front().cond && ~(channelCond ^ chanBuffer[chanId].front().value);
                     if (getIsCond)
                     {
                         if (data.cond != chanBuffer[chanId].front().cond)
@@ -1283,11 +1283,14 @@ vector<int> ChanDGSF::push(int data, uint bufferId)
         {
             // If in branch mode, only push data in the same condition
             //if ((branchMode && upstream[bufferId]->channel.front().cond == channelCond) || !branchMode)
-            if ((branchMode && upstream[bufferId]->channel.front().cond) || !branchMode)
-            {
-                pushBuffer(data, bufferId);
-                return { 1, data };
-            }
+            //if ((branchMode && upstream[bufferId]->channel.front().cond) || !branchMode)
+            //{
+            //    pushBuffer(data, bufferId);
+            //    return { 1, data };
+            //}
+
+            pushBuffer(data, bufferId);
+            return { 1, data };
         }
     }
 
