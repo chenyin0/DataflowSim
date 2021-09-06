@@ -20,6 +20,7 @@
 #include "../test/sort/sort.h"
 #include "../test/ge/ge.h"
 #include "../test/cholesky/cholesky.h"
+#include "../test/hotspot/hotspot.h"
 
 #include "./module/execution/Channel.h"
 
@@ -234,6 +235,17 @@ int main()
         {
         case ArchType::Base:
             DFSimTest::Cholesky_Test::cholesky_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::HotSpot:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::HotSpot_Test::hotSpot_Base(debug);
             break;
         }
 
