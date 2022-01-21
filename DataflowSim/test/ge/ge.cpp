@@ -12,7 +12,7 @@ uint Ge_Test::baseAddr_x = 56847;
 
 void Ge_Test::generateData()
 {
-    A.resize(matrix_size * (matrix_size + 1));
+    A.resize((matrix_size + 1) * (matrix_size + 2));
     x.resize(matrix_size + 1);
 
     for (size_t i = 0; i < A.size(); ++i)
@@ -197,100 +197,42 @@ void Ge_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
     }
     case 2:
     {
-        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
-        //chanGraph.getNode("Lc_t")->subgraphId = 0;
-        //chanGraph.getNode("Chan_t_lc1")->subgraphId = 0;
-        //chanGraph.getNode("Chan_t_lc2")->subgraphId = 0;
-        //chanGraph.getNode("Chan_end")->subgraphId = 0;
-
-        //chanGraph.getNode("Lc_j")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jj")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_lc")->subgraphId = 0;
-
-        //chanGraph.getNode("Lc_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_ij")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_ij")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_jj")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c")->subgraphId = 0;
-
-        //chanGraph.getNode("Lc_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_ik")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jk")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_ik")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_jk")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c_A_jk")->subgraphId = 0;
-        //chanGraph.getNode("Chan_A_ik_update")->subgraphId = 0;
-        ////chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 0;
-
-        //chanGraph.getNode("Lc_i1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_i1_n")->subgraphId = 1;
-        //chanGraph.getNode("Chan_addr_i1n1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_addr_i1i1")->subgraphId = 1;
-        //chanGraph.getNode("Lse_A_i1n1")->subgraphId = 1;
-        //chanGraph.getNode("Lse_A_i1i1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_i1_lc")->subgraphId = 1;
-        //chanGraph.getNode("Chan_i1_n_shadow")->subgraphId = 1;
-
-        //chanGraph.getNode("Lc_j1")->subgraphId = 1;
-        //chanGraph.getNode("Lse_x_j1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_i1_n_shadow_scatter_loop_j1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_addr_i1j1")->subgraphId = 1;
-        //chanGraph.getNode("Lse_A_i1j1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_A_i1j1_x_j1")->subgraphId = 1;
-        //chanGraph.getNode("Chan_sum_update")->subgraphId = 1;
-        //chanGraph.getNode("Chan_a_sum_shadow")->subgraphId = 1;
-        //chanGraph.getNode("Chan_a_sum")->subgraphId = 1;
-        //chanGraph.getNode("Chan_x_i1")->subgraphId = 1;
-        ////chanGraph.getNode("Lse_x_i1_store")->subgraphId = 1;
-
         chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_t")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc1")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc2")->subgraphId = 0;
         chanGraph.getNode("Chan_end")->subgraphId = 0;
 
-        chanGraph.getNode("Lc_j")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_jj")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_lc")->subgraphId = 1;
+        chanGraph.getNode("Lc_j")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_jj")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_lc")->subgraphId = 0;
 
-        chanGraph.getNode("Lc_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_n")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_ij")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_ij")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_jj")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_lc")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 1;
-        chanGraph.getNode("Chan_c")->subgraphId = 1;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_n")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_ij")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_ij")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_jj")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_c")->subgraphId = 0;
 
-        chanGraph.getNode("Lc_k")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 1;
-        chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_ik")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_jk")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_ik")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_jk")->subgraphId = 1;
-        chanGraph.getNode("Chan_c_A_jk")->subgraphId = 1;
-        chanGraph.getNode("Chan_A_ik_update")->subgraphId = 1;
-        //chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 1;
+        chanGraph.getNode("Lc_k")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 0;
+        chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_ik")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_jk")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_ik")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_jk")->subgraphId = 0;
+        chanGraph.getNode("Chan_c_A_jk")->subgraphId = 0;
+        chanGraph.getNode("Chan_A_ik_update")->subgraphId = 0;
+        //chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 0;
 
         chanGraph.getNode("Lc_i1")->subgraphId = 1;
         chanGraph.getNode("Chan_i1_n")->subgraphId = 1;
@@ -314,45 +256,43 @@ void Ge_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         //chanGraph.getNode("Lse_x_i1_store")->subgraphId = 1;
 
         break;
-    }
-    case 3:
-    {
+
         //chanGraph.getNode("Chan_begin")->subgraphId = 0;
         //chanGraph.getNode("Lc_t")->subgraphId = 0;
         //chanGraph.getNode("Chan_t_lc1")->subgraphId = 0;
         //chanGraph.getNode("Chan_t_lc2")->subgraphId = 0;
         //chanGraph.getNode("Chan_end")->subgraphId = 0;
 
-        //chanGraph.getNode("Lc_j")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jj")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_lc")->subgraphId = 0;
+        //chanGraph.getNode("Lc_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jj")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_lc")->subgraphId = 1;
 
-        //chanGraph.getNode("Lc_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_ij")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_ij")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_jj")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c")->subgraphId = 0;
+        //chanGraph.getNode("Lc_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_ij")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_ij")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_jj")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c")->subgraphId = 1;
 
-        //chanGraph.getNode("Lc_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_ik")->subgraphId = 0;
-        //chanGraph.getNode("Chan_addr_jk")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_ik")->subgraphId = 0;
-        //chanGraph.getNode("Lse_A_jk")->subgraphId = 0;
-        //chanGraph.getNode("Chan_c_A_jk")->subgraphId = 0;
-        //chanGraph.getNode("Chan_A_ik_update")->subgraphId = 0;
-        ////chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 0;
+        //chanGraph.getNode("Lc_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_ik")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jk")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_ik")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_jk")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c_A_jk")->subgraphId = 1;
+        //chanGraph.getNode("Chan_A_ik_update")->subgraphId = 1;
+        ////chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 1;
 
         //chanGraph.getNode("Lc_i1")->subgraphId = 1;
         //chanGraph.getNode("Chan_i1_n")->subgraphId = 1;
@@ -363,42 +303,46 @@ void Ge_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         //chanGraph.getNode("Chan_i1_lc")->subgraphId = 1;
         //chanGraph.getNode("Chan_i1_n_shadow")->subgraphId = 1;
 
-        //chanGraph.getNode("Lc_j1")->subgraphId = 2;
-        //chanGraph.getNode("Lse_x_j1")->subgraphId = 2;
-        //chanGraph.getNode("Chan_i1_n_shadow_scatter_loop_j1")->subgraphId = 2;
-        //chanGraph.getNode("Chan_addr_i1j1")->subgraphId = 2;
-        //chanGraph.getNode("Lse_A_i1j1")->subgraphId = 2;
-        //chanGraph.getNode("Chan_A_i1j1_x_j1")->subgraphId = 2;
-        //chanGraph.getNode("Chan_sum_update")->subgraphId = 2;
-        //chanGraph.getNode("Chan_a_sum_shadow")->subgraphId = 2;
-        //chanGraph.getNode("Chan_a_sum")->subgraphId = 2;
-        //chanGraph.getNode("Chan_x_i1")->subgraphId = 2;
-        ////chanGraph.getNode("Lse_x_i1_store")->subgraphId = 2;
+        //chanGraph.getNode("Lc_j1")->subgraphId = 1;
+        //chanGraph.getNode("Lse_x_j1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i1_n_shadow_scatter_loop_j1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_i1j1")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_i1j1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_A_i1j1_x_j1")->subgraphId = 1;
+        //chanGraph.getNode("Chan_sum_update")->subgraphId = 1;
+        //chanGraph.getNode("Chan_a_sum_shadow")->subgraphId = 1;
+        //chanGraph.getNode("Chan_a_sum")->subgraphId = 1;
+        //chanGraph.getNode("Chan_x_i1")->subgraphId = 1;
+        ////chanGraph.getNode("Lse_x_i1_store")->subgraphId = 1;
 
+        //break;
+    }
+    case 3:
+    {
         chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_t")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc1")->subgraphId = 0;
         chanGraph.getNode("Chan_t_lc2")->subgraphId = 0;
         chanGraph.getNode("Chan_end")->subgraphId = 0;
 
-        chanGraph.getNode("Lc_j")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_jj")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_lc")->subgraphId = 1;
+        chanGraph.getNode("Lc_j")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_jj")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_lc")->subgraphId = 0;
 
-        chanGraph.getNode("Lc_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_n")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_addr_ij")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_ij")->subgraphId = 1;
-        chanGraph.getNode("Lse_A_jj")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_lc")->subgraphId = 1;
-        chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 1;
-        chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 1;
-        chanGraph.getNode("Chan_c")->subgraphId = 1;
+        chanGraph.getNode("Lc_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_n")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_addr_ij")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_ij")->subgraphId = 0;
+        chanGraph.getNode("Lse_A_jj")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 0;
+        chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 0;
+        chanGraph.getNode("Chan_c")->subgraphId = 0;
 
         chanGraph.getNode("Lc_k")->subgraphId = 1;
         chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 1;
@@ -432,6 +376,64 @@ void Ge_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_a_sum")->subgraphId = 2;
         chanGraph.getNode("Chan_x_i1")->subgraphId = 2;
         //chanGraph.getNode("Lse_x_i1_store")->subgraphId = 2;
+
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_t")->subgraphId = 0;
+        //chanGraph.getNode("Chan_t_lc1")->subgraphId = 0;
+        //chanGraph.getNode("Chan_t_lc2")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jj")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_lc")->subgraphId = 1;
+
+        //chanGraph.getNode("Lc_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_lc_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jj_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_ij")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_ij")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_jj")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_scatter_loop_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n_shadow")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c")->subgraphId = 1;
+
+        //chanGraph.getNode("Lc_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_n_shadow_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_j_n_shadow_relay_loop_i_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c_scatter_loop_k")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_ik")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr_jk")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_ik")->subgraphId = 1;
+        //chanGraph.getNode("Lse_A_jk")->subgraphId = 1;
+        //chanGraph.getNode("Chan_c_A_jk")->subgraphId = 1;
+        //chanGraph.getNode("Chan_A_ik_update")->subgraphId = 1;
+        ////chanGraph.getNode("Lse_A_ik_update_store")->subgraphId = 1;
+
+        //chanGraph.getNode("Lc_i1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_i1_n")->subgraphId = 2;
+        //chanGraph.getNode("Chan_addr_i1n1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_addr_i1i1")->subgraphId = 2;
+        //chanGraph.getNode("Lse_A_i1n1")->subgraphId = 2;
+        //chanGraph.getNode("Lse_A_i1i1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_i1_lc")->subgraphId = 2;
+        //chanGraph.getNode("Chan_i1_n_shadow")->subgraphId = 2;
+
+        //chanGraph.getNode("Lc_j1")->subgraphId = 2;
+        //chanGraph.getNode("Lse_x_j1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_i1_n_shadow_scatter_loop_j1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_addr_i1j1")->subgraphId = 2;
+        //chanGraph.getNode("Lse_A_i1j1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_A_i1j1_x_j1")->subgraphId = 2;
+        //chanGraph.getNode("Chan_sum_update")->subgraphId = 2;
+        //chanGraph.getNode("Chan_a_sum_shadow")->subgraphId = 2;
+        //chanGraph.getNode("Chan_a_sum")->subgraphId = 2;
+        //chanGraph.getNode("Chan_x_i1")->subgraphId = 2;
+        ////chanGraph.getNode("Lse_x_i1_store")->subgraphId = 2;
 
         break;
     }

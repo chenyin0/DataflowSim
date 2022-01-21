@@ -28,7 +28,7 @@ void LudTest::lud_Base_auto(Debug* debug)
     ChanGraph chanGraph(LudTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 7;
+    uint splitNum = 3;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     LudTest::graphPartition(chanGraph, splitNum);
@@ -121,15 +121,17 @@ void LudTest::lud_Base_auto(Debug* debug)
     //***********************************************************************
 
     // User defined
-    registry->getLse("Lse_a_update_j1")->noLatencyMode = 1;
-    registry->getLse("Lse_a_update_j2")->noLatencyMode = 1;
+    //registry->getLse("Lse_a_update_j1")->noLatencyMode = 1;
+    //registry->getLse("Lse_a_update_j2")->noLatencyMode = 1;
 
     //registry->getLse("Lse_sum_j1")->noLatencyMode = 1;
     //registry->getLse("Lse_sum_j2")->noLatencyMode = 1;
-    //registry->getLse("Lse_a1")->noLatencyMode = 1;
-    //registry->getLse("Lse_a2")->noLatencyMode = 1;
-    //registry->getLse("Lse_a3")->noLatencyMode = 1;
-    //registry->getLse("Lse_a4")->noLatencyMode = 1;
+
+    registry->getLse("Lse_a1")->noLatencyMode = 1;
+    registry->getLse("Lse_a2")->noLatencyMode = 1;
+    registry->getLse("Lse_a3")->noLatencyMode = 1;
+    registry->getLse("Lse_a4")->noLatencyMode = 1;
+
     //registry->getLse("Lse_a_i_size_i")->noLatencyMode = 1;
 
     //// Initiation
@@ -357,6 +359,12 @@ void LudTest::lud_Base_auto(Debug* debug)
             Lc_j2->loopVar->enable = 0;
             //Lc_k2->loopVar->enable = 0;
             Lc_j1->loopVar->enable = 1;
+
+            //// Debug_yin_21.08.28
+            //if (splitNum > 1)
+            //{
+            //    graphScheduler->switchGraphManually();
+            //}
         }
 
         if (Lc_j1->loopVar->valid && Lc_j1->loopVar->channel.front().last)
@@ -364,6 +372,12 @@ void LudTest::lud_Base_auto(Debug* debug)
             Lc_j1->loopVar->enable = 0;
             //Lc_k1->loopVar->enable = 0;
             Lc_j2->loopVar->enable = 1;
+
+            //// Debug_yin_21.08.28
+            //if (splitNum > 1)
+            //{
+            //    graphScheduler->switchGraphManually();
+            //}
         }
 
 

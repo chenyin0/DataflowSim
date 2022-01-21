@@ -28,7 +28,7 @@ void Sort_Test::sort_Base(Debug* debug)
     ChanGraph chanGraph(Sort_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 3;
+    int splitNum = 1;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Sort_Test::graphPartition(chanGraph, splitNum);
@@ -70,45 +70,52 @@ void Sort_Test::sort_Base(Debug* debug)
     const auto& Chan_m_lc = registry->getChan("Chan_m_lc");
     const auto& Chan_end = registry->getChan("Chan_end");
     const auto& Lc_i = registry->getLc("Lc_i");
-    const auto& Chan_i_k1 = registry->getChan("Chan_i_k1");
     const auto& Chan_i_k2 = registry->getChan("Chan_i_k2");
-    const auto& Chan_from = registry->getChan("Chan_from");
+    const auto& Lse_tmp_i = registry->getChan("Lse_tmp_i");
     const auto& Chan_m_lc_scatter_loop_i = registry->getChan("Chan_m_lc_scatter_loop_i");
+    const auto& Chan_tmp_i_k1 = registry->getChan("Chan_tmp_i_k1");
+    const auto& Chan_tmp_i_k2 = registry->getChan("Chan_tmp_i_k2");
     const auto& Chan_m_m = registry->getChan("Chan_m_m");
     const auto& Chan_i_m_m = registry->getChan("Chan_i_m_m");
     const auto& Chan_to = registry->getChan("Chan_to");
-    const auto& Chan_to_k1 = registry->getChan("Chan_to_k1");
-    const auto& Chan_to_k2 = registry->getChan("Chan_to_k2");
     const auto& Chan_to_cmp = registry->getChan("Chan_to_cmp");
-    const auto& Chan_to_cmp_k1 = registry->getChan("Chan_to_cmp_k1");
-    const auto& Chan_to_cmp_k2 = registry->getChan("Chan_to_cmp_k2");
+    const auto& Chan_to_k2 = registry->getChan("Chan_to_k2");
+    const auto& Lse_tmp_j = registry->getChan("Lse_tmp_j");
+    const auto& Chan_tmp_j_k1 = registry->getChan("Chan_tmp_j_k1");
+    const auto& Chan_tmp_j_k2 = registry->getChan("Chan_tmp_j_k2");
+    const auto& Chan_i_k1 = registry->getChan("Chan_i_k1");
+    const auto& Chan_to_k1 = registry->getChan("Chan_to_k1");
     const auto& Lc_k1 = registry->getLc("Lc_k1");
-    const auto& Lc_k2 = registry->getLc("Lc_k2");
     const auto& Chan_i_k1_scatter_loop_k1 = registry->getChan("Chan_i_k1_scatter_loop_k1");
     const auto& Chan_to_k1_scatter_loop_k1 = registry->getChan("Chan_to_k1_scatter_loop_k1");
-    const auto& Chan_i_k2_scatter_loop_k2 = registry->getChan("Chan_i_k2_scatter_loop_k2");
-    const auto& Chan_to_k2_scatter_loop_k2 = registry->getChan("Chan_to_k2_scatter_loop_k2");
-    const auto& Lse_tmp_i1 = registry->getChan("Lse_tmp_i1");
-    const auto& Lse_tmp_j1 = registry->getChan("Lse_tmp_j1");
-    const auto& Lse_tmp_i2 = registry->getChan("Lse_tmp_i2");
-    const auto& Lse_tmp_j2 = registry->getChan("Lse_tmp_j2");
+    const auto& Chan_tmp_i_k1_scatter_loop_k1 = registry->getChan("Chan_tmp_i_k1_scatter_loop_k1");
+    const auto& Chan_tmp_i1 = registry->getChan("Chan_tmp_i1");
+    const auto& Chan_tmp_j_k1_scatter_loop_k1 = registry->getChan("Chan_tmp_j_k1_scatter_loop_k1");
+    const auto& Chan_tmp_j1 = registry->getChan("Chan_tmp_j1");
     const auto& Chan_tmp1_cmp = registry->getChan("Chan_tmp1_cmp");
-    const auto& Chan_tmp2_cmp = registry->getChan("Chan_tmp2_cmp");
     const auto& Chan_k1_cond = registry->getChan("Chan_k1_cond");
+    const auto& Lse_a_update_k1_true = registry->getChan("Lse_a_update_k1_true");
     const auto& Chan_to1_update = registry->getChan("Chan_to1_update");
     const auto& Chan_i1_update = registry->getChan("Chan_i1_update");
-    const auto& Chan_k2_cond = registry->getChan("Chan_k2_cond");
-    const auto& Chan_to2_update = registry->getChan("Chan_to2_update");
-    const auto& Chan_i2_update = registry->getChan("Chan_i2_update");
-    const auto& Lse_a_update_k1_true = registry->getChan("Lse_a_update_k1_true");
-    const auto& Lse_a_update_k1_false = registry->getChan("Lse_a_update_k1_false");
     const auto& Chan_br_merge_tmp1 = registry->getChan("Chan_br_merge_tmp1");
-    const auto& Lse_a_update_k2_true = registry->getChan("Lse_a_update_k2_true");
-    const auto& Lse_a_update_k2_false = registry->getChan("Lse_a_update_k2_false");
-    const auto& Chan_br_merge_tmp2 = registry->getChan("Chan_br_merge_tmp2");
     const auto& Chan_br_merge_tmp1_shadow = registry->getChan("Chan_br_merge_tmp1_shadow");
+    const auto& Lse_a_update_k1_false = registry->getChan("Lse_a_update_k1_false");
+    const auto& Lc_k2 = registry->getLc("Lc_k2");
+    const auto& Chan_tmp_j_k2_scatter_loop_k2 = registry->getChan("Chan_tmp_j_k2_scatter_loop_k2");
+    const auto& Chan_tmp_i_k2_scatter_loop_k2 = registry->getChan("Chan_tmp_i_k2_scatter_loop_k2");
+    const auto& Chan_to_k2_scatter_loop_k2 = registry->getChan("Chan_to_k2_scatter_loop_k2");
+    const auto& Chan_i_k2_scatter_loop_k2 = registry->getChan("Chan_i_k2_scatter_loop_k2");
+    const auto& Chan_tmp_j2 = registry->getChan("Chan_tmp_j2");
+    const auto& Chan_tmp_i2 = registry->getChan("Chan_tmp_i2");
+    const auto& Chan_tmp2_cmp = registry->getChan("Chan_tmp2_cmp");
+    const auto& Chan_to2_update = registry->getChan("Chan_to2_update");
+    const auto& Chan_k2_cond = registry->getChan("Chan_k2_cond");
+    const auto& Lse_a_update_k2_true = registry->getChan("Lse_a_update_k2_true");
+    const auto& Chan_i2_update = registry->getChan("Chan_i2_update");
+    const auto& Chan_br_merge_tmp2 = registry->getChan("Chan_br_merge_tmp2");
     const auto& Chan_br_merge_tmp2_shadow = registry->getChan("Chan_br_merge_tmp2_shadow");
     const auto& Chan_br_merge_to = registry->getChan("Chan_br_merge_to");
+    const auto& Lse_a_update_k2_false = registry->getChan("Lse_a_update_k2_false");
     //***********************************************************************
 
     // User-defined (Chan size)
@@ -117,12 +124,13 @@ void Sort_Test::sort_Base(Debug* debug)
     Chan_br_merge_to->size = 2000;
 
     // User defined (Mem req bypass -> noLatencyMode)
-    registry->getLse("Lse_tmp_j2")->noLatencyMode = 1;
-    registry->getLse("Lse_tmp_i2")->noLatencyMode = 1;
+    registry->getLse("Lse_tmp_i")->noLatencyMode = 1;
+    registry->getLse("Lse_tmp_j")->noLatencyMode = 1;
 
+    registry->getLse("Lse_a_update_k1_true")->noLatencyMode = 1;
+    registry->getLse("Lse_a_update_k1_false")->noLatencyMode = 1;
     registry->getLse("Lse_a_update_k2_true")->noLatencyMode = 1;
     registry->getLse("Lse_a_update_k2_false")->noLatencyMode = 1;
-
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry
@@ -194,37 +202,59 @@ void Sort_Test::sort_Base(Debug* debug)
         Chan_i_k2->get();	// Nop	[0]Lc_i 
         Chan_i_k2->value = Chan_i_k2->assign(uint(0));
 
+        Lse_tmp_i->get();	// Load	[0]Lc_i 
+        Lse_tmp_i->value = temp[Lse_tmp_i->assign()];
+
         Chan_m_lc_scatter_loop_i->get();	// Nop	[0]Chan_m_lc 
         Chan_m_lc_scatter_loop_i->value = Chan_m_lc_scatter_loop_i->assign(uint(0));
+
+        Chan_tmp_i_k1->get();	// Nop	[0]Lse_tmp_i 
+        Chan_tmp_i_k1->value = Chan_tmp_i_k1->assign(uint(1));
+
+        Chan_tmp_i_k2->get();	// Nop	[0]Lse_tmp_i 
+        Chan_tmp_i_k2->value = Chan_tmp_i_k2->assign(uint(1));
 
         Chan_m_m->get();	// Add	[0]Chan_m_lc_scatter_loop_i 
         Chan_m_m->value = Chan_m_m->assign(uint(0)) + Chan_m_m->assign(uint(0));
 
-        Chan_i_m_m->get();	// Add	[0]Chan_i_m [1]Chan_m_lc_scatter_loop_i 
+        Chan_i_m_m->get();	// Add	[0]Lc_i [1]Chan_m_m 
         Chan_i_m_m->value = Chan_i_m_m->assign(uint(0)) + Chan_i_m_m->assign(uint(1));
+
+        std::cout << Chan_m_m->value << "\t" << Chan_i_m_m->value << "\t"<<Lc_i->loopVar->value << std::endl;
 
         Chan_to->get();	// Sub	[0]Chan_i_m_m 
         Chan_to->value = Chan_to->assign(uint(0)) - 1;
 
-        //std::cout << std::endl;
-        //std::cout << Chan_m_lc_scatter_loop_i->value << std::endl;
-        //std::cout << Chan_m_m->value << std::endl;
-        //std::cout << Lc_i->loopVar->value << std::endl;
-
         Chan_to_cmp->get();	// Cmp	[0]Chan_to 
         Chan_to_cmp->value = Chan_to_cmp->assign(uint(0)) < SIZE ? 1 : 0;
 
-        Chan_to_k1->get();	// Nop	[0]Chan_to 
-        Chan_to_k1->value = Chan_to_k1->assign(uint(0));
+        /*if (Chan_to_cmp->value == 0)
+        {
+            system("pause");
+        }*/
 
-        Chan_to_k2->get();	// Nop	[0]Chan_to 
-        Chan_to_k2->value = Chan_to_k2->assign(uint(0));
+       // std::cout << Chan_to->value << std::endl;
 
-        Chan_to_cmp_k1->get();	// Nop	[0]Chan_to_cmp 
-        Chan_to_cmp_k1->value = Chan_to_cmp_k1->assign(uint(0));
+       /* if (Chan_to_cmp->valid)
+        {
+            bool c = Chan_to_cmp->channel.front().cond;
+            std::cout << c << "\t"<< Chan_to_cmp->value  << std::endl;
+        }*/
 
-        Chan_to_cmp_k2->get();	// Nop	[0]Chan_to_cmp 
-        Chan_to_cmp_k2->value = Chan_to_cmp_k2->assign(uint(0));
+        Lse_tmp_j->get();	// Load	[0]Chan_to 
+        Lse_tmp_j->value = temp[Lse_tmp_j->assign()];
+
+        Chan_to_k1->get();	// Nop	[0]Chan_to_cmp [1]Chan_to 
+        Chan_to_k1->value = Chan_to_k1->assign(uint(1));
+
+        Chan_to_k2->get();	// Nop	[0]Chan_to_cmp [1]Chan_to 
+        Chan_to_k2->value = Chan_to_k2->assign(uint(1));
+
+        Chan_tmp_j_k1->get();	// Nop	[0]Lse_tmp_j 
+        Chan_tmp_j_k1->value = Chan_tmp_j_k1->assign(uint(1));
+
+        Chan_tmp_j_k2->get();	// Nop	[0]Lse_tmp_j 
+        Chan_tmp_j_k2->value = Chan_tmp_j_k2->assign(uint(1));
 
         // Lc: Lc_k1
         Lc_k1->var = Lc_k1->mux->mux(Lc_k1->var, Lc_k1->loopVar->upstream[1]->value, Lc_k1->sel);
@@ -244,34 +274,48 @@ void Sort_Test::sort_Base(Debug* debug)
         Lc_k2->var = Lc_k2->loopVar->value + 1;
         Lc_k2->lcUpdate(Lc_k2->var < Chan_to_k2->value);
 
-        Chan_i_k1_scatter_loop_k1->get();	// Nop	[0]Chan_i_k1 
-        Chan_i_k1_scatter_loop_k1->value = Chan_i_k1_scatter_loop_k1->assign(uint(0));
+        Chan_tmp_j_k1_scatter_loop_k1->get();	// Nop	[0]Chan_tmp_j_k1 
+        Chan_tmp_j_k1_scatter_loop_k1->value = Chan_tmp_j_k1_scatter_loop_k1->assign(uint(0));
+
+        Chan_tmp_i_k1_scatter_loop_k1->get();	// Nop	[0]Chan_tmp_i_k1 
+        Chan_tmp_i_k1_scatter_loop_k1->value = Chan_tmp_i_k1_scatter_loop_k1->assign(uint(0));
 
         Chan_to_k1_scatter_loop_k1->get();	// Nop	[0]Chan_to_k1 
         Chan_to_k1_scatter_loop_k1->value = Chan_to_k1_scatter_loop_k1->assign(uint(0));
 
-        Chan_i_k2_scatter_loop_k2->get();	// Nop	[0]Chan_i_k2 
-        Chan_i_k2_scatter_loop_k2->value = Chan_i_k2_scatter_loop_k2->assign(uint(0));
+        Chan_i_k1_scatter_loop_k1->get();	// Nop	[0]Chan_i_k1 
+        Chan_i_k1_scatter_loop_k1->value = Chan_i_k1_scatter_loop_k1->assign(uint(0));
+
+        Chan_tmp_j_k2_scatter_loop_k2->get();	// Nop	[0]Chan_tmp_j_k2 
+        Chan_tmp_j_k2_scatter_loop_k2->value = Chan_tmp_j_k2_scatter_loop_k2->assign(uint(0));
+
+        Chan_tmp_i_k2_scatter_loop_k2->get();	// Nop	[0]Chan_tmp_i_k2 
+        Chan_tmp_i_k2_scatter_loop_k2->value = Chan_tmp_i_k2_scatter_loop_k2->assign(uint(0));
 
         Chan_to_k2_scatter_loop_k2->get();	// Nop	[0]Chan_to_k2 
         Chan_to_k2_scatter_loop_k2->value = Chan_to_k2_scatter_loop_k2->assign(uint(0));
 
-        Lse_tmp_i1->get();	// Load	[0]Chan_i_k1_scatter_loop_k1 
-        Lse_tmp_i1->value = temp[Lse_tmp_i1->assign()];
+        Chan_i_k2_scatter_loop_k2->get();	// Nop	[0]Chan_i_k2 
+        Chan_i_k2_scatter_loop_k2->value = Chan_i_k2_scatter_loop_k2->assign(uint(0));
 
-        Lse_tmp_j1->get();	// Load	[0]Chan_to_k1_scatter_loop_k1 
-        Lse_tmp_j1->value = temp[Lse_tmp_j1->assign()];
+        Chan_tmp_j1->get();	// Nop	[0]Chan_tmp_j_k1_scatter_loop_k1 
+        Chan_tmp_j1->value = Chan_tmp_j1->assign(uint(0));
 
-        Lse_tmp_i2->get();	// Load	[0]Chan_i_k2_scatter_loop_k2 
-        Lse_tmp_i2->value = temp[Lse_tmp_i2->assign()];
+        Chan_tmp_i1->get();	// Nop	[0]Chan_tmp_i_k1_scatter_loop_k1 
+        Chan_tmp_i1->value = Chan_tmp_i1->assign(uint(0));
 
-        Lse_tmp_j2->get();	// Load	[0]Chan_to_k2_scatter_loop_k2 
-        Lse_tmp_j2->value = temp[Lse_tmp_j2->assign()];
+        Chan_tmp_j2->get();	// Nop	[0]Chan_tmp_j_k2_scatter_loop_k2 
+        Chan_tmp_j2->value = Chan_tmp_j2->assign(uint(0));
 
-        Chan_tmp1_cmp->get();	// Cmp	[0]Lse_tmp_j1 [1]Lse_tmp_i1 
+        Chan_tmp_i2->get();	// Nop	[0]Chan_tmp_i_k2_scatter_loop_k2 
+        Chan_tmp_i2->value = Chan_tmp_i2->assign(uint(0));
+
+        Chan_tmp1_cmp->get();	// Cmp	[0]Chan_tmp_j1 [1]Chan_tmp_i1 
         Chan_tmp1_cmp->value = Chan_tmp1_cmp->assign(uint(0)) < Chan_tmp1_cmp->assign(uint(1)) ? 1 : 0;
 
-        Chan_tmp2_cmp->get();	// Cmp	[0]Lse_tmp_j2 [1]Lse_tmp_i2 
+      /*  std::cout << "j: "<< Chan_tmp1_cmp->assign(uint(0)) << " i: " << Chan_tmp1_cmp->assign(uint(1)) << std::endl;*/
+
+        Chan_tmp2_cmp->get();	// Cmp	[0]Chan_tmp_j2 [1]Chan_tmp_i2 
         Chan_tmp2_cmp->value = Chan_tmp2_cmp->assign(uint(0)) < Chan_tmp2_cmp->assign(uint(1)) ? 1 : 0;
 
         Chan_k1_cond->get();	// Nop	[0]Chan_tmp1_cmp [1]Lc_k1 
@@ -292,16 +336,18 @@ void Sort_Test::sort_Base(Debug* debug)
         Chan_i2_update->get();	// Add	[0]Chan_tmp2_cmp [1]Chan_i_k2_scatter_loop_k2 
         Chan_i2_update->value = Chan_i2_update->assign(uint(0)) + Chan_i2_update->assign(uint(1));
 
-        Lse_a_update_k1_true->get();	// Store	[0]Chan_k1_cond [1]Lse_tmp_j1 
+        Lse_a_update_k1_true->get();	// Store	[0]Chan_k1_cond [1]Chan_tmp_j1 
 
-        Lse_a_update_k1_false->get();	// Store	[0]Chan_k1_cond [1]Lse_tmp_j1 
+
+        Lse_a_update_k1_false->get();	// Store	[0]Chan_k1_cond [1]Chan_tmp_j1 
+
 
         Chan_br_merge_tmp1->get();	// selPartial	[0]Chan_tmp1_cmp [1]Chan_to1_update [2]Chan_i1_update 
         Chan_br_merge_tmp1->value = Chan_br_merge_tmp1->assign(uint(0)) ? Chan_br_merge_tmp1->assign(uint(1)) : Chan_br_merge_tmp1->assign(uint(2));
 
-        Lse_a_update_k2_true->get();	// Store	[0]Chan_k2_cond [1]Lse_tmp_j2 
+        Lse_a_update_k2_true->get();	// Store	[0]Chan_k2_cond [1]Chan_tmp_j2 
 
-        Lse_a_update_k2_false->get();	// Store	[0]Chan_k2_cond [1]Lse_tmp_j2 
+        Lse_a_update_k2_false->get();	// Store	[0]Chan_k2_cond [1]Chan_tmp_j2 
 
         Chan_br_merge_tmp2->get();	// selPartial	[0]Chan_tmp2_cmp [1]Chan_to2_update [2]Chan_i2_update 
         Chan_br_merge_tmp2->value = Chan_br_merge_tmp2->assign(uint(0)) ? Chan_br_merge_tmp2->assign(uint(1)) : Chan_br_merge_tmp2->assign(uint(2));

@@ -168,6 +168,7 @@
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\gesummv\gesummv.h" />
     <ClInclude Include="test\ge\ge.h" />
+    <ClInclude Include="test\hotspot\hotspot.h" />
     <ClInclude Include="test\lud\Lud.h" />
     <ClInclude Include="test\memory_test\MemoryTest.h" />
     <ClInclude Include="test\sort\sort.h" />
@@ -214,6 +215,8 @@
     <ClCompile Include="test\gesummv\gesummv_Base.cpp" />
     <ClCompile Include="test\ge\ge.cpp" />
     <ClCompile Include="test\ge\ge_Base.cpp" />
+    <ClCompile Include="test\hotspot\hotspot.cpp" />
+    <ClCompile Include="test\hotspot\hotspot_Base.cpp" />
     <ClCompile Include="test\lud\Lud.cpp" />
     <ClCompile Include="test\lud\Lud_Base.cpp" />
     <ClCompile Include="test\lud\lud_Base_auto.cpp" />

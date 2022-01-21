@@ -67,8 +67,8 @@ void ms_mergesort(TYPE a[SIZE]) {
                 // merge(a, from, mid, to);              
                 for(k1=i; k1<=to; k1++)
                 {
-                    TYPE tmp_j1 = temp[to];
-                    TYPE tmp_i1 = temp[i];
+                    tmp_j1 = temp[to];
+                    tmp_i1 = temp[i];
                     if(tmp_j1 < tmp_i1)
                     {
                         a[k1] = tmp_j1;
@@ -83,15 +83,16 @@ void ms_mergesort(TYPE a[SIZE]) {
             }
             else
             {
+                s = SIZE;
                 // merge(a, from, mid, stop);
-                for(k2=i; k2<=to; k2++)
+                for(k2=i; k2<=SIZE; k2++)
                 {
-                    TYPE tmp_j2 = temp[to];
-                    TYPE tmp_i2 = temp[i];
+                    tmp_j2 = temp[s];
+                    tmp_i2 = temp[i];
                     if(tmp_j2 < tmp_i2)
                     {
                         a[k2] = tmp_j2;
-                        to--;
+                        s--;
                     } 
                     else 
                     {

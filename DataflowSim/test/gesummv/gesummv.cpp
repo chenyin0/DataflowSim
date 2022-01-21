@@ -10,9 +10,9 @@ vector<int> Gesummv_Test::x;
 vector<int> Gesummv_Test::y;
 
 const uint Gesummv_Test::A_BaseAddr = 0;
-const uint Gesummv_Test::B_BaseAddr = 160005;
-const uint Gesummv_Test::x_BaseAddr = 320009;
-const uint Gesummv_Test::y_BaseAddr = 480012;
+const uint Gesummv_Test::B_BaseAddr = 16055;
+const uint Gesummv_Test::x_BaseAddr = 325589;
+const uint Gesummv_Test::y_BaseAddr = 4800962;
 
 const uint Gesummv_Test::_PB_N = 200;
 const uint Gesummv_Test::alpha = 2;
@@ -145,6 +145,29 @@ void Gesummv_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_beta_y")->subgraphId = 1;
         chanGraph.getNode("Chan_y_update_i")->subgraphId = 1;
 
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_PB_N")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_j")->subgraphId = 0;
+        //chanGraph.getNode("Lse_x")->subgraphId = 0;
+        ////chanGraph.getNode("Chan_i_lc_scatter_loop_j")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_PB_N_scatter_loop_j")->subgraphId = 0;
+        ////chanGraph.getNode("Lse_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_addr")->subgraphId = 0;
+        //chanGraph.getNode("Lse_A")->subgraphId = 0;
+        //chanGraph.getNode("Lse_B")->subgraphId = 0;
+        //chanGraph.getNode("Chan_A_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_B_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_tmp")->subgraphId = 0;
+        //chanGraph.getNode("Chan_y_update")->subgraphId = 0;
+
+        //chanGraph.getNode("Chan_alpha_tmp")->subgraphId = 1;
+        //chanGraph.getNode("Chan_beta_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_y_update_i")->subgraphId = 1;
+
         break;
     }
     case 3:
@@ -187,9 +210,9 @@ void Gesummv_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_i_PB_N_scatter_loop_j")->subgraphId = 1;
         //chanGraph.getNode("Lse_y")->subgraphId = 1;
         chanGraph.getNode("Chan_addr")->subgraphId = 1;
-        chanGraph.getNode("Lse_x")->subgraphId = 2;
-        chanGraph.getNode("Lse_A")->subgraphId = 2;
-        chanGraph.getNode("Lse_B")->subgraphId = 2;
+        chanGraph.getNode("Lse_x")->subgraphId = 1;
+        chanGraph.getNode("Lse_A")->subgraphId = 1;
+        chanGraph.getNode("Lse_B")->subgraphId = 1;
         chanGraph.getNode("Chan_A_x")->subgraphId = 2;
         chanGraph.getNode("Chan_B_x")->subgraphId = 2;
         chanGraph.getNode("Chan_tmp")->subgraphId = 2;
@@ -230,6 +253,29 @@ void Gesummv_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
     }
     case 6:
     {
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_PB_N")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_j")->subgraphId = 1;
+        ////chanGraph.getNode("Chan_i_lc_scatter_loop_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_PB_N_scatter_loop_j")->subgraphId = 1;
+        ////chanGraph.getNode("Lse_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_addr")->subgraphId = 1;
+        //chanGraph.getNode("Lse_x")->subgraphId = 2;
+        //chanGraph.getNode("Lse_A")->subgraphId = 3;
+        //chanGraph.getNode("Lse_B")->subgraphId = 3;
+        //chanGraph.getNode("Chan_A_x")->subgraphId = 4;
+        //chanGraph.getNode("Chan_B_x")->subgraphId = 4;
+        //chanGraph.getNode("Chan_tmp")->subgraphId = 4;
+        //chanGraph.getNode("Chan_y_update")->subgraphId = 4;
+
+        //chanGraph.getNode("Chan_alpha_tmp")->subgraphId = 5;
+        //chanGraph.getNode("Chan_beta_y")->subgraphId = 5;
+        //chanGraph.getNode("Chan_y_update_i")->subgraphId = 5;
+
         chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_i")->subgraphId = 0;
         chanGraph.getNode("Chan_end")->subgraphId = 0;
@@ -242,7 +288,7 @@ void Gesummv_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         //chanGraph.getNode("Lse_y")->subgraphId = 1;
         chanGraph.getNode("Chan_addr")->subgraphId = 1;
         chanGraph.getNode("Lse_x")->subgraphId = 2;
-        chanGraph.getNode("Lse_A")->subgraphId = 3;
+        chanGraph.getNode("Lse_A")->subgraphId = 2;
         chanGraph.getNode("Lse_B")->subgraphId = 3;
         chanGraph.getNode("Chan_A_x")->subgraphId = 4;
         chanGraph.getNode("Chan_B_x")->subgraphId = 4;
@@ -269,14 +315,14 @@ void Gesummv_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         //chanGraph.getNode("Lse_y")->subgraphId = 1;
         chanGraph.getNode("Chan_addr")->subgraphId = 1;
         chanGraph.getNode("Lse_x")->subgraphId = 2;
-        chanGraph.getNode("Lse_A")->subgraphId = 3;
+        chanGraph.getNode("Lse_A")->subgraphId = 2;
         chanGraph.getNode("Lse_B")->subgraphId = 3;
         chanGraph.getNode("Chan_A_x")->subgraphId = 4;
         chanGraph.getNode("Chan_B_x")->subgraphId = 4;
-        chanGraph.getNode("Chan_tmp")->subgraphId = 5;
-        chanGraph.getNode("Chan_y_update")->subgraphId = 5;
+        chanGraph.getNode("Chan_tmp")->subgraphId = 4;
+        chanGraph.getNode("Chan_y_update")->subgraphId = 4;
 
-        chanGraph.getNode("Chan_alpha_tmp")->subgraphId = 6;
+        chanGraph.getNode("Chan_alpha_tmp")->subgraphId = 5;
         chanGraph.getNode("Chan_beta_y")->subgraphId = 6;
         chanGraph.getNode("Chan_y_update_i")->subgraphId = 6;
 

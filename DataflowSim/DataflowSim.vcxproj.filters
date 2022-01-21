@@ -221,6 +221,9 @@
     <ClInclude Include="test\cholesky\cholesky.h">
       <Filter>test\cholesky</Filter>
     </ClInclude>
+    <ClInclude Include="test\hotspot\hotspot.h">
+      <Filter>test\hotspot</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\module\ClkSys.cpp">
@@ -378,6 +381,12 @@
     </ClCompile>
     <ClCompile Include="test\cholesky\cholesky_Base.cpp">
       <Filter>test\cholesky</Filter>
+    </ClCompile>
+    <ClCompile Include="test\hotspot\hotspot.cpp">
+      <Filter>test\hotspot</Filter>
+    </ClCompile>
+    <ClCompile Include="test\hotspot\hotspot_Base.cpp">
+      <Filter>test\hotspot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

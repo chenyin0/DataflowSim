@@ -29,7 +29,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     ChanGraph chanGraph(GemmTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 7;
+    int splitNum = 3;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     GemmTest::graphPartition(chanGraph, splitNum);
 

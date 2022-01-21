@@ -100,6 +100,13 @@ void FFT_Test::fft_Base(Debug* debug)
     Chan_branch_merge->size = 200;
 
     // User defined (Mem req bypass -> noLatencyMode)
+    /*registry->getLse("Lse_real_odd_val")->noLatencyMode = 1;
+    registry->getLse("Lse_img_odd_val")->noLatencyMode = 1;
+    registry->getLse("Lse_real_even_val")->noLatencyMode = 1;
+    registry->getLse("Lse_img_even_val")->noLatencyMode = 1;
+    registry->getLse("Lse_real_twid_val")->noLatencyMode = 1;
+    registry->getLse("Lse_img_twid_val")->noLatencyMode = 1;*/
+    
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry

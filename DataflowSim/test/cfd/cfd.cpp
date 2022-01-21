@@ -309,6 +309,79 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
     }
     case 3:
     {
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_blk")->subgraphId = 0;
+        //chanGraph.getNode("Chan_blk_lc")->subgraphId = 0;
+        //chanGraph.getNode("Chan_b_start")->subgraphId = 0;
+        //chanGraph.getNode("Chan_b_end")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_density_i_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_x_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_y_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_z_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_density_energy_i_addr")->subgraphId = 0;
+        //chanGraph.getNode("Lse_density_i")->subgraphId = 0;
+        //chanGraph.getNode("Lse_momentum_x")->subgraphId = 0;
+        //chanGraph.getNode("Lse_momentum_y")->subgraphId = 0;
+        //chanGraph.getNode("Lse_momentum_z")->subgraphId = 0;
+        //chanGraph.getNode("Lse_density_energy_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_z")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_z")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_z")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_z")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_x_2")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_y_2")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_z_2")->subgraphId = 0;
+        //chanGraph.getNode("Chan_speed_sqd")->subgraphId = 0;
+        //chanGraph.getNode("Chan_speed")->subgraphId = 0;
+        //chanGraph.getNode("Chan_density_i_speed_sqd")->subgraphId = 0;
+        //chanGraph.getNode("Chan_pressure")->subgraphId = 0;
+        //chanGraph.getNode("Chan_pressure_density_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_de_p")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_density_energy_x")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_density_energy_y")->subgraphId = 0;
+        //chanGraph.getNode("Chan_flux_i_density_energy_z")->subgraphId = 0;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_lc_scatter_loop_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_normal_x_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_normal_y_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_normal_z_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_density_nb_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_momentum_nb_x_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_momentum_nb_y_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_momentum_nb_z_addr")->subgraphId = 1;
+        //chanGraph.getNode("Chan_density_energy_nb_addr")->subgraphId = 1;
+        //chanGraph.getNode("Lse_normal_x")->subgraphId = 1;
+        //chanGraph.getNode("Lse_normal_y")->subgraphId = 1;
+        //chanGraph.getNode("Lse_normal_z")->subgraphId = 1;
+        ///*chanGraph.getNode("Lse_density_nb")->subgraphId = 1;
+        //chanGraph.getNode("Lse_momentum_nb_x")->subgraphId = 2;
+        //chanGraph.getNode("Lse_momentum_nb_y")->subgraphId = 2;
+        //chanGraph.getNode("Lse_momentum_nb_z")->subgraphId = 2;
+        //chanGraph.getNode("Lse_density_energy_nb")->subgraphId = 2;*/
+        //chanGraph.getNode("Chan_flux_i_density_energy_x_scatter_loop_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_density_energy_y_scatter_loop_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_density_energy_z_scatter_loop_j")->subgraphId = 1;
+        //chanGraph.getNode("Chan_normal_x_2")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_y_2")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_z_2")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_xyz")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_len")->subgraphId = 2;
+
+        //break;
+
         chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_blk")->subgraphId = 0;
         chanGraph.getNode("Chan_blk_lc")->subgraphId = 0;
@@ -363,17 +436,17 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_momentum_nb_y_addr")->subgraphId = 1;
         chanGraph.getNode("Chan_momentum_nb_z_addr")->subgraphId = 1;
         chanGraph.getNode("Chan_density_energy_nb_addr")->subgraphId = 1;
-        chanGraph.getNode("Lse_normal_x")->subgraphId = 1;
-        chanGraph.getNode("Lse_normal_y")->subgraphId = 1;
-        chanGraph.getNode("Lse_normal_z")->subgraphId = 1;
-        /*chanGraph.getNode("Lse_density_nb")->subgraphId = 1;
+        chanGraph.getNode("Lse_normal_x")->subgraphId = 2;
+        chanGraph.getNode("Lse_normal_y")->subgraphId = 2;
+        chanGraph.getNode("Lse_normal_z")->subgraphId = 2;
+        /*chanGraph.getNode("Lse_density_nb")->subgraphId = 2;
         chanGraph.getNode("Lse_momentum_nb_x")->subgraphId = 2;
         chanGraph.getNode("Lse_momentum_nb_y")->subgraphId = 2;
         chanGraph.getNode("Lse_momentum_nb_z")->subgraphId = 2;
         chanGraph.getNode("Lse_density_energy_nb")->subgraphId = 2;*/
-        chanGraph.getNode("Chan_flux_i_density_energy_x_scatter_loop_j")->subgraphId = 1;
-        chanGraph.getNode("Chan_flux_i_density_energy_y_scatter_loop_j")->subgraphId = 1;
-        chanGraph.getNode("Chan_flux_i_density_energy_z_scatter_loop_j")->subgraphId = 1;
+        chanGraph.getNode("Chan_flux_i_density_energy_x_scatter_loop_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_density_energy_y_scatter_loop_j")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_density_energy_z_scatter_loop_j")->subgraphId = 2;
         chanGraph.getNode("Chan_normal_x_2")->subgraphId = 2;
         chanGraph.getNode("Chan_normal_y_2")->subgraphId = 2;
         chanGraph.getNode("Chan_normal_z_2")->subgraphId = 2;
@@ -455,6 +528,79 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_normal_xyz")->subgraphId = 3;
         chanGraph.getNode("Chan_normal_len")->subgraphId = 3;
 
+        //break;
+
+        //chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        //chanGraph.getNode("Lc_blk")->subgraphId = 0;
+        //chanGraph.getNode("Chan_blk_lc")->subgraphId = 0;
+        //chanGraph.getNode("Chan_b_start")->subgraphId = 0;
+        //chanGraph.getNode("Chan_b_end")->subgraphId = 0;
+        //chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        //chanGraph.getNode("Lc_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_density_i_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_x_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_y_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_momentum_z_addr")->subgraphId = 0;
+        //chanGraph.getNode("Chan_density_energy_i_addr")->subgraphId = 0;
+        //chanGraph.getNode("Lse_density_i")->subgraphId = 1;
+        //chanGraph.getNode("Lse_momentum_x")->subgraphId = 0;
+        //chanGraph.getNode("Lse_momentum_y")->subgraphId = 0;
+        //chanGraph.getNode("Lse_momentum_z")->subgraphId = 0;
+        //chanGraph.getNode("Lse_density_energy_i")->subgraphId = 0;
+        //chanGraph.getNode("Chan_velocity_x")->subgraphId = 1;
+        //chanGraph.getNode("Chan_velocity_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_velocity_z")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_x")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_x_z")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_z")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_y_x")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_x")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_momentum_z_z")->subgraphId = 1;
+        //chanGraph.getNode("Chan_velocity_x_2")->subgraphId = 1;
+        //chanGraph.getNode("Chan_velocity_y_2")->subgraphId = 1;
+        //chanGraph.getNode("Chan_velocity_z_2")->subgraphId = 1;
+        //chanGraph.getNode("Chan_speed_sqd")->subgraphId = 1;
+        //chanGraph.getNode("Chan_speed")->subgraphId = 1;
+        //chanGraph.getNode("Chan_density_i_speed_sqd")->subgraphId = 1;
+        //chanGraph.getNode("Chan_pressure")->subgraphId = 1;
+        //chanGraph.getNode("Chan_pressure_density_i")->subgraphId = 1;
+        //chanGraph.getNode("Chan_de_p")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_density_energy_x")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_density_energy_y")->subgraphId = 1;
+        //chanGraph.getNode("Chan_flux_i_density_energy_z")->subgraphId = 1;
+        //chanGraph.getNode("Chan_i_lc")->subgraphId = 1;
+
+        //chanGraph.getNode("Lc_j")->subgraphId = 2;
+        //chanGraph.getNode("Chan_i_lc_scatter_loop_j")->subgraphId = 2;
+        //chanGraph.getNode("Chan_flux_i_density_energy_x_scatter_loop_j")->subgraphId = 2;
+        //chanGraph.getNode("Chan_flux_i_density_energy_y_scatter_loop_j")->subgraphId = 2;
+        //chanGraph.getNode("Chan_flux_i_density_energy_z_scatter_loop_j")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_x_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_y_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_normal_z_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_density_nb_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_momentum_nb_x_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_momentum_nb_y_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_momentum_nb_z_addr")->subgraphId = 2;
+        //chanGraph.getNode("Chan_density_energy_nb_addr")->subgraphId = 2;
+        //chanGraph.getNode("Lse_normal_x")->subgraphId = 3;
+        //chanGraph.getNode("Lse_normal_y")->subgraphId = 3;
+        //chanGraph.getNode("Lse_normal_z")->subgraphId = 3;
+        ///*chanGraph.getNode("Lse_density_nb")->subgraphId = 2;
+        //chanGraph.getNode("Lse_momentum_nb_x")->subgraphId = 3;
+        //chanGraph.getNode("Lse_momentum_nb_y")->subgraphId = 3;
+        //chanGraph.getNode("Lse_momentum_nb_z")->subgraphId = 3;
+        //chanGraph.getNode("Lse_density_energy_nb")->subgraphId = 3;*/
+        //chanGraph.getNode("Chan_normal_x_2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_normal_y_2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_normal_z_2")->subgraphId = 3;
+        //chanGraph.getNode("Chan_normal_xyz")->subgraphId = 3;
+        //chanGraph.getNode("Chan_normal_len")->subgraphId = 3;
+
         break;
     }
     case 5:
@@ -472,11 +618,11 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_momentum_y_addr")->subgraphId = 1;
         chanGraph.getNode("Chan_momentum_z_addr")->subgraphId = 1;
         chanGraph.getNode("Chan_density_energy_i_addr")->subgraphId = 1;
-        chanGraph.getNode("Lse_density_i")->subgraphId = 2;
-        chanGraph.getNode("Lse_momentum_x")->subgraphId = 2;
-        chanGraph.getNode("Lse_momentum_y")->subgraphId = 2;
-        chanGraph.getNode("Lse_momentum_z")->subgraphId = 2;
-        chanGraph.getNode("Lse_density_energy_i")->subgraphId = 2;
+        chanGraph.getNode("Lse_density_i")->subgraphId = 1;
+        chanGraph.getNode("Lse_momentum_x")->subgraphId = 1;
+        chanGraph.getNode("Lse_momentum_y")->subgraphId = 1;
+        chanGraph.getNode("Lse_momentum_z")->subgraphId = 1;
+        chanGraph.getNode("Lse_density_energy_i")->subgraphId = 1;
         chanGraph.getNode("Chan_velocity_x")->subgraphId = 2;
         chanGraph.getNode("Chan_velocity_y")->subgraphId = 2;
         chanGraph.getNode("Chan_velocity_z")->subgraphId = 2;
@@ -529,7 +675,7 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
     }
     case 6:
     {
-        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        /*chanGraph.getNode("Chan_begin")->subgraphId = 0;
         chanGraph.getNode("Lc_blk")->subgraphId = 0;
         chanGraph.getNode("Chan_blk_lc")->subgraphId = 0;
         chanGraph.getNode("Chan_b_start")->subgraphId = 0;
@@ -564,6 +710,72 @@ void Cfd_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
         chanGraph.getNode("Chan_velocity_z_2")->subgraphId = 3;
         chanGraph.getNode("Chan_speed_sqd")->subgraphId = 3;
         chanGraph.getNode("Chan_speed")->subgraphId = 3;
+        chanGraph.getNode("Chan_density_i_speed_sqd")->subgraphId = 3;
+        chanGraph.getNode("Chan_pressure")->subgraphId = 3;
+        chanGraph.getNode("Chan_pressure_density_i")->subgraphId = 3;
+        chanGraph.getNode("Chan_de_p")->subgraphId = 3;
+        chanGraph.getNode("Chan_flux_i_density_energy_x")->subgraphId = 3;
+        chanGraph.getNode("Chan_flux_i_density_energy_y")->subgraphId = 3;
+        chanGraph.getNode("Chan_flux_i_density_energy_z")->subgraphId = 3;
+        chanGraph.getNode("Chan_i_lc")->subgraphId = 3;
+
+        chanGraph.getNode("Lc_j")->subgraphId = 4;
+        chanGraph.getNode("Chan_i_lc_scatter_loop_j")->subgraphId = 4;
+        chanGraph.getNode("Chan_flux_i_density_energy_x_scatter_loop_j")->subgraphId = 4;
+        chanGraph.getNode("Chan_flux_i_density_energy_y_scatter_loop_j")->subgraphId = 4;
+        chanGraph.getNode("Chan_flux_i_density_energy_z_scatter_loop_j")->subgraphId = 4;
+        chanGraph.getNode("Chan_normal_x_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_normal_y_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_normal_z_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_density_nb_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_momentum_nb_x_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_momentum_nb_y_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_momentum_nb_z_addr")->subgraphId = 4;
+        chanGraph.getNode("Chan_density_energy_nb_addr")->subgraphId = 4;
+        chanGraph.getNode("Lse_normal_x")->subgraphId = 5;
+        chanGraph.getNode("Lse_normal_y")->subgraphId = 5;
+        chanGraph.getNode("Lse_normal_z")->subgraphId = 5;
+        chanGraph.getNode("Chan_normal_x_2")->subgraphId = 5;
+        chanGraph.getNode("Chan_normal_y_2")->subgraphId = 5;
+        chanGraph.getNode("Chan_normal_z_2")->subgraphId = 5;
+        chanGraph.getNode("Chan_normal_xyz")->subgraphId = 5;
+        chanGraph.getNode("Chan_normal_len")->subgraphId = 5;*/
+
+        chanGraph.getNode("Chan_begin")->subgraphId = 0;
+        chanGraph.getNode("Lc_blk")->subgraphId = 0;
+        chanGraph.getNode("Chan_blk_lc")->subgraphId = 0;
+        chanGraph.getNode("Chan_b_start")->subgraphId = 0;
+        chanGraph.getNode("Chan_b_end")->subgraphId = 0;
+        chanGraph.getNode("Chan_end")->subgraphId = 0;
+
+        chanGraph.getNode("Lc_i")->subgraphId = 1;
+        chanGraph.getNode("Chan_density_i_addr")->subgraphId = 1;
+        chanGraph.getNode("Chan_momentum_x_addr")->subgraphId = 1;
+        chanGraph.getNode("Chan_momentum_y_addr")->subgraphId = 1;
+        chanGraph.getNode("Chan_momentum_z_addr")->subgraphId = 1;
+        chanGraph.getNode("Chan_density_energy_i_addr")->subgraphId = 1;
+        chanGraph.getNode("Lse_density_i")->subgraphId = 2;
+        chanGraph.getNode("Lse_momentum_x")->subgraphId = 1;
+        chanGraph.getNode("Lse_momentum_y")->subgraphId = 1;
+        chanGraph.getNode("Lse_momentum_z")->subgraphId = 1;
+        chanGraph.getNode("Lse_density_energy_i")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_x")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_y")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_z")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_x_x")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_x_y")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_x_z")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_y_y")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_y_z")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_y_x")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_z_x")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_z_y")->subgraphId = 2;
+        chanGraph.getNode("Chan_flux_i_momentum_z_z")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_x_2")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_y_2")->subgraphId = 2;
+        chanGraph.getNode("Chan_velocity_z_2")->subgraphId = 2;
+        chanGraph.getNode("Chan_speed_sqd")->subgraphId = 2;
+        chanGraph.getNode("Chan_speed")->subgraphId = 2;
         chanGraph.getNode("Chan_density_i_speed_sqd")->subgraphId = 3;
         chanGraph.getNode("Chan_pressure")->subgraphId = 3;
         chanGraph.getNode("Chan_pressure_density_i")->subgraphId = 3;

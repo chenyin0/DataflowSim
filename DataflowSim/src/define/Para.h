@@ -102,7 +102,7 @@
 #define SPM_ENABLE 0
 #define SPM_ACCESS_LATENCY 2
 #define SPM_BANK_NUM 16
-#define SPM_BANK_DEPTH 64
+#define SPM_BANK_DEPTH 128
 #define SPM_REQ_QUEUE_SIZE 16  // reqQueue size in SPM
 
 // Cache

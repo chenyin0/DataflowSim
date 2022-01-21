@@ -29,7 +29,7 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     ChanGraph chanGraph(Viterbi_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 6;
+    uint splitNum = 4;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Viterbi_Test::graphPartition(chanGraph, splitNum);
 
@@ -95,8 +95,9 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     //***********************************************************************
 
     // User defined
-    //registry->getLse("Lse_m2_data")->noLatencyMode = 1;
-    //registry->getLse("Lse_prod_data_update_st")->noLatencyMode = 1;
+    registry->getLse("Lse_emission_")->noLatencyMode = 1;
+    registry->getLse("Lse_transition_")->noLatencyMode = 1;
+    registry->getLse("Lse_llike_")->noLatencyMode = 1;
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry

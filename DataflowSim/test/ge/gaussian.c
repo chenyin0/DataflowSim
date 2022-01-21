@@ -18,7 +18,7 @@ int main()
     // for(j=1; j<=n; j++) /* loop for the generation of upper triangular matrix*/
     // {
     //     for(i=1; i<=n; i++)
-    //     {
+    //     {    
     //         if(i>j)
     //         {
     //             c=A[i][j]/A[j][j];

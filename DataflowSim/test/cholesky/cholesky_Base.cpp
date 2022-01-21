@@ -28,7 +28,7 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     ChanGraph chanGraph(Cholesky_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 6;
+    uint splitNum = 3;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Cholesky_Test::graphPartition(chanGraph, splitNum);
@@ -105,9 +105,12 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     //***********************************************************************
 
     // User defined
-    //registry->getLse("Lse_a_update_j1")->noLatencyMode = 1;
-    //registry->getLse("Lse_a_update_j2")->noLatencyMode = 1;
-
+    registry->getLse("Lse_Ajj")->noLatencyMode = 1;
+    registry->getLse("Lse_Aij")->noLatencyMode = 1;
+    registry->getLse("Lse_Ajk")->noLatencyMode = 1;
+    //registry->getLse("Lse_Aik")->noLatencyMode = 1;
+    registry->getLse("Lse_Aii")->noLatencyMode = 1;
+    registry->getLse("Lse_Aik1")->noLatencyMode = 1;
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry
@@ -340,7 +343,7 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
             //graphScheduler->graphUpdate();
 
             // Patch
-            if (splitNum >= 2 && graphScheduler->subgraphTimeout > 80)
+            if (splitNum >= 2 && graphScheduler->subgraphTimeout > 30)
             {
                 graphScheduler->switchGraphManually();
             }

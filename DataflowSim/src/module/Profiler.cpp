@@ -97,7 +97,8 @@ void Profiler::updateChanUtilization()
             {
                 if (entry.chanPtr->branchMode)
                 {
-                    if (entry.chanPtr->channel.front().cond == entry.chanPtr->channelCond)
+                    //if (entry.chanPtr->channel.front().cond == entry.chanPtr->channelCond)
+                    if (entry.chanPtr->channel.front().cond)
                     {
                         entry.chanPtr->activeCnt++;
                     }
@@ -161,7 +162,8 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
             {
                 if (entry.chanPtr->branchMode)
                 {
-                    if (entry.chanPtr->channel.front().cond == entry.chanPtr->channelCond)
+                    //if (entry.chanPtr->channel.front().cond == entry.chanPtr->channelCond)
+                    if (entry.chanPtr->channel.front().cond)
                     {
                         entry.chanPtr->activeCnt++;
                     }
@@ -173,7 +175,7 @@ void Profiler::updateChanUtilization(uint _currSubgraphId)
             }
 
             if (entry.chanPtr->subgraphId == _currSubgraphId
-                /*|| entry.chanPtr->pushChannelSuccess*/
+                || entry.chanPtr->pushChannelSuccess
                 /*|| entry.chanPtr->valid
                 && entry.chanPtr->enable*/)
             {
@@ -210,16 +212,16 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
             //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
 
             // TODO: Exclude channel in "Nop"
-            if (entry.chanPtr->moduleName != "Chan_begin" &&
-                entry.chanPtr->moduleName != "Chan_end" &&
-                entry.chanPtr->isPhysicalChan &&
-                (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)/* &&
+            if (entry.chanPtr->moduleName != "Chan_begin"
+                && entry.chanPtr->moduleName != "Chan_end"
+                && entry.chanPtr->isPhysicalChan
+                && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)/* &&
                 (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1)*/
-                && entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
+                /*&& entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
                 && entry.chanPtr->moduleName != "Lse_a_update_j1"
                 && entry.chanPtr->moduleName != "Chan_sum_update_k2_drain"
                 && entry.chanPtr->moduleName != "Chan_sum_div"
-                && entry.chanPtr->moduleName != "Lse_a_update_j2")
+                && entry.chanPtr->moduleName != "Lse_a_update_j2"*/)
             {
                 debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
                 ++chanNum;
@@ -260,14 +262,18 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
                 << "\t NodeNum: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId]
                 << "\t Speedup: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) << std::endl;
         }
+        // Debug_yin_21.08.27
+        //totalPeCycle = ARRAY_SIZE * ClkDomain::getClk();
     }
     else
     {
         totalPeCycle = (ARRAY_SIZE / subgraphNodeNum[0]) * subgraphNodeNum[0] * ClkDomain::getClk();
+        //totalPeCycle = ARRAY_SIZE * ClkDomain::getClk();
     }
 
     //float avgChanUtilization = float(chanActiveNumTotal * 100) / float(ARRAY_SIZE * ClkDomain::getClk());
     float avgChanUtilization = float(chanActiveNumTotal * 100) / float(totalPeCycle);
+    //std::cout << "chanActiveNumTotal:       " << chanActiveNumTotal << std::endl;
     //float avgChanUtilization = chanUtilAvg / avgWeight;
     debug->getFile() << std::endl;
     debug->getFile() << "Avg channel utilization: " << avgChanUtilization << setprecision(2) << "%" << std::endl;
@@ -351,14 +357,13 @@ void Profiler::printPowerProfiling()
     {
         if (entry.moduleType == ModuleType::Channel)
         {
+            uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
             if (entry.chanPtr->chanType == ChanType::Chan_Lse)
             {
-                uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
                 dataBuffer_mem_req_access_times += entry.chanPtr->activeCnt / coalesceRate;
             }
             else if (entry.chanPtr->chanType == ChanType::Chan_DGSF)
             {
-                uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
                 dataBuffer_intermediate_data_access_times += entry.chanPtr->activeCnt / coalesceRate;
             }
         }
@@ -433,7 +438,7 @@ void Profiler::printPowerProfiling()
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Graph Scheduler: " << std::endl;
-    debug->getFile() << "Graph switch times: " << graphScheduler_active_times << std::endl;
+    debug->getFile() << "Graph switch times: " << graphSwitchTimes << std::endl;
     debug->getFile() << "Graph scheduler power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << "\t Dynamic power: " << graphScheduler_dynamic_power << setprecision(4) << " mW" << std::endl;
     debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << setprecision(4) << " mW" << std::endl;
@@ -493,10 +498,11 @@ void Profiler::tiaProfiling()
             }
         }
     }
-    avgReqBlockRate = totalReqBlockRate / static_cast<float>(reqNum);
+    avgReqBlockRate = totalReqBlockRate / static_cast<float>(std::max(reqNum, uint(1)));
 
-    float resII = 1.2;
+    float resII = 1.2;  // Update to Modulo mapper
     uint cycle = (totalOpNum / TIA_ARRAY_SIZE) / (1 - avgReqBlockRate) * resII;
+    std::cout <<"feataetager" << totalReqBlockRate << "\t" << reqNum << std::endl;
     float utilization = (1 - avgReqBlockRate) / resII;
 
     debug->getFile() << std::endl;

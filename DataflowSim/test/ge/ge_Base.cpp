@@ -28,7 +28,7 @@ void Ge_Test::ge_Base(Debug* debug)
     ChanGraph chanGraph(Ge_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 7;
+    uint splitNum = 3;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Ge_Test::graphPartition(chanGraph, splitNum);
@@ -64,77 +64,64 @@ void Ge_Test::ge_Base(Debug* debug)
     const auto& Chan_t_lc1 = registry->getChan("Chan_t_lc1");
     const auto& Chan_t_lc2 = registry->getChan("Chan_t_lc2");
     const auto& Chan_end = registry->getChan("Chan_end");
-    const auto& Lc_j = registry->getLc("Lc_j");
-    const auto& Chan_t_lc2_DGSF = registry->getChan("Chan_t_lc2_DGSF");
-    const auto& Chan_j_lc = registry->getChan("Chan_j_lc");
-    const auto& Chan_j_n = registry->getChan("Chan_j_n");
     const auto& Lc_i1 = registry->getLc("Lc_i1");
-    const auto& Lc_i = registry->getLc("Lc_i");
-    const auto& Chan_j_n_shadow = registry->getChan("Chan_j_n_shadow");
-    const auto& Chan_addr_jj = registry->getChan("Chan_addr_jj");
     const auto& Chan_i1_lc = registry->getChan("Chan_i1_lc");
     const auto& Chan_i1_n = registry->getChan("Chan_i1_n");
-    const auto& Lc_i1_DGSF = registry->getChan("Lc_i1_DGSF");
+    const auto& Chan_i1_n_shadow = registry->getChan("Chan_i1_n_shadow");
+    const auto& Chan_addr_i1n1 = registry->getChan("Chan_addr_i1n1");
+    const auto& Chan_addr_i1i1 = registry->getChan("Chan_addr_i1i1");
+    const auto& Lse_A_i1n1 = registry->getChan("Lse_A_i1n1");
+    const auto& Lse_A_i1i1 = registry->getChan("Lse_A_i1i1");
+    const auto& Lc_j = registry->getLc("Lc_j");
+    const auto& Chan_j_lc = registry->getChan("Chan_j_lc");
+    const auto& Chan_j_n = registry->getChan("Chan_j_n");
+    const auto& Chan_j_n_shadow = registry->getChan("Chan_j_n_shadow");
+    const auto& Chan_addr_jj = registry->getChan("Chan_addr_jj");
+    const auto& Lc_i = registry->getLc("Lc_i");
     const auto& Chan_i_lc = registry->getChan("Chan_i_lc");
     const auto& Chan_i_n = registry->getChan("Chan_i_n");
     const auto& Chan_j_lc_scatter_loop_i = registry->getChan("Chan_j_lc_scatter_loop_i");
     const auto& Chan_j_n_shadow_scatter_loop_i = registry->getChan("Chan_j_n_shadow_scatter_loop_i");
     const auto& Chan_addr_jj_scatter_loop_i = registry->getChan("Chan_addr_jj_scatter_loop_i");
-    const auto& Chan_i1_lc_DGSF = registry->getChan("Chan_i1_lc_DGSF");
-    const auto& Chan_i1_n_shadow = registry->getChan("Chan_i1_n_shadow");
-    const auto& Chan_addr_i1n1 = registry->getChan("Chan_addr_i1n1");
-    const auto& Chan_addr_i1i1 = registry->getChan("Chan_addr_i1i1");
-    const auto& Lc_k = registry->getLc("Lc_k");
     const auto& Chan_i_n_shadow = registry->getChan("Chan_i_n_shadow");
     const auto& Chan_addr_ij = registry->getChan("Chan_addr_ij");
     const auto& Chan_j_n_shadow_relay_loop_i = registry->getChan("Chan_j_n_shadow_relay_loop_i");
     const auto& Lse_A_jj = registry->getChan("Lse_A_jj");
-    const auto& Lc_j1 = registry->getLc("Lc_j1");
-    const auto& Chan_i1_n_shadow_DGSF = registry->getChan("Chan_i1_n_shadow_DGSF");
-    const auto& Lse_A_i1n1 = registry->getChan("Lse_A_i1n1");
-    const auto& Lse_A_i1i1 = registry->getChan("Lse_A_i1i1");
-    const auto& Chan_i_n_shadow_scatter_loop_k = registry->getChan("Chan_i_n_shadow_scatter_loop_k");
     const auto& Lse_A_ij = registry->getChan("Lse_A_ij");
-    const auto& Chan_j_n_shadow_relay_loop_i_scatter_loop_k = registry->getChan("Chan_j_n_shadow_relay_loop_i_scatter_loop_k");
-    const auto& Lse_x_j1 = registry->getChan("Lse_x_j1");
-    const auto& Chan_i1_n_shadow_scatter_loop_j1 = registry->getChan("Chan_i1_n_shadow_scatter_loop_j1");
-    const auto& Lse_A_i1n1_DGSF = registry->getChan("Lse_A_i1n1_DGSF");
-    const auto& Lse_A_i1i1_DGSF = registry->getChan("Lse_A_i1i1_DGSF");
-    const auto& Chan_addr_ik = registry->getChan("Chan_addr_ik");
     const auto& Chan_c = registry->getChan("Chan_c");
+    const auto& Lc_k = registry->getLc("Lc_k");
+    const auto& Chan_i_n_shadow_scatter_loop_k = registry->getChan("Chan_i_n_shadow_scatter_loop_k");
+    const auto& Chan_j_n_shadow_relay_loop_i_scatter_loop_k = registry->getChan("Chan_j_n_shadow_relay_loop_i_scatter_loop_k");
+    const auto& Chan_addr_ik = registry->getChan("Chan_addr_ik");
     const auto& Chan_addr_jk = registry->getChan("Chan_addr_jk");
-    const auto& Chan_addr_i1j1 = registry->getChan("Chan_addr_i1j1");
     const auto& Lse_A_ik = registry->getChan("Lse_A_ik");
     const auto& Chan_c_scatter_loop_k = registry->getChan("Chan_c_scatter_loop_k");
     const auto& Lse_A_jk = registry->getChan("Lse_A_jk");
-    const auto& Lse_A_i1j1 = registry->getChan("Lse_A_i1j1");
     const auto& Chan_c_A_jk = registry->getChan("Chan_c_A_jk");
-    const auto& Chan_A_i1j1_x_j1 = registry->getChan("Chan_A_i1j1_x_j1");
     const auto& Chan_A_ik_update = registry->getChan("Chan_A_ik_update");
+    const auto& Lc_j1 = registry->getLc("Lc_j1");
+    const auto& Lse_x_j1 = registry->getChan("Lse_x_j1");
+    const auto& Chan_i1_n_shadow_scatter_loop_j1 = registry->getChan("Chan_i1_n_shadow_scatter_loop_j1");
+    const auto& Chan_addr_i1j1 = registry->getChan("Chan_addr_i1j1");
+    const auto& Lse_A_i1j1 = registry->getChan("Lse_A_i1j1");
+    const auto& Chan_A_i1j1_x_j1 = registry->getChan("Chan_A_i1j1_x_j1");
     const auto& Chan_sum_update = registry->getChan("Chan_sum_update");
-    const auto& Lse_A_ik_update_store = registry->getChan("Lse_A_ik_update_store");
     const auto& Chan_a_sum_shadow = registry->getChan("Chan_a_sum_shadow");
     const auto& Chan_a_sum = registry->getChan("Chan_a_sum");
     const auto& Chan_x_i1 = registry->getChan("Chan_x_i1");
-    const auto& Chan_x_i1_DGSF = registry->getChan("Chan_x_i1_DGSF");
-    const auto& Lse_x_i1_store = registry->getChan("Lse_x_i1_store");
     //***********************************************************************
 
     // User defined
-    //registry->getLse("Lse_a_update_j1")->noLatencyMode = 1;
-    //registry->getLse("Lse_a_update_j2")->noLatencyMode = 1;
+    registry->getLse("Lse_A_jj")->noLatencyMode = 1;
+    registry->getLse("Lse_A_i1n1")->noLatencyMode = 1;
+    registry->getLse("Lse_A_i1i1")->noLatencyMode = 1;
+    registry->getLse("Lse_A_ij")->noLatencyMode = 1;
+    //registry->getLse("Lse_x_j1")->noLatencyMode = 1;
 
-    //registry->getLse("Lse_sum_j1")->noLatencyMode = 1;
-    //registry->getLse("Lse_sum_j2")->noLatencyMode = 1;
-    //registry->getLse("Lse_A_ik")->noLatencyMode = 1;
-    //registry->getLse("Lse_A_jk")->noLatencyMode = 1;
+    registry->getLse("Lse_A_ik")->noLatencyMode = 1;
+    registry->getLse("Lse_A_jk")->noLatencyMode = 1;
 
-    //registry->getLse("Lse_A_i1n1")->noLatencyMode = 1;
-    //registry->getLse("Lse_A_i1i1")->noLatencyMode = 1;
-    //registry->getLse("Lse_A_i1j1")->noLatencyMode = 1;
-
-    /*registry->getLse("Lse_A_ik_update_store")->noLatencyMode = 1;
-    registry->getLse("Lse_x_i1_store")->noLatencyMode = 1;*/
+    registry->getLse("Lse_A_i1j1")->noLatencyMode = 1;
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry
@@ -148,6 +135,7 @@ void Ge_Test::ge_Base(Debug* debug)
 
     // Pre-defined
     Lc_i1->loopVar->enable = 0;
+    uint graphSwitchCntAdditional = 0;
 
     uint max_iter = 5000000;// 5000000;
     uint segment = max_iter / 100;
@@ -331,7 +319,7 @@ void Ge_Test::ge_Base(Debug* debug)
         Lse_A_ij->get();	// Load	[0]Chan_addr_ij 
         Lse_A_ij->value = A[Lse_A_ij->assign()];
 
-        Lse_A_ik->get();	// Load	[0]Chan_addr_ik 
+        Lse_A_ik->get();	// Load	[0]Chan_addr_ik
         Lse_A_ik->value = A[Lse_A_ik->assign()];
 
         Lse_A_jk->get();	// Load	[0]Chan_addr_jk 
@@ -374,7 +362,12 @@ void Ge_Test::ge_Base(Debug* debug)
         if (Chan_A_ik_update->getTheLastData.front())
         {
             Lc_i1->loopVar->enable = 1;
-            Lc_j->loopVar->enable = 0;
+            //Lc_j->loopVar->enable = 0;
+        }
+
+        if (Chan_c->pushChannelSuccess || Chan_a_sum->pushChannelSuccess)
+        {
+            ++graphSwitchCntAdditional;
         }
 
         // *************************************************************************************
@@ -419,7 +412,7 @@ void Ge_Test::ge_Base(Debug* debug)
         //debug->debug_mode = Debug_mode::Print_detail;
         debug->debug_mode = Debug_mode::Turn_off;
 
-        if (446150000 > iter && iter > 0 /*iter >= 0*/)
+        if (217856 > iter && iter > 215856 /*iter >= 0*/)
         {
             // Print channel
             debug->printSimInfo(simChans, simLcs);
@@ -439,6 +432,8 @@ void Ge_Test::ge_Base(Debug* debug)
             std::cout << "*******************************" << std::endl;
             std::cout << "Total Cycle: " << clk << std::endl;
             std::cout << "Execution Iter: " << iter << std::endl;
+
+            std::cout << "Additional Graph switch times: " << graphSwitchCntAdditional << std::endl;
 
             debug->getFile() << std::endl;
             debug->getFile() << "*******************************" << std::endl;
