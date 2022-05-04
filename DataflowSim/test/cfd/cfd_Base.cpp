@@ -29,7 +29,7 @@ void Cfd_Test::cfd_Base(Debug* debug)
     ChanGraph chanGraph(Cfd_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 7;
+    int splitNum = 5;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Cfd_Test::graphPartition(chanGraph, splitNum);
 
@@ -135,10 +135,10 @@ void Cfd_Test::cfd_Base(Debug* debug)
     //***********************************************************************
 
     // User defined
-    registry->getLse("Lse_density_i")->noLatencyMode = 1;
+    /*registry->getLse("Lse_density_i")->noLatencyMode = 1;
     registry->getLse("Lse_momentum_y")->noLatencyMode = 1;
     registry->getLse("Lse_momentum_z")->noLatencyMode = 1;
-    registry->getLse("Lse_density_energy_i")->noLatencyMode = 1;
+    registry->getLse("Lse_density_energy_i")->noLatencyMode = 1;*/
 
     // Initiation
     registry->init();  // Update registry and initial all the module in registry

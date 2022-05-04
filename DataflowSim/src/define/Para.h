@@ -20,7 +20,7 @@
 //3) TIA(instruction-based): much less PEs; fine-grained synchronization(the channel execute cycle is longer)
 
 #define Base Base
-//#define DGSF DGSF
+//#define DGSF DGSF  // Deprecated! Merge into Base
 //#define SGMF SGMF
 //#define TIA TIA
 
@@ -47,7 +47,7 @@
 #define BASE_INPUT_BUFF_SIZE 4
 
 // DGSF
-#define BRAM_BANK_DEPTH 128  // SPM bank depth
+#define BRAM_BANK_DEPTH 128  // SPM bank depth  128
 #define DGSF_INPUT_BUFF_SIZE BRAM_BANK_DEPTH
 #define BRAM_ACCESS_DELAY 2  // Access BRAM delay, emulate subgraph switch overhead
 
@@ -90,7 +90,7 @@
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 16  //32  // MemSystem reqQueue bank number, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 16  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK  4 // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK  4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
@@ -112,7 +112,7 @@
 
 #define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 64*1024  // byte
+#define CACHE_SIZE_L1 16*1024  // byte
 #define CACHE_SIZE_L2 256*1024  // byte
 
 //#define CACHE_SIZE_L1 1*1024  // byte
@@ -122,7 +122,7 @@
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 64  // byte
+#define CACHE_LINE_SIZE_L1 32  // byte 64
 #define CACHE_LINE_SIZE_L2 32  // byte
 
 #define CACHE_MAPPING_WAY_L1 4

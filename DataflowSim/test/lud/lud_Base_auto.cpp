@@ -28,7 +28,7 @@ void LudTest::lud_Base_auto(Debug* debug)
     ChanGraph chanGraph(LudTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 3;
+    uint splitNum = 7;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     LudTest::graphPartition(chanGraph, splitNum);

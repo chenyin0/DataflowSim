@@ -28,7 +28,7 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     ChanGraph chanGraph(Cholesky_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 3;
+    uint splitNum = 2;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Cholesky_Test::graphPartition(chanGraph, splitNum);

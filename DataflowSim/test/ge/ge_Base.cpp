@@ -28,7 +28,7 @@ void Ge_Test::ge_Base(Debug* debug)
     ChanGraph chanGraph(Ge_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 3;
+    uint splitNum = 4;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Ge_Test::graphPartition(chanGraph, splitNum);
@@ -112,16 +112,16 @@ void Ge_Test::ge_Base(Debug* debug)
     //***********************************************************************
 
     // User defined
-    registry->getLse("Lse_A_jj")->noLatencyMode = 1;
-    registry->getLse("Lse_A_i1n1")->noLatencyMode = 1;
-    registry->getLse("Lse_A_i1i1")->noLatencyMode = 1;
-    registry->getLse("Lse_A_ij")->noLatencyMode = 1;
-    //registry->getLse("Lse_x_j1")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_jj")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_i1n1")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_i1i1")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_ij")->noLatencyMode = 1;
+    ////registry->getLse("Lse_x_j1")->noLatencyMode = 1;
 
-    registry->getLse("Lse_A_ik")->noLatencyMode = 1;
-    registry->getLse("Lse_A_jk")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_ik")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_jk")->noLatencyMode = 1;
 
-    registry->getLse("Lse_A_i1j1")->noLatencyMode = 1;
+    //registry->getLse("Lse_A_i1j1")->noLatencyMode = 1;
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry

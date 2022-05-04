@@ -82,9 +82,9 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
     //***********************************************************************
 
     // User defined
-    registry->getLse("Lse_x")->noLatencyMode = 1;
+    /*registry->getLse("Lse_x")->noLatencyMode = 1;
     registry->getLse("Lse_A")->noLatencyMode = 1;
-    registry->getLse("Lse_B")->noLatencyMode = 1;
+    registry->getLse("Lse_B")->noLatencyMode = 1;*/
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry

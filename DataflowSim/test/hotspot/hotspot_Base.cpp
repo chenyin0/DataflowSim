@@ -29,7 +29,7 @@ void HotSpot_Test::hotSpot_Base(Debug* debug)
     ChanGraph chanGraph(HotSpot_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    int splitNum = 7;
+    int splitNum = 6;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     HotSpot_Test::graphPartition(chanGraph, splitNum);
