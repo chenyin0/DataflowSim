@@ -22,5 +22,15 @@ namespace DFSim
                 //k++;
             }
         }
+
+        template<typename Type>
+        static void readFile(vector<Type>& vec, const string& filePath)
+        {
+            ifstream infile;
+            infile.open(filePath);
+            DEBUG_ASSERT(infile.is_open());
+            ReadFile::readFile2UnifiedVector(vec, infile);
+            infile.close();
+        }
     };
 }
