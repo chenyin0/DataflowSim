@@ -69,7 +69,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -92,7 +92,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DRAMSim2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -165,6 +165,7 @@
     <ClInclude Include="test\cfd\cfd.h" />
     <ClInclude Include="test\cholesky\cholesky.h" />
     <ClInclude Include="test\fft\fft.h" />
+    <ClInclude Include="test\gcn\gcn.h" />
     <ClInclude Include="test\gemm\Gemm.h" />
     <ClInclude Include="test\gesummv\gesummv.h" />
     <ClInclude Include="test\ge\ge.h" />
@@ -207,6 +208,8 @@
     <ClCompile Include="test\cholesky\cholesky_Base.cpp" />
     <ClCompile Include="test\fft\fft.cpp" />
     <ClCompile Include="test\fft\fft_Base.cpp" />
+    <ClCompile Include="test\gcn\gcn.cpp" />
+    <ClCompile Include="test\gcn\gcn_base.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp" />

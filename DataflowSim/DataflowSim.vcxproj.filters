@@ -98,6 +98,9 @@
     <Filter Include="resource\lud">
       <UniqueIdentifier>{7bfcbddf-13a2-4bf0-97c5-15b3cb12cc4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\gcn">
+      <UniqueIdentifier>{7e3c3222-9170-4565-ac8a-d51b6999f7bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="test\hotspot\hotspot.h">
       <Filter>test\hotspot</Filter>
+    </ClInclude>
+    <ClInclude Include="test\gcn\gcn.h">
+      <Filter>test\gcn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -387,6 +393,12 @@
     </ClCompile>
     <ClCompile Include="test\hotspot\hotspot_Base.cpp">
       <Filter>test\hotspot</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gcn\gcn.cpp">
+      <Filter>test\gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="test\gcn\gcn_base.cpp">
+      <Filter>test\gcn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
