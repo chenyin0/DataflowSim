@@ -21,6 +21,7 @@
 #include "../test/ge/ge.h"
 #include "../test/cholesky/cholesky.h"
 #include "../test/hotspot/hotspot.h"
+#include "../test/gcn/gcn.h"
 
 #include "./module/execution/Channel.h"
 
@@ -246,6 +247,17 @@ int main()
         {
         case ArchType::Base:
             DFSimTest::HotSpot_Test::hotSpot_Base(debug);
+            break;
+        }
+
+        break;
+    }
+    case App_name::GCN:
+    {
+        switch (Global::arch)
+        {
+        case ArchType::Base:
+            DFSimTest::GCN_Test::gcn_Base(debug);
             break;
         }
 

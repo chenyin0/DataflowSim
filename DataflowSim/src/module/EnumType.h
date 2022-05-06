@@ -19,7 +19,8 @@ namespace DFSim
         Sort,
         Ge,
         Cholesky,
-        HotSpot
+        HotSpot,
+        GCN
     };
 
     class App_name_convert
@@ -55,6 +56,8 @@ namespace DFSim
                 return "cholesky";
             if (type_ == App_name::HotSpot)
                 return "hotspot";
+            if (type_ == App_name::GCN)
+                return "gcn";
             //Debug::throwError("tb_name_convert to string error!", __FILE__, __LINE__);
             return "";
         }

@@ -1,0 +1,107 @@
+#include "./gcn.h"
+#include "../../src/util/ReadFile.hpp"
+
+using namespace DFSimTest;
+
+Dfg GCN_Test::dfg;
+
+vector<int> GCN_Test::indPtr;
+vector<int> GCN_Test::indices;
+vector<int> GCN_Test::feat;
+
+uint GCN_Test::vertex_num;
+uint GCN_Test::ngh_num;
+
+// Address map: 
+const uint GCN_Test::indPtr_BaseAddr = 0;
+const uint GCN_Test::indices_BaseAddr = 0;
+const uint GCN_Test::feat_BaseAddr = 0;
+
+string GCN_Test::dataset_name = "cora";
+//const string GCN_Test::dataset = "citeseer";
+//const string GCN_Test::dataset = "pubmed";
+
+// Performance parameter
+uint GCN_Test::speedup_aggr = 1;
+uint GCN_Test::speedup_combine = 1;
+uint GCN_Test::speedup_active = 1;
+
+void GCN_Test::generateData()
+{
+    // Load dataset
+    string filePath;
+    filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indptr.txt";
+    ReadFile::readFile(indPtr, filePath);
+
+    filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indices.txt";
+    ReadFile::readFile(indices, filePath);
+
+    vertex_num = indPtr.size() - 1;  // The last data in indPtr is not a vertex
+    feat.resize(vertex_num);
+}
+
+void GCN_Test::generateDfg()
+{
+    //** ControlRegion
+    dfg.controlTree.addControlRegion(
+        { make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+        make_tuple<string, string, string>("loop_j", "Loop", "Null"),
+        });
+
+    dfg.controlTree.addLowerControlRegion("loop_i", { "loop_j" });
+
+    dfg.controlTree.completeControlRegionHierarchy();
+
+    //** Node
+    // global_const
+    /*dfg.addNode("row_size", "Const", GCN_Test::matrix_width);*/
+
+    // loop_i
+    dfg.addNode("begin", "Nop");
+    dfg.addNode("end", "Nop", {}, { "i" });
+    dfg.addNode("i", "Loop_head", {}, { "begin" });
+    dfg.addNode("i_lc", "Nop", { "i" }, {});
+
+    //** Aggregation
+    // Traverse vertex
+    dfg.addNode("indptr", "Nop", { "i_lc" });
+    dfg.addNode("access_indptr", "Load", { "indptr" }, &indPtr, indPtr_BaseAddr);
+    dfg.addNode("ngh_ind_base", "Nop", { "access_indptr" });
+
+    // loop_j
+    dfg.addNode("j", "Loop_head", {}, { "ngh_ind_base" });
+    dfg.addNode("j_lc", "Nop", { "j" }, {});
+    // Access neighbor
+    dfg.addNode("indices", "Add", { "j_lc", "ngh_ind_base" });
+    dfg.addNode("access_ngh", "Load", { "indices" }, &indices, indices_BaseAddr);
+    // Ld feature
+    dfg.addNode("ngh_ind", "Nop", { "access_ngh" });
+    dfg.addNode("ld_feat", "Load", { "ngh_ind" }, &feat, feat_BaseAddr);
+
+    //** Combination
+    dfg.addNode("combine", "Mac", { "ld_feat" });
+
+    //** Activation
+    dfg.addNode("active", "Relu", { "combine" });
+
+    dfg.completeConnect();
+    dfg.removeRedundantConnect();
+
+    //** Add nodes to controlTree
+    dfg.addNodes2CtrlTree("loop_i", { "begin", "end", "i", "i_lc", "indptr", "access_indptr", "ngh_ind_base", "active" });
+    dfg.addNodes2CtrlTree("loop_j", { "j", "j_lc", "indices", "access_ngh", "ngh_ind", "ld_feat", "combine" });
+
+    //** Indicate the tail node for each loop region
+    dfg.setTheTailNode("loop_i", "active");
+    dfg.setTheTailNode("loop_j", "combine");
+
+    dfg.plotDot();
+}
+
+
+void GCN_Test::graphPartition(ChanGraph& chanGraph, int partitionNum)
+{
+
+}
+
+

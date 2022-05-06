@@ -2052,6 +2052,14 @@ void ChanGraph::addNodeDelay()
             {
                 chanNodePtr->cycle = DIV;
             }
+            else if (chanNodePtr->node_op == "Mac")
+            {
+                chanNodePtr->cycle = MAC;
+            }
+            else if (chanNodePtr->node_op == "Relu")
+            {
+                chanNodePtr->cycle = RELU;
+            }
             else
             {
                 chanNodePtr->cycle = 1;

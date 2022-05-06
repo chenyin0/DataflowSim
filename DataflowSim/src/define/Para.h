@@ -76,7 +76,9 @@
 #define ADD 1
 #define SUB 1
 #define MUL 4
+#define MAC 4
 #define DIV 20
+#define RELU 1
 
 /*
 ************************************************
