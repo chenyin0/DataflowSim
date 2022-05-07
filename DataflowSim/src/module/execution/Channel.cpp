@@ -122,7 +122,7 @@ void Channel::parallelize()
     {
         currId = 1;
     }
-    else
+    else if(currId <= speedup)  // Debug_yin 22.05.07  Avoid currId overflow
     {
         ++currId;
     }
