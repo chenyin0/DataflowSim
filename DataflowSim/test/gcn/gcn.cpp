@@ -18,8 +18,8 @@ const uint GCN_Test::indices_BaseAddr = 0;
 const uint GCN_Test::feat_BaseAddr = 0;
 
 string GCN_Test::dataset_name = "cora";
-//const string GCN_Test::dataset = "citeseer";
-//const string GCN_Test::dataset = "pubmed";
+//string GCN_Test::dataset_name = "citeseer";
+//string GCN_Test::dataset_name = "pubmed";
 
 // Performance parameter
 uint GCN_Test::speedup_aggr = 1;

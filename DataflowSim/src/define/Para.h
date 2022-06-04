@@ -86,7 +86,7 @@
 */
 
 // MemSystem
-#define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
+#define NO_MEMORY 1  // Emulate ideal memory(latency = 0)
 
 #define DATA_PRECISION 32  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
@@ -114,7 +114,7 @@
 
 #define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 16*1024  // byte
+#define CACHE_SIZE_L1 10*1024*1024  // byte 16KB
 #define CACHE_SIZE_L2 256*1024  // byte
 
 //#define CACHE_SIZE_L1 1*1024  // byte
@@ -124,10 +124,10 @@
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 32  // byte 64
+#define CACHE_LINE_SIZE_L1 64  // byte 32
 #define CACHE_LINE_SIZE_L2 32  // byte
 
-#define CACHE_MAPPING_WAY_L1 4
+#define CACHE_MAPPING_WAY_L1 16  // 4
 #define CACHE_MAPPING_WAY_L2 16
 
 #define CACHE_ACCESS_LATENCY_L1 1  // Cycle

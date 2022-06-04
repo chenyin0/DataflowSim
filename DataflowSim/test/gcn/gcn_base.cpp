@@ -82,9 +82,18 @@ void GCN_Test::gcn_Base(Debug* debug)
     registry->getLse("Lse_B")->noLatencyMode = 1;*/
 
     // Set speedup manually
-
-
-
+    Chan_i_lc->speedup = speedup_aggr;
+    Chan_indptr->speedup = speedup_aggr;
+    Lse_access_indptr->speedup = speedup_aggr;
+    Chan_ngh_ind_base->speedup = speedup_aggr;
+    Chan_ngh_ind_base_scatter_loop_j->speedup = speedup_aggr;
+    Chan_j_lc->speedup = speedup_aggr;
+    Chan_indices->speedup = speedup_aggr;
+    Lse_access_ngh->speedup = speedup_aggr;
+    Chan_ngh_ind->speedup = speedup_aggr;
+    Lse_ld_feat->speedup = speedup_aggr;
+    Chan_combine->speedup = speedup_combine;
+    Chan_active->speedup = speedup_active;
 
 
     //// Initiation
