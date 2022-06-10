@@ -20,6 +20,7 @@ const uint GCN_Test::feat_BaseAddr = 0;
 string GCN_Test::dataset_name = "cora";
 //string GCN_Test::dataset_name = "citeseer";
 //string GCN_Test::dataset_name = "pubmed";
+//string GCN_Test::dataset_name = "amazon_comp";
 
 // Performance parameter
 uint GCN_Test::speedup_aggr = 1;
@@ -38,6 +39,24 @@ void GCN_Test::generateData()
 
     vertex_num = indPtr.size() - 1;  // The last data in indPtr is not a vertex
     feat.resize(vertex_num);
+}
+
+void GCN_Test::readMemTrace(deque<uint>& queue, const string& filePath)
+{
+    ReadFile::readFile(queue, filePath);
+}
+
+void GCN_Test::memTraceInjection(Channel* producerChan, Channel* consumerLse, deque<uint>& queue)
+{
+    if (!consumerLse->bp[0])
+    {
+        if (!queue.empty())
+        {
+            producerChan->value = queue.front();
+            queue.pop_front();
+            queue.shrink_to_fit();
+        }
+    }
 }
 
 void GCN_Test::generateDfg()

@@ -257,7 +257,8 @@ int main()
         switch (Global::arch)
         {
         case ArchType::Base:
-            DFSimTest::GCN_Test::gcn_Base(debug);
+            //DFSimTest::GCN_Test::gcn_Base(debug);
+            DFSimTest::GCN_Test::gcn_Base_trace(debug);
             break;
         }
 

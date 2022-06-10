@@ -19,11 +19,15 @@ namespace DFSimTest
     {
     public:
         static void gcn_Base(Debug* debug);
+        static void gcn_Base_trace(Debug* debug);
 
     private:
         static void generateData();  // Generate benchmark data
         static void generateDfg();  // Generate Dfg with control tree
         static void graphPartition(ChanGraph& chanGraph, int partitionNum);
+
+        static void readMemTrace(deque<uint>& queue, const string& filePath);  // Read memory access trace
+        static void memTraceInjection(Channel* producerChan, Channel* consumerLse, deque<uint>& queue);  // Inject mem trace into Lse
 
         // Construct DFG and chanGraph
         static Dfg dfg;
