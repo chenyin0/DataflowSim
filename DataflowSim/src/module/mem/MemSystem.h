@@ -49,6 +49,7 @@ namespace DFSim
         void MemSystemUpdate();
 
         static void power_callback(double a, double b, double c, double d) {}  // Unused
+        const uint& getMemAccessCnt() const;
 
     private:
         void getLseReq();
@@ -62,10 +63,10 @@ namespace DFSim
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const vector<Lse*>& getLseRegistry() const;
-        const vector<deque<MemReq>>& getReqQueue() const;
-        const vector<deque<MemReq>>& getAckQueue() const;
-        const Coalescer& getCoalescer() const;
+        const vector<Lse*>& getLseRegistry() const { return lseRegistry; }
+        const vector<deque<MemReq>>& getReqQueue() const { return reqQueue; }
+        const vector<deque<MemReq>>& getAckQueue() const { return ackQueue; }
+        const Coalescer& getCoalescer() const { return coalescer; }
         //const vector<pair<MemReq, uint>>& getBusDelayFifo() const;
 #endif // DEBUG_MODE
 
