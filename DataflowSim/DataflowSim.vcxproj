@@ -211,6 +211,7 @@
     <ClCompile Include="test\fft\fft_Base.cpp" />
     <ClCompile Include="test\gcn\gcn.cpp" />
     <ClCompile Include="test\gcn\gcn_base.cpp" />
+    <ClCompile Include="test\gcn\gcn_base_trace.cpp" />
     <ClCompile Include="test\gemm\Gemm.cpp" />
     <ClCompile Include="test\gemm\Gemm_Base.cpp" />
     <ClCompile Include="test\gemm\gemm_Base_auto_sim.cpp" />
