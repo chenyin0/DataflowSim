@@ -79,6 +79,8 @@ namespace DFSim
             return 100.0 * cache_miss_count[level] / (cache_miss_count[level] + cache_hit_count[level]);
         }
 
+        void updateCacheAccessCnt() { ++cacheAccessCnt; }
+
     private:
         void init();
         void config_check();  // Check whether parameters are configured correctly
@@ -125,10 +127,12 @@ namespace DFSim
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const vector<vector<ReqQueueBank>>& getReqQueue() const;
-        const vector<vector<deque<CacheReq>>>& getAckQueue() const;
-        const deque<MemReq>& getReqQueue2Mem() const;
-        const vector<Mshr>& getMshr() const;
+        const vector<vector<ReqQueueBank>>& getReqQueue() const { return DFSim::Cache::reqQueue; }
+        const vector<vector<deque<CacheReq>>>& getAckQueue() const { return DFSim::Cache::ackQueue; }
+        const deque<MemReq>& getReqQueue2Mem() const { return reqQueue2Mem; }
+        const vector<Mshr>& getMshr() const { return mshr; }
+        const uint& getCacheAccessCnt() const { return cacheAccessCnt; }
+        const uint& getMemAccessCnt() const { return memAccessCnt; }
 #endif // DEBUG_MODE
 
     private:
@@ -213,6 +217,9 @@ namespace DFSim
         vector<uint> cache_miss_count = vector<uint>(CACHE_MAXLEVEL);
         ///** Record free cacheline */
         //vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
+        /** Profiling counter **/
+        uint cacheAccessCnt = 0;
+        uint memAccessCnt = 0;
 
         vector<Mshr> mshr;
         vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>), fifo mode

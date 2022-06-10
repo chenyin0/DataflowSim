@@ -456,6 +456,7 @@ void Cache::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
         if (mem->addTransaction(req.isWrite, req.addr))
         {
             reqQueue2Mem.pop_front();
+            ++memAccessCnt;
         }
         else
         {
@@ -760,25 +761,26 @@ void Cache::cacheUpdate()
     updateReqQueueLatency();
 }
 
-// For debug
-#ifdef DEBUG_MODE
-const vector<vector<ReqQueueBank>>& Cache::getReqQueue() const
-{
-    return DFSim::Cache::reqQueue;
-}
 
-const vector<vector<deque<CacheReq>>>& Cache::getAckQueue() const
-{
-    return DFSim::Cache::ackQueue;
-}
-
-const deque<MemReq>& Cache::getReqQueue2Mem() const
-{
-    return reqQueue2Mem;
-}
-
-const vector<Mshr>& Cache::getMshr() const
-{
-    return mshr;
-}
-#endif
+//// For debug
+//#ifdef DEBUG_MODE
+//const vector<vector<ReqQueueBank>>& Cache::getReqQueue() const
+//{
+//    return DFSim::Cache::reqQueue;
+//}
+//
+//const vector<vector<deque<CacheReq>>>& Cache::getAckQueue() const
+//{
+//    return DFSim::Cache::ackQueue;
+//}
+//
+//const deque<MemReq>& Cache::getReqQueue2Mem() const
+//{
+//    return reqQueue2Mem;
+//}
+//
+//const vector<Mshr>& Cache::getMshr() const
+//{
+//    return mshr;
+//}
+//#endif
