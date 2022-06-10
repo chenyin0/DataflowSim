@@ -64,6 +64,15 @@ void Profiler::printCacheMissRate()
     }
 }
 
+void Profiler::printCacheProfiling()
+{
+    if (memSys->cache != nullptr)
+    {
+        debug->getFile() << "Cache access times: " << memSys->cache->getCacheAccessCnt() << std::endl;
+        printCacheMissRate();
+    }
+}
+
 void Profiler::updateBufferMaxDataNum()
 {
     uint cnt = 0;
@@ -313,6 +322,14 @@ void Profiler::printLseProfiling()
     }
 }
 
+void Profiler::printDramProfiling()
+{
+    if (memSys != nullptr)
+    {
+        debug->getFile() << "DRAM access times: " << memSys->getMemAccessCnt() << std::endl;
+    }
+}
+
 void Profiler::printPowerProfiling()
 {
     // PE array
@@ -400,6 +417,20 @@ void Profiler::printPowerProfiling()
                         dataBuffer_power + 
                         graphScheduler_power;
 
+    // Cache
+    uint cache_access_times = 0;
+    if (memSys != nullptr && memSys->cache != nullptr)
+    {
+        cache_access_times += memSys->cache->getCacheAccessCnt();
+    }
+
+    // DRAM
+    uint mem_access_times = 0;
+    if (memSys != nullptr)
+    {
+        mem_access_times += memSys->getMemAccessCnt();
+    }
+
     debug->getFile() << std::endl;
     debug->getFile() << "******* Power profiling *********" << std::endl;
     debug->getFile() << ">>> PE Array: " << std::endl;
@@ -454,6 +485,8 @@ void Profiler::printPowerProfiling()
     std::cout << std::endl;
     std::cout << "Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
     std::cout << "Intermediate access times: " << dataBuffer_intermediate_data_access_times << std::endl;
+    std::cout << "Cache access times: " << cache_access_times << std::endl;
+    std::cout << "DRAM access times: " << mem_access_times << std::endl;
     std::cout << "EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
 
     std::cout << std::endl;

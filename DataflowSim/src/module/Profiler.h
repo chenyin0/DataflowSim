@@ -37,6 +37,8 @@ namespace DFSim
         void printLseProfiling();
         void printPowerProfiling();
         void tiaProfiling();
+        void printDramProfiling();
+        void printCacheProfiling();
 
     private:
         float transEnergy2Power(float _energy);  // Energy: pJ; Power: mW
