@@ -26,7 +26,7 @@ void BfsTest::generateData()
     level.resize(nodeNum + 1);  // Index start at 1
 
     std::ifstream filePath("./resource/Bfs/input.data");
-    ReadFile::readFile2UnifiedVector(memData, filePath);
+    ReadFile::readFile2Container(memData, filePath);
 
     for (size_t i = 0; i < nodeNum; ++i)
     {
