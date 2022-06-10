@@ -65,6 +65,7 @@ void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
             if (mem->addTransaction(req.isWrite, req.addr))  // Send req to DRAM, if send failed -> break;
             {
                 req.inflight = 1;
+                ++memAccessCnt;
             }
             else
             {
@@ -137,11 +138,11 @@ void Spm::mem_req_complete(MemReq _req)
 }
 
 
-// For debug
-#ifdef DEBUG_MODE
-const vector<pair<MemReq, uint>>& Spm::getReqQueue() const
-{
-    return reqQueue;
-}
-
-#endif
+//// For debug
+//#ifdef DEBUG_MODE
+//const vector<pair<MemReq, uint>>& Spm::getReqQueue() const
+//{
+//    return reqQueue;
+//}
+//
+//#endif
