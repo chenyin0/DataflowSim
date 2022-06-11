@@ -453,8 +453,19 @@ void Cache::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
 {
     for (auto& req : reqQueue2Mem)
     {
-        if (mem->addTransaction(req.isWrite, req.addr))
+       /* if (mem->addTransaction(req.isWrite, req.addr))
         {
+            reqQueue2Mem.pop_front();
+            ++memAccessCnt;
+        }
+        else
+        {
+            break;
+        }*/
+
+        if (mem->willAcceptTransaction())
+        {
+            mem->addTransaction(req.isWrite, req.addr);
             reqQueue2Mem.pop_front();
             ++memAccessCnt;
         }

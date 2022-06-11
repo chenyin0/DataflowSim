@@ -62,8 +62,19 @@ void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
         bool latency = reqQueue[sendPtr].second;  // Emulate SPM access latency
         if (req.valid && !req.inflight && !req.ready && !latency)
         {
-            if (mem->addTransaction(req.isWrite, req.addr))  // Send req to DRAM, if send failed -> break;
+            //if (mem->addTransaction(req.isWrite, req.addr))  // Send req to DRAM, if send failed -> break;
+            //{
+            //    req.inflight = 1;
+            //    ++memAccessCnt;
+            //}
+            //else
+            //{
+            //    break;
+            //}
+
+            if (mem->willAcceptTransaction())  // Send req to DRAM, if send failed -> break;
             {
+                mem->addTransaction(req.isWrite, req.addr);
                 req.inflight = 1;
                 ++memAccessCnt;
             }
