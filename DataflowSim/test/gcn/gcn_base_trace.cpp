@@ -17,7 +17,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     Profiler* profiler = new Profiler(registry, memSys, debug);
 
     //*** Declare Watchdog
-    Watchdog watchdog = Watchdog(pow(2, 7), 500000);
+    Watchdog watchdog = Watchdog(pow(2, 7), 50000000);
 
     ////*** Define subgraph scheduler
     GraphScheduler* graphScheduler = new GraphScheduler();
@@ -56,9 +56,11 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     // Read mem trace
     deque<uint> nodeTrace;
     deque<uint> featTrace;
-    string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_1.txt";
+    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_30.txt";
+    string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_full_retrain.txt";
     readMemTrace(nodeTrace, fileName);
     readMemTrace(featTrace, fileName);
+    for_each(featTrace.begin(), featTrace.end(), [](auto& p) {p *= feat_length; });
 
     ////*** Simulate
     // Declare
@@ -114,7 +116,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     registry->getChan("Chan_begin")->get({ 1 });
     uint iter = 0;
 
-    uint max_iter = 5000000;// 5000000;
+    uint max_iter = 500000000;// 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -298,7 +300,14 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     debug->getFile() << "*******************************" << endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
-    profiler->printCacheMissRate();
+    profiler->printCacheProfiling();
+
+    //*** Print DRAM 
+    debug->getFile() << endl;
+    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << "DRAM profiling: " << std::endl;
+    debug->getFile() << std::endl;
+    profiler->printDramProfiling();
 
     //*** Print power 
     debug->getFile() << endl;

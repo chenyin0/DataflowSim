@@ -118,5 +118,12 @@ namespace DFSim {
             static float graphScheduler_leakage_power = 0.0083;  // mW
             return graphScheduler_leakage_power;
         }
+
+        // DRAM
+        static float getDramAccessEnergy()
+        {
+            static float dramEnergyPerAccess = 7 * 1024;  // (pJ) HBM 1.0 is 7 pJ / bit, and bus bandwidth is 1024-bit
+            return dramEnergyPerAccess;
+        }
     };
 }

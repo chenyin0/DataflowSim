@@ -410,13 +410,6 @@ void Profiler::printPowerProfiling()
     float graphScheduler_leakage_power = Hardware_Para::getGraphSchedulerLeakagePower();
     float graphScheduler_power = graphScheduler_dynamic_power + graphScheduler_leakage_power;
 
-    float total_power = alu_power + 
-                        reg_power + 
-                        pe_ctrl_power + 
-                        contextBuffer_power + 
-                        dataBuffer_power + 
-                        graphScheduler_power;
-
     // Cache
     uint cache_access_times = 0;
     if (memSys != nullptr && memSys->cache != nullptr)
@@ -430,6 +423,17 @@ void Profiler::printPowerProfiling()
     {
         mem_access_times += memSys->getMemAccessCnt();
     }
+    float mem_access_energy = mem_access_times * Hardware_Para::getDramAccessEnergy();
+    float mem_access_power = transEnergy2Power(mem_access_energy);
+
+    float total_power = alu_power +
+        reg_power +
+        pe_ctrl_power +
+        contextBuffer_power +
+        dataBuffer_power +
+        graphScheduler_power +
+        mem_access_power;
+
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* Power profiling *********" << std::endl;
@@ -475,6 +479,11 @@ void Profiler::printPowerProfiling()
     debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << setprecision(4) << " mW" << std::endl;
 
     debug->getFile() << std::endl;
+    debug->getFile() << ">>> DRAM: " << std::endl;
+    debug->getFile() << "Access times: " << mem_access_times << std::endl;
+    debug->getFile() << "Power: " << mem_access_power << setprecision(2) << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
     debug->getFile() << ">>> Total power: "  << total_power << setprecision(2) << " mW" << std::endl;
     debug->getFile() << ">>> EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << setprecision(2) << std::endl;
 
@@ -498,6 +507,7 @@ void Profiler::printPowerProfiling()
     std::cout << "DMem-sram power: " << dataBuffer_sram_power << setprecision(2) << " mW" << std::endl;
     std::cout << "DMem-ctrl power: " << dataBuffer_ctrl_power << setprecision(2) << " mW" << std::endl;
     std::cout << "Graph-sched. power: " << graphScheduler_power << setprecision(2) << " mW" << std::endl;
+    std::cout << "DRAM power: " << mem_access_power << setprecision(2) << " mW" << std::endl;
     std::cout << std::endl;
 }
 

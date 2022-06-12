@@ -22,6 +22,8 @@ string GCN_Test::dataset_name = "cora";
 //string GCN_Test::dataset_name = "pubmed";
 //string GCN_Test::dataset_name = "amazon_comp";
 
+uint GCN_Test::feat_length;
+
 // Performance parameter
 uint GCN_Test::speedup_aggr = 1;
 uint GCN_Test::speedup_combine = 1;
@@ -38,7 +40,26 @@ void GCN_Test::generateData()
     ReadFile::readFile(indices, filePath);
 
     vertex_num = indPtr.size() - 1;  // The last data in indPtr is not a vertex
-    feat.resize(vertex_num);
+
+    // Set feature length
+    if (GCN_Test::dataset_name == "cora")
+    {
+        feat_length = 1433;
+    }
+    else if (GCN_Test::dataset_name == "citeseer")
+    {
+        feat_length = 3703;
+    }
+    else if (GCN_Test::dataset_name == "pubmed")
+    {
+        feat_length = 500;
+    }
+    else if (GCN_Test::dataset_name == "amazon_comp")
+    {
+        feat_length = 767;
+    }
+
+    feat.resize(vertex_num * feat_length);
 }
 
 void GCN_Test::readMemTrace(deque<uint>& queue, const string& filePath)

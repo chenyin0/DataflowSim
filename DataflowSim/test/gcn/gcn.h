@@ -42,6 +42,7 @@ namespace DFSimTest
         static const uint indPtr_BaseAddr;
         static const uint indices_BaseAddr;
         static const uint feat_BaseAddr;
+        static uint feat_length;
 
         static string dataset_name;
 
