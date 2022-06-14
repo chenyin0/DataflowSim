@@ -649,8 +649,8 @@ void GemmTest::gemm_Base(Debug* debug)
             {
                 debug->debug_mode = Debug_mode::Print_detail;
 
-                debug->getFile() << endl;
-                debug->getFile() << "*******************************" << endl;
+                debug->getFile() << std::endl;
+                debug->getFile() << "*******************************" << std::endl;
                 debug->getFile() << "Lse profiling: " << std::endl;
                 debug->getFile() << std::endl;
                 profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
@@ -690,8 +690,8 @@ void GemmTest::gemm_Base(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
 
@@ -726,8 +726,8 @@ void GemmTest::gemm_Base(Debug* debug)
 
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
@@ -736,8 +736,8 @@ void GemmTest::gemm_Base(Debug* debug)
     profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
@@ -745,9 +745,9 @@ void GemmTest::gemm_Base(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

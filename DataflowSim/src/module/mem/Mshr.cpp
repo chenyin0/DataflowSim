@@ -117,7 +117,7 @@ vector<pair<uint, CacheReq>> Mshr::peekMshrReadyEntry()
         auto& entry = mshrTable[entryId];
         if (entry.valid && entry.ready)
         {
-            reqVec.emplace_back(make_pair(entryId, entry.mshrQueue.front()));
+            reqVec.emplace_back(std::make_pair(entryId, entry.mshrQueue.front()));
         }
     }
     mshrRdPtr = (++mshrRdPtr) % mshrTable.size();
@@ -161,7 +161,7 @@ vector<pair<uint, CacheReq>> Mshr::getOutstandingReq()
         auto& entry = mshrTable[entryId];
         if (entry.valid && entry.outstanding)
         {
-            reqVec.emplace_back(make_pair(entryId, entry.mshrQueue.front()));
+            reqVec.emplace_back(std::make_pair(entryId, entry.mshrQueue.front()));
         }
     }
 

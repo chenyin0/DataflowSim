@@ -39,8 +39,8 @@ void Gesummv_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_i", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_j", "Loop", "Null")
+        { std::make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_j", "Loop", "Null")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_i", { "loop_j" });

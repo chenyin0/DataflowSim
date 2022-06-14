@@ -53,8 +53,8 @@ void Cfd_Test::cfd_Base(Debug* debug)
     //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
-    auto simChans = get<0>(debugPrint);
-    auto simLcs = get<1>(debugPrint);
+    auto simChans = std::get<0>(debugPrint);
+    auto simLcs = std::get<1>(debugPrint);
 
 
     ////*** Simulate
@@ -257,13 +257,13 @@ void Cfd_Test::cfd_Base(Debug* debug)
         Chan_i_lc_scatter_loop_j->value = Chan_i_lc_scatter_loop_j->assign(uint(0));
 
         Chan_velocity_x->get();	// Div	[0]Lse_momentum_x [1]Lse_density_i 
-        Chan_velocity_x->value = Chan_velocity_x->assign(uint(0)) / max(Chan_velocity_x->assign(uint(1)), 1);
+        Chan_velocity_x->value = Chan_velocity_x->assign(uint(0)) / std::max(Chan_velocity_x->assign(uint(1)), 1);
 
         Chan_velocity_y->get();	// Div	[0]Lse_momentum_y [1]Lse_density_i 
-        Chan_velocity_y->value = Chan_velocity_y->assign(uint(0)) / max(Chan_velocity_y->assign(uint(1)), 1);
+        Chan_velocity_y->value = Chan_velocity_y->assign(uint(0)) / std::max(Chan_velocity_y->assign(uint(1)), 1);
 
         Chan_velocity_z->get();	// Div	[0]Lse_momentum_z [1]Lse_density_i 
-        Chan_velocity_z->value = Chan_velocity_z->assign(uint(0)) / max(Chan_velocity_z->assign(uint(1)), 1);
+        Chan_velocity_z->value = Chan_velocity_z->assign(uint(0)) / std::max(Chan_velocity_z->assign(uint(1)), 1);
 
         Chan_normal_x_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
         Chan_normal_x_addr->value = Chan_normal_x_addr->assign(uint(0)) + Chan_normal_x_addr->assign(uint(1));
@@ -386,7 +386,7 @@ void Cfd_Test::cfd_Base(Debug* debug)
         Chan_normal_len->value = std::sqrt(Chan_normal_len->assign(uint(0)));
 
         Chan_pressure_density_i->get();	// Div	[0]Chan_pressure [1]Lse_density_i 
-        Chan_pressure_density_i->value = Chan_pressure_density_i->assign(uint(0)) / max(Chan_pressure_density_i->assign(uint(1)), 1);
+        Chan_pressure_density_i->value = Chan_pressure_density_i->assign(uint(0)) / std::max(Chan_pressure_density_i->assign(uint(1)), 1);
 
         Chan_de_p->get();	// Add	[0]Lse_density_energy_i [1]Chan_pressure 
         Chan_de_p->value = Chan_de_p->assign(uint(0)) + Chan_de_p->assign(uint(1));
@@ -486,36 +486,36 @@ void Cfd_Test::cfd_Base(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling();
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
 
     //*** Print power 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
     //*** TIA profiling
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "TIA profiling " << std::endl;
     debug->getFile() << std::endl;
     if (splitNum == 1)
@@ -526,9 +526,9 @@ void Cfd_Test::cfd_Base(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

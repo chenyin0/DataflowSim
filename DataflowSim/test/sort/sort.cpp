@@ -44,16 +44,16 @@ void Sort_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_m", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_i", "Loop", "Null"),
-         make_tuple<string, string, string>("branch_to_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("loop_k1", "Loop", "Null"),
-         make_tuple<string, string, string>("branch_tmp1_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("branch_tmp1_false", "Branch", "falsePath"),
-         make_tuple<string, string, string>("branch_to_false", "Branch", "falsePath"),
-         make_tuple<string, string, string>("loop_k2", "Loop", "Null"),
-         make_tuple<string, string, string>("branch_tmp2_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("branch_tmp2_false", "Branch", "falsePath")
+        { std::make_tuple<string, string, string>("loop_m", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+         std::make_tuple<string, string, string>("branch_to_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("loop_k1", "Loop", "Null"),
+         std::make_tuple<string, string, string>("branch_tmp1_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("branch_tmp1_false", "Branch", "falsePath"),
+         std::make_tuple<string, string, string>("branch_to_false", "Branch", "falsePath"),
+         std::make_tuple<string, string, string>("loop_k2", "Loop", "Null"),
+         std::make_tuple<string, string, string>("branch_tmp2_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("branch_tmp2_false", "Branch", "falsePath")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_m", { "loop_i" });

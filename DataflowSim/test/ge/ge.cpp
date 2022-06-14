@@ -30,12 +30,12 @@ void Ge_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_t", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_j", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_i", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_k", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_i1", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_j1", "Loop", "Null")
+        { std::make_tuple<string, string, string>("loop_t", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_j", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_k", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_i1", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_j1", "Loop", "Null")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_t", { "loop_j", "loop_i1" });

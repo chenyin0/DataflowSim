@@ -35,9 +35,9 @@ void FFT_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_span", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_odd", "Loop", "Null"),
-         make_tuple<string, string, string>("branch_rootindex", "Branch", "truePath")
+        { std::make_tuple<string, string, string>("loop_span", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_odd", "Loop", "Null"),
+         std::make_tuple<string, string, string>("branch_rootindex", "Branch", "truePath")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_span", { "loop_odd" });

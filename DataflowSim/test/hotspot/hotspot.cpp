@@ -46,14 +46,14 @@ void HotSpot_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_r", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_c", "Loop", "Null"),
-         make_tuple<string, string, string>("cond1_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("cond1_false", "Branch", "falsePath"),
-         make_tuple<string, string, string>("cond2_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("cond2_false", "Branch", "falsePath"),
-         make_tuple<string, string, string>("cond3_true", "Branch", "truePath"),
-         make_tuple<string, string, string>("cond3_false", "Branch", "falsePath")
+        { std::make_tuple<string, string, string>("loop_r", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_c", "Loop", "Null"),
+         std::make_tuple<string, string, string>("cond1_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("cond1_false", "Branch", "falsePath"),
+         std::make_tuple<string, string, string>("cond2_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("cond2_false", "Branch", "falsePath"),
+         std::make_tuple<string, string, string>("cond3_true", "Branch", "truePath"),
+         std::make_tuple<string, string, string>("cond3_false", "Branch", "falsePath")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_r", { "loop_c" });

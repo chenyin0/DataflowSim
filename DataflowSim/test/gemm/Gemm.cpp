@@ -72,11 +72,11 @@ void GemmTest::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_jj", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_kk", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_i", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_k", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_j", "Loop", "Null"),
+        { std::make_tuple<string, string, string>("loop_jj", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_kk", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_i", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_k", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_j", "Loop", "Null"),
         });
 
     dfg.controlTree.addLowerControlRegion("loop_jj", { "loop_kk" });

@@ -602,7 +602,7 @@ void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
                 auto nextNodeCtrlRegionIter = find(controlTreeBfs.begin(), controlTreeBfs.end(), node->controlRegionName);
                 if (iter_ < iter && nodeCtrlRegionIter < nextNodeCtrlRegionIter)
                 {
-                    swap(*iter, *iter_);
+                    std::swap(*iter, *iter_);
                 }
             }
         }
@@ -948,7 +948,7 @@ vector<string> Graph::bfsTraverseControlTree(ControlTree& ctrlTree)
 //** Dfg
 Dfg::Dfg()
 {
-    dfg_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_dfg.dot", ios::out);
+    dfg_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_dfg.dot", std::ios::out);
 }
 
 void Dfg::addNode(const string& _nodeName, const string& _nodeOp)
@@ -1102,7 +1102,7 @@ ChanGraph::ChanGraph(Dfg& dfg_)
 
 void ChanGraph::initial()
 {
-    chan_graph_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_chan_graph.dot", ios::out);
+    chan_graph_dot.open(Global::file_path + App_name_convert::toString(Global::app_name) + "_chan_graph.dot", std::ios::out);
 }
 
 void ChanGraph::addNode(const string& _nodeName)
@@ -1150,11 +1150,11 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         if (nodeType == "ChanBase" || nodeType == "ChanDGSF" || nodeType == "Lse_ld" || nodeType == "Lse_st")
         {
             label += "label=\"" + nodeName + "\\n" +
-                "Size:" + to_string(size_) + " "
-                "Cyc:" + to_string(cycle_) + " "
-                "Speed:" + to_string(speedup_) + "\\n" +
+                "Size:" + std::to_string(size_) + " "
+                "Cyc:" + std::to_string(cycle_) + " "
+                "Speed:" + std::to_string(speedup_) + "\\n" +
                 nodeType + " "
-                "Graph: " + to_string(node->subgraphId) + 
+                "Graph: " + std::to_string(node->subgraphId) +
                 "\"";
 
             if (nodeType == "ChanDGSF")
@@ -2190,7 +2190,7 @@ void ChanGraph::setSpeedup(Debug* debug)
         {
             if (subgraphNodes.count(node->subgraphId) == 0)
             {
-                subgraphNodes.insert(make_pair(node->subgraphId, 1));
+                subgraphNodes.insert(std::make_pair(node->subgraphId, 1));
             }
             else
             {

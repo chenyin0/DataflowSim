@@ -19,7 +19,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     //*** Declare Watchdog
     Watchdog watchdog = Watchdog(pow(2, 7), 50000000);
 
-    ////*** Define subgraph scheduler
+    //*** Define subgraph scheduler
     GraphScheduler* graphScheduler = new GraphScheduler();
 
     // Generate DFG
@@ -47,8 +47,8 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
-    auto simChans = get<0>(debugPrint);
-    auto simLcs = get<1>(debugPrint);
+    auto simChans = std::get<0>(debugPrint);
+    auto simLcs = std::get<1>(debugPrint);
 
     // Generate benchmark data
     generateData();
@@ -116,7 +116,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     registry->getChan("Chan_begin")->get({ 1 });
     uint iter = 0;
 
-    uint max_iter = 500000000;// 5000000;
+    uint max_iter = 500;// 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -282,43 +282,43 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling();
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheProfiling();
 
     //*** Print DRAM 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "DRAM profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printDramProfiling();
 
     //*** Print power 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
     ////*** TIA profiling
-    //debug->getFile() << endl;
-    //debug->getFile() << "*******************************" << endl;
+    //debug->getFile() << std::endl;
+    //debug->getFile() << "*******************************" << std::endl;
     //debug->getFile() << "TIA profiling " << std::endl;
     //debug->getFile() << std::endl;
     //if (splitNum == 1)
@@ -329,13 +329,13 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry
-    delete memSys;
     delete profiler;
     delete graphScheduler;
+    delete memSys;
 }

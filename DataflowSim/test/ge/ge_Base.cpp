@@ -52,8 +52,8 @@ void Ge_Test::ge_Base(Debug* debug)
     //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
-    auto simChans = get<0>(debugPrint);
-    auto simLcs = get<1>(debugPrint);
+    auto simChans = std::get<0>(debugPrint);
+    auto simLcs = std::get<1>(debugPrint);
 
 
     ////*** Simulate
@@ -329,7 +329,7 @@ void Ge_Test::ge_Base(Debug* debug)
         Chan_sum_update->value = Chan_sum_update->assign(uint(0)) + Chan_sum_update->value;
 
         Chan_c->get();	// Div	[0]Lse_A_ij [1]Lse_A_jj 
-        Chan_c->value = Chan_c->assign(uint(0)) / max(Chan_c->assign(uint(1)), 1);
+        Chan_c->value = Chan_c->assign(uint(0)) / std::max(Chan_c->assign(uint(1)), 1);
 
         //Lse_A_ik_update_store->get();	// Store	[0]Chan_addr_ik [1]Chan_A_ik_update 
 
@@ -343,7 +343,7 @@ void Ge_Test::ge_Base(Debug* debug)
         Chan_c_scatter_loop_k->value = Chan_c_scatter_loop_k->assign(uint(0));
 
         Chan_x_i1->get();	// Div	[0]Chan_a_sum [1]Lse_A_i1i1 
-        Chan_x_i1->value = Chan_x_i1->assign(uint(0)) / max(Chan_x_i1->assign(uint(1)), 1);
+        Chan_x_i1->value = Chan_x_i1->assign(uint(0)) / std::max(Chan_x_i1->assign(uint(1)), 1);
 
         Chan_c_A_jk->get();	// Mul	[0]Chan_c_scatter_loop_k [1]Lse_A_jk 
         Chan_c_A_jk->value = Chan_c_A_jk->assign(uint(0)) * Chan_c_A_jk->assign(uint(1));
@@ -454,36 +454,36 @@ void Ge_Test::ge_Base(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling();
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
 
     //*** Print power 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
     //*** TIA profiling
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "TIA profiling " << std::endl;
     debug->getFile() << std::endl;
     if (splitNum == 1)
@@ -494,9 +494,9 @@ void Ge_Test::ge_Base(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

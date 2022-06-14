@@ -54,8 +54,8 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
-    auto simChans = get<0>(debugPrint);
-    auto simLcs = get<1>(debugPrint);
+    auto simChans = std::get<0>(debugPrint);
+    auto simLcs = std::get<1>(debugPrint);
 
 
     ////*** Simulate
@@ -296,7 +296,7 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
         Chan_Aij_update_shadow->value = Chan_Aij_update_shadow->assign(uint(0));
 
         Chan_Aij_div->get();	// Div	[0]Chan_Aij_update_shadow [1]Lse_Ajj 
-        Chan_Aij_div->value = Chan_Aij_div->assign(uint(0)) / max(Chan_Aij_div->assign(uint(1)), 1);
+        Chan_Aij_div->value = Chan_Aij_div->assign(uint(0)) / std::max(Chan_Aij_div->assign(uint(1)), 1);
 
         if (Chan_Aij_div->valid && Chan_Aij_div->channel.front().last)
         {
@@ -414,36 +414,36 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling();
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
 
     //*** Print power 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
     //*** TIA profiling
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "TIA profiling " << std::endl;
     debug->getFile() << std::endl;
     if (splitNum == 1)
@@ -454,9 +454,9 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

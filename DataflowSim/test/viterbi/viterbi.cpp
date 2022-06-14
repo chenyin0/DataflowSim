@@ -37,9 +37,9 @@ void Viterbi_Test::generateDfg()
 {
     //** ControlRegion
     dfg.controlTree.addControlRegion(
-        { make_tuple<string, string, string>("loop_t", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_curr", "Loop", "Null"),
-         make_tuple<string, string, string>("loop_prev_", "Loop", "Null")
+        { std::make_tuple<string, string, string>("loop_t", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_curr", "Loop", "Null"),
+         std::make_tuple<string, string, string>("loop_prev_", "Loop", "Null")
         });
 
     dfg.controlTree.addLowerControlRegion("loop_t", { "loop_curr" });

@@ -59,8 +59,8 @@ void LudTest::lud_Base_auto(Debug* debug)
     //debug->printSimNodes(chanGraph);
     registry->genSimConfig(chanGraph);  // Only used for initializing the first time sim
     const auto& debugPrint = registry->genDebugPrint(chanGraph);
-    auto simChans = get<0>(debugPrint);
-    auto simLcs = get<1>(debugPrint);
+    auto simChans = std::get<0>(debugPrint);
+    auto simLcs = std::get<1>(debugPrint);
 
 
     ////*** Simulate
@@ -347,7 +347,7 @@ void LudTest::lud_Base_auto(Debug* debug)
         Chan_sum_update_k1_drain->value = Chan_sum_update_k1_drain->assign(uint(0));
 
         Chan_sum_div->get();	// Div	[0]Chan_sum_update_k2_drain [1]Lse_a_i_size_i 
-        Chan_sum_div->value = Chan_sum_div->assign(uint(0)) / max(Chan_sum_div->assign(uint(1)), 1);
+        Chan_sum_div->value = Chan_sum_div->assign(uint(0)) / std::max(Chan_sum_div->assign(uint(1)), 1);
 
         Lse_a_update_j1->get();	// Store	[0]Chan_i_size_j [1]Chan_sum_update_k1_drain 
 
@@ -479,36 +479,36 @@ void LudTest::lud_Base_auto(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
 
     // Print channel utilization
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Channel profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printChanProfiling(graphScheduler);
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling();
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
 
     //*** Print power 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
     profiler->printPowerProfiling();
 
     //*** TIA profiling
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "TIA profiling " << std::endl;
     debug->getFile() << std::endl;
     if (splitNum == 1)
@@ -519,9 +519,9 @@ void LudTest::lud_Base_auto(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

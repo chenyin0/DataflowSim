@@ -11,26 +11,26 @@ void ControlTree::addControlRegion(const vector<tuple<string, string, string>>& 
 {
     for (auto& controlRegion : controlRegions_)
     {
-        if (controlRegionIndexDict.count(get<0>(controlRegion)))
+        if (controlRegionIndexDict.count(std::get<0>(controlRegion)))
         {
             Debug::throwError("There already has a same name control region!", __FILE__, __LINE__);
         }
         else
         {
-            controlRegionIndexDict.insert(pair<string, uint>(get<0>(controlRegion), controlRegionTable.size()));
-            if (get<1>(controlRegion) == "Loop")
+            controlRegionIndexDict.insert(pair<string, uint>(std::get<0>(controlRegion), controlRegionTable.size()));
+            if (std::get<1>(controlRegion) == "Loop")
             {
-                controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion)));
+                controlRegionTable.push_back(ControlRegion(std::get<0>(controlRegion), std::get<1>(controlRegion)));
             }
-            else if (get<1>(controlRegion) == "Branch")
+            else if (std::get<1>(controlRegion) == "Branch")
             {
-                if (get<2>(controlRegion) == "truePath")
+                if (std::get<2>(controlRegion) == "truePath")
                 {
-                    controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion), true));
+                    controlRegionTable.push_back(ControlRegion(std::get<0>(controlRegion), std::get<1>(controlRegion), true));
                 }
-                else if (get<2>(controlRegion) == "falsePath")
+                else if (std::get<2>(controlRegion) == "falsePath")
                 {
-                    controlRegionTable.push_back(ControlRegion(get<0>(controlRegion), get<1>(controlRegion), false));
+                    controlRegionTable.push_back(ControlRegion(std::get<0>(controlRegion), std::get<1>(controlRegion), false));
                 }
                 else
                 {

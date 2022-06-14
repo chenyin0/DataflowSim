@@ -334,7 +334,7 @@ void Lse::statusUpdate()
                     }
                     else
                     {
-                        suspendReq = make_pair(true, req);
+                        suspendReq = std::make_pair(true, req);
                     }
                 }
 
@@ -531,7 +531,7 @@ void Lse::ackCallback(MemReq _req)
 
 pair<bool, MemReq> Lse::peekReqQueue()
 {
-    auto req = make_pair(0, MemReq());
+    auto req = std::make_pair(0, MemReq());
     if (suspendReq.first)
     {
         req.first = 1;

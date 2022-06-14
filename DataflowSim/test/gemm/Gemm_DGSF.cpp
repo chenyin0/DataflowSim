@@ -685,7 +685,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         if (graphId != graphScheduler->currSubgraphId)
         {
             graphId = graphScheduler->currSubgraphId;
-            subgraphRecord.push_back(make_pair(graphId, clk));
+            subgraphRecord.push_back(std::make_pair(graphId, clk));
         }
 
         //// Debug_yin
@@ -858,7 +858,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
         {
             uint activeNum = entry.chanPtr->activeCnt;
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt)) * 100, float(100));
-            //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" << std::endl;
+            //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << std::setprecision(2) << "%" << std::endl;
 
             // TODO: Exclude channel in "Nop"
             if (entry.chanPtr->moduleName != "Chan_begin"
@@ -866,7 +866,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
                 //&& (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)
                 && (entry.chanPtr->keepMode != 1 && entry.chanPtr->drainMode != 1))
             {
-                debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << setprecision(2) << "%" 
+                debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << std::setprecision(2) << "%" 
                     << "\t" << entry.chanPtr->subgraphId 
                     << "\t" << entry.chanPtr->activeCnt
                     << "\t" << entry.chanPtr->activeClkCnt << std::endl;
@@ -880,7 +880,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     }
 
     debug->getFile() << std::endl;
-    debug->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / (/*chanNum * */avgWeight) << setprecision(2) << "%" << std::endl;
+    debug->getFile() << "Avg channel utilization: " << std::fixed << chanUtilAvg / (/*chanNum * */avgWeight) << std::setprecision(2) << "%" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
@@ -921,8 +921,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
 
     //*** Record subgraph switch
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Subgraph switch record: " << std::endl;
     debug->getFile() << std::endl;
     uint deltaTime = 0;
@@ -942,8 +942,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
 
     //*** Print Lse access 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Lse profiling: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printLseProfiling("lse_ld_m1", lse_ld_m1);
@@ -952,8 +952,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
     profiler->printLseProfiling("lse_st_partialSum", lse_st_partialSum);
 
     //*** Print cache 
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Cache miss rate: " << std::endl;
     debug->getFile() << std::endl;
     profiler->printCacheMissRate();
@@ -961,10 +961,10 @@ void GemmTest::gemm_DGSF(Debug* debug)
     //*** Record run time
     endTime = clock();
     std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-    debug->getFile() << endl;
-    debug->getFile() << "*******************************" << endl;
+    debug->getFile() << std::endl;
+    debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Total Cycle: " << clk << std::endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry
