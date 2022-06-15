@@ -285,8 +285,8 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
     //std::cout << "chanActiveNumTotal:       " << chanActiveNumTotal << std::endl;
     //float avgChanUtilization = chanUtilAvg / avgWeight;
     debug->getFile() << std::endl;
-    debug->getFile() << "Avg channel utilization: " << avgChanUtilization << std::setprecision(2) << "%" << std::endl;
-    std::cout << "Avg channel utilization: " << avgChanUtilization << std::setprecision(2) << "%" << std::endl;
+    debug->getFile() << "Avg channel utilization: " << std::setprecision(2) << avgChanUtilization << "%" << std::endl;
+    std::cout << "Avg channel utilization: " << std::setprecision(2) << avgChanUtilization << "%" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* ALU/Reg Access Times *********" << std::endl;
@@ -332,6 +332,8 @@ void Profiler::printDramProfiling()
 
 void Profiler::printPowerProfiling()
 {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+
     // PE array
     //uint aluActiveTimes = chanActiveNumTotal;
     uint reg_active_times = chanActiveNumTotal * 3;
@@ -440,74 +442,74 @@ void Profiler::printPowerProfiling()
     debug->getFile() << ">>> PE Array: " << std::endl;
     debug->getFile() << "PE active total times: " << chanActiveNumTotal << std::endl;
 
-    debug->getFile() << "ALU power: " << alu_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << alu_dynamic_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << alu_leakage_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "ALU power: " << std::setprecision(2) << alu_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << alu_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << alu_leakage_power << " mW" << std::endl;
 
-    debug->getFile() << "Reg power: " << reg_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << reg_dynamic_power << std::setprecision(4) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << reg_leakage_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << reg_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << reg_leakage_power << " mW" << std::endl;
 
-    debug->getFile() << "Ctrl logic power: " << pe_ctrl_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << pe_ctrl_dynamic_power << std::setprecision(4) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << pe_ctrl_leakage_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Ctrl logic power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << pe_ctrl_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << pe_ctrl_leakage_power << " mW" << std::endl;
 
-    debug->getFile() << "Context Buffer power: " << contextBuffer_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << contextBuffer_dynamic_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << contextBuffer_leakage_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Context Buffer power: " << std::setprecision(2) << contextBuffer_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << contextBuffer_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << contextBuffer_leakage_power << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> On-chip Buffer: " << std::endl;
     debug->getFile() << "Access times: " << dataBuffer_access_times << std::endl;
     debug->getFile() << "\t Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
     debug->getFile() << "\t Intermediate data access times: " << dataBuffer_intermediate_data_access_times << std::endl;
-    debug->getFile() << "Buffer total power: " << dataBuffer_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << dataBuffer_dynamic_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << dataBuffer_leakage_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "Buffer ctrl power: " << dataBuffer_ctrl_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << dataBuffer_ctrl_dynamic_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << dataBuffer_ctrl_leakage_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "Buffer sram power: " << dataBuffer_sram_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << dataBuffer_sram_dynamic_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << dataBuffer_sram_leakage_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Buffer total power: " << std::setprecision(2) << dataBuffer_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_leakage_power << " mW" << std::endl;
+    debug->getFile() << "Buffer ctrl power: " << std::setprecision(2) << dataBuffer_ctrl_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_ctrl_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_ctrl_leakage_power << " mW" << std::endl;
+    debug->getFile() << "Buffer sram power: " << std::setprecision(2) << dataBuffer_sram_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_sram_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_sram_leakage_power << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> Graph Scheduler: " << std::endl;
     debug->getFile() << "Graph switch times: " << graphSwitchTimes << std::endl;
-    debug->getFile() << "Graph scheduler power: " << graphScheduler_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << graphScheduler_dynamic_power << std::setprecision(4) << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << graphScheduler_leakage_power << std::setprecision(4) << " mW" << std::endl;
+    debug->getFile() << "Graph scheduler power: " << std::setprecision(2) << graphScheduler_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << graphScheduler_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << graphScheduler_leakage_power << " mW" << std::endl;
 
     debug->getFile() << std::endl;
     debug->getFile() << ">>> DRAM: " << std::endl;
     debug->getFile() << "Access times: " << mem_access_times << std::endl;
-    debug->getFile() << "Power: " << mem_access_power << std::setprecision(2) << " mW" << std::endl;
+    debug->getFile() << "Power: " << std::setprecision(2) << mem_access_power  << " mW" << std::endl;
 
     debug->getFile() << std::endl;
-    debug->getFile() << ">>> Total power: " << total_power << std::setprecision(2) << " mW" << std::endl;
-    debug->getFile() << ">>> EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::setprecision(2) << std::endl;
+    debug->getFile() << ">>> Total power: " << std::setprecision(2) << total_power << " mW" << std::endl;
+    debug->getFile() << ">>> EDP: " << std::setprecision(2) << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::endl;
 
     // Print
     std::cout << std::endl;
-    std::cout << "Total power: " << total_power << std::setprecision(2) << " mW" << std::endl;
+    std::cout << "Total power: " << std::setprecision(2) << total_power << " mW" << std::endl;
     std::cout << "GraphSwitch Times: " << graphSwitchTimes << std::endl;
     std::cout << std::endl;
     std::cout << "Mem req access times: " << dataBuffer_mem_req_access_times << std::endl;
     std::cout << "Intermediate access times: " << dataBuffer_intermediate_data_access_times << std::endl;
     std::cout << "Cache access times: " << cache_access_times << std::endl;
     std::cout << "DRAM access times: " << mem_access_times << std::endl;
-    std::cout << "EDP: " << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::setprecision(2) << std::endl;
+    std::cout << "EDP: " << std::setprecision(2) << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::endl;
 
     std::cout << std::endl;
-    std::cout << "ALU power: " << alu_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "Reg power: " << reg_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "PE-ctrl power: " << pe_ctrl_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "Instr power: " << 0 << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "Context power: " << contextBuffer_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "DMem-sram power: " << dataBuffer_sram_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "DMem-ctrl power: " << dataBuffer_ctrl_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "Graph-sched. power: " << graphScheduler_power << std::setprecision(2) << " mW" << std::endl;
-    std::cout << "DRAM power: " << mem_access_power << std::setprecision(2) << " mW" << std::endl;
+    std::cout << "ALU power: " << std::setprecision(2) << alu_power << " mW" << std::endl;
+    std::cout << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    std::cout << "PE-ctrl power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
+    std::cout << "Instr power: " << std::setprecision(2) << 0 << " mW" << std::endl;
+    std::cout << "Context power: " << std::setprecision(2) << contextBuffer_power << " mW" << std::endl;
+    std::cout << "DMem-sram power: " << std::setprecision(2) << dataBuffer_sram_power << " mW" << std::endl;
+    std::cout << "DMem-ctrl power: " << std::setprecision(2) << dataBuffer_ctrl_power << " mW" << std::endl;
+    std::cout << "Graph-sched. power: " << std::setprecision(2) << graphScheduler_power << " mW" << std::endl;
+    std::cout << "DRAM power: " << std::setprecision(2) << mem_access_power << " mW" << std::endl;
     std::cout << std::endl;
 }
 
@@ -550,8 +552,8 @@ void Profiler::tiaProfiling()
 
     debug->getFile() << std::endl;
     debug->getFile() << "******* TIA Performance profiling *********" << std::endl;
-    debug->getFile() << "Total cycle: " << cycle << std::setprecision(2) << std::endl;
-    debug->getFile() << "PE utilization: " << utilization * 100 << std::setprecision(2) << "%" << std::endl;
+    debug->getFile() << "Total cycle: " << std::setprecision(2) << cycle << std::endl;
+    debug->getFile() << "PE utilization: " << std::setprecision(2) << utilization * 100 << "%" << std::endl;
 
     // Power
     uint reg_active_times = chanActiveNumTotal * 3;
