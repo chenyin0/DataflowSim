@@ -1,7 +1,7 @@
 #include "./MemSystem.h"
 #include "../ClkSys.h"
 #include "../../sim/Debug.h"
-#include "../../util/util.hpp"  // Debug_yin_04.12
+//#include "../../util/util.hpp"  // Debug_yin_04.12
 
 using namespace DFSim;
 
@@ -24,12 +24,25 @@ MemSystem::MemSystem()
 
     memDataBus = new MemoryDataBus();
 
-    mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
-    TransactionCompleteCB* read_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_read_complete);
-    TransactionCompleteCB* write_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_write_complete);
-    //TransactionCompleteCB* read_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_read_complete);
-    //TransactionCompleteCB* write_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_write_complete);
-    mem->RegisterCallbacks(read_cb, write_cb, power_callback);
+    //// DRAMSim2
+    //mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
+    //TransactionCompleteCB* read_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_read_complete);
+    //TransactionCompleteCB* write_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_write_complete);
+    ////TransactionCompleteCB* read_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_read_complete);
+    ////TransactionCompleteCB* write_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_write_complete);
+    //mem->RegisterCallbacks(read_cb, write_cb, power_callback);
+    //mem->setCPUClockSpeed(FREQ)
+
+    // DRAMSim3
+    /*dramsim3::Config config("configs/HBM1_4Gb_x128.ini", ".");*/
+    const std::string& config_file = "../DRAMSim3/configs/HBM1_4Gb_x128.ini";
+    std::function<void(uint64_t)> read_callback = std::bind(&MemoryDataBus::mem_read_complete, memDataBus, std::placeholders::_1);
+    std::function<void(uint64_t)> write_callback = std::bind(&MemoryDataBus::mem_write_complete, memDataBus, std::placeholders::_1);
+    mem = new dramsim3::MemorySystem(config_file, ".", read_callback, write_callback);
+
+    auto tCK_ = mem->GetTCK();
+    dramsimClkFreqHz = (uint)(1.0 / (tCK_ * 1e-9));
+    hostClkFreqHz = FREQ;
 }
 
 MemSystem::~MemSystem()
@@ -467,7 +480,9 @@ void MemSystem::MemSystemUpdate()
         // DRAM & memory bus
         returnReqAck();
         getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
-        mem->update();
+
+        //mem->update();  // Deprecated for DRAMSim2
+        dramUpdate();  // Update DRAMSim3
 
         // Send req to on-chip memory
         if (SPM_ENABLE)
@@ -505,6 +520,30 @@ const uint& MemSystem::getMemAccessCnt() const
     return memAccessCnt;
 }
 
+void MemSystem::dramUpdate()
+{
+    // For 1:1 ratios
+    if (hostClkFreqHz == dramsimClkFreqHz)
+    {
+        mem->ClockTick();
+        return;
+    }
+
+    // Update dramCnt.
+    dramCnt += dramsimClkFreqHz;
+
+    while (hostCnt < dramCnt)
+    {
+        hostCnt += hostClkFreqHz;
+        mem->ClockTick();
+    }
+
+    if (hostCnt == dramCnt)
+    {
+        hostCnt = 0;
+        dramCnt = 0;
+    }
+}
 
 //#ifdef DEBUG_MODE
 //// For Debug

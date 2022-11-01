@@ -89,11 +89,12 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DRAMSim2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DRAMSim2.lib;DRAMSim3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,13 +122,14 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>D:\GitRepo\DataflowSim\x64\Release;E:\GitRepo\DataflowSim\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DRAMSim2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DRAMSim3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -254,11 +256,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\Bfs\input.data" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DRAMSim2\DRAMSim2.vcxproj">
-      <Project>{86c551d5-103a-49c1-a654-325bee187ef1}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\metis\metis.lib" />

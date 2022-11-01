@@ -1,0 +1,454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="configs">
+      <UniqueIdentifier>{89497266-ccb1-4aca-bc93-2521fc786e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext">
+      <UniqueIdentifier>{514ec9e3-2689-4ea0-9b84-64e56e4573a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{7347d0ff-1fcb-4029-9152-ff11396b2262}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{d96f4d0a-7cd9-43b4-a1cc-6b5f398a5990}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{e0785b1c-f523-44d1-9025-1547d0f02a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\fmt">
+      <UniqueIdentifier>{b557d8fd-06be-40d0-ba14-956d5a138706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\headers">
+      <UniqueIdentifier>{33dcd77c-e9b2-4509-a948-ea1c4a9ca351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\SuperLU_MT_3.1">
+      <UniqueIdentifier>{3f684919-91ae-4e20-9b1a-f9d30aa3a0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\fmt\include">
+      <UniqueIdentifier>{1fe5e33e-abf5-4eeb-a6e5-fc9da9639ae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\fmt\include\fmt">
+      <UniqueIdentifier>{a57356dc-569c-4958-871f-15f21bbd5ea3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="configs\DDR3_1Gb_x8_1333.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x4_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x4_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x8_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x8_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x16_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_4Gb_x16_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x4_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x4_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x8_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x8_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x16_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR3_8Gb_x16_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\ddr3_debug.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x4_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x8_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_4Gb_x16_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2933.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_2933_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x4_3200.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2933.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_2933_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x8_3200.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2133.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2133_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2400_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2666.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2666_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2933.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_2933_2.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\DDR4_8Gb_x16_3200.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\ddr4_debug.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\GDDR5_1Gb_x32.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\GDDR5_8Gb_x32.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\GDDR5X_8Gb_x32.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\GDDR6_8Gb_x16.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HBM_4Gb_x128.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HBM1_4Gb_x128.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HBM2_4Gb_x128.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HBM2_8Gb_x128.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HMC_2GB_4Lx16.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HMC_2GB_4Lx16_dummy.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HMC_4GB_4Lx16.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\HMC2_8GB_4Lx16.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\lpddr_2Gb_x16.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\LPDDR3_8Gb_x32_1333.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\LPDDR3_8Gb_x32_1600.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\LPDDR3_8Gb_x32_1866.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\LPDDR4_8Gb_x16_2400.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\ST-1.2x.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\ST-1.5x.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="configs\ST-2.0x.ini">
+      <Filter>configs</Filter>
+    </None>
+    <None Include="tests\example.trace">
+      <Filter>tests</Filter>
+    </None>
+    <None Include="scripts\batch_run.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\final_PowerTemperature_map.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\heatmap.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\parse_config.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\plot_stats.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\trace_gen.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\validation.py">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="ext\fmt\LICENSE.rst">
+      <Filter>ext\fmt</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bankstate.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\channel_state.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\command_queue.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpu.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dram_system.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hmc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory_system.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\refresh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\simple_stats.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timing.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_config.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_dramsys.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_hmcsys.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sp_ienv.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\headers\INIReader.cpp">
+      <Filter>ext\headers</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\headers\ini.cpp">
+      <Filter>ext\headers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ext\fmt\include\fmt\core.h">
+      <Filter>ext\fmt\include\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\fmt\include\fmt\format.h">
+      <Filter>ext\fmt\include\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\fmt\include\fmt\format-inl.h">
+      <Filter>ext\fmt\include\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\headers\args.hxx">
+      <Filter>ext\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\headers\catch.hpp">
+      <Filter>ext\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\headers\json.hpp">
+      <Filter>ext\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bankstate.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\channel_state.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\command_queue.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cpu.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dram_system.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dramsim3.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hmc.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory_system.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\refresh.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\simple_stats.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\timing.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\headers\INIReader.h">
+      <Filter>ext\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\headers\ini.h">
+      <Filter>ext\headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ext\headers\INIHLICENSE.txt">
+      <Filter>ext\headers</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

@@ -376,7 +376,7 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
     {
         if (!reqBankConflict[level][bankId])
         {
-            reqQueueBank.emplace_back(make_pair(cacheReq, cache_access_latency[level]));
+            reqQueueBank.emplace_back(std::make_pair(cacheReq, cache_access_latency[level]));
             reqBankConflict[level][bankId] = 1;  // Set this bank has been occupied in this round
             return true;
         }
@@ -449,23 +449,50 @@ bool Cache::sendReq2reqQueue2Mem(const CacheReq cacheReq)
     }
 }
 
-void Cache::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
+//void Cache::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
+//{
+//    for (auto& req : reqQueue2Mem)
+//    {
+//       /* if (mem->addTransaction(req.isWrite, req.addr))
+//        {
+//            reqQueue2Mem.pop_front();
+//            ++memAccessCnt;
+//        }
+//        else
+//        {
+//            break;
+//        }*/
+//
+//        if (mem->willAcceptTransaction())
+//        {
+//            mem->addTransaction(req.isWrite, req.addr);
+//            reqQueue2Mem.pop_front();
+//            ++memAccessCnt;
+//        }
+//        else
+//        {
+//            break;
+//        }
+//    }
+//}
+
+void Cache::sendReq2Mem(dramsim3::MemorySystem* mem)
 {
     for (auto& req : reqQueue2Mem)
     {
-       /* if (mem->addTransaction(req.isWrite, req.addr))
-        {
-            reqQueue2Mem.pop_front();
-            ++memAccessCnt;
-        }
-        else
-        {
-            break;
-        }*/
+        /* if (mem->addTransaction(req.isWrite, req.addr))
+         {
+             reqQueue2Mem.pop_front();
+             ++memAccessCnt;
+         }
+         else
+         {
+             break;
+         }*/
 
-        if (mem->willAcceptTransaction())
+        if (mem->WillAcceptTransaction(req.addr, req.isWrite))
         {
-            mem->addTransaction(req.isWrite, req.addr);
+            mem->AddTransaction(req.addr, req.isWrite);
             reqQueue2Mem.pop_front();
             ++memAccessCnt;
         }

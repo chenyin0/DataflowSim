@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{818558df-49ca-4fbe-ad10-c4e39bb7a241}</ProjectGuid>
+    <RootNamespace>DRAMSim3</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <ReferencePath>E:\GitRepo\DataflowSim\DRAMSim3\ext\SuperLU_MT_3.1\pthread\Pre-built.2\include;$(ReferencePath)</ReferencePath>
+    <LibraryPath>E:\GitRepo\DataflowSim\DRAMSim3\ext\SuperLU_MT_3.1\pthread\Pre-built.2\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <ReferencePath>E:\GitRepo\DataflowSim\DRAMSim3\ext\SuperLU_MT_3.1\pthread\Pre-built.2\include;$(ReferencePath)</ReferencePath>
+    <LibraryPath>E:\GitRepo\DataflowSim\DRAMSim3\ext\SuperLU_MT_3.1\pthread\Pre-built.2\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="configs\DDR3_1Gb_x8_1333.ini" />
+    <None Include="configs\DDR3_4Gb_x16_1600.ini" />
+    <None Include="configs\DDR3_4Gb_x16_1866.ini" />
+    <None Include="configs\DDR3_4Gb_x4_1600.ini" />
+    <None Include="configs\DDR3_4Gb_x4_1866.ini" />
+    <None Include="configs\DDR3_4Gb_x8_1600.ini" />
+    <None Include="configs\DDR3_4Gb_x8_1866.ini" />
+    <None Include="configs\DDR3_8Gb_x16_1600.ini" />
+    <None Include="configs\DDR3_8Gb_x16_1866.ini" />
+    <None Include="configs\DDR3_8Gb_x4_1600.ini" />
+    <None Include="configs\DDR3_8Gb_x4_1866.ini" />
+    <None Include="configs\DDR3_8Gb_x8_1600.ini" />
+    <None Include="configs\DDR3_8Gb_x8_1866.ini" />
+    <None Include="configs\ddr3_debug.ini" />
+    <None Include="configs\DDR4_4Gb_x16_1866.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2133.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2133_2.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2400.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2400_2.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2666.ini" />
+    <None Include="configs\DDR4_4Gb_x16_2666_2.ini" />
+    <None Include="configs\DDR4_4Gb_x4_1866.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2133.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2133_2.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2400.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2400_2.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2666.ini" />
+    <None Include="configs\DDR4_4Gb_x4_2666_2.ini" />
+    <None Include="configs\DDR4_4Gb_x8_1866.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2133.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2133_2.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2400.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2400_2.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2666.ini" />
+    <None Include="configs\DDR4_4Gb_x8_2666_2.ini" />
+    <None Include="configs\DDR4_8Gb_x16_1866.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2133.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2133_2.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2400.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2400_2.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2666.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2666_2.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2933.ini" />
+    <None Include="configs\DDR4_8Gb_x16_2933_2.ini" />
+    <None Include="configs\DDR4_8Gb_x16_3200.ini" />
+    <None Include="configs\DDR4_8Gb_x4_1866.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2133.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2133_2.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2400.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2400_2.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2666.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2666_2.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2933.ini" />
+    <None Include="configs\DDR4_8Gb_x4_2933_2.ini" />
+    <None Include="configs\DDR4_8Gb_x4_3200.ini" />
+    <None Include="configs\DDR4_8Gb_x8_1866.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2133.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2133_2.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2400.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2400_2.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2666.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2666_2.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2933.ini" />
+    <None Include="configs\DDR4_8Gb_x8_2933_2.ini" />
+    <None Include="configs\DDR4_8Gb_x8_3200.ini" />
+    <None Include="configs\ddr4_debug.ini" />
+    <None Include="configs\GDDR5X_8Gb_x32.ini" />
+    <None Include="configs\GDDR5_1Gb_x32.ini" />
+    <None Include="configs\GDDR5_8Gb_x32.ini" />
+    <None Include="configs\GDDR6_8Gb_x16.ini" />
+    <None Include="configs\HBM1_4Gb_x128.ini" />
+    <None Include="configs\HBM2_4Gb_x128.ini" />
+    <None Include="configs\HBM2_8Gb_x128.ini" />
+    <None Include="configs\HBM_4Gb_x128.ini" />
+    <None Include="configs\HMC2_8GB_4Lx16.ini" />
+    <None Include="configs\HMC_2GB_4Lx16.ini" />
+    <None Include="configs\HMC_2GB_4Lx16_dummy.ini" />
+    <None Include="configs\HMC_4GB_4Lx16.ini" />
+    <None Include="configs\LPDDR3_8Gb_x32_1333.ini" />
+    <None Include="configs\LPDDR3_8Gb_x32_1600.ini" />
+    <None Include="configs\LPDDR3_8Gb_x32_1866.ini" />
+    <None Include="configs\LPDDR4_8Gb_x16_2400.ini" />
+    <None Include="configs\lpddr_2Gb_x16.ini" />
+    <None Include="configs\ST-1.2x.ini" />
+    <None Include="configs\ST-1.5x.ini" />
+    <None Include="configs\ST-2.0x.ini" />
+    <None Include="ext\fmt\LICENSE.rst" />
+    <None Include="scripts\batch_run.py" />
+    <None Include="scripts\final_PowerTemperature_map.py" />
+    <None Include="scripts\heatmap.py" />
+    <None Include="scripts\parse_config.py" />
+    <None Include="scripts\plot_stats.py" />
+    <None Include="scripts\trace_gen.py" />
+    <None Include="scripts\validation.py" />
+    <None Include="tests\example.trace" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ext\headers\ini.cpp" />
+    <ClCompile Include="ext\headers\INIReader.cpp" />
+    <ClCompile Include="src\bankstate.cpp" />
+    <ClCompile Include="src\channel_state.cpp" />
+    <ClCompile Include="src\command_queue.cpp" />
+    <ClCompile Include="src\common.cpp" />
+    <ClCompile Include="src\configuration.cpp" />
+    <ClCompile Include="src\controller.cpp" />
+    <ClCompile Include="src\cpu.cpp" />
+    <ClCompile Include="src\dram_system.cpp" />
+    <ClCompile Include="src\hmc.cpp" />
+    <ClCompile Include="src\memory_system.cpp" />
+    <ClCompile Include="src\refresh.cpp" />
+    <ClCompile Include="src\simple_stats.cpp" />
+    <ClCompile Include="src\sp_ienv.cpp" />
+    <ClCompile Include="src\timing.cpp" />
+    <ClCompile Include="tests\test_config.cpp" />
+    <ClCompile Include="tests\test_dramsys.cpp" />
+    <ClCompile Include="tests\test_hmcsys.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ext\fmt\include\fmt\core.h" />
+    <ClInclude Include="ext\fmt\include\fmt\format-inl.h" />
+    <ClInclude Include="ext\fmt\include\fmt\format.h" />
+    <ClInclude Include="ext\headers\args.hxx" />
+    <ClInclude Include="ext\headers\catch.hpp" />
+    <ClInclude Include="ext\headers\ini.h" />
+    <ClInclude Include="ext\headers\INIReader.h" />
+    <ClInclude Include="ext\headers\json.hpp" />
+    <ClInclude Include="src\bankstate.h" />
+    <ClInclude Include="src\channel_state.h" />
+    <ClInclude Include="src\command_queue.h" />
+    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\configuration.h" />
+    <ClInclude Include="src\controller.h" />
+    <ClInclude Include="src\cpu.h" />
+    <ClInclude Include="src\dramsim3.h" />
+    <ClInclude Include="src\dram_system.h" />
+    <ClInclude Include="src\hmc.h" />
+    <ClInclude Include="src\memory_system.h" />
+    <ClInclude Include="src\refresh.h" />
+    <ClInclude Include="src\simple_stats.h" />
+    <ClInclude Include="src\timing.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ext\headers\INIHLICENSE.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -7,7 +7,29 @@ MemoryDataBus::MemoryDataBus()
 {
 }
 
-void MemoryDataBus::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//// Callback interface for DRAMSim2
+//void MemoryDataBus::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//{
+//    MemReq req;
+//    req.valid = 1;
+//    req.isWrite = false;
+//    req.addr = _addr;
+//
+//    busDelayFifo.push_back(std::make_pair(req, busDelay));
+//}
+//
+//void MemoryDataBus::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+//{
+//    MemReq req;
+//    req.valid = 1;
+//    req.isWrite = true;
+//    req.addr = _addr;
+//
+//    busDelayFifo.push_back(std::make_pair(req, busDelay));
+//}
+
+// Callback interface for DRAMSim3
+void MemoryDataBus::mem_read_complete(uint64_t _addr)
 {
     MemReq req;
     req.valid = 1;
@@ -17,7 +39,7 @@ void MemoryDataBus::mem_read_complete(unsigned _id, uint64_t _addr, uint64_t _cl
     busDelayFifo.push_back(std::make_pair(req, busDelay));
 }
 
-void MemoryDataBus::mem_write_complete(unsigned _id, uint64_t _addr, uint64_t _clk)
+void MemoryDataBus::mem_write_complete(uint64_t _addr)
 {
     MemReq req;
     req.valid = 1;

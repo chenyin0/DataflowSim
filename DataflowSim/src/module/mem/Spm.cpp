@@ -52,7 +52,43 @@ vector<MemReq> Spm::callBack()
     return readyReq;
 }
 
-void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
+//void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
+//{
+//    for (size_t i = 0; i < reqQueue.size(); ++i)
+//    {
+//        //sendPtr = (sendPtr + i) % reqQueue.size();  // Update sendPtr, round-robin
+//
+//        MemReq& req = reqQueue[sendPtr].first;
+//        bool latency = reqQueue[sendPtr].second;  // Emulate SPM access latency
+//        if (req.valid && !req.inflight && !req.ready && !latency)
+//        {
+//            //if (mem->addTransaction(req.isWrite, req.addr))  // Send req to DRAM, if send failed -> break;
+//            //{
+//            //    req.inflight = 1;
+//            //    ++memAccessCnt;
+//            //}
+//            //else
+//            //{
+//            //    break;
+//            //}
+//
+//            if (mem->willAcceptTransaction())  // Send req to DRAM, if send failed -> break;
+//            {
+//                mem->addTransaction(req.isWrite, req.addr);
+//                req.inflight = 1;
+//                ++memAccessCnt;
+//            }
+//            else
+//            {
+//                break;
+//            }
+//        }
+//
+//        sendPtr = (++sendPtr) % reqQueue.size();  // Update sendPtr, round-robin
+//    }
+//}
+
+void Spm::sendReq2Mem(dramsim3::MemorySystem* mem)
 {
     for (size_t i = 0; i < reqQueue.size(); ++i)
     {
@@ -72,9 +108,9 @@ void Spm::sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem)
             //    break;
             //}
 
-            if (mem->willAcceptTransaction())  // Send req to DRAM, if send failed -> break;
+            if (mem->WillAcceptTransaction(req.addr, req.isWrite))  // Send req to DRAM, if send failed -> break;
             {
-                mem->addTransaction(req.isWrite, req.addr);
+                mem->AddTransaction(req.addr, req.isWrite);
                 req.inflight = 1;
                 ++memAccessCnt;
             }

@@ -19,7 +19,7 @@ Req flow:
 Address bit fields:
   32bit address space = 2^32words
     MSB                                    LSB
-    Tag + Set(Index) + Block_offset(Cacheline)   Lower bits of Set is bank_index    
+    Tag + Set(Index) + Block_offset(Cacheline)   Lower bits of Set is bank_index
 
 */
 
@@ -27,7 +27,8 @@ Address bit fields:
 #include "../../define/Para.h"
 #include "../DataType.h"
 #include "../EnumType.h"
-#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
+//#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
+#include "../../../../DRAMSim3/src/dramsim3.h"
 #include "Mshr.h"
 
 typedef unsigned char _u8;
@@ -42,12 +43,12 @@ namespace DFSim
 
     using ReqQueueBank = deque<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
 
-    class Cache_Line 
+    class Cache_Line
     {
     public:
         uint tag;
         /** fifo_count records the first access time£¬lru_count records the last access time */
-        union 
+        union
         {
             uint count;
             uint lru_count;
@@ -57,7 +58,7 @@ namespace DFSim
         //_u8* buf;
     };
 
-    class Cache 
+    class Cache
     {
     public:
         Cache();
@@ -68,7 +69,8 @@ namespace DFSim
         MemReq callBack(uint ackQueueId);  // Get memory access results from Cache
 
         // Interface func with DRAM
-        void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM
+        //void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM (DRAMSim2)
+        void sendReq2Mem(dramsim3::MemorySystem* mem);  // Send memory req to DRAM (DRAMSim3)
         void mem_req_complete(MemReq _req);
 
         void cacheUpdate();
@@ -146,36 +148,39 @@ namespace DFSim
         //const char OPERATION_LOCK = 'k';
         //const char OPERATION_UNLOCK = 'u';
 
+#if (CACHE_MAXLEVEL == 2)
         // 2 level cache
-        //vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
-        //vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
-        //vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
+        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
+        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
+        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
 
-        //vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
-        //vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };  
-        //vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
-        //vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
-        //vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
-        //                                     make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
+        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };
+        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
+        vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
+        vector<pair<uint, uint>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
+                                                 std::make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
 
-        //vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
-        //vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
-        //vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
+        vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
+        vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
+        vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
 
+#elif (CACHE_MAXLEVEL == 1)
         // 1 level cache
-        vector<uint> a_cache_size = { CACHE_SIZE_L1};  // Cache size of each level (byte)
-        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1};  // Cacheline size of each level (byte)
-        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1};  // Way number in each set
+        vector<uint> a_cache_size = { CACHE_SIZE_L1 };  // Cache size of each level (byte)
+        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1 };  // Cacheline size of each level (byte)
+        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1 };  // Way number in each set
 
-        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1};  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1};
-        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1};
-        vector<uint> bankNum = { CACHE_BANK_NUM_L1};  // L1 = 8, L2 = 16
-        vector<pair<uint, uint>> mshrPara = { make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1)};
+        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1 };  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1 };
+        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1 };
+        vector<uint> bankNum = { CACHE_BANK_NUM_L1 };  // L1 = 8, L2 = 16
+        vector<pair<uint, uint>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1) };
 
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU };
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK };
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE };
+#endif
 
         /** Cache size of each level£¬byte */
         vector<uint> cache_size = vector<uint>(CACHE_MAXLEVEL);

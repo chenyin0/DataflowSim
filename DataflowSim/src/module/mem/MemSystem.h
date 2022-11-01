@@ -1,5 +1,6 @@
 #pragma once
-#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
+//#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
+#include "../../../../DRAMSim3/src/dramsim3.h"
 #include "./Spm.h"
 #include "./Cache.h"
 #include "../execution/Lse.h"
@@ -60,6 +61,7 @@ namespace DFSim
         //void writeAck2Lse(MemReq _req);
         uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr
         int getAckQueueEntry(vector<MemReq> _queue);
+        void dramUpdate();  // Update DRAM
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
@@ -71,7 +73,8 @@ namespace DFSim
 #endif // DEBUG_MODE
 
     public:
-        DRAMSim::MultiChannelMemorySystem* mem = nullptr;  // DRAM
+        //DRAMSim::MultiChannelMemorySystem* mem = nullptr;  // DRAM (DRAMSim2)
+        dramsim3::MemorySystem* mem = nullptr;  // DRAM (DRAMSim3)
         Spm* spm = nullptr;
         Cache* cache = nullptr;
         MemoryDataBus* memDataBus = nullptr;
@@ -88,6 +91,11 @@ namespace DFSim
         Coalescer coalescer = Coalescer(MEMSYS_COALESCER_ENTRY_NUM, MEMSYS_COALESCER_SIZY_PER_ENTRY);
         vector<bankRecorderEntry> bankRecorder;  // Emulate bank conflict, record bank visited status in each round
         uint coalescerFreeEntryNum = 0;  // Record free coalescer entry number
+        // For DRAMSim3 update
+        uint hostCnt = 0;
+        uint dramCnt = 0;
+        uint hostClkFreqHz = 0;
+        uint dramsimClkFreqHz = 0;
     };
 
 }

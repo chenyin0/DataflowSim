@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataflowSim", "DataflowSim\DataflowSim.vcxproj", "{8048CE47-84A8-4305-A511-50920E83AC53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241} = {818558DF-49CA-4FBE-AD10-C4E39BB7A241}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DRAMSim2", "DRAMSim2\DRAMSim2.vcxproj", "{86C551D5-103A-49C1-A654-325BEE187EF1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DRAMSim3", "DRAMSim3\DRAMSim3.vcxproj", "{818558DF-49CA-4FBE-AD10-C4E39BB7A241}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +26,14 @@ Global
 		{8048CE47-84A8-4305-A511-50920E83AC53}.Release|x64.Build.0 = Release|x64
 		{8048CE47-84A8-4305-A511-50920E83AC53}.Release|x86.ActiveCfg = Release|Win32
 		{8048CE47-84A8-4305-A511-50920E83AC53}.Release|x86.Build.0 = Release|Win32
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Debug|x64.ActiveCfg = Debug|x64
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Debug|x64.Build.0 = Debug|x64
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Debug|x86.ActiveCfg = Debug|Win32
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Debug|x86.Build.0 = Debug|Win32
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Release|x64.ActiveCfg = Release|x64
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Release|x64.Build.0 = Release|x64
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Release|x86.ActiveCfg = Release|Win32
-		{86C551D5-103A-49C1-A654-325BEE187EF1}.Release|x86.Build.0 = Release|Win32
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Debug|x64.ActiveCfg = Debug|x64
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Debug|x64.Build.0 = Debug|x64
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Debug|x86.ActiveCfg = Debug|Win32
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Debug|x86.Build.0 = Debug|Win32
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Release|x64.ActiveCfg = Release|x64
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Release|x64.Build.0 = Release|x64
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Release|x86.ActiveCfg = Release|Win32
+		{818558DF-49CA-4FBE-AD10-C4E39BB7A241}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

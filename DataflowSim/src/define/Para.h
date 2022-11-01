@@ -39,7 +39,7 @@
 
 // Array para
 #define MAX (std::numeric_limits<int>::max)()
-#define FREQ 800 // System freq 800MHz
+#define FREQ 800000000 // System freq 800MHz
 #define ARRAY_SIZE 48
 #define TIA_ARRAY_SIZE 20
 
@@ -114,8 +114,8 @@
 
 #define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 1*1024*1024  // byte 16KB
-#define CACHE_SIZE_L2 256*1024  // byte
+#define CACHE_SIZE_L1 10*1024*1024  // byte 16KB
+#define CACHE_SIZE_L2 1*1024*1024  // byte 256KB
 
 //#define CACHE_SIZE_L1 1*1024  // byte
 //#define CACHE_SIZE_L2 16*1024  // byte
