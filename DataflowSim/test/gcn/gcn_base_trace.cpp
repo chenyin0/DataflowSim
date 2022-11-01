@@ -56,8 +56,9 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     // Read mem trace
     deque<uint> nodeTrace;
     deque<uint> featTrace;
-    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_30.txt";
-    string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_full_retrain.txt";
+    string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_5.txt";
+    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_all_ngh.txt";
+    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_full_retrain.txt";
     readMemTrace(nodeTrace, fileName);
     readMemTrace(featTrace, fileName);
     for_each(featTrace.begin(), featTrace.end(), [](auto& p) {p *= feat_length; });
@@ -116,7 +117,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     registry->getChan("Chan_begin")->get({ 1 });
     uint iter = 0;
 
-    uint max_iter = 500;// 5000000;
+    uint max_iter = 500000000;// 5000000;
     uint segment = max_iter / 100;
     uint percent = 0;
 
@@ -219,15 +220,15 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
 
         // *************************************************************************************
 
-        //** Update each chanDGSF
-        registry->updateChanDGSF();
+        ////** Update each chanDGSF
+        //registry->updateChanDGSF();
 
         //** MemorySystem update
         memSys->MemSystemUpdate();
 
-        //** Profiler update
-        profiler->updateBufferMaxDataNum();
-        profiler->updateChanUtilization(graphScheduler->currSubgraphId);
+        ////** Profiler update
+        //profiler->updateBufferMaxDataNum();
+        //profiler->updateChanUtilization(graphScheduler->currSubgraphId);
 
         /*end->get();*/
         Chan_end->get();	// Nop
@@ -276,6 +277,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
         ++iter;
     }
 
+    debug->debug_mode = Debug_mode::Print_detail;
     debug->getFile() << std::endl;
     debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Profiling" << std::endl;
@@ -328,10 +330,10 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
 
     //*** Record run time
     endTime = clock();
-    std::cout << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << "Total run time: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
     debug->getFile() << std::endl;
     debug->getFile() << "*******************************" << std::endl;
-    debug->getFile() << "Total run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    debug->getFile() << "Total run time: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
 
 
     delete registry;  // All the Module pointers have been deleted when destruct registry

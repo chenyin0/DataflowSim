@@ -25,9 +25,9 @@ string GCN_Test::dataset_name = "cora";
 uint GCN_Test::feat_length;
 
 // Performance parameter
-uint GCN_Test::speedup_aggr = 1;
-uint GCN_Test::speedup_combine = 1;
-uint GCN_Test::speedup_active = 1;
+uint GCN_Test::speedup_aggr = 16;
+uint GCN_Test::speedup_combine = 16;
+uint GCN_Test::speedup_active = 16;
 
 void GCN_Test::generateData()
 {
