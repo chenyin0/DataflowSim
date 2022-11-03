@@ -49,5 +49,76 @@ namespace DFSim
             ReadFile::readFile2Container(container, infile);
             infile.close();
         }
+
+        template<class Container>
+        static void readFileByColumn(typename Container& container, const string& filePath)
+        {
+            ifstream infile;
+            infile.open(filePath);
+            DEBUG_ASSERT(infile.is_open());
+            vector<string> vec;
+            string temp;
+            while (getline(infile, temp))
+            {
+                vec.push_back(temp);
+            }
+            for (auto it = vec.begin(); it != vec.end(); ++it)
+            {
+                istringstream is(*it);                   
+                string s;
+                uint col = 0;
+                while (is >> s)                          //以空格为界，把istringstream中数据取出放入到依次s中
+                {
+                    uint tmp = std::stoi(s.c_str());
+                    if (col > container.size() - 1)
+                    {
+                        // Column size exceeds to the size of input container
+                        DEBUG_ASSERT(false)
+                    }
+                    container[col].push_back(tmp);
+                    col++;
+                }
+            }
+            infile.close();
+        }
+
+        template<class Container>
+        static bool readFileByColumn_blocked(typename Container& container, const string& filePath, const uint& block_line_size, uint& line_id)
+        {
+            ifstream infile;
+            infile.open(filePath);
+            DEBUG_ASSERT(infile.is_open());
+            vector<string> vec;
+            string temp;
+            uint line_cnt = 0;
+            while (getline(infile, temp) && line_cnt < block_line_size)
+            {
+                vec.push_back(temp);
+                ++line_id;
+                ++line_cnt;
+            }
+            for (auto it = vec.begin(); it != vec.end(); ++it)
+            {
+                istringstream is(*it);
+                string s;
+                uint col = 0;
+                while (is >> s)                          //以空格为界，把istringstream中数据取出放入到依次s中
+                {
+                    uint tmp = std::stoi(s.c_str());
+                    if (col > container.size() - 1)
+                    {
+                        // Column size exceeds to the size of input container
+                        DEBUG_ASSERT(false)
+                    }
+                    container[col].push_back(tmp);
+                    col++;
+                }
+            }
+            infile.close();
+
+            bool file_read_complete = line_cnt < block_line_size ? 1 : 0;
+
+            return file_read_complete;
+        }
     };
 }
