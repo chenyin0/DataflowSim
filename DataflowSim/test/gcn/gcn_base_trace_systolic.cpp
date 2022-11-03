@@ -4,7 +4,7 @@
 
 using namespace DFSimTest;
 
-void GCN_Test::gcn_Base_trace(Debug* debug)
+void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
 {
     //******  Define module  ******//
     //*** Declare memory
@@ -54,14 +54,42 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     generateData();
 
     // Read mem trace
-    deque<uint> nodeTrace;
+    //deque<uint> nodeTrace;
     deque<uint> featTrace;
-    string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_5.txt";
+    //deque<uint> delay_q;  // Record data delay
+    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_5.txt";
     //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_all_ngh.txt";
     //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_full_retrain.txt";
-    readMemTrace(nodeTrace, fileName);
-    readMemTrace(featTrace, fileName);
-    for_each(featTrace.begin(), featTrace.end(), [](auto& p) {p *= feat_length; });
+    //readMemTrace(nodeTrace, fileName);
+    //readMemTrace(featTrace, fileName);
+
+    string fileName = "./resource/gcn/mem_trace/" + dataset_name + '_' + arch_name + ".txt";
+
+    /* Trace format
+    *  root_node_id  #ngh  ngh_node_id  #ngh-in-degree  #ngh-out-degree
+    */
+    vector<deque<uint>> trace(5);
+    //readMemTraceByCol(trace, fileName);
+    uint line_id = 0;
+    bool file_read_complete = 0;
+    file_read_complete = readMemTraceByCol_blocked(trace, fileName, 4096, line_id);
+    deque<uint> nodeTrace = trace[2];
+    deque<uint> delay_q = trace[1];
+    for (auto& i : trace)
+    {
+        i.clear();
+    }
+    for (auto it = nodeTrace.begin(); it != nodeTrace.end(); ++it)
+    {
+        //for (auto i = 0; i < feat_length; ++i)
+        //{
+        //    featTrace.push_back(*it + i);
+        //}
+        featTrace.push_back(*it * feat_length);
+    }
+    nodeTrace.clear();
+    //for_each(featTrace.begin(), featTrace.end(), [](auto& p) {p *= feat_length; });
+
 
     ////*** Simulate
     // Declare
@@ -71,40 +99,22 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     const auto& Lc_i = registry->getLc("Lc_i");
     const auto& Chan_i_lc = registry->getChan("Chan_i_lc");
     const auto& Chan_end = registry->getChan("Chan_end");
-    const auto& Chan_indptr = registry->getChan("Chan_indptr");
-    const auto& Lse_access_indptr = registry->getChan("Lse_access_indptr");
-    const auto& Chan_ngh_ind_base = registry->getChan("Chan_ngh_ind_base");
-    const auto& Lc_j = registry->getLc("Lc_j");
-    const auto& Chan_ngh_ind_base_scatter_loop_j = registry->getChan("Chan_ngh_ind_base_scatter_loop_j");
-    const auto& Chan_j_lc = registry->getChan("Chan_j_lc");
-    const auto& Chan_indices = registry->getChan("Chan_indices");
-    const auto& Lse_access_ngh = registry->getChan("Lse_access_ngh");
-    const auto& Chan_ngh_ind = registry->getChan("Chan_ngh_ind");
-    const auto& Lse_ld_feat = registry->getChan("Lse_ld_feat");
-    const auto& Chan_combine = registry->getChan("Chan_combine");
+    const auto& Chan_traverse_root = registry->getChan("Chan_traverse_root");
+    const auto& Lse_ld_ngh = registry->getChan("Lse_ld_ngh");
+    const auto& Chan_systolic = registry->getChan("Chan_systolic");
     const auto& Chan_active = registry->getChan("Chan_active");
 
     //***********************************************************************
 
     // User defined
-    /*registry->getLse("Lse_x")->noLatencyMode = 1;
-    registry->getLse("Lse_A")->noLatencyMode = 1;
-    registry->getLse("Lse_B")->noLatencyMode = 1;*/
 
-    registry->getLse("Lse_access_indptr")->noLatencyMode = 1;
+    //registry->getLse("Lse_access_indptr")->noLatencyMode = 1;
 
     // Set speedup manually
     Chan_i_lc->speedup = speedup_aggr;
-    Chan_indptr->speedup = speedup_aggr;
-    Lse_access_indptr->speedup = speedup_aggr;
-    Chan_ngh_ind_base->speedup = speedup_aggr;
-    Chan_ngh_ind_base_scatter_loop_j->speedup = speedup_aggr;
-    Chan_j_lc->speedup = speedup_aggr;
-    Chan_indices->speedup = speedup_aggr;
-    Lse_access_ngh->speedup = speedup_aggr;
-    Chan_ngh_ind->speedup = speedup_aggr;
-    Lse_ld_feat->speedup = speedup_aggr;
-    Chan_combine->speedup = speedup_combine;
+    Chan_traverse_root->speedup = speedup_aggr;
+    Lse_ld_ngh->speedup = speedup_aggr;
+    Chan_systolic->speedup = speedup_combine;
     Chan_active->speedup = speedup_active;
 
 
@@ -117,24 +127,38 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
     registry->getChan("Chan_begin")->get({ 1 });
     uint iter = 0;
 
-    uint max_iter = 500000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    //uint max_iter = 500000000;// 5000000;
+    //uint segment = max_iter / 100;
+    //uint percent = 0;
 
+    uint workload_size = featTrace.size();
+    uint interval = workload_size / 100;
+    uint percent = 0;
 
     //*** Record run time
     clock_t startTime, endTime;
     startTime = clock();
 
+    // Usr define
+    uint systolic_cycle = 128;
+
     // Execute
-    while (iter < max_iter)
+    while (1)
     {
         watchdog.feedDog(iter);
 
+        //// Print progress bar
+        //if (iter / segment > percent)
+        //{
+        //    percent = iter / segment;
+        //    std::cout << ">>>>>> Progress: " << percent << "%" << "\t Iter: " << iter << std::endl;
+        //}
+
         // Print progress bar
-        if (iter / segment > percent)
+        uint workload_finish = workload_size - featTrace.size();
+        if (workload_finish / interval > percent)
         {
-            percent = iter / segment;
+            percent = workload_finish / interval;
             std::cout << ">>>>>> Progress: " << percent << "%" << "\t Iter: " << iter << std::endl;
         }
 
@@ -154,7 +178,7 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
         Lc_i->loopVar->get();
         Lc_i->loopVar->value = Lc_i->loopVar->assign(Lc_i->mux->outChan);  // After get(), must update chan's value
         Lc_i->var = Lc_i->loopVar->value;  // 22.06.10_debug_yin Make an endless loop
-        Lc_i->lcUpdate(Lc_i->var < vertex_num);
+        Lc_i->lcUpdate(Lc_i->var < 1);  // To make an endless loop
 
         // Clear begin
         Chan_begin->valid = 0;
@@ -162,63 +186,53 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
         Chan_i_lc->get();	// Nop	[0]Lc_i 
         Chan_i_lc->value = Chan_i_lc->assign(uint(0));
 
-        Chan_indptr->get();	// Nop	[0]Chan_i_lc 
-        Chan_indptr->value = Chan_indptr->assign(uint(0));
-
-        Lse_access_indptr->get();	// Load	[0]Chan_indptr 
-        //Lse_access_indptr->value = indPtr[Lse_access_indptr->assign()];
-        Lse_access_indptr->value = indPtr[Lse_access_indptr->assign()];
-
-        Chan_ngh_ind_base->get();	// Nop	[0]Lse_access_indptr 
-        Chan_ngh_ind_base->value = Chan_ngh_ind_base->assign(uint(0));
-
-        Chan_ngh_ind_base_scatter_loop_j->get();	// Nop	[0]Chan_ngh_ind_base 
-        Chan_ngh_ind_base_scatter_loop_j->value = Chan_ngh_ind_base_scatter_loop_j->assign(uint(0));
-
-        ngh_num = indPtr[Chan_indptr->value + 1] - indPtr[Chan_indptr->value];
-
-        // Lc: Lc_j
-        Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
-        Lc_j->mux->muxUpdate(Lc_j->sel);
-        Lc_j->mux->outChan->value = Lc_j->var;
-        Lc_j->loopVar->get();
-        Lc_j->loopVar->value = Lc_j->loopVar->assign(Lc_j->mux->outChan);  // After get(), must update chan's value
-        Lc_j->var = Lc_j->loopVar->value;  // 22.06.10_debug_yin Make an endless loop
-        Lc_j->lcUpdate(Lc_j->var < ngh_num);
-
-        Chan_j_lc->get();	// Nop	[0]Lc_j 
-        Chan_j_lc->value = Chan_j_lc->assign(uint(0));
-
-        Chan_indices->get();	// Add	[0]Chan_j_lc [1]Chan_ngh_ind_base_scatter_loop_j 
-        Chan_indices->value = Chan_indices->assign(uint(0)) + Chan_indices->assign(uint(1));
+        Chan_traverse_root->get();	// Nop	[0]Chan_i_lc 
+        Chan_traverse_root->value = Chan_traverse_root->assign(uint(0));
 
         // Inject mem trace here
-        injectMemTrace(Chan_indices, Lse_access_ngh, nodeTrace);
+        injectMemTrace(Chan_traverse_root, Lse_ld_ngh, featTrace);
 
-        Lse_access_ngh->get();	// Load	[0]Chan_indices 
-        Lse_access_ngh->value = indices[Lse_access_ngh->assign()];
+        Lse_ld_ngh->get();	// Load	[0]Chan_traverse_root 
+        //Lse_ld_ngh->value = feat[Lse_ld_ngh->assign()];
+        Lse_ld_ngh->value += 1;  // Rondomly assign a value, due to the value is useless
 
-        Chan_ngh_ind->get();	// Nop	[0]Lse_access_ngh 
-        Chan_ngh_ind->value = Chan_ngh_ind->assign(uint(0));
+        // Add synchronize delay
+        bindDelay(Lse_ld_ngh, Chan_systolic, delay_q);
+        Chan_systolic->get();	// Mac	[0]Lse_ld_ngh 
+        Chan_systolic->value = Chan_systolic->assign(uint(0));
+        Chan_systolic->cycle = systolic_cycle;  // Reset cycle
 
-        // Inject mem trace here
-        injectMemTrace(Chan_ngh_ind, Lse_ld_feat, featTrace);
-
-        /*if (featTrace.size() % 1000 == 0)
-        {
-            std::cout << "Trace size: " << featTrace.size() << " Node size: " << nodeTrace.size() << std::endl;
-        }*/
-
-        Lse_ld_feat->get();	// Load	[0]Chan_ngh_ind 
-        Lse_ld_feat->value = feat[Lse_ld_feat->assign()];
-
-        Chan_combine->get();	// Mac	[0]Lse_ld_feat 
-        Chan_combine->value = Chan_combine->assign(uint(0));
-
-        Chan_active->get();	// Relu	[0]Chan_combine 
+        Chan_active->get();	// Relu	[0]Chan_systolic 
         Chan_active->value = Chan_active->assign(uint(0));
 
         // *************************************************************************************
+
+        // Read file blocked
+        if (featTrace.empty())
+        {
+            uint i = 0;
+        }
+        if (featTrace.empty() && !file_read_complete)
+        {
+            file_read_complete = readMemTraceByCol_blocked(trace, fileName, 4096, line_id);
+            nodeTrace.insert(nodeTrace.end(), trace[2].begin(), trace[2].end());
+            delay_q.insert(delay_q.end(), trace[1].begin(), trace[1].end());
+            for (auto& i : trace)
+            {
+                i.clear();
+            }
+            for (auto it = nodeTrace.begin(); it != nodeTrace.end(); ++it)
+            {
+                /*for (auto i = 0; i < feat_length; ++i)
+                {
+                    featTrace.push_back(*it + i);
+                }*/
+                featTrace.push_back(*it * feat_length);
+            }
+            nodeTrace.clear();
+        }
+
+        std::cout << line_id << ' ' << nodeTrace.size() << ' ' << featTrace.size() << std::endl;
 
         ////** Update each chanDGSF
         //registry->updateChanDGSF();
@@ -226,14 +240,18 @@ void GCN_Test::gcn_Base_trace(Debug* debug)
         //** MemorySystem update
         memSys->MemSystemUpdate();
 
-        ////** Profiler update
-        //profiler->updateBufferMaxDataNum();
-        //profiler->updateChanUtilization(graphScheduler->currSubgraphId);
+        //** Profiler update
+        profiler->updateBufferMaxDataNum();
+        profiler->updateChanUtilization(graphScheduler->currSubgraphId);
 
         /*end->get();*/
         Chan_end->get();	// Nop
 
-        if (nodeTrace.empty() && featTrace.empty())
+        /*if (nodeTrace.empty() && featTrace.empty())
+        {
+            Chan_end->channel.push_back(Data());
+        }*/
+        if (featTrace.empty())
         {
             Chan_end->channel.push_back(Data());
         }

@@ -403,6 +403,9 @@
     <ClCompile Include="test\gcn\gcn_base_trace.cpp">
       <Filter>test\gcn</Filter>
     </ClCompile>
+    <ClCompile Include="test\gcn\gcn_base_trace_systolic.cpp">
+      <Filter>test\gcn</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resource\Gemm\Gemm_log_Base.txt">

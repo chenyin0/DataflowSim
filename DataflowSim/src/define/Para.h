@@ -114,7 +114,7 @@
 
 #define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
-#define CACHE_SIZE_L1 10*1024*1024  // byte 16KB
+#define CACHE_SIZE_L1 16*1024*1024  // byte 16KB
 #define CACHE_SIZE_L2 1*1024*1024  // byte 256KB
 
 //#define CACHE_SIZE_L1 1*1024  // byte

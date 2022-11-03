@@ -258,7 +258,8 @@ int main()
         {
         case ArchType::Base:
             //DFSimTest::GCN_Test::gcn_Base(debug);
-            DFSimTest::GCN_Test::gcn_Base_trace(debug);
+            //DFSimTest::GCN_Test::gcn_Base_trace(debug);
+            DFSimTest::GCN_Test::gcn_Base_trace_systolic(debug);
             break;
         }
 
