@@ -297,9 +297,9 @@ HMCMemorySystem::HMCMemorySystem(Config &config, const std::string &output_dir,
 }
 
 HMCMemorySystem::~HMCMemorySystem() {
-    for (auto &&vault_ptr : ctrls_) {
+    /*for (auto &&vault_ptr : ctrls_) {
         delete (vault_ptr);
-    }
+    }*/
 }
 
 void HMCMemorySystem::SetClockRatio() {

@@ -38,7 +38,7 @@ MemSystem::MemSystem()
     const std::string& config_file = "../DRAMSim3/configs/HBM1_4Gb_x128.ini";
     std::function<void(uint64_t)> read_callback = std::bind(&MemoryDataBus::mem_read_complete, memDataBus, std::placeholders::_1);
     std::function<void(uint64_t)> write_callback = std::bind(&MemoryDataBus::mem_write_complete, memDataBus, std::placeholders::_1);
-    mem = new dramsim3::MemorySystem(config_file, ".", read_callback, write_callback);
+    mem = dramsim3::GetMemorySystem(config_file, ".", read_callback, write_callback);
 
     auto tCK_ = mem->GetTCK();
     dramsimClkFreqHz = (uint)(1.0 / (tCK_ * 1e-9));
