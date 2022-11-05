@@ -90,19 +90,34 @@ namespace DFSim
             DEBUG_ASSERT(infile.is_open());
             vector<string> vec;
             string temp;
-            uint line_cnt = 0;
-            while (getline(infile, temp) && line_cnt < block_line_size)
+            uint read_line_cnt = 0;
+            uint line_ptr = 0;  // Record line ptr
+            bool begin_read = false;
+            while (getline(infile, temp))
             {
-                vec.push_back(temp);
-                ++line_id;
-                ++line_cnt;
+                if (line_ptr == line_id || begin_read)
+                {
+                    vec.push_back(temp);
+                    ++line_id;
+                    ++read_line_cnt;
+                    begin_read = true;
+                    if (line_id - line_ptr >= block_line_size)  // If read out a block, finish
+                    {
+                        break;
+                        begin_read = false;
+                    }
+                }
+                else
+                {
+                    ++line_ptr;
+                }
             }
             for (auto it = vec.begin(); it != vec.end(); ++it)
             {
                 istringstream is(*it);
                 string s;
                 uint col = 0;
-                while (is >> s)                          //以空格为界，把istringstream中数据取出放入到依次s中
+                while (is >> s)
                 {
                     uint tmp = std::stoi(s.c_str());
                     if (col > container.size() - 1)
@@ -116,7 +131,7 @@ namespace DFSim
             }
             infile.close();
 
-            bool file_read_complete = line_cnt < block_line_size ? 1 : 0;
+            bool file_read_complete = read_line_cnt < block_line_size ? 1 : 0;
 
             return file_read_complete;
         }
