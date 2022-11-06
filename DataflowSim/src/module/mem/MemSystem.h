@@ -74,7 +74,7 @@ namespace DFSim
 
     public:
         //DRAMSim::MultiChannelMemorySystem* mem = nullptr;  // DRAM (DRAMSim2)
-        dramsim3::MemorySystem* mem;  // DRAM (DRAMSim3)
+        dramsim3::MemorySystem* mem = nullptr;  // DRAM (DRAMSim3)
         Spm* spm = nullptr;
         Cache* cache = nullptr;
         MemoryDataBus* memDataBus = nullptr;
