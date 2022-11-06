@@ -1,6 +1,8 @@
 #include "./gcn.h"
 #include "../../src/sim/Watchdog.h"
 #include "../../src/module/execution/GraphScheduler.h"
+#include "../../src/define/hw_para.hpp"
+#include "../../src/module/Profiler.h"
 
 using namespace DFSimTest;
 
@@ -72,7 +74,8 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     //readMemTraceByCol(trace, fileName);
     uint line_id = 0;
     bool file_read_complete = 0;
-    file_read_complete = readMemTraceByCol_blocked(trace, fileName, 4096, line_id);
+    uint read_line_block_size = 16384;
+    file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
     deque<uint> nodeTrace = trace[2];
     deque<uint> delay_q = trace[1];
     for (auto& i : trace)
@@ -81,10 +84,10 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     }
     for (auto it = nodeTrace.begin(); it != nodeTrace.end(); ++it)
     {
-        //for (auto i = 0; i < feat_length; ++i)
-        //{
-        //    featTrace.push_back(*it + i);
-        //}
+        /*for (auto i = 0; i < feat_length; ++i)
+        {
+            featTrace.push_back(*it + i);
+        }*/
         featTrace.push_back(*it * feat_length);
     }
     nodeTrace.clear();
@@ -141,7 +144,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
 
     // Usr define
     uint systolic_cycle = 128;
-
+    uint line_id_prev = 0;
     // Execute
     while (1)
     {
@@ -154,12 +157,18 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
         //    std::cout << ">>>>>> Progress: " << percent << "%" << "\t Iter: " << iter << std::endl;
         //}
 
-        // Print progress bar
-        uint workload_finish = workload_size - featTrace.size();
-        if (workload_finish / interval > percent)
+        //// Print progress bar
+        //uint workload_finish = workload_size - featTrace.size();
+        //if (workload_finish / interval > percent)
+        //{
+        //    percent = workload_finish / interval;
+        //    std::cout << ">>>>>> Progress: " << percent << "%" << "\t Iter: " << iter << std::endl;
+        //}
+
+        if (line_id_prev != line_id)
         {
-            percent = workload_finish / interval;
-            std::cout << ">>>>>> Progress: " << percent << "%" << "\t Iter: " << iter << std::endl;
+            std::cout << ">>>>>> Process line id: " << line_id << std::endl;
+            line_id_prev = line_id;
         }
 
         DFSim::ClkDomain::getInstance()->clkUpdate(); // update clk in each loop
@@ -214,7 +223,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
         }
         if (featTrace.empty() && !file_read_complete)
         {
-            file_read_complete = readMemTraceByCol_blocked(trace, fileName, 4096, line_id);
+            file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
             nodeTrace.insert(nodeTrace.end(), trace[2].begin(), trace[2].end());
             delay_q.insert(delay_q.end(), trace[1].begin(), trace[1].end());
             for (auto& i : trace)
@@ -232,7 +241,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
             nodeTrace.clear();
         }
 
-        std::cout << line_id << ' ' << nodeTrace.size() << ' ' << featTrace.size() << std::endl;
+        //std::cout << line_id << ' ' << nodeTrace.size() << ' ' << featTrace.size() << std::endl;
 
         ////** Update each chanDGSF
         //registry->updateChanDGSF();
@@ -251,7 +260,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
         {
             Chan_end->channel.push_back(Data());
         }*/
-        if (featTrace.empty())
+        if (featTrace.empty() && delay_q.empty())
         {
             Chan_end->channel.push_back(Data());
         }
@@ -334,7 +343,165 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Power profiling " << std::endl;
     debug->getFile() << std::endl;
-    profiler->printPowerProfiling();
+    //profiler->printPowerProfiling();
+
+    // Report power
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    // PE array
+    //uint aluActiveTimes = chanActiveNumTotal;
+    uint chanActiveNumTotal = Chan_systolic->activeCnt * systolic_array_length;
+    uint reg_active_times = chanActiveNumTotal * 3;
+    uint pe_ctrl_active_times = chanActiveNumTotal;
+
+    float alu_dynamic_energy = 0;
+    //for (auto& entry : registry->getRegistryTable())
+    //{
+    //    if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Base)
+    //    {
+    //        alu_dynamic_energy += static_cast<float>(entry.chanPtr->activeCnt) * Hardware_Para::getAluDynamicEnergy();
+    //    }
+    //}
+    alu_dynamic_energy = chanActiveNumTotal * Hardware_Para::getAluDynamicEnergy();
+    float alu_dynamic_power = Profiler::transEnergy2Power(alu_dynamic_energy);
+    float alu_leakage_power = Hardware_Para::getAluLeakagePower();
+    float alu_power = alu_dynamic_power + alu_leakage_power;
+
+    float reg_dynamic_energy = static_cast<float>(reg_active_times) * Hardware_Para::getRegAccessEnergy();
+    float reg_dynamic_power = Profiler::transEnergy2Power(reg_dynamic_energy);
+    float reg_leakage_power = Hardware_Para::getRegLeakagePower();
+    float reg_power = reg_dynamic_power + reg_leakage_power;
+
+    float pe_ctrl_dynamic_energy = static_cast<float>(pe_ctrl_active_times) * Hardware_Para::getPeCtrlEnergyDynamic();
+    float pe_ctrl_dynamic_power = Profiler::transEnergy2Power(pe_ctrl_dynamic_energy);
+    float pe_ctrl_leakage_power = Hardware_Para::getPeCtrlLeakagePower();
+    float pe_ctrl_power = pe_ctrl_dynamic_power + pe_ctrl_leakage_power;
+
+    uint reconfig_times = Chan_systolic->activeCnt / systolic_array_width;
+    float reconifg_dynamic_energy = static_cast<float>(reconfig_times) * Hardware_Para::getContextBufferAccessEnergy();
+    float reconifg_dynamic_power = Profiler::transEnergy2Power(reconifg_dynamic_energy);
+    float reconifg_leakage_power = Hardware_Para::getContextBufferLeakagePower();
+    float reconifg_power = reconifg_dynamic_power + reconifg_leakage_power;
+
+    // On-chip buffer (weight buffer)
+    if (arch_name != "awb-gcn" && arch_name != "delta_gnn_opt")
+    {
+        buffer_access_cnt = buffer_access_cnt / systolic_array_width;
+    }
+    uint coalesceRate = uint(BANK_BLOCK_SIZE / DATA_PRECISION);
+    buffer_access_cnt = uint(buffer_access_cnt / coalesceRate);
+    // On-chip buffer ctrl
+    float dataBuffer_ctrl_dynamic_energy = static_cast<float>(buffer_access_cnt) * Hardware_Para::getDataBufferCtrlEnergy();
+    float dataBuffer_ctrl_dynamic_power = Profiler::transEnergy2Power(dataBuffer_ctrl_dynamic_energy);
+    float dataBuffer_ctrl_leakage_power = Hardware_Para::getDataBufferCtrlLeakagePower();
+    float dataBuffer_ctrl_power = dataBuffer_ctrl_dynamic_power + dataBuffer_ctrl_leakage_power;
+    // On-chip buffer sram
+    float dataBuffer_sram_dynamic_energy = static_cast<float>(buffer_access_cnt) * Hardware_Para::getDataBufferAccessEnergy();
+    float dataBuffer_sram_dynamic_power = Profiler::transEnergy2Power(dataBuffer_sram_dynamic_energy);
+    float dataBuffer_sram_leakage_power = Hardware_Para::getDataBufferLeakagePower();
+    float dataBuffer_sram_power = dataBuffer_sram_dynamic_power + dataBuffer_sram_leakage_power;
+    // On-chip buffer total
+    float dataBuffer_dynamic_power = dataBuffer_ctrl_dynamic_power + dataBuffer_sram_dynamic_power;
+    float dataBuffer_leakage_power = dataBuffer_ctrl_leakage_power + dataBuffer_sram_leakage_power;
+    float dataBuffer_power = dataBuffer_dynamic_power + dataBuffer_leakage_power;
+
+    // Cache
+    uint cache_access_times = 0;
+    if (memSys != nullptr && memSys->cache != nullptr)
+    {
+        cache_access_times += memSys->cache->getCacheAccessCnt();
+    }
+    float cache_dynamic_energy = static_cast<float>(cache_access_times) * Hardware_Para::getCacheAccessEnergy();
+    float cache_dynamic_power = Profiler::transEnergy2Power(cache_dynamic_energy);
+    float cache_leakage_power = Hardware_Para::getCacheLeakagePower();
+    float cache_power = cache_dynamic_power + cache_leakage_power;
+
+    // DRAM
+    uint mem_access_times = 0;
+    if (memSys != nullptr)
+    {
+        mem_access_times += memSys->getMemAccessCnt();
+    }
+    float mem_access_energy = mem_access_times * Hardware_Para::getDramAccessEnergy();
+    float mem_access_power = Profiler::transEnergy2Power(mem_access_energy);
+
+    float total_power = alu_power +
+        reg_power +
+        pe_ctrl_power +
+        reconifg_power +
+        dataBuffer_power +
+        cache_power +
+        mem_access_power;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << "******* Power profiling *********" << std::endl;
+    debug->getFile() << ">>> PE Array: " << std::endl;
+    debug->getFile() << "PE active total times: " << chanActiveNumTotal << std::endl;
+
+    debug->getFile() << "ALU power: " << std::setprecision(2) << alu_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << alu_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << alu_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << reg_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << reg_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << "Ctrl logic power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << pe_ctrl_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << pe_ctrl_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << "Reconfig power: " << std::setprecision(2) << reconifg_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << reconifg_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << reconifg_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> On-chip Buffer: " << std::endl;
+    debug->getFile() << "Access times: " << buffer_access_cnt << std::endl;
+    debug->getFile() << "Buffer total power: " << std::setprecision(2) << dataBuffer_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_leakage_power << " mW" << std::endl;
+    debug->getFile() << "Buffer ctrl power: " << std::setprecision(2) << dataBuffer_ctrl_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_ctrl_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_ctrl_leakage_power << " mW" << std::endl;
+    debug->getFile() << "Buffer sram power: " << std::setprecision(2) << dataBuffer_sram_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << dataBuffer_sram_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << dataBuffer_sram_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> Cache: " << std::endl;
+    debug->getFile() << "Cache access times: " << cache_access_times << std::endl;
+    debug->getFile() << "Cache power: " << std::setprecision(2) << cache_power << " mW" << std::endl;
+    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << cache_dynamic_power << " mW" << std::endl;
+    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << cache_leakage_power << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> DRAM: " << std::endl;
+    debug->getFile() << "Access times: " << mem_access_times << std::endl;
+    debug->getFile() << "Power: " << std::setprecision(2) << mem_access_power << " mW" << std::endl;
+
+    debug->getFile() << std::endl;
+    debug->getFile() << ">>> Total power: " << std::setprecision(2) << total_power << " mW" << std::endl;
+    debug->getFile() << ">>> EDP: " << std::setprecision(2) << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::endl;
+
+    // Print
+    std::cout << std::endl;
+    std::cout << "Total power: " << std::setprecision(2) << total_power << " mW" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Buffer access times: " << buffer_access_cnt << std::endl;
+    std::cout << "Cache access times: " << cache_access_times << std::endl;
+    std::cout << "DRAM access times: " << mem_access_times << std::endl;
+    std::cout << "EDP: " << std::setprecision(2) << pow(ClkDomain::getClk() / 1000, 2) * (total_power / 1000.0) << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "ALU power: " << std::setprecision(2) << alu_power << " mW" << std::endl;
+    std::cout << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    std::cout << "PE-ctrl power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
+    std::cout << "Reconfig power: " << std::setprecision(2) << reconifg_power << " mW" << std::endl;
+    std::cout << "Buffer power: " << std::setprecision(2) << dataBuffer_power << " mW" << std::endl;
+    std::cout << "Buffer dynamic power: " << std::setprecision(2) << dataBuffer_dynamic_power << " mW" << std::endl;
+    std::cout << "Cache power: " << std::setprecision(2) << cache_power << " mW" << std::endl;
+    std::cout << "Cache dynamic power: " << std::setprecision(2) << cache_dynamic_power << " mW" << std::endl;
+    std::cout << "DRAM power: " << std::setprecision(2) << mem_access_power << " mW" << std::endl;
+    std::cout << std::endl;
 
     ////*** TIA profiling
     //debug->getFile() << std::endl;

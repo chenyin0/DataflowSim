@@ -56,5 +56,13 @@ namespace DFSimTest
         static uint speedup_aggr;
         static uint speedup_combine;
         static uint speedup_active;
+        
+        static uint buffer_access_cnt;
+        static uint deg_th;
+
+        // Systolic array parameter
+        // PE number = width * length
+        static uint systolic_array_width;
+        static uint systolic_array_length;
     };
 }

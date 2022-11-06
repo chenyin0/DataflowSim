@@ -35,9 +35,18 @@ string GCN_Test::arch_name = "hygcn";
 uint GCN_Test::feat_length;
 
 // Performance parameter
-uint GCN_Test::speedup_aggr = 1;
-uint GCN_Test::speedup_combine = 1;
-uint GCN_Test::speedup_active = 1;
+uint sp = 32;
+uint GCN_Test::speedup_aggr = sp;
+uint GCN_Test::speedup_combine = sp;
+uint GCN_Test::speedup_active = sp;
+
+uint GCN_Test::buffer_access_cnt = 0;
+uint GCN_Test::deg_th = 0;
+
+// Hardware parameter
+// Systolic array
+uint GCN_Test::systolic_array_width = 32;
+uint GCN_Test::systolic_array_length = 128;
 
 void GCN_Test::generateData()
 {
@@ -127,7 +136,27 @@ void GCN_Test::bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint
     {
         if (!delay_q.empty())
         {
-            consumeChan->cycle += delay_q.front();
+            if (arch_name == "awb-gcn")
+            {
+                // Awb-gcn has workload balance
+                ++buffer_access_cnt;
+            }
+            else if (arch_name == "delta_gnn_opt")
+            {
+                if (delay_q.front() > deg_th)  // SIMD mode: increase buffer accesses
+                {
+                    ++buffer_access_cnt;
+                }
+                else  // Systolic mode: increase synchronize delay
+                {
+                    consumeChan->cycle += delay_q.front();
+                }
+            }
+            else
+            {
+                consumeChan->cycle += delay_q.front();
+                ++buffer_access_cnt;
+            }
             delay_q.pop_front();
         }
     }
