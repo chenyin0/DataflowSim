@@ -135,6 +135,8 @@ namespace DFSim
         const vector<Mshr>& getMshr() const { return mshr; }
         const uint& getCacheAccessCnt() const { return cacheAccessCnt; }
         const uint& getMemAccessCnt() const { return memAccessCnt; }
+        const vector<uint>& getReqQueueSizePerBank() const { return reqQueueSizePerBank; }
+        const vector<uint>& getAckQueueSizePerBank() const { return ackQueueSizePerBank; }
 #endif // DEBUG_MODE
 
     private:

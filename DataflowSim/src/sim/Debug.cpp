@@ -565,7 +565,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
                 for (size_t bankId = 0; bankId < reqQueue[level].size(); ++bankId)
                 {
-                    _output_file << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
+                    _output_file << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":";
+                    _output_file << " total_size: " << _memSys->cache->getReqQueueSizePerBank()[level];
+                    _output_file << " curr_size: " << reqQueue[level][bankId].size() << std::endl;
 
                     // Print each req
                     _output_file << std::setw(12) << "addr:";
@@ -642,7 +644,9 @@ void Debug::memSysPrint(const MemSystem* _memSys)
 
                 for (size_t bankId = 0; bankId < ackQueue[level].size(); ++bankId)
                 {
-                    _output_file << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":" << std::endl;
+                    _output_file << std::setw(8) << "Bank_" << bankId << "_L" << level + 1 << ":";
+                    _output_file << " total_size: " << _memSys->cache->getAckQueueSizePerBank()[level];
+                    _output_file << " curr_size: " << ackQueue[level][bankId].size() << std::endl;
 
                     // Print each req
                     _output_file << std::setw(12) << "addr:";
@@ -790,16 +794,18 @@ void Debug::memSysPrint(const MemSystem* _memSys)
                 _output_file << std::endl;
             }
 
-            //// Print cache reqQueue2Mem
-            //_output_file << "reqQueue2Mem:" << std::endl;
-            //auto req2Mem = _memSys->cache->getReqQueue2Mem();
-            //for (auto& req : req2Mem)
-            //{
-            //    if (req.valid)
-            //    {
-            //        _output_file << std::setw(MemSys_SetWidth) << req.addr;
-            //    }
-            //}
+            // Print cache reqQueue2Mem
+            auto req2Mem = _memSys->cache->getReqQueue2Mem();
+            _output_file << "reqQueue2Mem:";
+            _output_file << " Total_size: " << REQ_QUEUE_TO_MEM_SIZE;
+            _output_file << " Curr_size: " << req2Mem.size() << std::endl;
+            for (auto& req : req2Mem)
+            {
+                if (req.valid)
+                {
+                    _output_file << std::setw(MemSys_SetWidth) << req.addr;
+                }
+            }
         }
 
         _output_file << std::endl;

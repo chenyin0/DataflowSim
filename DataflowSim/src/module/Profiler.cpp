@@ -46,7 +46,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
     debug->getFile() << std::setw(20) << lseName
         << "\taccessCnt: " << std::setw(5) << _lsePtr->memAccessCnt
-        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::min(_lsePtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION))
+        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::max(std::min(_lsePtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION)), uint(1))
         << "\tAvgLat: " << std::setw(5) << _lsePtr->avgMemAccessLat
         << "\treqBlockRate: " << std::fixed << std::setprecision(1) << std::setw(5) << reqBlockRate << "%"
         << "\treqBlockCnt: " << std::setw(5) << _lsePtr->memReqBlockCnt
