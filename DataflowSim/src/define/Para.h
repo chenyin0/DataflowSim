@@ -39,7 +39,7 @@
 
 // Array para
 #define MAX (std::numeric_limits<int>::max)()
-#define FREQ 800000000 // System freq 800MHz
+#define FREQ 1000000000 // System freq 1GHz
 #define ARRAY_SIZE 48
 #define TIA_ARRAY_SIZE 20
 
@@ -88,13 +88,13 @@
 // MemSystem
 #define NO_MEMORY 0  // Emulate ideal memory(latency = 0)
 
-#define DATA_PRECISION 32  // Data precision is 32bits
+#define DATA_PRECISION 45856  // Data precision is 32bits
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 16  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
-#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK  4 // reqQueue size per bank (default size = 1)
-#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK  4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+#define MEMSYS_QUEUE_BANK_NUM 32  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
+#define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4 // reqQueue size per bank (default size = 1)
+#define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
 #define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
@@ -110,7 +110,7 @@
 // Cache
 #define CACHE_ENABLE 1
 #define CACHE_ALL_HIT 0
-#define REQ_QUEUE_TO_MEM_SIZE 32 
+#define REQ_QUEUE_TO_MEM_SIZE 128 
 
 #define CACHE_MAXLEVEL 1  // Max cache heriarachy level 
 
@@ -124,7 +124,7 @@
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 64  // byte 32
+#define CACHE_LINE_SIZE_L1 45856  // byte 32
 #define CACHE_LINE_SIZE_L2 32  // byte
 
 #define CACHE_MAPPING_WAY_L1 16  // 4
@@ -136,10 +136,10 @@
 #define CACHE_BANK_NUM_L1 MEMSYS_QUEUE_BANK_NUM
 #define CACHE_BANK_NUM_L2 8
 
-#define CACHE_REQ_Q_SIZE_PER_BANK_L1 4
-#define CACHE_REQ_Q_SIZE_PER_BANK_L2 4
+#define CACHE_REQ_Q_SIZE_PER_BANK_L1 16  // 4
+#define CACHE_REQ_Q_SIZE_PER_BANK_L2 4  // 4
 
-#define CACHE_ACK_Q_SIZE_PER_BANK_L1 4
+#define CACHE_ACK_Q_SIZE_PER_BANK_L1 16
 #define CACHE_ACK_Q_SIZE_PER_BANK_L2 4
 
 //#define CACHE_COALESCE_TABLE_ENTRY_NUM CACHE_BANK_NUM_L1
@@ -152,7 +152,7 @@
 #define CACHE_MSHR_ENABLE_L2 1
 
 //** MSHR entry size, reference value is 32 in a typical GPU
-#define CACHE_MSHR_ENTRY_NUM_L1 CACHE_BANK_NUM_L1
+#define CACHE_MSHR_ENTRY_NUM_L1 1024 // CACHE_BANK_NUM_L1
 #define CACHE_MSHR_ENTRY_NUM_L2 CACHE_BANK_NUM_L2
 
 //** MSHR slot size, reference value is 4 or 8 in a typical GPU or CPU

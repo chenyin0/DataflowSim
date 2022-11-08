@@ -12,7 +12,7 @@ namespace DFSim {
             // TODO: return according to the PE's op
             static float mul_32b = 4.0125;  // pJ (Mul)
             static float add_32b = 0.0501;  // pJ
-            return mul_32b * 0.5 + add_32b * 0.5;
+            return (mul_32b + add_32b) / 2;
         }
 
         static float getAluLeakagePower()
@@ -86,7 +86,8 @@ namespace DFSim {
         {
             //static float dataBufferAccessEnergy = 15;  // pJ  (128KB, 16 Bank, 64B)
             //static float dataBufferAccessEnergy = 638.2;  // pJ  (RAM @32nm: 2MB, 16 Bank, 64B)
-            static float dataBufferAccessEnergy = 269.15;  // pJ  (RAM @32nm: 2MB, 1 Bank, 64B)
+            //static float dataBufferAccessEnergy = 269.15;  // pJ  (RAM @32nm: 2MB, 1 Bank, 64B)
+            static float dataBufferAccessEnergy = 75.01;  // pJ  (RAM(eDRAM) @28nm: 2MB, 8 Bank, 64B)
             return dataBufferAccessEnergy;
         }
 
@@ -94,7 +95,7 @@ namespace DFSim {
         {
             //static float dataBuffer_leakage_power = 14.998;  // mW (64KB, 16 Bank, 64B)
             //static float dataBuffer_leakage_power = 124.1 * 16;  // mW (RAM @32nm: 2MB, 16 Bank, 64B)
-            static float dataBuffer_leakage_power = 774.36;  // mW (RAM @32nm: 2MB, 1 Bank, 64B)
+            static float dataBuffer_leakage_power = 351.36;  // 774.36;  // mW (RAM @32nm: 2MB, 1 Bank, 64B)
             return dataBuffer_leakage_power;
         }
 
@@ -121,7 +122,7 @@ namespace DFSim {
         static float getCacheLeakagePower()
         {
             //static float dataBuffer_leakage_power = 878.3 * 16;  // mW (RAM @32nm: 2MB, 16 Bank, 64B)
-            static float dataBuffer_leakage_power = 7212.82;  // mW (Cache(eDRAM) @28nm: 16MB, 8 Bank, 64B)
+            static float dataBuffer_leakage_power = 721.2;  // 7212.82;  // mW (Cache(eDRAM) @28nm: 16MB, 8 Bank, 64B)
             return dataBuffer_leakage_power;
         }
 

@@ -110,8 +110,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     //***********************************************************************
 
     // User defined
-
-    //registry->getLse("Lse_access_indptr")->noLatencyMode = 1;
+    //registry->getLse("Lse_ld_ngh")->noLatencyMode = 1;
 
     // Set speedup manually
     Chan_i_lc->speedup = speedup_aggr;
@@ -120,6 +119,10 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     Chan_systolic->speedup = speedup_combine;
     Chan_active->speedup = speedup_active;
 
+    Chan_traverse_root->size = 32;
+    Lse_ld_ngh->size = 128 * 32;
+    Chan_systolic->size = 128 * 32;
+    Chan_active->size = 32 * 4;
 
     //// Initiation
     registry->init();  // Update registry and initial all the module in registry
@@ -363,13 +366,13 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     //}
     alu_dynamic_energy = chanActiveNumTotal * Hardware_Para::getAluDynamicEnergy();
     float alu_dynamic_power = Profiler::transEnergy2Power(alu_dynamic_energy);
-    float alu_leakage_power = Hardware_Para::getAluLeakagePower();
+    float alu_leakage_power = Hardware_Para::getAluLeakagePower() * systolic_array_width * systolic_array_length;
     float alu_power = alu_dynamic_power + alu_leakage_power;
 
-    float reg_dynamic_energy = static_cast<float>(reg_active_times) * Hardware_Para::getRegAccessEnergy();
-    float reg_dynamic_power = Profiler::transEnergy2Power(reg_dynamic_energy);
-    float reg_leakage_power = Hardware_Para::getRegLeakagePower();
-    float reg_power = reg_dynamic_power + reg_leakage_power;
+    //float reg_dynamic_energy = static_cast<float>(reg_active_times) * Hardware_Para::getRegAccessEnergy();
+    //float reg_dynamic_power = Profiler::transEnergy2Power(reg_dynamic_energy);
+    //float reg_leakage_power = Hardware_Para::getRegLeakagePower();
+    //float reg_power = reg_dynamic_power + reg_leakage_power;
 
     float pe_ctrl_dynamic_energy = static_cast<float>(pe_ctrl_active_times) * Hardware_Para::getPeCtrlEnergyDynamic();
     float pe_ctrl_dynamic_power = Profiler::transEnergy2Power(pe_ctrl_dynamic_energy);
@@ -383,11 +386,12 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     float reconifg_power = reconifg_dynamic_power + reconifg_leakage_power;
 
     // On-chip buffer (weight buffer)
+    buffer_access_cnt *= feat_length;
     if (arch_name != "awb-gcn" && arch_name != "delta_gnn_opt")
     {
         buffer_access_cnt = buffer_access_cnt / systolic_array_width;
     }
-    uint coalesceRate = uint(BANK_BLOCK_SIZE / DATA_PRECISION);
+    uint coalesceRate = uint(16);
     buffer_access_cnt = uint(buffer_access_cnt / coalesceRate);
     // On-chip buffer ctrl
     float dataBuffer_ctrl_dynamic_energy = static_cast<float>(buffer_access_cnt) * Hardware_Para::getDataBufferCtrlEnergy();
@@ -425,7 +429,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     float mem_access_power = Profiler::transEnergy2Power(mem_access_energy);
 
     float total_power = alu_power +
-        reg_power +
+        //reg_power +
         pe_ctrl_power +
         reconifg_power +
         dataBuffer_power +
@@ -441,9 +445,9 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << alu_dynamic_power << " mW" << std::endl;
     debug->getFile() << "\t Leakage power: " << std::setprecision(4) << alu_leakage_power << " mW" << std::endl;
 
-    debug->getFile() << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
-    debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << reg_dynamic_power << " mW" << std::endl;
-    debug->getFile() << "\t Leakage power: " << std::setprecision(4) << reg_leakage_power << " mW" << std::endl;
+    //debug->getFile() << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    //debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << reg_dynamic_power << " mW" << std::endl;
+    //debug->getFile() << "\t Leakage power: " << std::setprecision(4) << reg_leakage_power << " mW" << std::endl;
 
     debug->getFile() << "Ctrl logic power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
     debug->getFile() << "\t Dynamic power: " << std::setprecision(2) << pe_ctrl_dynamic_power << " mW" << std::endl;
@@ -493,7 +497,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
 
     std::cout << std::endl;
     std::cout << "ALU power: " << std::setprecision(2) << alu_power << " mW" << std::endl;
-    std::cout << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
+    //std::cout << "Reg power: " << std::setprecision(2) << reg_power << " mW" << std::endl;
     std::cout << "PE-ctrl power: " << std::setprecision(2) << pe_ctrl_power << " mW" << std::endl;
     std::cout << "Reconfig power: " << std::setprecision(2) << reconifg_power << " mW" << std::endl;
     std::cout << "Buffer power: " << std::setprecision(2) << dataBuffer_power << " mW" << std::endl;
