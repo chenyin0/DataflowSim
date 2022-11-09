@@ -92,12 +92,12 @@
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 32  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 1024  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4 // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
-#define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
+#define MEMSYS_COALESCER_ENTRY_NUM 1024  // 32
 #define MEMSYS_COALESCER_SIZY_PER_ENTRY 16 //(BANK_BLOCK_SIZE/DATA_PRECISION)  // 8
 
 // SPM
@@ -124,7 +124,7 @@
 //#define CACHE_SIZE_L1 64*1024  // byte
 //#define CACHE_SIZE_L2 786*1024  // byte
 
-#define CACHE_LINE_SIZE_L1 45856  // byte 32
+#define CACHE_LINE_SIZE_L1 5732  // byte 32
 #define CACHE_LINE_SIZE_L2 32  // byte
 
 #define CACHE_MAPPING_WAY_L1 16  // 4
@@ -152,7 +152,7 @@
 #define CACHE_MSHR_ENABLE_L2 1
 
 //** MSHR entry size, reference value is 32 in a typical GPU
-#define CACHE_MSHR_ENTRY_NUM_L1 1024 // CACHE_BANK_NUM_L1
+#define CACHE_MSHR_ENTRY_NUM_L1 32 // CACHE_BANK_NUM_L1
 #define CACHE_MSHR_ENTRY_NUM_L2 CACHE_BANK_NUM_L2
 
 //** MSHR slot size, reference value is 4 or 8 in a typical GPU or CPU

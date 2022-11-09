@@ -17,14 +17,14 @@ uint GCN_Test::ngh_num;
 //const uint GCN_Test::indices_BaseAddr = 0;
 const uint GCN_Test::feat_BaseAddr = 0;
 
-string GCN_Test::dataset_name = "cora";
+//string GCN_Test::dataset_name = "cora";
 //string GCN_Test::dataset_name = "citeseer";
 //string GCN_Test::dataset_name = "ogbn_arxiv";
 //string GCN_Test::dataset_name = "ogbn_mag";
 //string GCN_Test::dataset_name = "pubmed";
 //string GCN_Test::dataset_name = "amazon_comp";
 
-string GCN_Test::arch_name = "hygcn";
+//string GCN_Test::arch_name = "hygcn";
 //string GCN_Test::arch_name = "awb-gcn";
 //string GCN_Test::arch_name = "i-gcn";
 //string GCN_Test::arch_name = "regnn";
@@ -48,40 +48,71 @@ uint GCN_Test::deg_th = 0;
 uint GCN_Test::systolic_array_width = 32;
 uint GCN_Test::systolic_array_length = 128;
 
-void GCN_Test::generateData()
+//void GCN_Test::generateData()
+//{
+//    //// Load dataset
+//    //string filePath;
+//    //filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indptr.txt";
+//    //ReadFile::readFile(indPtr, filePath);
+//
+//    //filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indices.txt";
+//    //ReadFile::readFile(indices, filePath);
+//
+//    //vertex_num = indPtr.size() - 1;  // The last data in indPtr is not a vertex
+//
+//    // Set feature length
+//    if (GCN_Test::dataset_name == "cora")
+//    {
+//        feat_length = 1433;
+//    }
+//    else if (GCN_Test::dataset_name == "citeseer")
+//    {
+//        feat_length = 3703;
+//    }
+//    else if (GCN_Test::dataset_name == "ogbn_arxiv")
+//    {
+//        feat_length = 128;
+//    }
+//    else if (GCN_Test::dataset_name == "ogbn_mag")
+//    {
+//        feat_length = 128;
+//    }
+//    else if (GCN_Test::dataset_name == "pubmed")
+//    {
+//        feat_length = 500;
+//    }
+//    else if (GCN_Test::dataset_name == "amazon_comp")
+//    {
+//        feat_length = 767;
+//    }
+//
+//    feat.resize(vertex_num * feat_length);
+//}
+
+void GCN_Test::generateData(const string& dataset)
 {
-    //// Load dataset
-    //string filePath;
-    //filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indptr.txt";
-    //ReadFile::readFile(indPtr, filePath);
-
-    //filePath = "./dataset/graph/" + dataset_name + "/" + dataset_name + "_indices.txt";
-    //ReadFile::readFile(indices, filePath);
-
-    //vertex_num = indPtr.size() - 1;  // The last data in indPtr is not a vertex
-
     // Set feature length
-    if (GCN_Test::dataset_name == "cora")
+    if (dataset == "cora")
     {
         feat_length = 1433;
     }
-    else if (GCN_Test::dataset_name == "citeseer")
+    else if (dataset == "citeseer")
     {
         feat_length = 3703;
     }
-    else if (GCN_Test::dataset_name == "ogbn_arxiv")
+    else if (dataset == "ogbn_arxiv")
     {
         feat_length = 128;
     }
-    else if (GCN_Test::dataset_name == "ogbn_mag")
+    else if (dataset == "ogbn_mag")
     {
         feat_length = 128;
     }
-    else if (GCN_Test::dataset_name == "pubmed")
+    else if (dataset == "pubmed")
     {
         feat_length = 500;
     }
-    else if (GCN_Test::dataset_name == "amazon_comp")
+    else if (dataset == "amazon_comp")
     {
         feat_length = 767;
     }
@@ -127,7 +158,7 @@ void GCN_Test::injectMemTrace(Channel* producerChan, Channel* consumerLse, deque
     }
 }
 
-void GCN_Test::bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint>& delay_q)
+void GCN_Test::bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint>& delay_q, const string& arch_name)
 /*
 * Add delay (cycle) to data. To emulate synchronize cost
 */

@@ -20,10 +20,12 @@ namespace DFSimTest
     public:
         static void gcn_Base(Debug* debug);
         static void gcn_Base_trace(Debug* debug);
-        static void gcn_Base_trace_systolic(Debug* debug);
+        /*static void gcn_Base_trace_systolic(Debug* debug);*/
+        static void gcn_Base_trace_systolic(Debug* debug, const string& input_file_path, const string& dataset, const string& arch_name, const string& deg_th);
 
     private:
-        static void generateData();  // Generate benchmark data
+        //static void generateData();  // Generate benchmark data
+        static void generateData(const string& dataset);  // Generate benchmark data
         static void generateDfg();  // Generate Dfg with control tree
         static void graphPartition(ChanGraph& chanGraph, int partitionNum);
 
@@ -31,7 +33,7 @@ namespace DFSimTest
         static void readMemTraceByCol(vector<deque<uint>>& queue, const string& filePath);
         static bool readMemTraceByCol_blocked(vector<deque<uint>>& queue, const string& filePath, const uint& block_line_size, uint& line_id);
         static void injectMemTrace(Channel* producerChan, Channel* consumerLse, deque<uint>& addr_q);  // Inject mem trace into Lse
-        static void bindDelay(Channel* producerChan, Channel* consumerChan, deque<uint>& delay_q);  // Bind delay (cycle) to data
+        static void bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint>& delay_qm, const string& arch_name);  // Bind delay (cycle) to data
 
         // Construct DFG and chanGraph
         static Dfg dfg;
@@ -48,8 +50,8 @@ namespace DFSimTest
         static const uint feat_BaseAddr;
         static uint feat_length;
 
-        static string dataset_name;
-        static string arch_name;
+        //static string dataset_name;
+        //static string arch_name;
 
         // Performance parameter
         // Base

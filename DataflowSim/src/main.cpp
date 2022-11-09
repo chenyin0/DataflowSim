@@ -23,18 +23,65 @@
 #include "../test/hotspot/hotspot.h"
 #include "../test/gcn/gcn.h"
 
-#include "./module/execution/Channel.h"
+//#include "./module/execution/Channel.h"
 
 using namespace DFSim;
 
-int main()
+int parseOptions(int argc, char** argv, string& dataset, string& arch_name, string& deg_th)
+{
+    int i = 0;
+    if (argc == 1)
+    {
+        return -1;
+    }
+    for (i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--dataset") == 0)
+        {
+            dataset = string(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--arch") == 0)
+        {
+            arch_name = string(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--deg_th") == 0)
+        {
+            deg_th = string(argv[++i]);
+        }
+        else
+            return -1;
+    }
+    return 0;
+}
+
+int main(int argc, char** argv)
 {
     DFSim::ClkDomain clk();
     std::cout << "Begin test" << std::endl;
 
-    DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
+    string dataset, arch_name, deg_th;
+    if (-1 == parseOptions(argc, argv, dataset, arch_name, deg_th))
+    {
+        printf("Get parameter failed!\n");
+        exit(-1);
+    }
 
-    //DFSim::Debug* debug = new DFSim::Debug(string("./resource/output/MemoryTest/memory_test.txt"));
+    string input_file_path;
+    string log_file_path;
+
+    if (arch_name != "delta-gnn" && arch_name != "delta-gnn-opt")
+    {
+        input_file_path = Global::file_path + "mem_trace/" + dataset + "_" + arch_name + ".txt";
+        log_file_path = Global::file_path + "results/" + dataset + "_" + arch_name + ".txt";
+    }
+    else
+    {
+        input_file_path = Global::file_path + "mem_trace/" + dataset + "_" + arch_name + "_" + deg_th + ".txt";
+        log_file_path = Global::file_path + "results/" + dataset + "_" + arch_name + "_" + deg_th + ".txt";
+    }
+
+    //DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
+    DFSim::Debug* debug = new DFSim::Debug(log_file_path);
 
 #ifdef ARCH
     debug->getFile() << std::endl;
@@ -259,7 +306,7 @@ int main()
         case ArchType::Base:
             //DFSimTest::GCN_Test::gcn_Base(debug);
             //DFSimTest::GCN_Test::gcn_Base_trace(debug);
-            DFSimTest::GCN_Test::gcn_Base_trace_systolic(debug);
+            DFSimTest::GCN_Test::gcn_Base_trace_systolic(debug, input_file_path, dataset, arch_name, deg_th);
             break;
         }
 

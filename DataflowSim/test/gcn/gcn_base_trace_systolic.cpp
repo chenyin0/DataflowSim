@@ -6,7 +6,7 @@
 
 using namespace DFSimTest;
 
-void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
+void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_path, const string& dataset, const string& arch_name, const string& deg_th)
 {
     //******  Define module  ******//
     //*** Declare memory
@@ -53,7 +53,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     auto simLcs = std::get<1>(debugPrint);
 
     // Generate benchmark data
-    generateData();
+    GCN_Test::generateData(dataset);
 
     // Read mem trace
     //deque<uint> nodeTrace;
@@ -65,7 +65,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     //readMemTrace(nodeTrace, fileName);
     //readMemTrace(featTrace, fileName);
 
-    string fileName = "./resource/gcn/mem_trace/" + dataset_name + '_' + arch_name + ".txt";
+    //string fileName = "./resource/gcn/mem_trace/" + dataset_name + '_' + arch_name + ".txt";
 
     /* Trace format
     *  root_node_id  #ngh  ngh_node_id  #ngh-in-degree  #ngh-out-degree
@@ -75,7 +75,8 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
     uint line_id = 0;
     bool file_read_complete = 0;
     uint read_line_block_size = 16384;
-    file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
+    //file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
+    file_read_complete = readMemTraceByCol_blocked(trace, input_file_path, read_line_block_size, line_id);
     deque<uint> nodeTrace = trace[2];
     deque<uint> delay_q = trace[1];
     for (auto& i : trace)
@@ -209,7 +210,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
         Lse_ld_ngh->value += 1;  // Rondomly assign a value, due to the value is useless
 
         // Add synchronize delay
-        bindDelay(Lse_ld_ngh, Chan_systolic, delay_q);
+        bindDelay(Lse_ld_ngh, Chan_systolic, delay_q, arch_name);
         Chan_systolic->get();	// Mac	[0]Lse_ld_ngh 
         Chan_systolic->value = Chan_systolic->assign(uint(0));
         Chan_systolic->cycle = systolic_cycle;  // Reset cycle
@@ -226,7 +227,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
         }
         if (featTrace.empty() && !file_read_complete)
         {
-            file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
+            file_read_complete = readMemTraceByCol_blocked(trace, input_file_path, read_line_block_size, line_id);
             nodeTrace.insert(nodeTrace.end(), trace[2].begin(), trace[2].end());
             delay_q.insert(delay_q.end(), trace[1].begin(), trace[1].end());
             for (auto& i : trace)
@@ -298,6 +299,10 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug)
             debug->getFile() << "*******************************" << std::endl;
             debug->getFile() << "Execution finished succussfully" << std::endl;
             debug->getFile() << "*******************************" << std::endl;
+            debug->getFile() << "Arch: " << arch_name << std::endl;
+            debug->getFile() << "Dataset: " << dataset << std::endl;
+            debug->getFile() << "Deg_th: " << deg_th << std::endl;
+            debug->getFile() << std::endl;
             debug->getFile() << "Total Cycle: " << clk << std::endl;
             debug->getFile() << "Execution Iter: " << iter << std::endl;
 

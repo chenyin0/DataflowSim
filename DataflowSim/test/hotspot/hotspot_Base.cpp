@@ -1,6 +1,6 @@
 #include "./hotspot.h"
 #include "../../src/sim/Watchdog.h"
-#include "../../src/util/util.hpp"
+//#include "../../src/util/util.hpp"
 
 using namespace DFSimTest;
 
