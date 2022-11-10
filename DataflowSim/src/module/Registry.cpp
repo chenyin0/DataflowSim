@@ -360,6 +360,11 @@ void Registry::initChannel()
 void Registry::initLse(Lse* _lse)
 {
     _lse->reqQueue.resize(_lse->size);
+    _lse->suspendReqVec.resize(_lse->speedup);
+    for (auto& req : _lse->suspendReqVec)
+    {
+        req.first = 0;  // Reset valid
+    }
 }
 
 void Registry::checkConnectRule()

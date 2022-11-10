@@ -290,12 +290,16 @@ void Debug::lsePrint(const string _name, const Lse* _lse)
 
         // Print Lse suspendReqQueue
         _output_file << std::endl;
-        auto& req = _lse->suspendReq.second;
-        _output_file << "suspendReq: "
-            "v " << _lse->suspendReq.first << ":"
-            "addr " << req.addr << ":"
-            "isWt " << req.isWrite << ":"
-            "orderId " << req.cnt;
+        _output_file << "suspendReq: ";
+        for (auto& suspendReq : _lse->suspendReqVec)
+        {
+            auto& req = suspendReq.second;
+            _output_file << "v " << suspendReq.first << ":"
+                << "addr " << req.addr << ":"
+                << "isWt " << req.isWrite << ":"
+                << "orderId " << req.cnt;
+            _output_file << " ";
+        }
 
         // Print Lse channel
         _output_file << std::endl;

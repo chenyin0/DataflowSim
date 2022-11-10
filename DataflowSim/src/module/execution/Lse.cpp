@@ -61,7 +61,12 @@ void Lse::initial()
 {
     reqQueue.resize(size);
     lseId = memSys->registerLse(this);  // Register Lse in MemSystem and return lseId
-    suspendReq.first = 0;  // Reset valid
+    //suspendReq.first = 0;  // Reset valid
+    suspendReqVec.resize(speedup);
+    for (auto& suspendReq : suspendReqVec)
+    {
+        suspendReq.first = 0; // Reset valid
+    }
 
     chanType = ChanType::Chan_Lse;
 }
@@ -278,6 +283,8 @@ void Lse::statusUpdate()
     }
 
     // Select a ready req
+    uint id = currId - 1;
+    auto& suspendReq = suspendReqVec[id]; // Traverse each suspendReq belongs to each speedup instance
     if (!suspendReq.first)  // If suspendReq is invalid
     {
         //for (size_t i = 0; i < reqQueue.size(); ++i)
@@ -532,10 +539,11 @@ void Lse::ackCallback(MemReq _req)
 pair<bool, MemReq> Lse::peekReqQueue()
 {
     auto req = std::make_pair(0, MemReq());
-    if (suspendReq.first)
+    uint id = currId - 1;
+    if (suspendReqVec[id].first)
     {
         req.first = 1;
-        req.second = suspendReq.second;
+        req.second = suspendReqVec[id].second;
     }
 
     return req;
@@ -574,7 +582,8 @@ void Lse::setInflight(MemReq& _req)
 //
 //    return sendSuccess || reqInvalid;
 
-    if (!suspendReq.first)
+    uint id = currId - 1;
+    if (!suspendReqVec[id].first)
     {
         Debug::throwError("Try to send an invalid request from Lse to MemSys", __FILE__, __LINE__);
     }
@@ -588,7 +597,7 @@ void Lse::setInflight(MemReq& _req)
         uint index = _req.lseReqQueueIndex;
         reqQueue[index].first.inflight = 1;  // Req has been sent to memory
         reqQueue[index].first.coalesced = _req.coalesced;
-        suspendReq.first = 0;  // Clear current suspendReq
+        suspendReqVec[id].first = 0; // Clear current suspendReq
     }
 }
 

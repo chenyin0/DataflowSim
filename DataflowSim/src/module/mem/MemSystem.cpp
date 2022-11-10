@@ -183,6 +183,7 @@ void MemSystem::getLseReq()
             if (sendSuccess)
             {
                 lseRegistry[req.second.lseId]->setInflight(req.second);
+                //_lse->setInflight(req.second);
             }
 #ifdef DEBUG_MODE 
             else

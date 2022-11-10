@@ -76,7 +76,7 @@ namespace DFSim
         // Store memory request; As for load back data, push the corresponding reqQueueIndex into the deque<Data> channel;
         // MemReq: keep req; Data: keep status;
         vector<pair<MemReq, Data>> reqQueue;
-        pair<bool, MemReq> suspendReq;  // Outstanding req, need send to memSys; <valid, req>
+        vector<pair<bool, MemReq>> suspendReqVec; // Outstanding req, need send to memSys; <valid, req>; The vector size equal to the LSE speedup
         bool noLatencyMode = 0;  // Emulate no latency memory access
         vector<int>* memorySpace = nullptr;  // Point to load/store array
         uint baseAddr = 0;

@@ -104,7 +104,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     const auto& Chan_i_lc = registry->getChan("Chan_i_lc");
     const auto& Chan_end = registry->getChan("Chan_end");
     const auto& Chan_traverse_root = registry->getChan("Chan_traverse_root");
-    const auto& Lse_ld_ngh = registry->getChan("Lse_ld_ngh");
+    const auto& Lse_ld_ngh = registry->getLse("Lse_ld_ngh");
     const auto& Chan_systolic = registry->getChan("Chan_systolic");
     const auto& Chan_active = registry->getChan("Chan_active");
 
@@ -117,6 +117,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     Chan_i_lc->speedup = speedup_aggr;
     Chan_traverse_root->speedup = speedup_aggr;
     Lse_ld_ngh->speedup = speedup_aggr;
+    Lse_ld_ngh->suspendReqVec.resize(Lse_ld_ngh->speedup);
     Chan_systolic->speedup = speedup_combine;
     Chan_active->speedup = speedup_active;
 

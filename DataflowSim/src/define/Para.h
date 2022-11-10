@@ -92,12 +92,12 @@
 #define BUS_DELAY 20  // Bus delay (between DRAM and Cache/SPM)
 #define BANK_BLOCK_SIZE 64*8  // Block size of bank (bit)
 
-#define MEMSYS_QUEUE_BANK_NUM 1024  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
+#define MEMSYS_QUEUE_BANK_NUM 32  //32  // Number of MemSystem reqQueue bank, emulate bandwidth contention
 #define MEMSYS_REQ_QUEUE_SIZE_PER_BANK 4 // reqQueue size per bank (default size = 1)
 #define MEMSYS_ACK_QUEUE_SIZE_PER_BANK 4 // ackQueue size per bank (equal to L1$/SPM reqQueue size)
 
 #define MEMSYS_COALESCING_ENABLE 1
-#define MEMSYS_COALESCER_ENTRY_NUM 1024  // 32
+#define MEMSYS_COALESCER_ENTRY_NUM 32  // 32
 #define MEMSYS_COALESCER_SIZY_PER_ENTRY 16 //(BANK_BLOCK_SIZE/DATA_PRECISION)  // 8
 
 // SPM
