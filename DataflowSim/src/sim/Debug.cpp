@@ -932,9 +932,9 @@ void Debug::printGraphScheduler(const GraphScheduler* _graphScheduler)
     getFile() <<"graphTimeoutCnt: " << _graphScheduler->subgraphTimeout <<std::endl;
 }
 
-void Debug::throwError(const string errorDescrip, const string fileName, const uint lineNum)
+void Debug::throwError(const string errorDescrip, const string fileName, const uint64_t lineNum)
 {
-    uint clk = DFSim::ClkDomain::getInstance()->getClk();
+    uint64_t clk = DFSim::ClkDomain::getInstance()->getClk();
     std::cout << std::endl;
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     std::cout << "Error: " << errorDescrip << std::endl;

@@ -17,11 +17,11 @@ namespace DFSim
     {
         bankRecorderEntry() = default;
         bool valid = 0;
-        uint addrTag = 0;
+        uint64_t addrTag = 0;
         bool hasRegisteredCoalescer = 0;
         //bool hasSent2Mem = 0;
         deque<MemReq> reqQueue;
-        //uint rdPtr = 0; // Record current starting point to avoid operate a visited req agian
+        //uint64_t rdPtr = 0; // Record current starting point to avoid operate a visited req agian
     };
 
     class MemSystem
@@ -31,7 +31,7 @@ namespace DFSim
         ~MemSystem();
 
         // Lse
-        uint registerLse(Lse* _lse);  // Register Lse, return Id in LseRegistry
+        uint64_t registerLse(Lse* _lse);  // Register Lse, return Id in LseRegistry
         //bool checkReqQueueIsFull();
         bool addTransaction(MemReq _req);  // Add transaction to MemSys (Interface function for Lse)
 
@@ -50,16 +50,16 @@ namespace DFSim
         void MemSystemUpdate();
 
         static void power_callback(double a, double b, double c, double d) {}  // Unused
-        const uint& getMemAccessCnt() const;
+        const uint64_t& getMemAccessCnt() const;
 
     private:
         void getLseReq();
-        uint getBankId(uint _addr);  // Store in which bank
-        uint getAddrTag(uint _addr);  // Upper address used to distinguish an individual block in coalescing (e.g. addr >> cachelineSize)
-        void resetBankRecorder(uint entryId);
+        uint64_t getBankId(uint64_t _addr);  // Store in which bank
+        uint64_t getAddrTag(uint64_t _addr);  // Upper address used to distinguish an individual block in coalescing (e.g. addr >> cachelineSize)
+        void resetBankRecorder(uint64_t entryId);
         void sendBack2Lse();
         //void writeAck2Lse(MemReq _req);
-        uint addrBias(uint _addr);  // Normally data is in byte, for different data width need to bias addr
+        uint64_t addrBias(uint64_t _addr);  // Normally data is in byte, for different data width need to bias addr
         int getAckQueueEntry(vector<MemReq> _queue);
         void dramUpdate();  // Update DRAM
 
@@ -69,7 +69,7 @@ namespace DFSim
         const vector<deque<MemReq>>& getReqQueue() const { return reqQueue; }
         const vector<deque<MemReq>>& getAckQueue() const { return ackQueue; }
         const Coalescer& getCoalescer() const { return coalescer; }
-        //const vector<pair<MemReq, uint>>& getBusDelayFifo() const;
+        //const vector<pair<MemReq, uint64_t>>& getBusDelayFifo() const;
 #endif // DEBUG_MODE
 
     public:
@@ -80,9 +80,9 @@ namespace DFSim
         MemoryDataBus* memDataBus = nullptr;
 
     private:
-        //uint sendPtr = 0;  // SendPtr for reqQueue, round-robin
-        uint reqQueueWritePtr = 0;  // Push Lse req to reqQueue, round-robin
-        uint ackQueueReadPtr = 0;  // Pop Lse req from ackQueue, round-robin
+        //uint64_t sendPtr = 0;  // SendPtr for reqQueue, round-robin
+        uint64_t reqQueueWritePtr = 0;  // Push Lse req to reqQueue, round-robin
+        uint64_t ackQueueReadPtr = 0;  // Pop Lse req from ackQueue, round-robin
         vector<Lse*> lseRegistry;
         vector<Lse*> lseReqTable;  // Record each lse_ptr (Note: if a Lse unrolls N times, it occupies N entries of this table)
         vector<deque<MemReq>> reqQueue;  // Vec1: #bank; Vec2: reqQueue_size (default size = 1, only transmit data to next memory hierarchy)
@@ -90,12 +90,12 @@ namespace DFSim
         deque<MemReq> reqAckStack;  // Receive reqAck from memory data bus
         Coalescer coalescer = Coalescer(MEMSYS_COALESCER_ENTRY_NUM, MEMSYS_COALESCER_SIZY_PER_ENTRY);
         vector<bankRecorderEntry> bankRecorder;  // Emulate bank conflict, record bank visited status in each round
-        uint coalescerFreeEntryNum = 0;  // Record free coalescer entry number
+        uint64_t coalescerFreeEntryNum = 0;  // Record free coalescer entry number
         // For DRAMSim3 update
-        uint hostCnt = 0;
-        uint dramCnt = 0;
-        uint hostClkFreqHz = 0;
-        uint dramsimClkFreqHz = 0;
+        uint64_t hostCnt = 0;
+        uint64_t dramCnt = 0;
+        uint64_t hostClkFreqHz = 0;
+        uint64_t dramsimClkFreqHz = 0;
     };
 
 }

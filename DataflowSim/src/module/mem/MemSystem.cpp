@@ -41,7 +41,7 @@ MemSystem::MemSystem()
     mem = dramsim3::GetMemorySystem(config_file, ".", read_callback, write_callback);
 
     auto tCK_ = mem->GetTCK();
-    dramsimClkFreqHz = (uint)(1.0 / (tCK_ * 1e-9));
+    dramsimClkFreqHz = (uint64_t)(1.0 / (tCK_ * 1e-9));
     hostClkFreqHz = FREQ;
 }
 
@@ -53,10 +53,10 @@ MemSystem::~MemSystem()
     delete memDataBus;
 }
 
-uint MemSystem::registerLse(Lse* _lse)
+uint64_t MemSystem::registerLse(Lse* _lse)
 {
     lseRegistry.push_back(_lse);
-    uint lseId = lseRegistry.size() - 1;  // Index in LseRegistry
+    uint64_t lseId = lseRegistry.size() - 1;  // Index in LseRegistry
 
     // Add lseReqTable
     //vector<Lse*> lseVec( _lse->speedup, _lse );
@@ -66,7 +66,7 @@ uint MemSystem::registerLse(Lse* _lse)
     return lseId;
 }
 
-uint MemSystem::addrBias(uint _addr) 
+uint64_t MemSystem::addrBias(uint64_t _addr) 
 {
     if (DATA_PRECISION % 8 != 0)
     {
@@ -74,13 +74,13 @@ uint MemSystem::addrBias(uint _addr)
     }
     else
     {
-        return _addr << (uint)log2(DATA_PRECISION / 8);
+        return _addr << (uint64_t)log2(DATA_PRECISION / 8);
     }
 }
 
 bool MemSystem::addTransaction(MemReq _req)
 {
-    uint bankId = getBankId(_req.addr);
+    uint64_t bankId = getBankId(_req.addr);
     if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
     {
         reqQueue[bankId].push_back(_req);
@@ -94,7 +94,7 @@ bool MemSystem::addTransaction(MemReq _req)
     return false;
 }
 
-uint MemSystem::getBankId(uint _addr)
+uint64_t MemSystem::getBankId(uint64_t _addr)
 {
     if (CACHE_ENABLE)
     {
@@ -105,7 +105,7 @@ uint MemSystem::getBankId(uint _addr)
     Debug::throwError("Not define which bank", __FILE__, __LINE__);
 }
 
-uint MemSystem::getAddrTag(uint _addr)
+uint64_t MemSystem::getAddrTag(uint64_t _addr)
 {
     if (CACHE_ENABLE)
     {
@@ -116,7 +116,7 @@ uint MemSystem::getAddrTag(uint _addr)
     Debug::throwError("Not define address tag for coalescing", __FILE__, __LINE__);
 }
 
-void MemSystem::resetBankRecorder(uint entryId)
+void MemSystem::resetBankRecorder(uint64_t entryId)
 {
     bankRecorder[entryId].valid = 0;
     bankRecorder[entryId].hasRegisteredCoalescer = 0;
@@ -127,8 +127,8 @@ void MemSystem::getLseReq()
 {
     bool ptrUpdateLock = 0;
     // Debug_yin_04.12
-    uint ptr = reqQueueWritePtr;  // Record inital ptr
-    //uint ptr = Util::uRandom(0, lseReqTable.size() - 1);
+    uint64_t ptr = reqQueueWritePtr;  // Record inital ptr
+    //uint64_t ptr = Util::uRandom(0, lseReqTable.size() - 1);
 
     // Generate all the valid req in this round
     for (size_t i = 0; i < lseReqTable.size(); ++i)
@@ -139,7 +139,7 @@ void MemSystem::getLseReq()
         if (req.first)
         {
             bool sendSuccess = 0;
-            uint bankId = getBankId(req.second.addr);
+            uint64_t bankId = getBankId(req.second.addr);
             if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
             {
                 auto& entry = bankRecorder[bankId];
@@ -157,7 +157,7 @@ void MemSystem::getLseReq()
                     {
                         if (coalescerFreeEntryNum > 0)
                         {
-                            uint addrTag = getAddrTag(req.second.addr);
+                            uint64_t addrTag = getAddrTag(req.second.addr);
                             if (addrTag == entry.addrTag)  // Check whether is coalesceable
                             {
                                 // If the first time coalescing, occupy a coalscer entry
@@ -235,7 +235,7 @@ void MemSystem::sendBack2Lse()
     // Only when corresponding coalescing table entry has empty, pop the ackQueue
 
     deque<bool> lseRecorder(lseRegistry.size());
-    uint ptr = ackQueueReadPtr;
+    uint64_t ptr = ackQueueReadPtr;
 
     for (size_t i = 0; i < ackQueue.size(); ++i)
     {
@@ -245,8 +245,8 @@ void MemSystem::sendBack2Lse()
             auto& req = ackQueue[ptr].front();
             if (req.coalesced)
             {
-                uint addrTag = getAddrTag(req.addr);
-                uint coalescerEntryId = coalescer.searchCoalescer(addrTag);
+                uint64_t addrTag = getAddrTag(req.addr);
+                uint64_t coalescerEntryId = coalescer.searchCoalescer(addrTag);
                 auto& coalescerQueue = coalescer.coalescerTable[coalescerEntryId].coalescerQueue;
                 for (auto iter = coalescerQueue.begin(); iter != coalescerQueue.end();)
                 {
@@ -505,9 +505,9 @@ void MemSystem::MemSystemUpdate()
     getLseReq();
 }
 
-const uint& MemSystem::getMemAccessCnt() const
+const uint64_t& MemSystem::getMemAccessCnt() const
 {
-    uint memAccessCnt = 0;
+    uint64_t memAccessCnt = 0;
     if (cache != nullptr)
     {
         memAccessCnt += cache->getMemAccessCnt();
@@ -568,7 +568,7 @@ void MemSystem::dramUpdate()
 //    return coalescer;
 //}
 //
-//const uint& MemSystem::getMemAccessCnt() const
+//const uint64_t& MemSystem::getMemAccessCnt() const
 //{
 //    return memAccessCnt;
 //}

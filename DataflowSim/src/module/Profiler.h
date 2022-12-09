@@ -10,10 +10,10 @@ namespace DFSim
 {
     struct ProfilingTable
     {
-        uint moduleId = 0;
-        uint computingCycle = 0;
-        uint memoryAccessNum = 0;
-        uint lastUpdateClk = 0;  // Avoid double counting
+        uint64_t moduleId = 0;
+        uint64_t computingCycle = 0;
+        uint64_t memoryAccessNum = 0;
+        uint64_t lastUpdateClk = 0;  // Avoid double counting
     };
 
     class Profiler
@@ -23,16 +23,16 @@ namespace DFSim
         ~Profiler();
         void init();
         // System performance
-        static void recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk);
+        static void recordComputingCycle(uint64_t _moduleId, ChanType _chanType, uint64_t _clk);
         // Memory access
-        //static void recordMemoryAccessNum(uint _moduleId, ChanType _chanType, uint _clk);
+        //static void recordMemoryAccessNum(uint64_t _moduleId, ChanType _chanType, uint64_t _clk);
         void printLseProfiling(string lseName, Lse* _lsePtr);
         void printCacheMissRate();
         // Channel status
         void updateBufferMaxDataNum();  // Record the peak data number in chanBuffer for path balancing
         void printBufferMaxDataNum(string chanName, Channel* chanPtr);
         void updateChanUtilization();
-        void updateChanUtilization(uint _currSubgraphId);
+        void updateChanUtilization(uint64_t _currSubgraphId);
         void printChanProfiling(GraphScheduler* _graphScheduler);
         void printLseProfiling();
         void printPowerProfiling();
@@ -42,19 +42,19 @@ namespace DFSim
 
     /*private:*/
         static float transEnergy2Power(float _energy);  // Energy: pJ; Power: mW
-        static float transEnergy2Power(float _energy, uint _cycle);  // Energy: pJ; Power: mW
+        static float transEnergy2Power(float _energy, uint64_t _cycle);  // Energy: pJ; Power: mW
 
     private:
         vector<ProfilingTable> profilingTable;
-        vector<uint> maxDataNum;  // Record each buffer's peak data number
+        vector<uint64_t> maxDataNum;  // Record each buffer's peak data number
         Registry* registry = nullptr;
         Debug* debug = nullptr;
         MemSystem* memSys = nullptr;
 
         // Channel
-        uint chanActiveNumTotal = 0;
+        uint64_t chanActiveNumTotal = 0;
         // GraphSchduler
-        uint lastSubgraphId = 0;
-        uint graphSwitchTimes = 0;
+        uint64_t lastSubgraphId = 0;
+        uint64_t graphSwitchTimes = 0;
     };
 }

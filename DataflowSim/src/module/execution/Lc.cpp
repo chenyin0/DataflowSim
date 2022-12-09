@@ -201,7 +201,7 @@ void Lc::lcUpdate(bool newSel)
 
 
 //// class LcDGSF
-//LcDGSF::LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint _graphSize) : 
+//LcDGSF::LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint64_t _graphSize) : 
 //    Lc(_loopVar, _getEnd, _sendEnd, _mux), loopVar(_loopVar), graphSize(_graphSize)
 //{
 //    //init();

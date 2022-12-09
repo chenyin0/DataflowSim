@@ -2,11 +2,11 @@
 
 namespace DFSim
 {
-    uint ClkDomain::_clk = 0;
+    uint64_t ClkDomain::_clk = 0;
     bool ClkDomain::clkAdd = 0;
     deque<bool> ClkDomain::clkStall = {};
 
-    uint ClkDomain::getClk()
+    uint64_t ClkDomain::getClk()
     {
         return _clk;
     }
@@ -16,7 +16,7 @@ namespace DFSim
         _clk++;
     }
 
-    void ClkDomain::setClk(uint clk_)
+    void ClkDomain::setClk(uint64_t clk_)
     {
         _clk = clk_;
     }

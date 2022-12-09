@@ -28,13 +28,13 @@ namespace DFSimTest
         static Dfg dfg;
         static vector<int> temp;
         static vector<int> power;
-        static const uint CAP;
-        static const uint RX;
-        static const uint RY;
-        static const uint RZ;
-        static const uint block_size;
+        static const uint64_t CAP;
+        static const uint64_t RX;
+        static const uint64_t RY;
+        static const uint64_t RZ;
+        static const uint64_t block_size;
 
-        static const uint temp_BaseAddr;
-        static const uint power_BaseAddr;
+        static const uint64_t temp_BaseAddr;
+        static const uint64_t power_BaseAddr;
     };
 }

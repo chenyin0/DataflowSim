@@ -115,7 +115,7 @@ vector<MemReq> MemoryDataBus::MemoryDataBusUpdate()
 
 
 #ifdef DEBUG_MODE
-const deque<pair<MemReq, uint>>& MemoryDataBus::getBusDelayFifo() const
+const deque<pair<MemReq, uint64_t>>& MemoryDataBus::getBusDelayFifo() const
 {
     return busDelayFifo;
 }

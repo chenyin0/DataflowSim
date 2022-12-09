@@ -4,9 +4,9 @@
 
 using namespace DFSim;
 
-uint Registry::moduleId = 0;
+uint64_t Registry::moduleId = 0;
 vector<RegistryTableEntry> Registry::registryTable;
-unordered_map<string, uint> Registry::registryDict;
+unordered_map<string, uint64_t> Registry::registryDict;
 
 Registry::Registry(MemSystem* _memSys) : memSys(_memSys)
 {
@@ -113,7 +113,7 @@ int Registry::registerChan(const string& moduleName_, Channel* chan_)
     entry.moduleId = Registry::moduleId;
     entry.moduleType = ModuleType::Channel;
     entry.moduleName = moduleName_;
-    registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+    registryDict.insert(pair<string, uint64_t>(moduleName_, registryTable.size()));
     registryTable.push_back(entry);
 
     return Registry::moduleId++;
@@ -141,7 +141,7 @@ int Registry::registerLc(const string& moduleName_, Lc* lc_)
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Lc;
         entry.moduleName = moduleName_;
-        registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+        registryDict.insert(pair<string, uint64_t>(moduleName_, registryTable.size()));
         registryTable.push_back(entry);
 
         return Registry::moduleId++;
@@ -170,7 +170,7 @@ int Registry::registerMux(const string& moduleName_, Mux* mux_)
         entry.moduleId = Registry::moduleId;
         entry.moduleType = ModuleType::Mux;
         entry.moduleName = moduleName_;
-        registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+        registryDict.insert(pair<string, uint64_t>(moduleName_, registryTable.size()));
         registryTable.push_back(entry);
 
         return Registry::moduleId++;
@@ -239,7 +239,7 @@ void Registry::initLastTagQueue(Channel* _chan)
     //            chan->lastTagQueue.resize(chan->downstream.size());  // Resize a queue for each downstream channel
     //            for (size_t i = 0; i < chan->lastTagQueue.size(); ++i)
     //            {
-    //                uint _moduleId = chan->downstream[i]->moduleId;
+    //                uint64_t _moduleId = chan->downstream[i]->moduleId;
     //                deque<bool> queue;
     //                chan->lastTagQueue[i] = make_pair(_moduleId, queue);
     //            }
@@ -252,7 +252,7 @@ void Registry::initLastTagQueue(Channel* _chan)
         _chan->lastTagQueue.resize(_chan->downstream.size());  // Resize a queue for each downstream channel
         for (size_t i = 0; i < _chan->lastTagQueue.size(); ++i)
         {
-            uint _moduleId = _chan->downstream[i]->moduleId;
+            uint64_t _moduleId = _chan->downstream[i]->moduleId;
             deque<bool> queue;
             _chan->lastTagQueue[i] = make_pair(_moduleId, queue);
         }
@@ -261,7 +261,7 @@ void Registry::initLastTagQueue(Channel* _chan)
 
 void Registry::initChanBuffer(Channel* _chan)
 {
-    uint upstreamSize = _chan->upstream.size();
+    uint64_t upstreamSize = _chan->upstream.size();
 
     if (!_chan->noUpstream)
     {
@@ -302,7 +302,7 @@ void Registry::initBp(Channel* _chan)
 {
     if (!_chan->noUpstream)
     {
-        uint upstreamSize = _chan->upstream.size();
+        uint64_t upstreamSize = _chan->upstream.size();
         _chan->bp.resize(upstreamSize);
     }
     else
@@ -315,7 +315,7 @@ void Registry::initLastPopVal(Channel* _chan)
 {
     if (!_chan->noUpstream)
     {
-        uint upstreamSize = _chan->upstream.size();
+        uint64_t upstreamSize = _chan->upstream.size();
         _chan->lastPopVal.resize(upstreamSize);
     }
     else
@@ -328,7 +328,7 @@ void Registry::initAluInput(Channel* _chan)
 {
     if (!_chan->noUpstream)
     {
-        uint upstreamSize = _chan->upstream.size();
+        uint64_t upstreamSize = _chan->upstream.size();
         _chan->buffer2Alu.resize(upstreamSize);
     }
     else
@@ -415,7 +415,7 @@ void Registry::checkChanPartialMux(Channel* _chan)
 
 void Registry::checkLc()
 {
-    uint outerMostLoopNum = 0;
+    uint64_t outerMostLoopNum = 0;
 
     for (auto& entry : registryTable)
     {
@@ -1000,7 +1000,7 @@ void Registry::configGraphScheduler(GraphScheduler* _graphScheduler)
     }
 }
 
-auto Registry::findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator
+auto Registry::findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint64_t>::iterator
 {
     auto iter = registryDict.find(_moduleName);
     if (iter == registryDict.end())
@@ -1091,7 +1091,7 @@ void Registry::genSimConfig(ChanGraph& _chanGraph)
                         // Assign by chanBufferId, to support add chanDGSF
                         for (size_t bufferId = 0; bufferId < _chanGraph.getNode(chanName)->pre_nodes_data.size(); ++bufferId)
                         {
-                            _config_file << chanName << "->assign(uint(" << bufferId << "))";
+                            _config_file << chanName << "->assign(uint64_t(" << bufferId << "))";
                         }
                         _config_file << ";";
                     }
@@ -1237,7 +1237,7 @@ auto Registry::genDebugPrint(ChanGraph& _chanGraph)->tuple<vector<Channel*>, vec
     return make_tuple(chans, lc);
 }
 
-//void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup)
+//void Registry::setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint64_t _speedup)
 //{
 //    auto& ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
 //    for (auto& chanNode : ctrlRegion.nodes)
@@ -1267,24 +1267,24 @@ void Registry::setChanSize()
                 && (entry.chanPtr->moduleName != "Chan_begin" && entry.chanPtr->moduleName != "Chan_end")
                 && entry.chanPtr->chanType != ChanType::Chan_DGSF)
             {
-                entry.chanPtr->size = 10 * std::max(entry.chanPtr->cycle, uint(1)) * entry.chanPtr->speedup;
+                entry.chanPtr->size = 10 * std::max(entry.chanPtr->cycle, uint64_t(1)) * entry.chanPtr->speedup;
 
                 /*if (entry.nodePtr->chanType == ChanType::Chan_Lse)
                 {
-                    entry.nodePtr->size = 20 * std::max(entry.nodePtr->cycle, uint(1)) * entry.nodePtr->speedup;
+                    entry.nodePtr->size = 20 * std::max(entry.nodePtr->cycle, uint64_t(1)) * entry.nodePtr->speedup;
                 }
                 else
                 {
-                    entry.nodePtr->size = 10 * std::max(entry.nodePtr->cycle, uint(1)) * entry.nodePtr->speedup;
+                    entry.nodePtr->size = 10 * std::max(entry.nodePtr->cycle, uint64_t(1)) * entry.nodePtr->speedup;
                 }*/
             }
         }
     }
 }
 
-//uint Registry::getSubgraphPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion)
+//uint64_t Registry::getSubgraphPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion)
 //{
-//    uint nodeNum = 0;
+//    uint64_t nodeNum = 0;
 //    auto ctrlRegion = _chanGraph.controlTree.getCtrlRegion(_controlRegion);
 //    for (auto& nodeName : ctrlRegion.nodes)
 //    {
@@ -1300,7 +1300,7 @@ void Registry::setChanSize()
 
 //void Registry::setSpeedup(ChanGraph& _chanGraph)
 //{
-//    unordered_map<uint, vector<Chan_Node*>> subgraphNodes;  // <uint, vector<Chan_Node*>> = <subgraphId, nodesInThisSubgraph>
+//    unordered_map<uint64_t, vector<Chan_Node*>> subgraphNodes;  // <uint64_t, vector<Chan_Node*>> = <subgraphId, nodesInThisSubgraph>
 //    for (auto& node : _chanGraph.nodes)
 //    {
 //        if (dynamic_cast<Chan_Node*>(node)->isPhysicalChan)
@@ -1317,11 +1317,11 @@ void Registry::setChanSize()
 //        }
 //    }
 //
-//    vector<uint> subgraphSpeedupTable(subgraphNodes.size());
+//    vector<uint64_t> subgraphSpeedupTable(subgraphNodes.size());
 //    for (auto& subgraph : subgraphNodes)
 //    {
-//        uint nodeNum = subgraph.second.size();
-//        uint speedup = ARRAY_SIZE / nodeNum;
+//        uint64_t nodeNum = subgraph.second.size();
+//        uint64_t speedup = ARRAY_SIZE / nodeNum;
 //        subgraphSpeedupTable[subgraph.first] = speedup;  // Record speedup of each subgraph
 //        if (speedup < 1)
 //        {
@@ -1362,7 +1362,7 @@ void Registry::updateChanDGSF()
     for (auto& chanDGSF : vecChanDGSF)
     {
         chanDGSF->get();
-        chanDGSF->value = chanDGSF->assign(uint(0));
+        chanDGSF->value = chanDGSF->assign(uint64_t(0));
     }
 }
 

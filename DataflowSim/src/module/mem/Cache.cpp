@@ -26,14 +26,14 @@ void Cache::init()
     {
         cache_size[i] = a_cache_size[i];
         cache_line_size[i] = a_cache_line_size[i];
-        cache_line_num[i] = (uint)a_cache_size[i] / a_cache_line_size[i];  // Total cacheline number = cache_size/cacheline_size
-        cache_line_shifts[i] = (uint)log2(a_cache_line_size[i]);
+        cache_line_num[i] = (uint64_t)a_cache_size[i] / a_cache_line_size[i];  // Total cacheline number = cache_size/cacheline_size
+        cache_line_shifts[i] = (uint64_t)log2(a_cache_line_size[i]);
         cache_mapping_ways[i] = a_mapping_ways[i];
         cache_set_size[i] = cache_line_num[i] / cache_mapping_ways[i];  // Total set number
-        cache_set_shifts[i] = (uint)log2(cache_set_size[i]);
+        cache_set_shifts[i] = (uint64_t)log2(cache_set_size[i]);
         //cache_free_num[i] = cache_line_num[i];  // Free cacheline
         cache_bank_num[i] = bankNum[i];
-        //cache_bank_shifts[i] = (uint)log2(cache_bank_num[i]);
+        //cache_bank_shifts[i] = (uint64_t)log2(cache_bank_num[i]);
 
         swap_style[i] = cache_swap_style[i];
         write_strategy[i] = cache_write_strategy[i];
@@ -114,37 +114,37 @@ void Cache::config_check()
 
 Cache::~Cache() 
 {
-    for (uint i = 0; i < CACHE_MAXLEVEL; ++i)
+    for (uint64_t i = 0; i < CACHE_MAXLEVEL; ++i)
     {
         free(caches[i]);
     }
 }
 
-uint Cache::getCacheTag(const uint addr, const uint level)
+uint64_t Cache::getCacheTag(const uint64_t addr, const uint64_t level)
 {
     return addr >> (cache_set_shifts[level] + cache_line_shifts[level]);
 }
 
-uint Cache::getCacheSetIndex(const uint addr, const uint level)
+uint64_t Cache::getCacheSetIndex(const uint64_t addr, const uint64_t level)
 {
     return (addr >> cache_line_shifts[level]) % cache_set_size[level];
 }
 
-uint Cache::getCacheBank(const uint addr, const uint level)
+uint64_t Cache::getCacheBank(const uint64_t addr, const uint64_t level)
 {
     return (addr >> cache_line_shifts[level]) % cache_bank_num[level];
     //return addr % cache_bank_num[level];
 }
 
-uint Cache::getCacheBlockOffset(const uint addr, const uint level)
+uint64_t Cache::getCacheBlockOffset(const uint64_t addr, const uint64_t level)
 {
     return addr % cache_line_size[level];
 }
 
-int Cache::check_cache_hit(uint set_base, uint addr, int level) 
+int Cache::check_cache_hit(uint64_t set_base, uint64_t addr, int level) 
 {
-    uint i;
-    uint _tag = getCacheTag(addr, level);
+    uint64_t i;
+    uint64_t _tag = getCacheTag(addr, level);
 
     for (i = 0; i < cache_mapping_ways[level]; ++i) 
     {
@@ -157,12 +157,12 @@ int Cache::check_cache_hit(uint set_base, uint addr, int level)
     return -1;
 }
 
-int Cache::get_cache_free_line(uint set_base, int level) 
+int Cache::get_cache_free_line(uint64_t set_base, int level) 
 {
-    uint min_count;
+    uint64_t min_count;
     int free_index = -1;  // Initial free index
     // Find an available cacheline: a dirty cacheline or a free cacheline
-    for (uint i = 0; i < cache_mapping_ways[level]; ++i) 
+    for (uint64_t i = 0; i < cache_mapping_ways[level]; ++i) 
     {
         if (!(caches[level][set_base + i].flag & CACHE_FLAG_VALID)) 
         {
@@ -183,7 +183,7 @@ int Cache::get_cache_free_line(uint set_base, int level)
     {
         // LRU/FIFO
         min_count = ULONG_LONG_MAX;
-        for (uint j = 0; j < cache_mapping_ways[level]; ++j) 
+        for (uint64_t j = 0; j < cache_mapping_ways[level]; ++j) 
         {
             if (caches[level][set_base + j].count < min_count &&
                 !(caches[level][set_base + j].flag & CACHE_FLAG_LOCK)) 
@@ -197,7 +197,7 @@ int Cache::get_cache_free_line(uint set_base, int level)
     {
         // If all cachelines are locked, execute complusorily replace
         min_count = ULONG_LONG_MAX;
-        for (uint j = 0; j < cache_mapping_ways[level]; ++j) 
+        for (uint64_t j = 0; j < cache_mapping_ways[level]; ++j) 
         {
             if (caches[level][set_base + j].count < min_count) 
             {
@@ -229,7 +229,7 @@ int Cache::get_cache_free_line(uint set_base, int level)
     return free_index;
 }
 
-bool Cache::writeBackDirtyCacheline(const uint tag, const uint setIndex, const uint level)
+bool Cache::writeBackDirtyCacheline(const uint64_t tag, const uint64_t setIndex, const uint64_t level)
 {
     CacheReq cacheReq;
     cacheReq.valid = 1;
@@ -263,7 +263,7 @@ bool Cache::writeBackDirtyCacheline(const uint tag, const uint setIndex, const u
 }
 
 /** Write data into cacheline */
-void Cache::set_cache_line(uint index, uint addr, int level) 
+void Cache::set_cache_line(uint64_t index, uint64_t addr, int level) 
 {
     Cache_Line* line = caches[level] + index;
     // line->buf = cache_buf + cache_line_size * index;
@@ -275,10 +275,10 @@ void Cache::set_cache_line(uint index, uint addr, int level)
     ++tick_count;
 }
 
-bool Cache::setCacheBlock(uint addr, uint level)
+bool Cache::setCacheBlock(uint64_t addr, uint64_t level)
 {
-    uint set = getCacheSetIndex(addr, level);  // Set index
-    uint set_base = set * cache_mapping_ways[level];  // Cacheline index
+    uint64_t set = getCacheSetIndex(addr, level);  // Set index
+    uint64_t set_base = set * cache_mapping_ways[level];  // Cacheline index
 
     if (check_cache_hit(set_base, addr, level) == -1)  // If cache miss, replace
     {
@@ -300,13 +300,13 @@ bool Cache::setCacheBlock(uint addr, uint level)
     }
 }
 
-int Cache::lock_cache_line(uint line_index, int level) 
+int Cache::lock_cache_line(uint64_t line_index, int level) 
 {
     caches[level][line_index].flag |= CACHE_FLAG_LOCK;
     return 0;
 }
 
-int Cache::unlock_cache_line(uint line_index, int level) 
+int Cache::unlock_cache_line(uint64_t line_index, int level) 
 {
     caches[level][line_index].flag &= ~CACHE_FLAG_LOCK;
     return 0;
@@ -366,10 +366,10 @@ MemReq Cache::transCacheReq2MemReq(const CacheReq& cacheReq)
     return memReq;
 }
 
-bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
+bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint64_t level)
 {
-    uint addr = cacheReq.addr;
-    uint bankId = getCacheBank(addr, level);
+    uint64_t addr = cacheReq.addr;
+    uint64_t bankId = getCacheBank(addr, level);
     ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
 
     if (reqQueueBank.size() < reqQueueSizePerBank[level])
@@ -385,15 +385,15 @@ bool Cache::sendReq2CacheBank(const CacheReq cacheReq, const uint level)
     return false;
 }
 
-uint Cache::getCacheBlockId(const uint addr, const uint level)
+uint64_t Cache::getCacheBlockId(const uint64_t addr, const uint64_t level)
 {
     return addr >> cache_line_shifts[level];
 }
 
-//bool Cache::addrCoaleseCheck(const uint addr, const uint level)
+//bool Cache::addrCoaleseCheck(const uint64_t addr, const uint64_t level)
 //{
-//    //uint setIndex = getCacheSetIndex(addr, level);
-//    uint bankId = getCacheBank(addr, level);
+//    //uint64_t setIndex = getCacheSetIndex(addr, level);
+//    uint64_t bankId = getCacheBank(addr, level);
 //    const ReqQueueBank& reqQueueBank = reqQueue[level][bankId];
 //
 //    for (auto& req : reqQueueBank)
@@ -423,7 +423,7 @@ bool Cache::addTransaction(MemReq _req)
     return false;  // Cache bank is full, send req failed
 }
 
-MemReq Cache::callBack(uint ackQueueId)
+MemReq Cache::callBack(uint64_t ackQueueId)
 { 
     MemReq req;
     auto& ackQueueBank = ackQueue[0][ackQueueId];
@@ -506,21 +506,21 @@ void Cache::sendReq2Mem(dramsim3::MemorySystem* mem)
 // Receive cache block(cacheline) from DRAM 
 void Cache::mem_req_complete(MemReq _req)
 {
-    uint llc = CACHE_MAXLEVEL - 1;
-    uint addr = _req.addr;
+    uint64_t llc = CACHE_MAXLEVEL - 1;
+    uint64_t addr = _req.addr;
 
     // Update cacheline
-    uint set_llc = getCacheSetIndex(addr, llc);
-    uint setBase_llc = set_llc * cache_mapping_ways[llc];
+    uint64_t set_llc = getCacheSetIndex(addr, llc);
+    uint64_t setBase_llc = set_llc * cache_mapping_ways[llc];
 
     if (check_cache_hit(setBase_llc, addr, llc) == -1)  // If cache miss, update cacheline of LLC
     {
-        uint cache_free_line = get_cache_free_line(setBase_llc, llc);
+        uint64_t cache_free_line = get_cache_free_line(setBase_llc, llc);
         set_cache_line(cache_free_line, addr, llc);
     }
 
     // Update MSHR of LLC
-    uint blockAddr = getCacheBlockId(addr, llc);
+    uint64_t blockAddr = getCacheBlockId(addr, llc);
     mshr[llc].setMshrEntryReady(blockAddr);
 }
 
@@ -550,8 +550,8 @@ void Cache::resetBankConflictRecorder()
 {
     for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)
     {
-        uint reqBankNum = reqBankConflict[level].size();
-        uint ackBankNum = ackBankConflict[level].size();
+        uint64_t reqBankNum = reqBankConflict[level].size();
+        uint64_t ackBankNum = ackBankConflict[level].size();
         reqBankConflict[level].assign(reqBankNum, 0);
         ackBankConflict[level].assign(ackBankNum, 0);
     }
@@ -565,17 +565,17 @@ void Cache::updateReqQueue()
         {
             if (mshr[level].seekMshrFreeEntry())  // If there is no free entry remains in Mshr, cache stall
             {
-                uint bankId = (reqQueueBankPtr[level] + i) % cache_bank_num[level];
+                uint64_t bankId = (reqQueueBankPtr[level] + i) % cache_bank_num[level];
                 auto& reqQueueBank = reqQueue[level][bankId];
                 if (!reqQueueBank.empty())
                 {
                     auto& req = reqQueueBank.front();
                     if (req.second == 0 && !req.first.ready)
                     {
-                        uint addr = req.first.addr;
-                        //uint set = (addr >> cache_line_shifts[i]) % cache_set_size[i];  // Set index
-                        uint set = getCacheSetIndex(addr, level);  // Set index
-                        uint set_base = set * cache_mapping_ways[level];  // Cacheline index
+                        uint64_t addr = req.first.addr;
+                        //uint64_t set = (addr >> cache_line_shifts[i]) % cache_set_size[i];  // Set index
+                        uint64_t set = getCacheSetIndex(addr, level);  // Set index
+                        uint64_t set_base = set * cache_mapping_ways[level];  // Cacheline index
                         int setIndex = check_cache_hit(set_base, addr, level);
 
                         if (setIndex != -1)  // Cache hit
@@ -595,7 +595,7 @@ void Cache::updateReqQueue()
                                 {
                                     // In write_through mode, need to send write_req to next cache level by MSHR
                                     // This behavior likes a cache miss
-                                    uint blockAddr = getCacheBlockId(req.first.addr, level);
+                                    uint64_t blockAddr = getCacheBlockId(req.first.addr, level);
                                     if (!mshr[level].send2Mshr(blockAddr, req.first))
                                     {
                                         Debug::throwError("Send to MSHR unsuccessfully!", __FILE__, __LINE__);
@@ -634,7 +634,7 @@ void Cache::updateReqQueue()
                         }
                         else  // Cache miss
                         {
-                            uint blockAddr = getCacheBlockId(req.first.addr, level);
+                            uint64_t blockAddr = getCacheBlockId(req.first.addr, level);
                             if (!mshr[level].send2Mshr(blockAddr, req.first))
                             {
                                 Debug::throwError("Send to MSHR unsuccessfully!", __FILE__, __LINE__);
@@ -671,7 +671,7 @@ void Cache::updateAckQueue()
             vector<CacheReq> cacheReqVec;
             for (size_t i = 0; i < ackQueue[level].size(); ++i)
             {
-                uint bankId = (ackQueueBankPtr[level] + i) % cache_bank_num[level];
+                uint64_t bankId = (ackQueueBankPtr[level] + i) % cache_bank_num[level];
                 auto& ackQueueBank = ackQueue[level][bankId];
                 if (!ackQueueBank.empty())
                 {
@@ -684,7 +684,7 @@ void Cache::updateAckQueue()
             for (auto& req : cacheReqVec)
             {
                 // Update MSHR in upper cache level, set corresponding MSHR entry ready if MSHR hit
-                uint blockAddr = getCacheBlockId(req.addr, level - 1);
+                uint64_t blockAddr = getCacheBlockId(req.addr, level - 1);
                 mshr[level - 1].setMshrEntryReady(blockAddr);
 
                 // Update cacheline
@@ -702,10 +702,10 @@ void Cache::updateAckQueue()
         //*** Push ackQueue
         // Respond to MSHR ready reqs
         auto reqVec = mshr[level].peekMshrReadyEntry();
-        vector<uint> entryIdVec;
+        vector<uint64_t> entryIdVec;
         for (auto& req : reqVec)
         {
-            uint bankId = getCacheBank(req.second.addr, level);
+            uint64_t bankId = getCacheBank(req.second.addr, level);
             // Write/Writeback OP not push into the ackQueue; (TODO: add a mechanism to ensure RAW/WAW)
             if (/*req.second.cacheOp != Cache_operation::WRITE &&*/ req.second.cacheOp != Cache_operation::WRITEBACK_DIRTY_BLOCK)
             {
@@ -757,7 +757,7 @@ void Cache::sendMshrOutstandingReq()
     {
         // Get outstanding req without bank conflict
         auto reqVec = mshr[level].getOutstandingReq();
-        vector<uint> mshrEntryId;
+        vector<uint64_t> mshrEntryId;
         if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
         {
             for (auto& req : reqVec)

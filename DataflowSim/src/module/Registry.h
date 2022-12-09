@@ -24,7 +24,7 @@ namespace DFSim
         Channel* chanPtr = nullptr;
         Lc* lcPtr = nullptr;
         Mux* muxPtr = nullptr;
-        uint moduleId = 0;
+        uint64_t moduleId = 0;
         ModuleType moduleType;
         string moduleName;
     };
@@ -46,7 +46,7 @@ namespace DFSim
         Lc* getLc(const string& moduleName_);
         Mux* getMux(const string& moduleName_);
         Lse* getLse(const string& moduleName_);
-        auto findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint>::iterator;
+        auto findRegistryEntryIndex(const string& _moduleName)->unordered_map<string, uint64_t>::iterator;
         RegistryTableEntry& getRegistryTableEntry(const string& _moduleName);
 
         void init();
@@ -108,7 +108,7 @@ namespace DFSim
             
             entry.moduleId = Registry::moduleId; 
             entry.moduleName = moduleName_;
-            registryDict.insert(pair<string, uint>(moduleName_, registryTable.size()));
+            registryDict.insert(pair<string, uint64_t>(moduleName_, registryTable.size()));
             registryTable.push_back(entry);
 
             return Registry::moduleId++;
@@ -140,13 +140,13 @@ namespace DFSim
 
         void checkNodeRule(ChanGraph& _chanGraph, string& _node);  // Check node rule in genModule
 
-        //void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint _speedup);
-        //uint getCtrlRegionPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion);
+        //void setSpeedup(ChanGraph& _chanGraph, const string& _controlRegion, uint64_t _speedup);
+        //uint64_t getCtrlRegionPhysicalNodeNum(ChanGraph& _chanGraph, const string& _controlRegion);
 
     private:
-        static uint moduleId;
+        static uint64_t moduleId;
         static vector<RegistryTableEntry> registryTable;
-        static unordered_map<string, uint> registryDict;
+        static unordered_map<string, uint64_t> registryDict;
         vector<ChanDGSF*> vecChanDGSF;
 
         MemSystem* memSys = nullptr;

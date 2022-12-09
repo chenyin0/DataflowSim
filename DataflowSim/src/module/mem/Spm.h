@@ -38,15 +38,15 @@ namespace DFSim
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const vector<pair<MemReq, uint>>& getReqQueue() const { return reqQueue; }
-        const uint& getMemAccessCnt() const { return memAccessCnt; }
+        const vector<pair<MemReq, uint64_t>>& getReqQueue() const { return reqQueue; }
+        const uint64_t& getMemAccessCnt() const { return memAccessCnt; }
 #endif // DEBUG_MODE 
 
     private:
-        uint sendPtr = 0;
-        vector<pair<MemReq, uint>> reqQueue;  // pair<req, latency>
-        uint bankNum = SPM_BANK_NUM;
-        uint bankDepth = SPM_BANK_DEPTH;
-        uint memAccessCnt = 0;
+        uint64_t sendPtr = 0;
+        vector<pair<MemReq, uint64_t>> reqQueue;  // pair<req, latency>
+        uint64_t bankNum = SPM_BANK_NUM;
+        uint64_t bankDepth = SPM_BANK_DEPTH;
+        uint64_t memAccessCnt = 0;
     };
 }

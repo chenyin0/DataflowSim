@@ -115,14 +115,14 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
     watchdog.addCheckPointChan({ Lc_jj->getEnd, Lc_kk->getEnd, Lc_i->getEnd, Lc_j->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     //vector<int> res;  // Result
     //vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -158,7 +158,7 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_jj_lc->get();	// Nop	[0]Lc_jj 
-        Chan_jj_lc->value = Chan_jj_lc->assign(uint(0));
+        Chan_jj_lc->value = Chan_jj_lc->assign(uint64_t(0));
 
         Lc_kk->var = Lc_kk->mux->mux(Lc_kk->var, 0, Lc_kk->sel);
         Lc_kk->mux->muxUpdate(Lc_kk->sel);
@@ -169,10 +169,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_kk->lcUpdate(Lc_kk->var < matrix_height);
 
         Chan_kk_lc->get();	// Nop	[0]Lc_kk 
-        Chan_kk_lc->value = Chan_kk_lc->assign(uint(0));
+        Chan_kk_lc->value = Chan_kk_lc->assign(uint64_t(0));
 
         Chan_jj_lc_scatter_loop_kk->get();	// Nop	[0]Chan_jj_lc 
-        Chan_jj_lc_scatter_loop_kk->value = Chan_jj_lc_scatter_loop_kk->assign(uint(0));
+        Chan_jj_lc_scatter_loop_kk->value = Chan_jj_lc_scatter_loop_kk->assign(uint64_t(0));
 
         Lc_i->var = Lc_i->mux->mux(Lc_i->var, 0, Lc_i->sel);
         Lc_i->mux->muxUpdate(Lc_i->sel);
@@ -183,19 +183,19 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_i->lcUpdate(Lc_i->var < matrix_height);
 
         Chan_jj_lc_relay_loop_kk->get();	// Nop	[0]Chan_jj_lc 
-        Chan_jj_lc_relay_loop_kk->value = Chan_jj_lc_relay_loop_kk->assign(uint(0));
+        Chan_jj_lc_relay_loop_kk->value = Chan_jj_lc_relay_loop_kk->assign(uint64_t(0));
 
         Chan_i_lc->get();	// Nop	[0]Lc_i 
-        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 
         Chan_i_row->get();	// Mul	[0]Lc_i 
-        Chan_i_row->value = Chan_i_row->assign(uint(0)) * matrix_width;
+        Chan_i_row->value = Chan_i_row->assign(uint64_t(0)) * matrix_width;
 
         Chan_kk_lc_scatter_loop_i->get();	// Nop	[0]Chan_kk_lc 
-        Chan_kk_lc_scatter_loop_i->value = Chan_kk_lc_scatter_loop_i->assign(uint(0));
+        Chan_kk_lc_scatter_loop_i->value = Chan_kk_lc_scatter_loop_i->assign(uint64_t(0));
 
         Chan_jj_lc_relay_loop_kk_scatter_loop_i->get();	// Nop	[0]Chan_jj_lc_relay_loop_kk 
-        Chan_jj_lc_relay_loop_kk_scatter_loop_i->value = Chan_jj_lc_relay_loop_kk_scatter_loop_i->assign(uint(0));
+        Chan_jj_lc_relay_loop_kk_scatter_loop_i->value = Chan_jj_lc_relay_loop_kk_scatter_loop_i->assign(uint64_t(0));
 
         Lc_k->var = Lc_k->mux->mux(Lc_k->var, 0, Lc_k->sel);
         Lc_k->mux->muxUpdate(Lc_k->sel);
@@ -206,22 +206,22 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_k->lcUpdate(Lc_k->var < block_size);
 
         Chan_jj_lc_relay_loop_i->get();	// Nop	[0]Chan_jj_lc_relay_loop_kk 
-        Chan_jj_lc_relay_loop_i->value = Chan_jj_lc_relay_loop_i->assign(uint(0));
+        Chan_jj_lc_relay_loop_i->value = Chan_jj_lc_relay_loop_i->assign(uint64_t(0));
 
         Chan_kk_lc_relay_loop_i->get();	// Nop	[0]Chan_kk_lc 
-        Chan_kk_lc_relay_loop_i->value = Chan_kk_lc_relay_loop_i->assign(uint(0));
+        Chan_kk_lc_relay_loop_i->value = Chan_kk_lc_relay_loop_i->assign(uint64_t(0));
 
         Chan_k_lc->get();	// Nop	[0]Lc_k_DGSF 
-        Chan_k_lc->value = Chan_k_lc->assign(uint(0));
+        Chan_k_lc->value = Chan_k_lc->assign(uint64_t(0));
 
         Chan_i_row_scatter_loop_k->get();	// Nop	[0]Chan_i_row_DGSF 
-        Chan_i_row_scatter_loop_k->value = Chan_i_row_scatter_loop_k->assign(uint(0));
+        Chan_i_row_scatter_loop_k->value = Chan_i_row_scatter_loop_k->assign(uint64_t(0));
 
         Chan_kk_lc_relay_loop_i_scatter_loop_k->get();	// Nop	[0]Chan_kk_lc_relay_loop_i_DGSF 
-        Chan_kk_lc_relay_loop_i_scatter_loop_k->value = Chan_kk_lc_relay_loop_i_scatter_loop_k->assign(uint(0));
+        Chan_kk_lc_relay_loop_i_scatter_loop_k->value = Chan_kk_lc_relay_loop_i_scatter_loop_k->assign(uint64_t(0));
 
         Chan_jj_lc_relay_loop_i_scatter_loop_k->get();	// Nop	[0]Chan_jj_lc_relay_loop_i_DGSF 
-        Chan_jj_lc_relay_loop_i_scatter_loop_k->value = Chan_jj_lc_relay_loop_i_scatter_loop_k->assign(uint(0));
+        Chan_jj_lc_relay_loop_i_scatter_loop_k->value = Chan_jj_lc_relay_loop_i_scatter_loop_k->assign(uint64_t(0));
 
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
         Lc_j->mux->muxUpdate(Lc_j->sel);
@@ -232,46 +232,46 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lc_j->lcUpdate(Lc_j->var < block_size);
 
         Chan_k_kk->get();	// Add	[0]Lc_k_DGSF [1]Chan_kk_lc_relay_loop_i 
-        Chan_k_kk->value = Chan_k_kk->assign(uint(0)) + Chan_k_kk->assign(uint(1));
+        Chan_k_kk->value = Chan_k_kk->assign(uint64_t(0)) + Chan_k_kk->assign(uint64_t(1));
 
         Chan_jj_lc_relay_loop_k->get();	// Nop	[0]Chan_jj_lc_relay_loop_i 
-        Chan_jj_lc_relay_loop_k->value = Chan_jj_lc_relay_loop_k->assign(uint(0));
+        Chan_jj_lc_relay_loop_k->value = Chan_jj_lc_relay_loop_k->assign(uint64_t(0));
 
         Chan_i_row_relay_loop_k->get();	// Nop	[0]Chan_i_row 
-        Chan_i_row_relay_loop_k->value = Chan_i_row_relay_loop_k->assign(uint(0));
+        Chan_i_row_relay_loop_k->value = Chan_i_row_relay_loop_k->assign(uint64_t(0));
 
         Chan_i_row_relay_loop_k_scatter_loop_j->get();	// Nop	[0]Chan_i_row_relay_loop_k 
-        Chan_i_row_relay_loop_k_scatter_loop_j->value = Chan_i_row_relay_loop_k_scatter_loop_j->assign(uint(0));
+        Chan_i_row_relay_loop_k_scatter_loop_j->value = Chan_i_row_relay_loop_k_scatter_loop_j->assign(uint64_t(0));
 
         Chan_k_row->get();	// Mul	[0]Chan_k_kk 
-        Chan_k_row->value = Chan_k_row->assign(uint(0)) * matrix_width;
+        Chan_k_row->value = Chan_k_row->assign(uint64_t(0)) * matrix_width;
 
         Chan_m1_addr->get();	// Add	[0]Chan_i_row [1]Chan_k_kk 
-        Chan_m1_addr->value = Chan_m1_addr->assign(uint(0)) + Chan_m1_addr->assign(uint(1));
+        Chan_m1_addr->value = Chan_m1_addr->assign(uint64_t(0)) + Chan_m1_addr->assign(uint64_t(1));
 
         Chan_jj_lc_relay_loop_k_scatter_loop_j->get();	// Nop	[0]Chan_jj_lc_relay_loop_k 
-        Chan_jj_lc_relay_loop_k_scatter_loop_j->value = Chan_jj_lc_relay_loop_k_scatter_loop_j->assign(uint(0));
+        Chan_jj_lc_relay_loop_k_scatter_loop_j->value = Chan_jj_lc_relay_loop_k_scatter_loop_j->assign(uint64_t(0));
 
         Lse_temp_x->get();	// Load	[0]Chan_m1_addr 
         Lse_temp_x->value = m1_[Lse_temp_x->assign()];
 
         Chan_k_row_scatter_loop_j->get();	// Nop	[0]Chan_k_row_DGSF 
-        Chan_k_row_scatter_loop_j->value = Chan_k_row_scatter_loop_j->assign(uint(0));
+        Chan_k_row_scatter_loop_j->value = Chan_k_row_scatter_loop_j->assign(uint64_t(0));
 
         Chan_j_jj->get();	// Add	[0]Lc_j [1]Chan_jj_lc_relay_loop_k_DGSF 
-        Chan_j_jj->value = Chan_j_jj->assign(uint(0)) + Chan_j_jj->assign(uint(1));
+        Chan_j_jj->value = Chan_j_jj->assign(uint64_t(0)) + Chan_j_jj->assign(uint64_t(1));
 
         Chan_m1_data->get();	// Nop	[0]Lse_temp_x 
-        Chan_m1_data->value = Chan_m1_data->assign(uint(0));
+        Chan_m1_data->value = Chan_m1_data->assign(uint64_t(0));
 
         Chan_m2_addr->get();	// Add	[0]Chan_k_row_DGSF [1]Chan_j_jj 
-        Chan_m2_addr->value = Chan_m2_addr->assign(uint(0)) + Chan_m2_addr->assign(uint(1));
+        Chan_m2_addr->value = Chan_m2_addr->assign(uint64_t(0)) + Chan_m2_addr->assign(uint64_t(1));
 
         Chan_prod_addr->get();	// Add	[0]Chan_j_jj [1]Chan_i_row_relay_loop_k_DGSF 
-        Chan_prod_addr->value = Chan_prod_addr->assign(uint(0)) + Chan_prod_addr->assign(uint(1));
+        Chan_prod_addr->value = Chan_prod_addr->assign(uint64_t(0)) + Chan_prod_addr->assign(uint64_t(1));
 
         Chan_m1_data_scatter_loop_j->get();	// Nop	[0]Chan_m1_data_DGSF 
-        Chan_m1_data_scatter_loop_j->value = Chan_m1_data_scatter_loop_j->assign(uint(0));
+        Chan_m1_data_scatter_loop_j->value = Chan_m1_data_scatter_loop_j->assign(uint64_t(0));
 
         Lse_m2_data->get();	// Load	[0]Chan_m2_addr 
         Lse_m2_data->value = m2_[Lse_m2_data->assign()];
@@ -280,10 +280,10 @@ void GemmTest::gemm_Base_auto_sim(Debug* debug)
         Lse_prod_data->value = prod_[Lse_prod_data->assign()];
 
         Chan_mul->get();	// Mul	[0]Chan_m1_data_DGSF [1]Lse_m2_data 
-        Chan_mul->value = Chan_mul->assign(uint(0)) * Chan_mul->assign(uint(1));
+        Chan_mul->value = Chan_mul->assign(uint64_t(0)) * Chan_mul->assign(uint64_t(1));
 
         Chan_prod_data_update->get();	// Add	[0]Lse_prod_data [1]Chan_mul 
-        Chan_prod_data_update->value = Chan_prod_data_update->assign(uint(0)) + Chan_prod_data_update->assign(uint(1));
+        Chan_prod_data_update->value = Chan_prod_data_update->assign(uint64_t(0)) + Chan_prod_data_update->assign(uint64_t(1));
 
         Lse_prod_data_update_st->get();	// Store	[0]Chan_prod_addr [1]Chan_prod_data_update 
 

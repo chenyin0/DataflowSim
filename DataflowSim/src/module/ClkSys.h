@@ -23,11 +23,11 @@ namespace DFSim
         ClkDomain() = default;
 
     public:
-        static uint getClk();
+        static uint64_t getClk();
 
         static void selfAdd();
 
-        static void setClk(uint clk_);
+        static void setClk(uint64_t clk_);
 
         static void initClk();
 
@@ -40,7 +40,7 @@ namespace DFSim
         static const string getCurrentSystemTime();
 
     private:
-        static uint _clk;
+        static uint64_t _clk;
         static bool clkAdd;  // Signify whether clock update in this cycle
         static deque<bool> clkStall;
         static void resetClkStall();

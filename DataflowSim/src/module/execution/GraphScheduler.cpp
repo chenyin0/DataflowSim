@@ -3,7 +3,7 @@
 
 using namespace DFSim;
 
-uint GraphScheduler::currSubgraphId = 0;  // Current subgraph Id, default start at 0;
+uint64_t GraphScheduler::currSubgraphId = 0;  // Current subgraph Id, default start at 0;
 
 GraphScheduler::GraphScheduler()
 {
@@ -16,7 +16,7 @@ void GraphScheduler::schedulerInit()
     subgraphActiveCnt.resize(subgraphTable.size());
 }
 
-void GraphScheduler::addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan, vector<ChanDGSF*> consumerChan)
+void GraphScheduler::addSubgraph(uint64_t subgraphId, vector<ChanDGSF*> producerChan, vector<ChanDGSF*> consumerChan)
 {
     if (subgraphTable.find(subgraphId) == subgraphTable.end())
     {
@@ -45,7 +45,7 @@ void GraphScheduler::addSubgraph(uint subgraphId, vector<ChanDGSF*> producerChan
     }
 }
 
-void GraphScheduler::addDivergenceSubgraph(uint subgraphId, vector<ChanDGSF*> commonChan, vector<ChanDGSF*> truePathChan, vector<ChanDGSF*> falsePathChan)
+void GraphScheduler::addDivergenceSubgraph(uint64_t subgraphId, vector<ChanDGSF*> commonChan, vector<ChanDGSF*> truePathChan, vector<ChanDGSF*> falsePathChan)
 {
     if (divergenceGraph.find(subgraphId) == divergenceGraph.end())
     {
@@ -86,7 +86,7 @@ void GraphScheduler::addDivergenceSubgraph(uint subgraphId, vector<ChanDGSF*> co
 
 void GraphScheduler::graphUpdate()
 {
-    uint graphSize = subgraphTable.size();
+    uint64_t graphSize = subgraphTable.size();
     bool producerChanFinish = 1;
     bool consumerChanFinish = 1;
 
@@ -222,7 +222,7 @@ Graph rule:
 Current graph:  No          Yes             Yes         No
 Other graphs:   Yes         No              Yes         No
 */
-void GraphScheduler::configChan(uint subgraphId)
+void GraphScheduler::configChan(uint64_t subgraphId)
 {
     //TODO: Code is not clear, need rewriting
 
@@ -315,14 +315,14 @@ void GraphScheduler::configChan(uint subgraphId)
     }
 }
 
-uint GraphScheduler::selectSubgraphInOrder(uint _currSubgraphId)
+uint64_t GraphScheduler::selectSubgraphInOrder(uint64_t _currSubgraphId)
 {
     //return (++_currSubgraphId) % subgraphTable.size();
 
     // Debug_yin_21.06.30
     for (size_t i = 0; i < subgraphTable.size(); ++i)
     {
-        uint subgraphId = (_currSubgraphId + 1 + i) % subgraphTable.size();
+        uint64_t subgraphId = (_currSubgraphId + 1 + i) % subgraphTable.size();
         if (checkProducerDownstreamChanAllEnable(subgraphTable[subgraphId].first))
         {
             return subgraphId;
@@ -332,7 +332,7 @@ uint GraphScheduler::selectSubgraphInOrder(uint _currSubgraphId)
     Debug::throwError("Not find a enable subgraph!", __FILE__, __LINE__);
 }
 
-//uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
+//uint64_t GraphScheduler::selectSubgraphO3(uint64_t _currSubgraphId)
 //{
 //    for (size_t subgraphId = 0; subgraphId < subgraphTable.size(); ++subgraphId)
 //    {
@@ -367,11 +367,11 @@ uint GraphScheduler::selectSubgraphInOrder(uint _currSubgraphId)
 //    Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
 //}
 
-uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
+uint64_t GraphScheduler::selectSubgraphO3(uint64_t _currSubgraphId)
 {
     for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
     {
-        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+        uint64_t subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
         if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
         {
            /* if (checkProducerChanIsFull(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
@@ -406,7 +406,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     {
         for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
         {
-            uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+            uint64_t subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
             if (!subgraphIsOver[subgraphId])
             {
                 return subgraphId;
@@ -416,7 +416,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
 
     //for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size(); ++subgraphCnt)
     //{
-    //    uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //    uint64_t subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
     //    if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
     //    {
     //        if (checkProducerChanNotEmpty(subgraphTable[subgraphId].first) && checkConsumerChanNotFull(subgraphTable[subgraphId].second))
@@ -436,7 +436,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     //    // Select a subgraph to execute in round-robin 
     //    for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
     //    {
-    //        uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //        uint64_t subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
     //        if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
     //        {
     //            return subgraphId;  // Return a subgraph randomly
@@ -450,7 +450,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     //// Select a subgraph to execute in round-robin 
     //for (size_t subgraphCnt = 1; subgraphCnt < subgraphTable.size() + 1; ++subgraphCnt)
     //{
-    //    uint subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
+    //    uint64_t subgraphId = (_currSubgraphId + subgraphCnt) % subgraphTable.size();
     //    if (!subgraphIsOver[subgraphId]/* && subgraphId != _currSubgraphId*/)
     //    {
     //        return subgraphId;  // Return a subgraph randomly
@@ -460,7 +460,7 @@ uint GraphScheduler::selectSubgraphO3(uint _currSubgraphId)
     //Debug::throwError("Can not find a subgraph to execute. Program should be already finished!", __FILE__, __LINE__);
 }
 
-bool GraphScheduler::checkSubgraphIsOver(uint _subgraphId)
+bool GraphScheduler::checkSubgraphIsOver(uint64_t _subgraphId)
 {
     bool isOver = 1;
 
@@ -665,7 +665,7 @@ bool GraphScheduler::checkConsumerChanIsEmpty(vector<ChanDGSF*> consumerChans)
     return isEmpty;
 }
 
-void GraphScheduler::resetSubgraph(uint _subgraphId)
+void GraphScheduler::resetSubgraph(uint64_t _subgraphId)
 {
     for (auto& chan : subgraphTable[_subgraphId].first)
     {

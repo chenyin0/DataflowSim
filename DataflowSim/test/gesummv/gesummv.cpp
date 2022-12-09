@@ -9,18 +9,18 @@ vector<int> Gesummv_Test::B;
 vector<int> Gesummv_Test::x;
 vector<int> Gesummv_Test::y;
 
-const uint Gesummv_Test::A_BaseAddr = 0;
-const uint Gesummv_Test::B_BaseAddr = 16055;
-const uint Gesummv_Test::x_BaseAddr = 325589;
-const uint Gesummv_Test::y_BaseAddr = 4800962;
+const uint64_t Gesummv_Test::A_BaseAddr = 0;
+const uint64_t Gesummv_Test::B_BaseAddr = 16055;
+const uint64_t Gesummv_Test::x_BaseAddr = 325589;
+const uint64_t Gesummv_Test::y_BaseAddr = 4800962;
 
-const uint Gesummv_Test::_PB_N = 200;
-const uint Gesummv_Test::alpha = 2;
-const uint Gesummv_Test::beta = 4;
+const uint64_t Gesummv_Test::_PB_N = 200;
+const uint64_t Gesummv_Test::alpha = 2;
+const uint64_t Gesummv_Test::beta = 4;
 
 void Gesummv_Test::generateData()
 {
-    uint size = _PB_N * _PB_N;
+    uint64_t size = _PB_N * _PB_N;
     A.resize(size);
     B.resize(size);
     x.resize(size);

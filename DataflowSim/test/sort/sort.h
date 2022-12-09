@@ -28,12 +28,12 @@ namespace DFSimTest
 
         static Dfg dfg;
 
-        static uint SIZE;
+        static uint64_t SIZE;
         static vector<int> temp;
         static vector<int> a;
 
         static string filePath;
-        static uint temp_BaseAddr;
-        static uint a_BaseAddr;
+        static uint64_t temp_BaseAddr;
+        static uint64_t a_BaseAddr;
     };
 }

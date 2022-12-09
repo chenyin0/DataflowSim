@@ -7,21 +7,21 @@ Dfg HotSpot_Test::dfg;
 vector<int> HotSpot_Test::temp;
 vector<int> HotSpot_Test::power;
 
-uint grid_width = 1024;
-uint grid_height = 1024;
+uint64_t grid_width = 1024;
+uint64_t grid_height = 1024;
 float FACTOR_CHIP = 0.5;
-uint SPEC_HEAT_SI = 1.75 * pow(10, 6);
+uint64_t SPEC_HEAT_SI = 1.75 * pow(10, 6);
 float t_chip = 0.0005;
-uint K_SI = 100;
+uint64_t K_SI = 100;
 
-const uint HotSpot_Test::block_size = 256;
-const uint HotSpot_Test::CAP = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
-const uint HotSpot_Test::RX = grid_width / (2.0 * K_SI * t_chip * grid_height);
-const uint HotSpot_Test::RY = grid_height / (2.0 * K_SI * t_chip * grid_width);
-const uint HotSpot_Test::RZ = t_chip / (K_SI * grid_height * grid_width);
+const uint64_t HotSpot_Test::block_size = 256;
+const uint64_t HotSpot_Test::CAP = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
+const uint64_t HotSpot_Test::RX = grid_width / (2.0 * K_SI * t_chip * grid_height);
+const uint64_t HotSpot_Test::RY = grid_height / (2.0 * K_SI * t_chip * grid_width);
+const uint64_t HotSpot_Test::RZ = t_chip / (K_SI * grid_height * grid_width);
 
-const uint HotSpot_Test::temp_BaseAddr = 0;
-const uint HotSpot_Test::power_BaseAddr = 52865;
+const uint64_t HotSpot_Test::temp_BaseAddr = 0;
+const uint64_t HotSpot_Test::power_BaseAddr = 52865;
 
 void HotSpot_Test::generateData()
 {

@@ -9,13 +9,13 @@ vector<int> GCN_Test::indPtr;
 vector<int> GCN_Test::indices;
 vector<int> GCN_Test::feat;
 
-uint GCN_Test::vertex_num;
-uint GCN_Test::ngh_num;
+uint64_t GCN_Test::vertex_num;
+uint64_t GCN_Test::ngh_num;
 
 // Address map: 
-//const uint GCN_Test::indPtr_BaseAddr = 0;
-//const uint GCN_Test::indices_BaseAddr = 0;
-const uint GCN_Test::feat_BaseAddr = 0;
+//const uint64_t GCN_Test::indPtr_BaseAddr = 0;
+//const uint64_t GCN_Test::indices_BaseAddr = 0;
+const uint64_t GCN_Test::feat_BaseAddr = 0;
 
 //string GCN_Test::dataset_name = "cora";
 //string GCN_Test::dataset_name = "citeseer";
@@ -32,21 +32,21 @@ const uint GCN_Test::feat_BaseAddr = 0;
 //string GCN_Test::arch_name = "delta-gnn-opt";
 
 
-uint GCN_Test::feat_length;
+uint64_t GCN_Test::feat_length;
 
 // Performance parameter
-uint sp = 32;
-uint GCN_Test::speedup_aggr = sp;
-uint GCN_Test::speedup_combine = sp;
-uint GCN_Test::speedup_active = sp;
+uint64_t sp = 32;
+uint64_t GCN_Test::speedup_aggr = sp;
+uint64_t GCN_Test::speedup_combine = sp;
+uint64_t GCN_Test::speedup_active = sp;
 
-uint GCN_Test::buffer_access_cnt = 0;
-uint GCN_Test::deg_th = 0;
+uint64_t GCN_Test::buffer_access_cnt = 0;
+uint64_t GCN_Test::deg_th = 0;
 
 // Hardware parameter
 // Systolic array
-uint GCN_Test::systolic_array_width = 32;
-uint GCN_Test::systolic_array_length = 128;
+uint64_t GCN_Test::systolic_array_width = 32;
+uint64_t GCN_Test::systolic_array_length = 128;
 
 //void GCN_Test::generateData()
 //{
@@ -120,12 +120,12 @@ void GCN_Test::generateData(const string& dataset)
     feat.resize(vertex_num * feat_length);
 }
 
-void GCN_Test::readMemTrace(deque<uint>& queue, const string& filePath)
+void GCN_Test::readMemTrace(deque<uint64_t>& queue, const string& filePath)
 {
     ReadFile::readFile(queue, filePath);
 }
 
-void GCN_Test::readMemTraceByCol(vector<deque<uint>>& queues, const string& filePath)
+void GCN_Test::readMemTraceByCol(vector<deque<uint64_t>>& queues, const string& filePath)
 /*
 * Read file by column (each column corresponding to one queues)
 */
@@ -133,7 +133,7 @@ void GCN_Test::readMemTraceByCol(vector<deque<uint>>& queues, const string& file
     ReadFile::readFileByColumn(queues, filePath);
 }
 
-bool GCN_Test::readMemTraceByCol_blocked(vector<deque<uint>>& queues, const string& filePath, const uint& block_line_size, uint& line_id)
+bool GCN_Test::readMemTraceByCol_blocked(vector<deque<uint64_t>>& queues, const string& filePath, const uint64_t& block_line_size, uint64_t& line_id)
 /*
 * Read file blocked for saving DRAM 
 * Read file by column (each column corresponding to one queues)
@@ -142,7 +142,7 @@ bool GCN_Test::readMemTraceByCol_blocked(vector<deque<uint>>& queues, const stri
     return ReadFile::readFileByColumn_blocked(queues, filePath, block_line_size, line_id);
 }
 
-void GCN_Test::injectMemTrace(Channel* producerChan, Channel* consumerLse, deque<uint>& addr_q)
+void GCN_Test::injectMemTrace(Channel* producerChan, Channel* consumerLse, deque<uint64_t>& addr_q)
 /*
 * Inject memory trace (addr) to Lse. To emulate accessing specific address.
 */
@@ -158,7 +158,7 @@ void GCN_Test::injectMemTrace(Channel* producerChan, Channel* consumerLse, deque
     }
 }
 
-void GCN_Test::bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint>& delay_q, const string& arch_name)
+void GCN_Test::bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint64_t>& delay_q, const string& arch_name)
 /*
 * Add delay (cycle) to data. To emulate synchronize cost
 */

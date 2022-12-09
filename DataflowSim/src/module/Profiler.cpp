@@ -34,7 +34,7 @@ void Profiler::init()
     maxDataNum.resize(registry->registryTable.size());
 }
 
-void Profiler::recordComputingCycle(uint _moduleId, ChanType _chanType, uint _clk)
+void Profiler::recordComputingCycle(uint64_t _moduleId, ChanType _chanType, uint64_t _clk)
 {
 
 }
@@ -46,7 +46,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
     debug->getFile() << std::setw(20) << lseName
         << "\taccessCnt: " << std::setw(5) << _lsePtr->memAccessCnt
-        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::max(std::min(_lsePtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION)), uint(1))
+        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::max(std::min(_lsePtr->speedup, uint64_t(BANK_BLOCK_SIZE / DATA_PRECISION)), uint64_t(1))
         << "\tAvgLat: " << std::setw(5) << _lsePtr->avgMemAccessLat
         << "\treqBlockRate: " << std::fixed << std::setprecision(1) << std::setw(5) << reqBlockRate << "%"
         << "\treqBlockCnt: " << std::setw(5) << _lsePtr->memReqBlockCnt
@@ -56,7 +56,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
 void Profiler::printCacheMissRate()
 {
-    uint cacheLevel = CACHE_MAXLEVEL;
+    uint64_t cacheLevel = CACHE_MAXLEVEL;
     for (size_t level = 0; level < cacheLevel; ++level)
     {
         double missRate = memSys->cache->get_miss_rate(level);
@@ -75,7 +75,7 @@ void Profiler::printCacheProfiling()
 
 void Profiler::updateBufferMaxDataNum()
 {
-    uint cnt = 0;
+    uint64_t cnt = 0;
     for (auto& entry : registry->registryTable)
     {
         if (entry.moduleType == ModuleType::Channel)
@@ -121,7 +121,7 @@ void Profiler::updateChanUtilization()
     }
 }
 
-//void Profiler::updateChanUtilization(uint _currSubgraphId)
+//void Profiler::updateChanUtilization(uint64_t _currSubgraphId)
 //{
 //    for (auto& entry : registry->getRegistryTable())
 //    {
@@ -161,7 +161,7 @@ void Profiler::updateChanUtilization()
 //    }
 //}
 
-void Profiler::updateChanUtilization(uint _currSubgraphId)
+void Profiler::updateChanUtilization(uint64_t _currSubgraphId)
 {
     for (auto& entry : registry->getRegistryTable())
     {
@@ -208,14 +208,14 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
 {
     debug->getFile() << "******* Channel Utilization *********" << std::endl;
 
-    uint chanNum = 0;
-    uint avgWeight = 0;
+    uint64_t chanNum = 0;
+    uint64_t avgWeight = 0;
     float chanUtilAvg = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)
         {
-            uint activeNum = entry.chanPtr->activeCnt;
+            uint64_t activeNum = entry.chanPtr->activeCnt;
             //float utilization = static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100;
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt/*ClkDomain::getClk()*/)) * 100, float(100));
             //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << std::setprecision(2) << "%" << std::endl;
@@ -242,7 +242,7 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
         }
     }
 
-    vector<uint> subgraphNodeNum(_graphScheduler->subgraphActiveCnt.size());
+    vector<uint64_t> subgraphNodeNum(_graphScheduler->subgraphActiveCnt.size());
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel
@@ -260,7 +260,7 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
         }
     }
 
-    uint totalPeCycle = 0;
+    uint64_t totalPeCycle = 0;
     if (subgraphNodeNum.size() > 1)
     {
         for (size_t subgraphId = 0; subgraphId < subgraphNodeNum.size(); ++subgraphId)
@@ -335,10 +335,10 @@ void Profiler::printPowerProfiling()
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
 
     // PE array
-    //uint aluActiveTimes = chanActiveNumTotal;
-    uint reg_active_times = chanActiveNumTotal * 3;
-    uint pe_ctrl_active_times = chanActiveNumTotal;
-    uint contextBuffer_active_times = graphSwitchTimes * ARRAY_SIZE;
+    //uint64_t aluActiveTimes = chanActiveNumTotal;
+    uint64_t reg_active_times = chanActiveNumTotal * 3;
+    uint64_t pe_ctrl_active_times = chanActiveNumTotal;
+    uint64_t contextBuffer_active_times = graphSwitchTimes * ARRAY_SIZE;
 
     float alu_dynamic_energy = 0;
     //for (auto& entry : registry->getRegistryTable())
@@ -369,14 +369,14 @@ void Profiler::printPowerProfiling()
     float contextBuffer_power = contextBuffer_dynamic_power + contextBuffer_leakage_power;
 
     // On-chip buffer
-    uint dataBuffer_access_times = 0;
-    uint dataBuffer_mem_req_access_times = 0;
-    uint dataBuffer_intermediate_data_access_times = 0;
+    uint64_t dataBuffer_access_times = 0;
+    uint64_t dataBuffer_mem_req_access_times = 0;
+    uint64_t dataBuffer_intermediate_data_access_times = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)
         {
-            uint coalesceRate = std::min(entry.chanPtr->speedup, uint(BANK_BLOCK_SIZE / DATA_PRECISION));
+            uint64_t coalesceRate = std::min(entry.chanPtr->speedup, uint64_t(BANK_BLOCK_SIZE / DATA_PRECISION));
             if (entry.chanPtr->chanType == ChanType::Chan_Lse)
             {
                 dataBuffer_mem_req_access_times += entry.chanPtr->activeCnt / coalesceRate;
@@ -405,22 +405,22 @@ void Profiler::printPowerProfiling()
     float dataBuffer_power = dataBuffer_dynamic_power + dataBuffer_leakage_power;
 
     // GraphScheduler
-    //uint graphScheduler_active_times = graphSwitchTimes;
-    uint graphScheduler_active_times = ClkDomain::getClk();
+    //uint64_t graphScheduler_active_times = graphSwitchTimes;
+    uint64_t graphScheduler_active_times = ClkDomain::getClk();
     float graphScheduler_dynamic_energy = static_cast<float>(graphScheduler_active_times) * Hardware_Para::getGraphSchedulerEnergyDynamic();
     float graphScheduler_dynamic_power = transEnergy2Power(graphScheduler_dynamic_energy);
     float graphScheduler_leakage_power = Hardware_Para::getGraphSchedulerLeakagePower();
     float graphScheduler_power = graphScheduler_dynamic_power + graphScheduler_leakage_power;
 
     // Cache
-    uint cache_access_times = 0;
+    uint64_t cache_access_times = 0;
     if (memSys != nullptr && memSys->cache != nullptr)
     {
         cache_access_times += memSys->cache->getCacheAccessCnt();
     }
 
     // DRAM
-    uint mem_access_times = 0;
+    uint64_t mem_access_times = 0;
     if (memSys != nullptr)
     {
         mem_access_times += memSys->getMemAccessCnt();
@@ -518,7 +518,7 @@ float Profiler::transEnergy2Power(float _energy)
     return transEnergy2Power(_energy, ClkDomain::getClk());
 }
 
-float Profiler::transEnergy2Power(float _energy, uint _cycle)
+float Profiler::transEnergy2Power(float _energy, uint64_t _cycle)
 {
     float energy = _energy / static_cast<float>(_cycle);  // pJ
     float power = energy * static_cast<float>(FREQ) / 1000000;  // uW
@@ -528,10 +528,10 @@ float Profiler::transEnergy2Power(float _energy, uint _cycle)
 void Profiler::tiaProfiling()
 {
     // Performance
-    uint totalOpNum = chanActiveNumTotal;
+    uint64_t totalOpNum = chanActiveNumTotal;
     float totalReqBlockRate = 0;
     float avgReqBlockRate = 0;
-    uint reqNum = 0;
+    uint64_t reqNum = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel && entry.chanPtr->chanType == ChanType::Chan_Lse)
@@ -543,10 +543,10 @@ void Profiler::tiaProfiling()
             }
         }
     }
-    avgReqBlockRate = totalReqBlockRate / static_cast<float>(std::max(reqNum, uint(1)));
+    avgReqBlockRate = totalReqBlockRate / static_cast<float>(std::max(reqNum, uint64_t(1)));
 
     float resII = 1.2;  // Update to Modulo mapper
-    uint cycle = (totalOpNum / TIA_ARRAY_SIZE) / (1 - avgReqBlockRate) * resII;
+    uint64_t cycle = (totalOpNum / TIA_ARRAY_SIZE) / (1 - avgReqBlockRate) * resII;
     std::cout << "feataetager" << totalReqBlockRate << "\t" << reqNum << std::endl;
     float utilization = (1 - avgReqBlockRate) / resII;
 
@@ -556,9 +556,9 @@ void Profiler::tiaProfiling()
     debug->getFile() << "PE utilization: " << std::setprecision(2) << utilization * 100 << "%" << std::endl;
 
     // Power
-    uint reg_active_times = chanActiveNumTotal * 3;
-    uint pe_ctrl_active_times = chanActiveNumTotal;
-    uint instr_buffer_active_times = chanActiveNumTotal;
+    uint64_t reg_active_times = chanActiveNumTotal * 3;
+    uint64_t pe_ctrl_active_times = chanActiveNumTotal;
+    uint64_t instr_buffer_active_times = chanActiveNumTotal;
     // ALU
     float alu_dynamic_energy = 0;
 
@@ -594,9 +594,9 @@ void Profiler::tiaProfiling()
     float instr_buffer_power = instr_buffer_dynamic_power + instr_buffer_leakage_power;
 
     // On-chip buffer
-    uint dataBuffer_access_times = 0;
-    uint dataBuffer_mem_req_access_times = 0;
-    uint dataBuffer_intermediate_data_access_times = 0;
+    uint64_t dataBuffer_access_times = 0;
+    uint64_t dataBuffer_mem_req_access_times = 0;
+    uint64_t dataBuffer_intermediate_data_access_times = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel)

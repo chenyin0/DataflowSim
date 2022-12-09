@@ -345,7 +345,7 @@ void GemmTest::gemm_Base(Debug* debug)
     watchdog.addCheckPointChan({ lc_jj_getEnd, lc_kk_getEnd, lc_i_getEnd, lc_k_getEnd, lc_j_getEnd });
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     //int jj = 0;
     //int kk = 0;
@@ -356,9 +356,9 @@ void GemmTest::gemm_Base(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -460,8 +460,8 @@ void GemmTest::gemm_Base(Debug* debug)
         lse_ld_m1->value = lse_ld_m1->assign() - m1_BaseAddr;
 
         chan_m1_getData->get();
-        uint m1_rowId = chan_m1_getData->assign(lse_ld_m1) / matrix_width;
-        uint m1_colId = chan_m1_getData->assign(lse_ld_m1) % matrix_width;
+        uint64_t m1_rowId = chan_m1_getData->assign(lse_ld_m1) / matrix_width;
+        uint64_t m1_colId = chan_m1_getData->assign(lse_ld_m1) % matrix_width;
         int m1_data = m1[m1_rowId][m1_colId];
         chan_m1_getData->value = m1_data;
 
@@ -491,9 +491,9 @@ void GemmTest::gemm_Base(Debug* debug)
         lse_ld_m2->value = lse_ld_m2->assign() - m2_BaseAddr;
 
         chan_mul->get();
-        uint m2_addr_ack = chan_mul->assign(lse_ld_m2);
-        uint m2_rowId = m2_addr_ack / matrix_width;
-        uint m2_colId = m2_addr_ack % matrix_width;
+        uint64_t m2_addr_ack = chan_mul->assign(lse_ld_m2);
+        uint64_t m2_rowId = m2_addr_ack / matrix_width;
+        uint64_t m2_colId = m2_addr_ack % matrix_width;
         int m2_data = m2[m2_rowId][m2_colId];
         chan_mul->value = chan_mul->assign(chan_m1_getData) * m2_data;
 
@@ -510,9 +510,9 @@ void GemmTest::gemm_Base(Debug* debug)
         lse_ld_partialSum->value = lse_ld_partialSum->assign() - partialSum_BaseAddr;
 
         chan_partialSum->get();
-        uint partialSum_addr_ack = chan_partialSum->assign(lse_ld_partialSum);
-        uint partialSum_rowId = partialSum_addr_ack / matrix_width;
-        uint partialSum_colId = partialSum_addr_ack % matrix_width;
+        uint64_t partialSum_addr_ack = chan_partialSum->assign(lse_ld_partialSum);
+        uint64_t partialSum_rowId = partialSum_addr_ack / matrix_width;
+        uint64_t partialSum_colId = partialSum_addr_ack % matrix_width;
         int partialSum_data = m2[partialSum_rowId][partialSum_colId];
         chan_partialSum->value = chan_partialSum->assign(chan_mul_delay) + partialSum_data;
 

@@ -149,14 +149,14 @@ void Cfd_Test::cfd_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_blk->getEnd, Lc_i->getEnd, Lc_j->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     //vector<int> res;  // Result
     //vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -194,13 +194,13 @@ void Cfd_Test::cfd_Base(Debug* debug)
         Lc_blk->lcUpdate(Lc_blk->var < nelr / block_length);
 
         Chan_blk_lc->get();	// Nop	[0]Lc_blk 
-        Chan_blk_lc->value = Chan_blk_lc->assign(uint(0));
+        Chan_blk_lc->value = Chan_blk_lc->assign(uint64_t(0));
 
         Chan_b_start->get();	// Mul	[0]Lc_blk 
-        Chan_b_start->value = Chan_b_start->assign(uint(0)) * block_length;
+        Chan_b_start->value = Chan_b_start->assign(uint64_t(0)) * block_length;
 
         Chan_b_end->get();	// Mul	[0]Lc_blk 
-        Chan_b_end->value = (Chan_b_end->assign(uint(0)) + 1) * block_length > nelr ? nelr : (Chan_b_end->assign(uint(0)) + 1) * block_length;
+        Chan_b_end->value = (Chan_b_end->assign(uint64_t(0)) + 1) * block_length > nelr ? nelr : (Chan_b_end->assign(uint64_t(0)) + 1) * block_length;
 
         // Lc_i
         Lc_i->var = Lc_i->mux->mux(Lc_i->var, Chan_b_start->value, Lc_i->sel);
@@ -212,22 +212,22 @@ void Cfd_Test::cfd_Base(Debug* debug)
         Lc_i->lcUpdate(Lc_i->var < Chan_b_end->value);
 
         Chan_i_lc->get();	// Nop	[0]Lc_i 
-        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 
         Chan_density_i_addr->get();	// Add	[0]Lc_i 
-        Chan_density_i_addr->value = Chan_density_i_addr->assign(uint(0)) + nelr * VAR_DENSITY;
+        Chan_density_i_addr->value = Chan_density_i_addr->assign(uint64_t(0)) + nelr * VAR_DENSITY;
 
         Chan_momentum_x_addr->get();	// Add	[0]Lc_i 
-        Chan_momentum_x_addr->value = Chan_momentum_x_addr->assign(uint(0)) + (VAR_MOMENTUM + 0) * nelr;
+        Chan_momentum_x_addr->value = Chan_momentum_x_addr->assign(uint64_t(0)) + (VAR_MOMENTUM + 0) * nelr;
 
         Chan_momentum_y_addr->get();	// Add	[0]Lc_i 
-        Chan_momentum_y_addr->value = Chan_momentum_y_addr->assign(uint(0)) + (VAR_MOMENTUM + 1) * nelr;
+        Chan_momentum_y_addr->value = Chan_momentum_y_addr->assign(uint64_t(0)) + (VAR_MOMENTUM + 1) * nelr;
 
         Chan_momentum_z_addr->get();	// Add	[0]Lc_i 
-        Chan_momentum_z_addr->value = Chan_momentum_z_addr->assign(uint(0)) + (VAR_MOMENTUM + 2) * nelr;
+        Chan_momentum_z_addr->value = Chan_momentum_z_addr->assign(uint64_t(0)) + (VAR_MOMENTUM + 2) * nelr;
 
         Chan_density_energy_i_addr->get();	// Add	[0]Lc_i 
-        Chan_density_energy_i_addr->value = Chan_density_energy_i_addr->assign(uint(0)) + VAR_DENSITY_ENERGY * nelr;
+        Chan_density_energy_i_addr->value = Chan_density_energy_i_addr->assign(uint64_t(0)) + VAR_DENSITY_ENERGY * nelr;
 
         // Lc_j
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
@@ -254,67 +254,67 @@ void Cfd_Test::cfd_Base(Debug* debug)
         Lse_density_energy_i->value = variables[Lse_density_energy_i->assign()];
 
         Chan_i_lc_scatter_loop_j->get();	// Nop	[0]Chan_i_lc 
-        Chan_i_lc_scatter_loop_j->value = Chan_i_lc_scatter_loop_j->assign(uint(0));
+        Chan_i_lc_scatter_loop_j->value = Chan_i_lc_scatter_loop_j->assign(uint64_t(0));
 
         Chan_velocity_x->get();	// Div	[0]Lse_momentum_x [1]Lse_density_i 
-        Chan_velocity_x->value = Chan_velocity_x->assign(uint(0)) / std::max(Chan_velocity_x->assign(uint(1)), 1);
+        Chan_velocity_x->value = Chan_velocity_x->assign(uint64_t(0)) / std::max(Chan_velocity_x->assign(uint64_t(1)), 1);
 
         Chan_velocity_y->get();	// Div	[0]Lse_momentum_y [1]Lse_density_i 
-        Chan_velocity_y->value = Chan_velocity_y->assign(uint(0)) / std::max(Chan_velocity_y->assign(uint(1)), 1);
+        Chan_velocity_y->value = Chan_velocity_y->assign(uint64_t(0)) / std::max(Chan_velocity_y->assign(uint64_t(1)), 1);
 
         Chan_velocity_z->get();	// Div	[0]Lse_momentum_z [1]Lse_density_i 
-        Chan_velocity_z->value = Chan_velocity_z->assign(uint(0)) / std::max(Chan_velocity_z->assign(uint(1)), 1);
+        Chan_velocity_z->value = Chan_velocity_z->assign(uint64_t(0)) / std::max(Chan_velocity_z->assign(uint64_t(1)), 1);
 
         Chan_normal_x_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_normal_x_addr->value = Chan_normal_x_addr->assign(uint(0)) + Chan_normal_x_addr->assign(uint(1));
+        Chan_normal_x_addr->value = Chan_normal_x_addr->assign(uint64_t(0)) + Chan_normal_x_addr->assign(uint64_t(1));
 
         Chan_normal_y_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_normal_y_addr->value = Chan_normal_y_addr->assign(uint(0)) + Chan_normal_y_addr->assign(uint(1));
+        Chan_normal_y_addr->value = Chan_normal_y_addr->assign(uint64_t(0)) + Chan_normal_y_addr->assign(uint64_t(1));
 
         Chan_normal_z_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_normal_z_addr->value = Chan_normal_z_addr->assign(uint(0)) + Chan_normal_z_addr->assign(uint(1));
+        Chan_normal_z_addr->value = Chan_normal_z_addr->assign(uint64_t(0)) + Chan_normal_z_addr->assign(uint64_t(1));
 
         Chan_density_nb_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_density_nb_addr->value = Chan_density_nb_addr->assign(uint(0)) + Chan_density_nb_addr->assign(uint(1));
+        Chan_density_nb_addr->value = Chan_density_nb_addr->assign(uint64_t(0)) + Chan_density_nb_addr->assign(uint64_t(1));
 
         Chan_momentum_nb_x_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_momentum_nb_x_addr->value = Chan_momentum_nb_x_addr->assign(uint(0)) + Chan_momentum_nb_x_addr->assign(uint(1));
+        Chan_momentum_nb_x_addr->value = Chan_momentum_nb_x_addr->assign(uint64_t(0)) + Chan_momentum_nb_x_addr->assign(uint64_t(1));
 
         Chan_momentum_nb_y_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_momentum_nb_y_addr->value = Chan_momentum_nb_y_addr->assign(uint(0)) + Chan_momentum_nb_y_addr->assign(uint(1));
+        Chan_momentum_nb_y_addr->value = Chan_momentum_nb_y_addr->assign(uint64_t(0)) + Chan_momentum_nb_y_addr->assign(uint64_t(1));
 
         Chan_momentum_nb_z_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_momentum_nb_z_addr->value = Chan_momentum_nb_z_addr->assign(uint(0)) + Chan_momentum_nb_z_addr->assign(uint(1));
+        Chan_momentum_nb_z_addr->value = Chan_momentum_nb_z_addr->assign(uint64_t(0)) + Chan_momentum_nb_z_addr->assign(uint64_t(1));
 
         Chan_density_energy_nb_addr->get();	// Add	[0]Chan_i_lc_scatter_loop_j [1]Lc_j 
-        Chan_density_energy_nb_addr->value = Chan_density_energy_nb_addr->assign(uint(0)) + Chan_density_energy_nb_addr->assign(uint(1));
+        Chan_density_energy_nb_addr->value = Chan_density_energy_nb_addr->assign(uint64_t(0)) + Chan_density_energy_nb_addr->assign(uint64_t(1));
 
         Chan_velocity_x_2->get();	// Mul	[0]Chan_velocity_x 
-        Chan_velocity_x_2->value = Chan_velocity_x_2->assign(uint(0)) * Chan_velocity_x_2->assign(uint(0));
+        Chan_velocity_x_2->value = Chan_velocity_x_2->assign(uint64_t(0)) * Chan_velocity_x_2->assign(uint64_t(0));
 
         Chan_flux_i_momentum_x_x->get();	// Mul	[0]Chan_velocity_x [1]Lse_momentum_x 
-        Chan_flux_i_momentum_x_x->value = Chan_flux_i_momentum_x_x->assign(uint(0)) * Chan_flux_i_momentum_x_x->assign(uint(1));
+        Chan_flux_i_momentum_x_x->value = Chan_flux_i_momentum_x_x->assign(uint64_t(0)) * Chan_flux_i_momentum_x_x->assign(uint64_t(1));
 
         Chan_flux_i_momentum_x_y->get();	// Mul	[0]Chan_velocity_x [1]Lse_momentum_y 
-        Chan_flux_i_momentum_x_y->value = Chan_flux_i_momentum_x_y->assign(uint(0)) * Chan_flux_i_momentum_x_y->assign(uint(1));
+        Chan_flux_i_momentum_x_y->value = Chan_flux_i_momentum_x_y->assign(uint64_t(0)) * Chan_flux_i_momentum_x_y->assign(uint64_t(1));
 
         Chan_flux_i_momentum_x_z->get();	// Mul	[0]Chan_velocity_x [1]Lse_momentum_z 
-        Chan_flux_i_momentum_x_z->value = Chan_flux_i_momentum_x_z->assign(uint(0)) * Chan_flux_i_momentum_x_z->assign(uint(1));
+        Chan_flux_i_momentum_x_z->value = Chan_flux_i_momentum_x_z->assign(uint64_t(0)) * Chan_flux_i_momentum_x_z->assign(uint64_t(1));
 
         Chan_velocity_y_2->get();	// Mul	[0]Chan_velocity_y 
-        Chan_velocity_y_2->value = Chan_velocity_y_2->assign(uint(0)) * Chan_velocity_y_2->assign(uint(0));
+        Chan_velocity_y_2->value = Chan_velocity_y_2->assign(uint64_t(0)) * Chan_velocity_y_2->assign(uint64_t(0));
 
         Chan_flux_i_momentum_y_y->get();	// Mul	[0]Chan_velocity_y [1]Lse_momentum_y 
-        Chan_flux_i_momentum_y_y->value = Chan_flux_i_momentum_y_y->assign(uint(0)) * Chan_flux_i_momentum_y_y->assign(uint(1));
+        Chan_flux_i_momentum_y_y->value = Chan_flux_i_momentum_y_y->assign(uint64_t(0)) * Chan_flux_i_momentum_y_y->assign(uint64_t(1));
 
         Chan_flux_i_momentum_y_z->get();	// Mul	[0]Chan_velocity_y [1]Lse_momentum_z 
-        Chan_flux_i_momentum_y_z->value = Chan_flux_i_momentum_y_z->assign(uint(0)) * Chan_flux_i_momentum_y_z->assign(uint(1));
+        Chan_flux_i_momentum_y_z->value = Chan_flux_i_momentum_y_z->assign(uint64_t(0)) * Chan_flux_i_momentum_y_z->assign(uint64_t(1));
 
         Chan_velocity_z_2->get();	// Mul	[0]Chan_velocity_z 
-        Chan_velocity_z_2->value = Chan_velocity_z_2->assign(uint(0)) * Chan_velocity_z_2->assign(uint(0));
+        Chan_velocity_z_2->value = Chan_velocity_z_2->assign(uint64_t(0)) * Chan_velocity_z_2->assign(uint64_t(0));
 
         Chan_flux_i_momentum_z_z->get();	// Mul	[0]Chan_velocity_z [1]Lse_momentum_z 
-        Chan_flux_i_momentum_z_z->value = Chan_flux_i_momentum_z_z->assign(uint(0)) * Chan_flux_i_momentum_z_z->assign(uint(1));
+        Chan_flux_i_momentum_z_z->value = Chan_flux_i_momentum_z_z->assign(uint64_t(0)) * Chan_flux_i_momentum_z_z->assign(uint64_t(1));
 
         Lse_normal_x->get();	// Load	[0]Chan_normal_x_addr 
         Lse_normal_x->value = normals[Lse_normal_x->assign()];
@@ -341,70 +341,70 @@ void Cfd_Test::cfd_Base(Debug* debug)
         //Lse_density_energy_nb->value = variables[Lse_density_energy_nb->assign()];
 
         Chan_flux_i_momentum_y_x->get();	// Nop	[0]Chan_flux_i_momentum_x_y 
-        Chan_flux_i_momentum_y_x->value = Chan_flux_i_momentum_y_x->assign(uint(0));
+        Chan_flux_i_momentum_y_x->value = Chan_flux_i_momentum_y_x->assign(uint64_t(0));
 
         Chan_flux_i_momentum_z_x->get();	// Nop	[0]Chan_flux_i_momentum_x_z 
-        Chan_flux_i_momentum_z_x->value = Chan_flux_i_momentum_z_x->assign(uint(0));
+        Chan_flux_i_momentum_z_x->value = Chan_flux_i_momentum_z_x->assign(uint64_t(0));
 
         Chan_flux_i_momentum_z_y->get();	// Nop	[0]Chan_flux_i_momentum_y_z 
-        Chan_flux_i_momentum_z_y->value = Chan_flux_i_momentum_z_y->assign(uint(0));
+        Chan_flux_i_momentum_z_y->value = Chan_flux_i_momentum_z_y->assign(uint64_t(0));
 
         Chan_speed_sqd->get();	// Add	[0]Chan_velocity_x_2 [1]Chan_velocity_y_2 [2]Chan_velocity_z_2 
-        Chan_speed_sqd->value = Chan_speed_sqd->assign(uint(0)) + Chan_speed_sqd->assign(uint(1)) + Chan_speed_sqd->assign(uint(2));
+        Chan_speed_sqd->value = Chan_speed_sqd->assign(uint64_t(0)) + Chan_speed_sqd->assign(uint64_t(1)) + Chan_speed_sqd->assign(uint64_t(2));
 
         Chan_flux_i_density_energy_x_scatter_loop_j->get();	// Nop	[0]Chan_flux_i_density_energy_x 
-        Chan_flux_i_density_energy_x_scatter_loop_j->value = Chan_flux_i_density_energy_x_scatter_loop_j->assign(uint(0));
+        Chan_flux_i_density_energy_x_scatter_loop_j->value = Chan_flux_i_density_energy_x_scatter_loop_j->assign(uint64_t(0));
 
         Chan_flux_i_density_energy_y_scatter_loop_j->get();	// Nop	[0]Chan_flux_i_density_energy_y 
-        Chan_flux_i_density_energy_y_scatter_loop_j->value = Chan_flux_i_density_energy_y_scatter_loop_j->assign(uint(0));
+        Chan_flux_i_density_energy_y_scatter_loop_j->value = Chan_flux_i_density_energy_y_scatter_loop_j->assign(uint64_t(0));
 
         Chan_flux_i_density_energy_z_scatter_loop_j->get();	// Nop	[0]Chan_flux_i_density_energy_z 
-        Chan_flux_i_density_energy_z_scatter_loop_j->value = Chan_flux_i_density_energy_z_scatter_loop_j->assign(uint(0));
+        Chan_flux_i_density_energy_z_scatter_loop_j->value = Chan_flux_i_density_energy_z_scatter_loop_j->assign(uint64_t(0));
 
         Chan_normal_x_2->get();	// Mul	[0]Lse_normal_x 
-        Chan_normal_x_2->value = Chan_normal_x_2->assign(uint(0)) * Chan_normal_x_2->assign(uint(0));
+        Chan_normal_x_2->value = Chan_normal_x_2->assign(uint64_t(0)) * Chan_normal_x_2->assign(uint64_t(0));
 
         Chan_normal_y_2->get();	// Mul	[0]Lse_normal_y 
-        Chan_normal_y_2->value = Chan_normal_y_2->assign(uint(0)) * Chan_normal_y_2->assign(uint(0));
+        Chan_normal_y_2->value = Chan_normal_y_2->assign(uint64_t(0)) * Chan_normal_y_2->assign(uint64_t(0));
 
         Chan_normal_z_2->get();	// Mul	[0]Lse_normal_z 
-        Chan_normal_z_2->value = Chan_normal_z_2->assign(uint(0)) * Chan_normal_z_2->assign(uint(0));
+        Chan_normal_z_2->value = Chan_normal_z_2->assign(uint64_t(0)) * Chan_normal_z_2->assign(uint64_t(0));
 
         Chan_speed->get();	// Sqrt	[0]Chan_speed_sqd 
-        Chan_speed->value = std::sqrt(Chan_speed->assign(uint(0)));
+        Chan_speed->value = std::sqrt(Chan_speed->assign(uint64_t(0)));
 
         Chan_density_i_speed_sqd->get();	// Mul	[0]Lse_density_i [1]Chan_speed_sqd 
-        Chan_density_i_speed_sqd->value = Chan_density_i_speed_sqd->assign(uint(0)) * Chan_density_i_speed_sqd->assign(uint(1));
+        Chan_density_i_speed_sqd->value = Chan_density_i_speed_sqd->assign(uint64_t(0)) * Chan_density_i_speed_sqd->assign(uint64_t(1));
 
         Chan_normal_xyz->get();	// Add	[0]Chan_normal_x_2 [1]Chan_normal_y_2 [2]Chan_normal_z_2 
-        Chan_normal_xyz->value = Chan_normal_xyz->assign(uint(0)) + Chan_normal_xyz->assign(uint(1)) + Chan_normal_xyz->assign(uint(2));
+        Chan_normal_xyz->value = Chan_normal_xyz->assign(uint64_t(0)) + Chan_normal_xyz->assign(uint64_t(1)) + Chan_normal_xyz->assign(uint64_t(2));
 
         Chan_pressure->get();	// Sub	[0]Lse_density_energy_i [1]Chan_density_i_speed_sqd 
-        Chan_pressure->value = Chan_pressure->assign(uint(0)) - Chan_pressure->assign(uint(1));
+        Chan_pressure->value = Chan_pressure->assign(uint64_t(0)) - Chan_pressure->assign(uint64_t(1));
 
         Chan_normal_len->get();	// Sqrt	[0]Chan_normal_xyz 
-        Chan_normal_len->value = std::sqrt(Chan_normal_len->assign(uint(0)));
+        Chan_normal_len->value = std::sqrt(Chan_normal_len->assign(uint64_t(0)));
 
         Chan_pressure_density_i->get();	// Div	[0]Chan_pressure [1]Lse_density_i 
-        Chan_pressure_density_i->value = Chan_pressure_density_i->assign(uint(0)) / std::max(Chan_pressure_density_i->assign(uint(1)), 1);
+        Chan_pressure_density_i->value = Chan_pressure_density_i->assign(uint64_t(0)) / std::max(Chan_pressure_density_i->assign(uint64_t(1)), 1);
 
         Chan_de_p->get();	// Add	[0]Lse_density_energy_i [1]Chan_pressure 
-        Chan_de_p->value = Chan_de_p->assign(uint(0)) + Chan_de_p->assign(uint(1));
+        Chan_de_p->value = Chan_de_p->assign(uint64_t(0)) + Chan_de_p->assign(uint64_t(1));
 
         //Chan_GAMMA_pressure_density_i->get();	// Mul	[0]Chan_pressure_density_i 
-        //Chan_GAMMA_pressure_density_i->value = Chan_GAMMA_pressure_density_i->assign(uint(0)) * 1.4;
+        //Chan_GAMMA_pressure_density_i->value = Chan_GAMMA_pressure_density_i->assign(uint64_t(0)) * 1.4;
 
         Chan_flux_i_density_energy_x->get();	// Mul	[0]Chan_velocity_x [1]Chan_de_p 
-        Chan_flux_i_density_energy_x->value = Chan_flux_i_density_energy_x->assign(uint(0)) * Chan_flux_i_density_energy_x->assign(uint(1));
+        Chan_flux_i_density_energy_x->value = Chan_flux_i_density_energy_x->assign(uint64_t(0)) * Chan_flux_i_density_energy_x->assign(uint64_t(1));
 
         Chan_flux_i_density_energy_y->get();	// Mul	[0]Chan_velocity_y [1]Chan_de_p 
-        Chan_flux_i_density_energy_y->value = Chan_flux_i_density_energy_y->assign(uint(0)) * Chan_flux_i_density_energy_y->assign(uint(1));
+        Chan_flux_i_density_energy_y->value = Chan_flux_i_density_energy_y->assign(uint64_t(0)) * Chan_flux_i_density_energy_y->assign(uint64_t(1));
 
         Chan_flux_i_density_energy_z->get();	// Mul	[0]Chan_velocity_z [1]Chan_de_p 
-        Chan_flux_i_density_energy_z->value = Chan_flux_i_density_energy_z->assign(uint(0)) * Chan_flux_i_density_energy_z->assign(uint(1));
+        Chan_flux_i_density_energy_z->value = Chan_flux_i_density_energy_z->assign(uint64_t(0)) * Chan_flux_i_density_energy_z->assign(uint64_t(1));
 
         //Chan_speed_of_sound->get();	// Sqrt	[0]Chan_GAMMA_pressure_density_i 
-        //Chan_speed_of_sound->value = std::sqrt(Chan_speed_of_sound->assign(uint(0)));
+        //Chan_speed_of_sound->value = std::sqrt(Chan_speed_of_sound->assign(uint64_t(0)));
 
         // *************************************************************************************
 

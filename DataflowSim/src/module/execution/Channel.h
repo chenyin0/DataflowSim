@@ -28,7 +28,7 @@ Module Channel:
     (Inner loop's loopVar can clear the keepMode)
 
 8. Recommand:
-    chanBase/chanDGSF/chanSGMF use assign(Channel* chan) rather than assign(uint bufferId);
+    chanBase/chanDGSF/chanSGMF use assign(Channel* chan) rather than assign(uint64_t bufferId);
     lse MUST use assign()!!!
 
 //////////////
@@ -74,20 +74,20 @@ class Channel usage:
     class Channel 
     {
     public:
-        Channel(uint _size, uint _cycle);
-        Channel(uint _size, uint _cycle, uint _speedup);
-        Channel(string _moduleName, uint _size, uint _cycle, uint _speedup);
+        Channel(uint64_t _size, uint64_t _cycle);
+        Channel(uint64_t _size, uint64_t _cycle, uint64_t _speedup);
+        Channel(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup);
         virtual ~Channel();
         void initial();
         virtual void addUpstream(const vector<Channel*>& _upStream);
         void addDownstream(const vector<Channel*>& _dowmStream);
         virtual vector<int> get(const vector<int>& data);  // Return {pushSuccess, pushData, popSuccess, popData}
         virtual vector<int> get();  // Return {pushSuccess, pushData, popSuccess, popData}
-        virtual int assign(uint bufferId);
+        virtual int assign(uint64_t bufferId);
         virtual int assign(Channel* chan);  // Suggest use this assign function
-        virtual uint assign();
+        virtual uint64_t assign();
         virtual vector<int> pop() = 0;
-        virtual vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
+        virtual vector<int> push(int data, uint64_t bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //virtual bool checkSend(Data _data, Channel* upstream) = 0;
         virtual bool checkSend(Data data, Channel* upstream);
         //virtual bool checkSend(Data _data, Channel* _upstream) { return 0; }
@@ -97,7 +97,7 @@ class Channel usage:
         int getChanId(Channel* chan);  // Get the index of a channel in the upstream vector(It is also the index of chanBuffer, bp, lastPopVal vector)
 
 #ifdef DEBUG_MODE
-        inline uint getCurrId() const
+        inline uint64_t getCurrId() const
         {
             return currId;
         }
@@ -106,8 +106,8 @@ class Channel usage:
     protected:
         //virtual void checkConnect(const vector<int>& inputData);  // Check upstream and downstream can't be empty
         //virtual void checkConnect();  // Check upstream and downstream can't be empty
-        virtual bool checkUpstream(uint bufferId);
-        virtual void pushBuffer(int data, uint bufferId);
+        virtual bool checkUpstream(uint64_t bufferId);
+        virtual void pushBuffer(int data, uint64_t bufferId);
         virtual void bpUpdate();
         //virtual void bpUpdate() = 0;
         virtual void parallelize();  // Emulate hardware parallel loop unrolling
@@ -115,18 +115,18 @@ class Channel usage:
         int aluUpdate();
         int(*fp)(vector<int*>& operand_) = nullptr;
         //int funcUpdate();
-        bool checkGetLastData(uint bufferId) const;
+        bool checkGetLastData(uint64_t bufferId) const;
 
     public:
         string moduleName;
         string masterName = "None";  // If this module affiliates to a upper module, store the name of it. Default value = "None";
         ModuleType moduleTypr = ModuleType::Channel;
-        uint moduleId;  // RegisterTable Id
+        uint64_t moduleId;  // RegisterTable Id
         vector<deque<Data>> chanBuffer;  // Store the input data of each upstream
         deque<Data> channel;
         //bool bp = 0;
         deque<bool> bp;  // Each inputFifo's bp (replace vector<bool>)
-        vector<pair<uint, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
+        vector<pair<uint64_t, deque<bool>>> lastTagQueue;  // For keepMode channel: vec<downstream chan>, pair<chanId, lastTag>
         //deque<bool> getLast; // Signify has gotten a data with last tag;
         deque<bool> getTheLastData;  // Signify whether each chanBuffer has received the last data, and won't receive a data anymore(Only used in DGSF now)
         //deque<bool> produceLast;  // Only used by loopVar, signify loopVar has generated a last tag
@@ -145,15 +145,15 @@ class Channel usage:
         bool noDownstream = 0;
 
         bool keepMode = 0;  // Keep data lifetime in the interface of inner and outer loop, data invalid only when inner loop over
-        vector<uint> keepModeDataCnt;  // Record the number of same cycle data has been received from a keepMode upstream
+        vector<uint64_t> keepModeDataCnt;  // Record the number of same cycle data has been received from a keepMode upstream
         bool drainMode = 0;  // Outer-loop channels in drainMode push data in chanBuffer only when inner-loop is over(the data is with last flag)
 
         vector<Channel*> upstream;  // If no upstream, push a nullptr in vector head
         vector<Channel*> downstream;  // If no downstream, push a nullptr in vector head
 
-        uint size;    // chanBuffer size
-        uint cycle; // Channel execute cycle
-        uint speedup = 1;  // Parallelism parameter
+        uint64_t size;    // chanBuffer size
+        uint64_t cycle; // Channel execute cycle
+        uint64_t speedup = 1;  // Parallelism parameter
         vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         vector<int> buffer2Alu;  // Store ChanBuffer.front().value
         ChanType chanType;
@@ -162,20 +162,20 @@ class Channel usage:
         int value = 0;  // Channel value, for config code
         
         // Performance profiling
-        vector<uint> chanBufferDataCnt;  // Record the number of data has been pushed into each chanBuffer
-        uint chanDataCnt = 0;  // Record the number of data has been sent from channel
-        uint activeCnt = 0;
-        uint activeClkCnt = 0;
-        uint subgraphId = 0;
+        vector<uint64_t> chanBufferDataCnt;  // Record the number of data has been pushed into each chanBuffer
+        uint64_t chanDataCnt = 0;  // Record the number of data has been sent from channel
+        uint64_t activeCnt = 0;
+        uint64_t activeClkCnt = 0;
+        uint64_t subgraphId = 0;
         bool isPhysicalChan = 1;
         bool pushChannelSuccess = 0;  // For counting channel utilization
 
     protected:
-        //uint size;    // chanBuffer size
-        //uint cycle; // Channel execute cycle
-        //uint speedup;  // Parallelism parameter
+        //uint64_t size;    // chanBuffer size
+        //uint64_t cycle; // Channel execute cycle
+        //uint64_t speedup;  // Parallelism parameter
         int currId = 1;    // Current threadID, start at 1
-        //uint chanClk = 0;  // Used for func parallelize()
+        //uint64_t chanClk = 0;  // Used for func parallelize()
         //vector<int> lastPopVal;  // Record last data poped by each chanBuffer
         vector<int*> operand;  // Point operand to corresponding aluInput[bufferId] in Registry according to the opcode
         vector<int> aluInput = { 1,1,1 };
@@ -191,16 +191,16 @@ class Channel usage:
     class ChanBase : public Channel
     {
     public:
-        ChanBase(uint _size, uint _cycle);
-        ChanBase(uint _size, uint _cycle, uint _speedup);
-        ChanBase(string _moduleName, uint _size, uint _cycle, uint _speedup);
+        ChanBase(uint64_t _size, uint64_t _cycle);
+        ChanBase(uint64_t _size, uint64_t _cycle, uint64_t _speedup);
+        ChanBase(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup);
 
         // Channel get data from the program variable
         //virtual vector<int> get(int data);  // Return {pushSuccess, pushData, popSuccess, popData}
         //virtual vector<int> get(vector<int> data);  // Return {pushSuccess, pushData, popSuccess, popData}
 
         // Assign channel value to the program variable
-        //virtual int assign(uint bufferId);
+        //virtual int assign(uint64_t bufferId);
         //virtual int assign();
 
         virtual void statusUpdate() override;
@@ -216,12 +216,12 @@ class Channel usage:
         bool popLastCheck();
         virtual vector<int> popChannel(bool popReady, bool popLastReady);
         //virtual void updateCycle(bool popReady, bool popLastReady); // Update cycle in keepMode
-        //bool checkUpstream(uint bufferId) override;
-        //virtual void pushBuffer(int data, uint bufferId);
+        //bool checkUpstream(uint64_t bufferId) override;
+        //virtual void pushBuffer(int data, uint64_t bufferId);
         virtual void pushChannel();
         virtual void updateDataStatus(Data& data);
         virtual bool checkDataMatch();
-        //vector<int> push(int data, uint bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
+        //vector<int> push(int data, uint64_t bufferId); // Push data and update cycle; Return {pushSuccess, pushData}
         //void bpUpdate() override;
 
     public:
@@ -242,16 +242,16 @@ class ChanDGSF usage:
     class ChanDGSF : public ChanBase
     {
     public:
-        ChanDGSF(uint _size, uint _cycle, uint _speedup);
-        ChanDGSF(string _moduleName, uint _size, uint _cycle, uint _speedup);
+        ChanDGSF(uint64_t _size, uint64_t _cycle, uint64_t _speedup);
+        ChanDGSF(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup);
         ~ChanDGSF();
 
     private:
         void initial();
-        vector<int> push(int data, uint bufferId) override;
-        void pushBuffer(int data, uint bufferId) override;
+        vector<int> push(int data, uint64_t bufferId) override;
+        void pushBuffer(int data, uint64_t bufferId) override;
         void bpUpdate() override;
-        //virtual bool checkGetLastData(uint bufferId);
+        //virtual bool checkGetLastData(uint64_t bufferId);
         //vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void statusUpdate() override;
         //void checkGraphSwitch();
@@ -259,7 +259,7 @@ class ChanDGSF usage:
         //void parallelize() override;
 
     public:
-        //uint speedup;  // Parallelism parameter
+        //uint64_t speedup;  // Parallelism parameter
         //int currId;    // Current threadID
         //bool sendActiveMode = 0;  // Current channel need to active others
         bool pushBufferEnable;
@@ -269,7 +269,7 @@ class ChanDGSF usage:
         //ArchType archType = ArchType::DGSF;
 
     //private:
-        //vector<uint> chanBufferDataCntLast;  // Record last data cnt for each chanBuffer
+        //vector<uint64_t> chanBufferDataCntLast;  // Record last data cnt for each chanBuffer
     };
 
 
@@ -283,9 +283,9 @@ class ChanSGMF usage:
     class ChanSGMF : public ChanBase
     {
     public:
-        ChanSGMF(uint _size, uint _cycle);
-        ChanSGMF(string moduleName, uint _size, uint _cycle);
-        //ChanSGMF(uint _size, uint _cycle, uint _bundleSize);
+        ChanSGMF(uint64_t _size, uint64_t _cycle);
+        ChanSGMF(string moduleName, uint64_t _size, uint64_t _cycle);
+        //ChanSGMF(uint64_t _size, uint64_t _cycle, uint64_t _bundleSize);
         void init();
         ~ChanSGMF();
         //void checkConnect() override;
@@ -295,18 +295,18 @@ class ChanSGMF usage:
         //vector<int> get(vector<int> data);  // For noUpstream channel, vector data for multi-inPort: Din1, Din2, Bin...
         vector<int> get();  // vector data for multi-inPort: Din1, Din2, Bin...
         //vector<int> get(int data);  // For single channel (only Din1)
-        vector<int> get(vector<int> data, uint tag);  // For no upstream channel (limit no upstream channel must be a single channel)
-        int assign(uint bufferId) override;
+        vector<int> get(vector<int> data, uint64_t tag);  // For no upstream channel (limit no upstream channel must be a single channel)
+        int assign(uint64_t bufferId) override;
         int assign(Channel* chan) override;
         vector<int> popChannel(bool popReady, bool popLastReady) override;
         //void updateCycle(bool popReady, bool popLastReady) override;
 
     protected:
-        vector<int> push(int data, uint bufferId, uint tag);  // Push data into corresponding channel
-        bool checkUpstream(uint bufferId, uint tag);
-        void pushBuffer(int data, uint bufferId, uint tag);
-        //void pushChannel(int data, uint chanId, uint tag);
-        void pushChannel(uint tag);
+        vector<int> push(int data, uint64_t bufferId, uint64_t tag);  // Push data into corresponding channel
+        bool checkUpstream(uint64_t bufferId, uint64_t tag);
+        void pushBuffer(int data, uint64_t bufferId, uint64_t tag);
+        //void pushChannel(int data, uint64_t chanId, uint64_t tag);
+        void pushChannel(uint64_t tag);
         void statusUpdate() override;
         void shiftDataInChanBuffer();
         void checkTagMatch();
@@ -319,14 +319,14 @@ class ChanSGMF usage:
         //vector<vector<Channel*>> upstreamBundle;  // { { Din1's upstream }, { Din2's upstream } ... }
         //vector<vector<ChanSGMF*>> downstreamBundle;  // { { to whose Din1 }, { to whose Din2 } ...}
         //deque<Data> popFifo;  // Store match ready data
-        uint tagSize = TAG_SIZE;  // Number of tags
+        uint64_t tagSize = TAG_SIZE;  // Number of tags
         bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
 
         //ArchType archType = ArchType::SGMF;
 
     //private:
-        //uint chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
-        //uint tagSize = TAG_SIZE;  // Number of tags
+        //uint64_t chanBundleSize = CHANNEL_BUNDLE_SIZE;  // Channel number in bundle (Din1, Din2)
+        //uint64_t tagSize = TAG_SIZE;  // Number of tags
         //bool isLoopVar = 0;  // If the chanSGMF is loopVar, it need to update tag when a data is pushed.
     };
 
@@ -343,9 +343,9 @@ class ChanPartialMux usage:
     class ChanPartialMux : public ChanBase
     {
     public:
-        ChanPartialMux(uint _size, uint _cycle);
-        ChanPartialMux(uint _size, uint _cycle, uint _speedup);
-        ChanPartialMux(string _moduleName, uint _size, uint _cycle, uint _speedup);
+        ChanPartialMux(uint64_t _size, uint64_t _cycle);
+        ChanPartialMux(uint64_t _size, uint64_t _cycle, uint64_t _speedup);
+        ChanPartialMux(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup);
 
     private:
         void initial();

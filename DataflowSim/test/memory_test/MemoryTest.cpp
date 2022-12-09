@@ -29,7 +29,7 @@
 //        memVec.push_back(i);
 //    }
 //
-//    uint iter = 0;
+//    uint64_t iter = 0;
 //
 //    while (iter < 1000)
 //    {
@@ -39,10 +39,10 @@
 //        debug->getFile() << " Clk:" << clk << " ********************" << std::endl;
 //
 //        chan_sendAddr->get(iter);
-//        uint addr_req = chan_sendAddr->assign();
+//        uint64_t addr_req = chan_sendAddr->assign();
 //
 //        lse_ld->get(false, addr_req);
-//        uint addr_ack = lse_ld->assign();
+//        uint64_t addr_ack = lse_ld->assign();
 //
 //        int data = memVec[addr_ack];
 //        chan_getData->get(data);

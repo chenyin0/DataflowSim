@@ -3,7 +3,7 @@
 
 using namespace DFSim;
 
-Watchdog::Watchdog(uint _timer, uint _maxFeedTimes) : 
+Watchdog::Watchdog(uint64_t _timer, uint64_t _maxFeedTimes) : 
     timer(_timer), maxFeedTimes(_maxFeedTimes)
 {
 }
@@ -16,7 +16,7 @@ void Watchdog::addCheckPointChan(vector<Channel*> _chanVec)
     }
 }
 
-void Watchdog::feedDog(uint _iter)
+void Watchdog::feedDog(uint64_t _iter)
 {
     bool feedSuccessful = 0;
     if (_iter % timer == 0)

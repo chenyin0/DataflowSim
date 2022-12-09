@@ -60,8 +60,8 @@ namespace DFSim
         string moduleName;
         string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
         ModuleType moduleTypr = ModuleType::Mux;
-        uint moduleId;
-        uint subgraphId = 0;
+        uint64_t moduleId;
+        uint64_t subgraphId = 0;
         bool sel = 0;
         bool muxSuccess = 0; // If current cycle mux works, set muxSuccess to 1; Used for LC which initial value is a constant
         /*Channel* trueChan = new Channel(2, 0);

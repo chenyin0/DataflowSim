@@ -17,7 +17,7 @@ Graph::~Graph()
     }
 }
 
-auto Graph::findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator
+auto Graph::findNodeIndex(const string& _nodeName)->unordered_map<string, uint64_t>::iterator
 {
     auto iter = nodeIndexDict.find(_nodeName);
     if (iter == nodeIndexDict.end())
@@ -50,25 +50,25 @@ Node* Graph::getNode(const string& _nodeName)
 
 void Graph::addPreNodesData(const string& _nodeName, const vector<string>& _pre_nodes_data)
 {
-    uint index = findNodeIndex(_nodeName)->second;
+    uint64_t index = findNodeIndex(_nodeName)->second;
     nodes[index]->pre_nodes_data.insert(nodes[index]->pre_nodes_data.end(), _pre_nodes_data.begin(), _pre_nodes_data.end());
 }
 
 void Graph::addNextNodesData(const string& _nodeName, const vector<string>& _next_nodes_data)
 {
-    uint index = findNodeIndex(_nodeName)->second;
+    uint64_t index = findNodeIndex(_nodeName)->second;
     nodes[index]->next_nodes_data.insert(nodes[index]->next_nodes_data.end(), _next_nodes_data.begin(), _next_nodes_data.end());
 }
 
 void Graph::addPreNodesActive(const string& _nodeName, const vector<string>& _pre_nodes_active)
 {
-    uint index = findNodeIndex(_nodeName)->second;
+    uint64_t index = findNodeIndex(_nodeName)->second;
     nodes[index]->pre_nodes_active.insert(nodes[index]->pre_nodes_active.end(), _pre_nodes_active.begin(), _pre_nodes_active.end());
 }
 
 void Graph::addNextNodesActive(const string& _nodeName, const vector<string>& _next_nodes_active)
 {
-    uint index = findNodeIndex(_nodeName)->second;
+    uint64_t index = findNodeIndex(_nodeName)->second;
     nodes[index]->next_nodes_active.insert(nodes[index]->next_nodes_active.end(), _next_nodes_active.begin(), _next_nodes_active.end());
 }
 
@@ -170,16 +170,16 @@ void Graph::printDotNodeConnect(std::fstream& fileName_)
     }
 }
 
-//vector<pair<string, uint>> Graph::traverseControlRegionsDfs(ControlTree& _controlTree)
+//vector<pair<string, uint64_t>> Graph::traverseControlRegionsDfs(ControlTree& _controlTree)
 //{
 //    auto& _controlRegionTable = _controlTree.controlRegionTable;
-//    vector<pair<string, uint>> controlRegionsDfs = { make_pair(_controlRegionTable[0].controlRegionName, 0) };  // pair<controlRegionName, level>
+//    vector<pair<string, uint64_t>> controlRegionsDfs = { make_pair(_controlRegionTable[0].controlRegionName, 0) };  // pair<controlRegionName, level>
 //    //vector<string> controlRegionQueue = { control_tree[0].control_name };
 //    for (size_t ptr = 0; ptr < controlRegionsDfs.size(); ++ptr)
 //    {
 //        vector<string> lowerControlRegions = _controlRegionTable[(_controlTree.findControlRegionIndex(controlRegionsDfs[ptr].first))->second].lowerControlRegion;
-//        vector<pair<string, uint>> tmp;
-//        uint level = controlRegionsDfs[ptr].second + 1;
+//        vector<pair<string, uint64_t>> tmp;
+//        uint64_t level = controlRegionsDfs[ptr].second + 1;
 //        for (auto& controlRegionName : lowerControlRegions)
 //        {
 //            tmp.push_back(make_pair(controlRegionName, level));
@@ -192,7 +192,7 @@ void Graph::printDotNodeConnect(std::fstream& fileName_)
 
 void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _controlTree)
 {
-    vector<pair<string, uint>> controlRegions = _controlTree.traverseControlRegionsDfs();
+    vector<pair<string, uint64_t>> controlRegions = _controlTree.traverseControlRegionsDfs();
 
     for (size_t i = 0; i < controlRegions.size(); ++i)
     {
@@ -204,7 +204,7 @@ void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _control
         {
             if (!controlRegions[i].second < controlRegions[i + 1].second)
             {
-                uint levelDiff = controlRegions[i].second - controlRegions[i + 1].second;
+                uint64_t levelDiff = controlRegions[i].second - controlRegions[i + 1].second;
                 for (size_t i = 0; i < levelDiff + 1; ++i)
                 {
                     fileName_ << "}";
@@ -214,7 +214,7 @@ void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _control
         }
         else
         {
-            uint levelDiff = controlRegions[i].second;
+            uint64_t levelDiff = controlRegions[i].second;
             for (size_t i = 0; i < levelDiff + 1; ++i)
             {
                 fileName_ << "}";
@@ -226,7 +226,7 @@ void Graph::printDotControlRegion(std::fstream& fileName_, ControlTree& _control
 
 void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_)
 {
-    uint index = controlTree.findControlRegionIndex(targetCtrlRegion)->second;
+    uint64_t index = controlTree.findControlRegionIndex(targetCtrlRegion)->second;
     controlTree.controlRegionTable[index].nodes.insert(controlTree.controlRegionTable[index].nodes.end(), nodes_.begin(), nodes_.end());
 
     for (auto& node : nodes_)
@@ -235,7 +235,7 @@ void Graph::addNodes2CtrlTree(const string& targetCtrlRegion, const vector<strin
     }
 }
 
-uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy)
+uint64_t Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy)
 {
     /*
     * If span loop ctrlRegion: a) span loop:
@@ -247,16 +247,16 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
     *                               c) normal edge [baseWgt]
     */
 
-    uint baseWgt = 100;
-    uint loopRankFactor = 30;
-    uint loopSizeFactor = 1;
-    uint branchFactor = 70;
-    uint memoryAccessFactor = 5;
+    uint64_t baseWgt = 100;
+    uint64_t loopRankFactor = 30;
+    uint64_t loopSizeFactor = 1;
+    uint64_t branchFactor = 70;
+    uint64_t memoryAccessFactor = 5;
     int edgeWgt = baseWgt;
 
-    uint nodeLoopRank = 0;
-    uint nextNodeLoopRank = 0;
-    vector<uint> loopNodeNum;
+    uint64_t nodeLoopRank = 0;
+    uint64_t nextNodeLoopRank = 0;
+    vector<uint64_t> loopNodeNum;
     for (size_t i = 0; i < _loopHierarchy.size(); ++i)
     {
         if (find(_loopHierarchy[i].nodes.begin(), _loopHierarchy[i].nodes.end(), node->node_name) != _loopHierarchy[i].nodes.end())
@@ -268,7 +268,7 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
             nextNodeLoopRank = i;
         }
 
-        uint nodeNum = 0;
+        uint64_t nodeNum = 0;
         for (auto& node : _loopHierarchy[i].nodes)
         {
             if (dynamic_cast<Chan_Node*>(getNode(node))->isPhysicalChan)
@@ -281,8 +281,8 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
 
     if (nodeLoopRank != nextNodeLoopRank)
     {
-        uint loopRank = (nodeLoopRank + nextNodeLoopRank) * loopRankFactor;
-        uint loopSize = (loopNodeNum[nodeLoopRank] + loopNodeNum[nextNodeLoopRank]) * loopSizeFactor;
+        uint64_t loopRank = (nodeLoopRank + nextNodeLoopRank) * loopRankFactor;
+        uint64_t loopSize = (loopNodeNum[nodeLoopRank] + loopNodeNum[nextNodeLoopRank]) * loopSizeFactor;
         edgeWgt -= (loopRank + loopSize);
     }
     else if (node->controlRegionName != nextNode->controlRegionName)
@@ -301,14 +301,14 @@ uint Graph::genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _lo
     return std::max(edgeWgt, 1);  // Ensure edgeWgt is positive
 }
 
-auto Graph::genAdjacentMatrix()->vector<vector<uint>>
+auto Graph::genAdjacentMatrix()->vector<vector<uint64_t>>
 {
     vector<ControlRegion> loopHierarchy_ = dynamic_cast<ChanGraph*>(this)->genLoopHierarchy(controlTree);
 
     // Generate adjacent matrix
-    uint dim = nodes.size();
-    vector<vector<uint>> matrix(dim, vector<uint>(dim, 0));
-    for (uint i = 0; i < dim; ++i)
+    uint64_t dim = nodes.size();
+    vector<vector<uint64_t>> matrix(dim, vector<uint64_t>(dim, 0));
+    for (uint64_t i = 0; i < dim; ++i)
     {
         for (size_t i = 0; i < nodes.size(); ++i)
         {
@@ -319,7 +319,7 @@ auto Graph::genAdjacentMatrix()->vector<vector<uint>>
             adjNodes.insert(adjNodes.end(), nodes[i]->next_nodes_active.begin(), nodes[i]->next_nodes_active.end());
             for (auto& adjNode : adjNodes)
             {
-                uint j = findNodeIndex(adjNode)->second;
+                uint64_t j = findNodeIndex(adjNode)->second;
                 //if (nodes[i]->controlRegionName == nodes[j]->controlRegionName)
                 //{
                 //    matrix[i][j] = _edgeWeightWithinCtrlRegion;  // Weight of edges within a same ctrlRegion
@@ -344,11 +344,11 @@ auto Graph::csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>
     vector<int64_t> indPtr(0);
     vector<int64_t> ind(0);
     vector<int64_t> val(0);
-    uint dim = nodes.size();
+    uint64_t dim = nodes.size();
     for (int i = 0; i < dim; i++)
     {
         indPtr.push_back(ind.size());
-        for (uint j = 0; j < dim; ++j)
+        for (uint64_t j = 0; j < dim; ++j)
         {
             if (matrix[i][j] > 0)
             {
@@ -362,7 +362,7 @@ auto Graph::csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>
     return make_tuple(indPtr, ind, val);
 }
 
-vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint divideNum)
+vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum)
 {
     idx_t nVertices = xadj.size() - 1;  // Vertex number
     idx_t nEdges = adjncy.size() / 2;  // Edge number
@@ -411,9 +411,9 @@ vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjnc
     return part;
 }
 
-void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
+void Graph::subgraphPartition(uint64_t _subgraphNum, Debug* _debug)
 {
-    uint divideNum = _subgraphNum;
+    uint64_t divideNum = _subgraphNum;
     if (_subgraphNum > 1)
     {
         auto dfgCsr = csrFormat();
@@ -498,10 +498,10 @@ void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
     //    }
     //}
 
-    //uint adjacentEdgeNum = 0;
+    //uint64_t adjacentEdgeNum = 0;
     //for (size_t i = 0; i < nodes.size(); ++i)
     //{
-    //    uint partId = nodes[i]->subgraphId;
+    //    uint64_t partId = nodes[i]->subgraphId;
     //    vector<string> preNodes;
     //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
     //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
@@ -514,8 +514,8 @@ void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
     //    }
     //}
 
-    //uint actualNodeNum = 0;
-    //uint memNormAccessNum = 0;
+    //uint64_t actualNodeNum = 0;
+    //uint64_t memNormAccessNum = 0;
     //for (auto& node : nodes)
     //{
     //    auto nodePtr = dynamic_cast<Chan_Node*>(node);
@@ -530,10 +530,10 @@ void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
     //    }
     //}
 
-    //uint arraySize = 64;
-    //uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
+    //uint64_t arraySize = 64;
+    //uint64_t maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
     //// TODO: Figure out actual coalesceRate of each subgraph
-    //uint coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
+    //uint64_t coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
     //float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
     //float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
     //float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
@@ -553,11 +553,11 @@ void Graph::subgraphPartition(uint _subgraphNum, Debug* _debug)
     printSubgraphPartition(divideNum, _debug);
 }
 
-void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
+void Graph::sortSubgraphId(deque<Node*>& nodes, uint64_t subgraphNum)
 {
     //auto simNodes = bfsTraverseNodes();
     vector<vector<Node*>> subgraphNodes(subgraphNum);
-    vector<uint> subgraphQueue;
+    vector<uint64_t> subgraphQueue;
     vector<string> controlTreeBfs = bfsTraverseControlTree(controlTree);
 
     //if (!simNodes.empty())
@@ -617,7 +617,7 @@ void Graph::sortSubgraphId(deque<Node*>& nodes, uint subgraphNum)
     }
 }
 
-void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
+void Graph::printSubgraphPartition(const uint64_t& divideNum, Debug* debug)
 {
     // Print each subgraph
     debug->getFile() << "********** Subgraph partitiion scheme ************ " << std::endl;
@@ -633,10 +633,10 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
         }
     }
 
-    uint adjacentEdgeNum = 0;
+    uint64_t adjacentEdgeNum = 0;
     for (size_t i = 0; i < nodes.size(); ++i)
     {
-        uint partId = nodes[i]->subgraphId;
+        uint64_t partId = nodes[i]->subgraphId;
         vector<string> preNodes;
         preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
         preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
@@ -649,8 +649,8 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
         }
     }
 
-    uint actualNodeNum = 0;
-    uint memNormAccessNum = 0;
+    uint64_t actualNodeNum = 0;
+    uint64_t memNormAccessNum = 0;
     for (auto& node : nodes)
     {
         auto nodePtr = dynamic_cast<Chan_Node*>(node);
@@ -665,10 +665,10 @@ void Graph::printSubgraphPartition(const uint& divideNum, Debug* debug)
         }
     }
 
-    //uint arraySize = 64;
-    uint maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
+    //uint64_t arraySize = 64;
+    uint64_t maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
     // TODO: Figure out actual coalesceRate of each subgraph
-    uint coalesceRate = std::min(ARRAY_SIZE / (actualNodeNum / divideNum), maxCoalesceRate);
+    uint64_t coalesceRate = std::min(ARRAY_SIZE / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
     float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
     float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
@@ -909,7 +909,7 @@ vector<string> Graph::bfsTraverseControlTree(ControlTree& ctrlTree)
 //        }
 //        else
 //        {
-//            nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+//            nodeIndexDict.insert(pair<string, uint64_t>(_nodeName, nodeIndexDict.size()));
 //            auto chanNode = new Chan_Node(_nodeName);
 //            nodes.push_back(chanNode);
 //        }
@@ -959,7 +959,7 @@ void Dfg::addNode(const string& _nodeName, const string& _nodeOp)
     }
     else
     {
-        nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+        nodeIndexDict.insert(pair<string, uint64_t>(_nodeName, nodeIndexDict.size()));
         Dfg_Node* dfgNode = new Dfg_Node(_nodeName, _nodeOp);
         if (_nodeOp == "Loop_head")
         {
@@ -1001,7 +1001,7 @@ void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<s
     pre_nodes_active_.insert(pre_nodes_active_.end(), _preNodesActive.begin(), _preNodesActive.end());
 }
 
-void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint& baseAddr_)
+void Dfg::addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint64_t& baseAddr_)
 {
     if (_nodeOp == "Load" || _nodeOp == "Store")
     {
@@ -1113,7 +1113,7 @@ void ChanGraph::addNode(const string& _nodeName)
     }
     else
     {
-        nodeIndexDict.insert(pair<string, uint>(_nodeName, nodeIndexDict.size()));
+        nodeIndexDict.insert(pair<string, uint64_t>(_nodeName, nodeIndexDict.size()));
         auto chanNode = new Chan_Node(_nodeName);
         nodes.push_back(chanNode);
     }
@@ -1142,9 +1142,9 @@ void ChanGraph::printDotNodeLabel(std::fstream& fileName_)
         string& nodeOp = dynamic_cast<Chan_Node*>(node)->node_op;
         string& chanMode = dynamic_cast<Chan_Node*>(node)->chan_mode;
         string& nodeType = dynamic_cast<Chan_Node*>(node)->node_type;
-        uint& cycle_ = dynamic_cast<Chan_Node*>(node)->cycle;
-        uint& speedup_ = dynamic_cast<Chan_Node*>(node)->speedup;
-        uint& size_ = dynamic_cast<Chan_Node*>(node)->size;
+        uint64_t& cycle_ = dynamic_cast<Chan_Node*>(node)->cycle;
+        uint64_t& speedup_ = dynamic_cast<Chan_Node*>(node)->speedup;
+        uint64_t& size_ = dynamic_cast<Chan_Node*>(node)->size;
 
         label = nodeName + " [";
         if (nodeType == "ChanBase" || nodeType == "ChanDGSF" || nodeType == "Lse_ld" || nodeType == "Lse_st")
@@ -1766,7 +1766,7 @@ void ChanGraph::insertChanNode(Chan_Node& chanNode, vector<string> preNodes, vec
         }
 
         // Insert chanNode to nodes and nodeIndexDict
-        nodeIndexDict.insert(pair<string, uint>(chanNode.node_name, nodeIndexDict.size()));
+        nodeIndexDict.insert(pair<string, uint64_t>(chanNode.node_name, nodeIndexDict.size()));
         Chan_Node* chanNodePtr = new Chan_Node(chanNode.node_name);
         *chanNodePtr = chanNode;
         nodes.push_back(chanNodePtr);
@@ -2070,7 +2070,7 @@ void ChanGraph::addNodeDelay()
 
 void ChanGraph::addChanDGSF()
 {
-    unordered_map<uint, vector<Chan_Node*>> subgraphNodes;
+    unordered_map<uint64_t, vector<Chan_Node*>> subgraphNodes;
     for (auto& node : nodes)
     {
         const auto& chanNodePtr = dynamic_cast<Chan_Node*>(node);
@@ -2183,7 +2183,7 @@ void ChanGraph::addChanDGSF()
 
 void ChanGraph::setSpeedup(Debug* debug)
 {
-    unordered_map<uint, uint> subgraphNodes;  // <uint, uint> = <subgraphId, physicalNodeNum>
+    unordered_map<uint64_t, uint64_t> subgraphNodes;  // <uint64_t, uint64_t> = <subgraphId, physicalNodeNum>
     for (auto& node : nodes)
     {
         if (dynamic_cast<Chan_Node*>(node)->isPhysicalChan)
@@ -2199,11 +2199,11 @@ void ChanGraph::setSpeedup(Debug* debug)
         }
     }
 
-    vector<uint> subgraphSpeedupTable(subgraphNodes.size());
+    vector<uint64_t> subgraphSpeedupTable(subgraphNodes.size());
     for (auto& subgraph : subgraphNodes)
     {
-        uint nodeNum = subgraph.second;
-        uint _speedup = ARRAY_SIZE / nodeNum;
+        uint64_t nodeNum = subgraph.second;
+        uint64_t _speedup = ARRAY_SIZE / nodeNum;
         subgraphSpeedupTable[subgraph.first] = _speedup;  // Record _speedup of each subgraph
         if (_speedup < 1)
         {
@@ -2230,15 +2230,15 @@ void ChanGraph::setSpeedup(Debug* debug)
     debug->getFile() << std::endl;
 }
 
-void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
+void ChanGraph::subgraphPartitionCtrlRegion(uint64_t _partitionNum, Debug* _debug)
 {
     // 1) Inner-loop prior
     // 2) If select a loop, branch in this loop prior
     // 3) If all ctrlRegions have been partitioned, use metis make inner ctrlRegion partition  
 
-    uint divideNum = _partitionNum;
-    uint graphNum = 1;
-    uint partitionCnt = 0;
+    uint64_t divideNum = _partitionNum;
+    uint64_t graphNum = 1;
+    uint64_t partitionCnt = 0;
     bool over = 0;
     if (_partitionNum > 1)
     {
@@ -2326,7 +2326,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
             //    {
             //        for (auto& dfgNodes : *iter)
             //        {
-            //            uint i = getNode(dfgNodes)->subgraphId;
+            //            uint64_t i = getNode(dfgNodes)->subgraphId;
             //            getNode(dfgNodes)->subgraphId--;  // Due to there is no subgraph_0 
             //        }
             //        ++iter;
@@ -2337,8 +2337,8 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
             while (partitionCnt < divideNum - 1)
             {
                 ++graphNum;
-                uint maxNodesubgraphId = 0;
-                uint maxNodeNum = 0;
+                uint64_t maxNodesubgraphId = 0;
+                uint64_t maxNodeNum = 0;
                 // Select the largest one
                 for (size_t i = 0; i < subgraphNodes.size(); ++i)
                 {
@@ -2371,7 +2371,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
                 //    std::cout << i << std::endl;
                 //}
 
-                uint splitPoint = 0;
+                uint64_t splitPoint = 0;
                 for (size_t i = 0; i < dfgNodesBfs.size(); ++i)
                 {
                     if (dynamic_cast<Chan_Node*>(getNode(dfgNodesBfs[i]))->node_op == "Load")
@@ -2386,7 +2386,7 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
                     splitPoint = dfgNodesBfs.size() / 2;  // Split according to node-balance
                 }
 
-                vector<uint> part(dfgNodesBfs.size());
+                vector<uint64_t> part(dfgNodesBfs.size());
                 for (size_t i = 0; i < part.size(); ++i)
                 {
                     if (i <= splitPoint)
@@ -2436,9 +2436,9 @@ void ChanGraph::subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug)
 auto ChanGraph::csrFormat(vector<string> _dfgNodes)->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>
 {
     // Generate adjacent matrix
-    uint dim = _dfgNodes.size();
-    vector<vector<uint>> matrix(dim, vector<uint>(dim, 0));
-    for (uint i = 0; i < dim; ++i)
+    uint64_t dim = _dfgNodes.size();
+    vector<vector<uint64_t>> matrix(dim, vector<uint64_t>(dim, 0));
+    for (uint64_t i = 0; i < dim; ++i)
     {
         for (size_t i = 0; i < _dfgNodes.size(); ++i)
         {
@@ -2452,7 +2452,7 @@ auto ChanGraph::csrFormat(vector<string> _dfgNodes)->tuple<vector<int64_t>, vect
                 auto iter = find(_dfgNodes.begin(), _dfgNodes.end(), adjNode);
                 if (iter != _dfgNodes.end())
                 {
-                    uint j = iter - _dfgNodes.begin();
+                    uint64_t j = iter - _dfgNodes.begin();
                     matrix[i][j] = 1;
                 }
             }
@@ -2466,7 +2466,7 @@ auto ChanGraph::csrFormat(vector<string> _dfgNodes)->tuple<vector<int64_t>, vect
     for (int i = 0; i < dim; i++)
     {
         indPtr.push_back(ind.size());
-        for (uint j = 0; j < dim; ++j)
+        for (uint64_t j = 0; j < dim; ++j)
         {
             if (matrix[i][j] > 0)
             {

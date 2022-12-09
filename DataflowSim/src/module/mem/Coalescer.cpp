@@ -4,12 +4,12 @@
 
 using namespace DFSim;
 
-Coalescer::Coalescer(uint _entryNum, uint _entrySize)
+Coalescer::Coalescer(uint64_t _entryNum, uint64_t _entrySize)
 {
     coalescerInit(_entryNum, _entrySize);
 }
 
-void Coalescer::coalescerInit(uint _entryNum, uint _entrySize)
+void Coalescer::coalescerInit(uint64_t _entryNum, uint64_t _entrySize)
 {
     entryNum = _entryNum;
     entrySize = _entrySize;
@@ -17,7 +17,7 @@ void Coalescer::coalescerInit(uint _entryNum, uint _entrySize)
     //coalescerTable.resize(_entryNum);
 }
 
-bool Coalescer::send2Coalescer(uint _blockAddr, deque<MemReq> _reqQueue)
+bool Coalescer::send2Coalescer(uint64_t _blockAddr, deque<MemReq> _reqQueue)
 {
     //for (auto& entry : coalescerTable)
     //{
@@ -64,7 +64,7 @@ bool Coalescer::send2Coalescer(uint _blockAddr, deque<MemReq> _reqQueue)
     }
 }
 
-uint Coalescer::searchCoalescer(uint _blockAddr)
+uint64_t Coalescer::searchCoalescer(uint64_t _blockAddr)
 {
     for (size_t entryId = 0; entryId < coalescerTable.size(); ++entryId)
     {
@@ -77,13 +77,13 @@ uint Coalescer::searchCoalescer(uint _blockAddr)
     Debug::throwError("Not find an entry, this req is not a coalesced one", __FILE__, __LINE__);
 }
 
-void Coalescer::popCoalescerEntry(uint entryId)
+void Coalescer::popCoalescerEntry(uint64_t entryId)
 {
     auto iter = coalescerTable.begin() + entryId;
     coalescerTable.erase(iter);
 }
 
-//void Coalescer::writeBackCoalescer(uint _blockAddr)
+//void Coalescer::writeBackCoalescer(uint64_t _blockAddr)
 //{
 //    bool match = 0;
 //    for (auto ptr = coalescerTable.begin(); ptr != coalescerTable.end(); ++ptr)
@@ -150,7 +150,7 @@ bool Coalescer::checkCoalescerReady()
 //    return req;
 //}
 
-uint Coalescer::getCoalescerOccupiedEntryNum()
+uint64_t Coalescer::getCoalescerOccupiedEntryNum()
 {
     return coalescerTable.size();
 }

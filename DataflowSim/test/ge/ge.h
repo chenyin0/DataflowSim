@@ -27,8 +27,8 @@ namespace DFSimTest
 
         static vector<int> A;
         static vector<int> x;
-        static uint matrix_size;
-        static uint baseAddr_A;
-        static uint baseAddr_x;
+        static uint64_t matrix_size;
+        static uint64_t baseAddr_A;
+        static uint64_t baseAddr_x;
     };
 }

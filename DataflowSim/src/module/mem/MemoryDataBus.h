@@ -23,11 +23,11 @@ namespace DFSim
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
-        const deque<pair<MemReq, uint>>& getBusDelayFifo() const;
+        const deque<pair<MemReq, uint64_t>>& getBusDelayFifo() const;
 #endif // DEBUG_MODE
 
     private:
-        uint busDelay = BUS_DELAY;
-        deque<pair<MemReq, uint>> busDelayFifo;  // Emulate bus delay when receive data from DRAM
+        uint64_t busDelay = BUS_DELAY;
+        deque<pair<MemReq, uint64_t>> busDelayFifo;  // Emulate bus delay when receive data from DRAM
     };
 }

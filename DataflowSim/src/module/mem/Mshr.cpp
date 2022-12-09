@@ -4,12 +4,12 @@
 
 using namespace DFSim;
 
-Mshr::Mshr(uint _entryNum, uint _entrySize)
+Mshr::Mshr(uint64_t _entryNum, uint64_t _entrySize)
 {
     mshrInit(_entryNum, _entrySize);
 }
 
-void Mshr::mshrInit(uint _entryNum, uint _entrySize)
+void Mshr::mshrInit(uint64_t _entryNum, uint64_t _entrySize)
 {
     entryNum = _entryNum;
     entrySize = _entrySize;
@@ -17,7 +17,7 @@ void Mshr::mshrInit(uint _entryNum, uint _entrySize)
     mshrTable.resize(_entryNum);
 }
 
-bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
+bool Mshr::send2Mshr(uint64_t _blockAddr, CacheReq _cacheReq)
 {
     bool sendSuccess = 0;
     for (auto& entry : mshrTable)
@@ -47,7 +47,7 @@ bool Mshr::send2Mshr(uint _blockAddr, CacheReq _cacheReq)
     return sendSuccess;
 }
 
-void Mshr::setMshrEntryReady(uint _blockAddr)
+void Mshr::setMshrEntryReady(uint64_t _blockAddr)
 {
     bool mshrHit = 0;
     for (auto& entry : mshrTable)
@@ -108,12 +108,12 @@ void Mshr::setMshrEntryReady(uint _blockAddr)
 //    return false;
 //}
 
-vector<pair<uint, CacheReq>> Mshr::peekMshrReadyEntry()
+vector<pair<uint64_t, CacheReq>> Mshr::peekMshrReadyEntry()
 {
-    vector<pair<uint, CacheReq>> reqVec;
+    vector<pair<uint64_t, CacheReq>> reqVec;
     for (size_t i = 0; i < mshrTable.size(); ++i)
     {
-        uint entryId = (mshrRdPtr + i) % mshrTable.size();  // Round-robin
+        uint64_t entryId = (mshrRdPtr + i) % mshrTable.size();  // Round-robin
         auto& entry = mshrTable[entryId];
         if (entry.valid && entry.ready)
         {
@@ -124,7 +124,7 @@ vector<pair<uint, CacheReq>> Mshr::peekMshrReadyEntry()
     return reqVec;
 }
 
-void Mshr::clearMshrEntry(vector<uint> _entryIdVec)
+void Mshr::clearMshrEntry(vector<uint64_t> _entryIdVec)
 {
     for (auto& entryId : _entryIdVec)
     {
@@ -152,9 +152,9 @@ bool Mshr::seekMshrFreeEntry()
     return false;
 }
 
-vector<pair<uint, CacheReq>> Mshr::getOutstandingReq()
+vector<pair<uint64_t, CacheReq>> Mshr::getOutstandingReq()
 {
-    vector<pair<uint, CacheReq>> reqVec;
+    vector<pair<uint64_t, CacheReq>> reqVec;
 
     for (size_t entryId = 0; entryId < mshrTable.size(); ++entryId)
     {
@@ -168,7 +168,7 @@ vector<pair<uint, CacheReq>> Mshr::getOutstandingReq()
     return reqVec;
 }
 
-void Mshr::clearOutstandingFlag(vector<uint> entryIdVec)
+void Mshr::clearOutstandingFlag(vector<uint64_t> entryIdVec)
 {
     for (auto& entryId : entryIdVec)
     {

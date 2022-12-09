@@ -3,15 +3,15 @@
 
 using namespace DFSimTest;
 
-const uint BfsTest::initialNode = 38;
-const uint BfsTest::nodeNum = 256;
-const uint BfsTest::edgeNum = 4096;
+const uint64_t BfsTest::initialNode = 38;
+const uint64_t BfsTest::nodeNum = 256;
+const uint64_t BfsTest::edgeNum = 4096;
 
 // Address map: 
 // 0x00 -> node -> level -> edge
-const uint BfsTest::nodeBaseAddr = 0;
-const uint BfsTest::levelBaseAddr = nodeNum;
-const uint BfsTest::edgeBaseAddr = nodeNum * 2;
+const uint64_t BfsTest::nodeBaseAddr = 0;
+const uint64_t BfsTest::levelBaseAddr = nodeNum;
+const uint64_t BfsTest::edgeBaseAddr = nodeNum * 2;
 
 vector<int> BfsTest::memData;
 vector<Edge_t> BfsTest::edges;
@@ -34,7 +34,7 @@ void BfsTest::generateData()
         nodes[i + 1].end = memData[i * 2 + 1];  // Index start at 1
     }
 
-    uint initAddr = nodeNum * 2;
+    uint64_t initAddr = nodeNum * 2;
     for (size_t i = 0; i < edgeNum; ++i)
     {
         edges[i + 1].dst = memData[initAddr + i];  // Index start at 1

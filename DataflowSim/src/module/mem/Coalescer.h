@@ -9,7 +9,7 @@ namespace DFSim
     {
         CoalescerEntry() = default;
 
-        uint blockAddr = 0;
+        uint64_t blockAddr = 0;
         deque<MemReq> coalescerQueue;
         bool valid = 0;
         bool ready = 0;
@@ -19,15 +19,15 @@ namespace DFSim
     {
         friend class MemSystem;
     public:
-        Coalescer(uint _entryNum, uint _entrySize);
-        void coalescerInit(uint _entryNum, uint _entrySize);
-        bool send2Coalescer(uint _blockAddr, deque<MemReq> _reqQueue);
-        uint searchCoalescer(uint _blockAddr);  // Search and return corresponding coalescer entry
-        void popCoalescerEntry(uint entryId);
-        //void writeBackCoalescer(uint _blockAddr);  // When receive a coaleced ack, set corresponding entry ready in coalescor
+        Coalescer(uint64_t _entryNum, uint64_t _entrySize);
+        void coalescerInit(uint64_t _entryNum, uint64_t _entrySize);
+        bool send2Coalescer(uint64_t _blockAddr, deque<MemReq> _reqQueue);
+        uint64_t searchCoalescer(uint64_t _blockAddr);  // Search and return corresponding coalescer entry
+        void popCoalescerEntry(uint64_t entryId);
+        //void writeBackCoalescer(uint64_t _blockAddr);  // When receive a coaleced ack, set corresponding entry ready in coalescor
         bool checkCoalescerReady();  // Coalescer has the highest priority 
         //MemReq getFromCoalescer();  // Before getFromCoaleser, must check whether coalescer is ready
-        uint getCoalescerOccupiedEntryNum();
+        uint64_t getCoalescerOccupiedEntryNum();
 
 #ifdef DEBUG_MODE  // Get private instance for debug
     public:
@@ -35,10 +35,10 @@ namespace DFSim
 #endif // DEBUG_MODE
 
     private:
-        uint entryNum = 0;
-        uint entrySize = 0;
+        uint64_t entryNum = 0;
+        uint64_t entrySize = 0;
         deque<CoalescerEntry> coalescerTable;  // Fifo mode, only support spatial coalescing, not support temporal coalescing
-        uint coalescerRdPtr = 0;
+        uint64_t coalescerRdPtr = 0;
     };
 
 }

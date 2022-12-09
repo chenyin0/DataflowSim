@@ -306,7 +306,7 @@ void LudTest::lud_Base(Debug* debug)
     registry->init();  // Update registry and initial all the module in registry
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     int i = 1;
     int j1 = 0;
@@ -320,9 +320,9 @@ void LudTest::lud_Base(Debug* debug)
     //vector<int> res;  // Result
     //vector<int> temp; // temp_result
 
-    uint max_iter = 500000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 500000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
     // Execute
     while (iter < max_iter)
     {
@@ -386,7 +386,7 @@ void LudTest::lud_Base(Debug* debug)
         lse_ld_aij->value = lse_ld_aij->assign();
 
         chan_sum_loop_j1->get();
-        //uint index = chan_sum_loop_j1->assign(lse_ld_aij);
+        //uint64_t index = chan_sum_loop_j1->assign(lse_ld_aij);
         chan_sum_loop_j1->value = matrix[chan_sum_loop_j1->assign(lse_ld_aij)];
 
         //** Loop Lc_k1
@@ -950,7 +950,7 @@ void LudTest::lud_Base(Debug* debug)
 //    registry->init();  // Update registry and initial all the module in registry
 //
 //    begin->get({ 1 });
-//    uint iter = 0;
+//    uint64_t iter = 0;
 //
 //    int i = 1;
 //    int j1 = 0;
@@ -964,9 +964,9 @@ void LudTest::lud_Base(Debug* debug)
 //    //vector<int> res;  // Result
 //    //vector<int> temp; // temp_result
 //
-//    uint max_iter = 500000;
-//    uint segment = max_iter / 100;
-//    uint percent = 0;
+//    uint64_t max_iter = 500000;
+//    uint64_t segment = max_iter / 100;
+//    uint64_t percent = 0;
 //    // Execute
 //    while (iter < max_iter)
 //    {
@@ -1030,7 +1030,7 @@ void LudTest::lud_Base(Debug* debug)
 //        lse_ld_aij->value = lse_ld_aij->assign();
 //
 //        chan_sum_loop_j1->get();
-//        //uint index = chan_sum_loop_j1->assign(lse_ld_aij);
+//        //uint64_t index = chan_sum_loop_j1->assign(lse_ld_aij);
 //        chan_sum_loop_j1->value = matrix[chan_sum_loop_j1->assign(lse_ld_aij)];
 //
 //        //** Loop Lc_k1

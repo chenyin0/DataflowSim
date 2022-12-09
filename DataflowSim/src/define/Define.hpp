@@ -34,8 +34,8 @@
 
 #include <time.h>
 
-//using uint = std::size_t;
-using uint = uint64_t;
+//using uint64_t = std::size_t;
+using uint64_t = uint64_t;
 //using uint64 = uint64_t;
 using std::shared_ptr;
 using std::unique_ptr;
@@ -74,7 +74,7 @@ using std::accumulate;
 #define str(s) #s
 #define xstr(s) str(s)
 
-#define ULONG_LONG_MAX (std::numeric_limits<uint>::max)()
+#define ULONG_LONG_MAX (std::numeric_limits<uint64_t>::max)()
 
 class Bool
 {

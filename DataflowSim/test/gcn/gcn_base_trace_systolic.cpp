@@ -31,7 +31,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     ChanGraph chanGraph(GCN_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 1;
+    uint64_t splitNum = 1;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     GCN_Test::graphPartition(chanGraph, splitNum);
 
@@ -56,9 +56,9 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     GCN_Test::generateData(dataset);
 
     // Read mem trace
-    //deque<uint> nodeTrace;
-    deque<uint> featTrace;
-    //deque<uint> delay_q;  // Record data delay
+    //deque<uint64_t> nodeTrace;
+    deque<uint64_t> featTrace;
+    //deque<uint64_t> delay_q;  // Record data delay
     //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_delta_ngh_deg_5.txt";
     //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_all_ngh.txt";
     //string fileName = "./resource/gcn/mem_trace/" + dataset_name + "_full_retrain.txt";
@@ -70,15 +70,15 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     /* Trace format
     *  root_node_id  #ngh  ngh_node_id  #ngh-in-degree  #ngh-out-degree
     */
-    vector<deque<uint>> trace(5);
+    vector<deque<uint64_t>> trace(5);
     //readMemTraceByCol(trace, fileName);
-    uint line_id = 0;
+    uint64_t line_id = 0;
     bool file_read_complete = 0;
-    uint read_line_block_size = 16384;
+    uint64_t read_line_block_size = 16384;
     //file_read_complete = readMemTraceByCol_blocked(trace, fileName, read_line_block_size, line_id);
     file_read_complete = readMemTraceByCol_blocked(trace, input_file_path, read_line_block_size, line_id);
-    deque<uint> nodeTrace = trace[2];
-    deque<uint> delay_q = trace[1];
+    deque<uint64_t> nodeTrace = trace[2];
+    deque<uint64_t> delay_q = trace[1];
     for (auto& i : trace)
     {
         i.clear();
@@ -133,23 +133,23 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     watchdog.addCheckPointChan({ Lc_i->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
-    //uint max_iter = 500000000;// 5000000;
-    //uint segment = max_iter / 100;
-    //uint percent = 0;
+    //uint64_t max_iter = 500000000;// 5000000;
+    //uint64_t segment = max_iter / 100;
+    //uint64_t percent = 0;
 
-    uint workload_size = featTrace.size();
-    uint interval = workload_size / 100;
-    uint percent = 0;
+    uint64_t workload_size = featTrace.size();
+    uint64_t interval = workload_size / 100;
+    uint64_t percent = 0;
 
     //*** Record run time
     clock_t startTime, endTime;
     startTime = clock();
 
     // Usr define
-    uint systolic_cycle = 128;
-    uint line_id_prev = 0;
+    uint64_t systolic_cycle = 128;
+    uint64_t line_id_prev = 0;
     // Execute
     while (1)
     {
@@ -163,7 +163,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
         //}
 
         //// Print progress bar
-        //uint workload_finish = workload_size - featTrace.size();
+        //uint64_t workload_finish = workload_size - featTrace.size();
         //if (workload_finish / interval > percent)
         //{
         //    percent = workload_finish / interval;
@@ -198,10 +198,10 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
         Chan_begin->valid = 0;
 
         Chan_i_lc->get();	// Nop	[0]Lc_i 
-        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 
         Chan_traverse_root->get();	// Nop	[0]Chan_i_lc 
-        Chan_traverse_root->value = Chan_traverse_root->assign(uint(0));
+        Chan_traverse_root->value = Chan_traverse_root->assign(uint64_t(0));
 
         // Inject mem trace here
         injectMemTrace(Chan_traverse_root, Lse_ld_ngh, featTrace);
@@ -213,18 +213,18 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
         // Add synchronize delay
         bindDelay(Lse_ld_ngh, Chan_systolic, delay_q, arch_name);
         Chan_systolic->get();	// Mac	[0]Lse_ld_ngh 
-        Chan_systolic->value = Chan_systolic->assign(uint(0));
+        Chan_systolic->value = Chan_systolic->assign(uint64_t(0));
         Chan_systolic->cycle = systolic_cycle;  // Reset cycle
 
         Chan_active->get();	// Relu	[0]Chan_systolic 
-        Chan_active->value = Chan_active->assign(uint(0));
+        Chan_active->value = Chan_active->assign(uint64_t(0));
 
         // *************************************************************************************
 
         // Read file blocked
         if (featTrace.empty())
         {
-            uint i = 0;
+            uint64_t i = 0;
         }
         if (featTrace.empty() && !file_read_complete)
         {
@@ -357,10 +357,10 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     // Report power
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
     // PE array
-    //uint aluActiveTimes = chanActiveNumTotal;
-    uint chanActiveNumTotal = Chan_systolic->activeCnt * systolic_array_length;
-    uint reg_active_times = chanActiveNumTotal * 3;
-    uint pe_ctrl_active_times = chanActiveNumTotal;
+    //uint64_t aluActiveTimes = chanActiveNumTotal;
+    uint64_t chanActiveNumTotal = Chan_systolic->activeCnt * systolic_array_length;
+    uint64_t reg_active_times = chanActiveNumTotal * 3;
+    uint64_t pe_ctrl_active_times = chanActiveNumTotal;
 
     float alu_dynamic_energy = 0;
     //for (auto& entry : registry->getRegistryTable())
@@ -385,7 +385,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     float pe_ctrl_leakage_power = Hardware_Para::getPeCtrlLeakagePower();
     float pe_ctrl_power = pe_ctrl_dynamic_power + pe_ctrl_leakage_power;
 
-    uint reconfig_times = Chan_systolic->activeCnt / systolic_array_width;
+    uint64_t reconfig_times = Chan_systolic->activeCnt / systolic_array_width;
     float reconifg_dynamic_energy = static_cast<float>(reconfig_times) * Hardware_Para::getContextBufferAccessEnergy();
     float reconifg_dynamic_power = Profiler::transEnergy2Power(reconifg_dynamic_energy);
     float reconifg_leakage_power = Hardware_Para::getContextBufferLeakagePower();
@@ -397,8 +397,8 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     {
         buffer_access_cnt = buffer_access_cnt / systolic_array_width;
     }
-    uint coalesceRate = uint(16);
-    buffer_access_cnt = uint(buffer_access_cnt / coalesceRate);
+    uint64_t coalesceRate = uint64_t(16);
+    buffer_access_cnt = uint64_t(buffer_access_cnt / coalesceRate);
     // On-chip buffer ctrl
     float dataBuffer_ctrl_dynamic_energy = static_cast<float>(buffer_access_cnt) * Hardware_Para::getDataBufferCtrlEnergy();
     float dataBuffer_ctrl_dynamic_power = Profiler::transEnergy2Power(dataBuffer_ctrl_dynamic_energy);
@@ -415,7 +415,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     float dataBuffer_power = dataBuffer_dynamic_power + dataBuffer_leakage_power;
 
     // Cache
-    uint cache_access_times = 0;
+    uint64_t cache_access_times = 0;
     if (memSys != nullptr && memSys->cache != nullptr)
     {
         cache_access_times += memSys->cache->getCacheAccessCnt();
@@ -426,7 +426,7 @@ void GCN_Test::gcn_Base_trace_systolic(Debug* debug, const string& input_file_pa
     float cache_power = cache_dynamic_power + cache_leakage_power;
 
     // DRAM
-    uint mem_access_times = 0;
+    uint64_t mem_access_times = 0;
     if (memSys != nullptr)
     {
         mem_access_times += memSys->getMemAccessCnt();

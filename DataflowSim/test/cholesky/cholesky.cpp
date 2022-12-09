@@ -6,9 +6,9 @@ Dfg Cholesky_Test::dfg;
 
 vector<int> Cholesky_Test::A;
 //vector<int> Ge_Test::x;
-uint Cholesky_Test::matrix_size = 60;
-uint Cholesky_Test::baseAddr_A = 0;
-//uint Ge_Test::baseAddr_x = 56847;
+uint64_t Cholesky_Test::matrix_size = 60;
+uint64_t Cholesky_Test::baseAddr_A = 0;
+//uint64_t Ge_Test::baseAddr_x = 56847;
 
 void Cholesky_Test::generateData()
 {

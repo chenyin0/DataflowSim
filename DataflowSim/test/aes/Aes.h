@@ -60,15 +60,15 @@ namespace DFSimTest
         static void aes_DGSF(Debug* debug);
 
     private:
-        static uint segment_size;  // Plaintext must be integer multiple of the size of the aes group(16bits)
+        static uint64_t segment_size;  // Plaintext must be integer multiple of the size of the aes group(16bits)
 
         // Performance parameter
         // Base
-        static uint Base_speedup;
+        static uint64_t Base_speedup;
 
         //DGSF
-        static uint DGSF_non_branch_speedup;
-        static uint DGSF_truePath_speedup;
-        static uint DGSF_falsePath_speedup;
+        static uint64_t DGSF_non_branch_speedup;
+        static uint64_t DGSF_truePath_speedup;
+        static uint64_t DGSF_falsePath_speedup;
     };
 }

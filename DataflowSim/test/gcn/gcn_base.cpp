@@ -29,7 +29,7 @@
 //    ChanGraph chanGraph(GCN_Test::dfg);
 //    chanGraph.addSpecialModeChan();
 //
-//    uint splitNum = 1;
+//    uint64_t splitNum = 1;
 //    //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
 //    GCN_Test::graphPartition(chanGraph, splitNum);
 //
@@ -103,11 +103,11 @@
 //    watchdog.addCheckPointChan({ Lc_i->getEnd });
 //
 //    registry->getChan("Chan_begin")->get({ 1 });
-//    uint iter = 0;
+//    uint64_t iter = 0;
 //
-//    uint max_iter = 5000000;// 5000000;
-//    uint segment = max_iter / 100;
-//    uint percent = 0;
+//    uint64_t max_iter = 5000000;// 5000000;
+//    uint64_t segment = max_iter / 100;
+//    uint64_t percent = 0;
 //
 //
 //    //*** Record run time
@@ -148,19 +148,19 @@
 //        Chan_begin->valid = 0;
 //
 //        Chan_i_lc->get();	// Nop	[0]Lc_i 
-//        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+//        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 //
 //        Chan_indptr->get();	// Nop	[0]Chan_i_lc 
-//        Chan_indptr->value = Chan_indptr->assign(uint(0));
+//        Chan_indptr->value = Chan_indptr->assign(uint64_t(0));
 //
 //        Lse_access_indptr->get();	// Load	[0]Chan_indptr 
 //        Lse_access_indptr->value = indPtr[Lse_access_indptr->assign()];
 //
 //        Chan_ngh_ind_base->get();	// Nop	[0]Lse_access_indptr 
-//        Chan_ngh_ind_base->value = Chan_ngh_ind_base->assign(uint(0));
+//        Chan_ngh_ind_base->value = Chan_ngh_ind_base->assign(uint64_t(0));
 //
 //        Chan_ngh_ind_base_scatter_loop_j->get();	// Nop	[0]Chan_ngh_ind_base 
-//        Chan_ngh_ind_base_scatter_loop_j->value = Chan_ngh_ind_base_scatter_loop_j->assign(uint(0));
+//        Chan_ngh_ind_base_scatter_loop_j->value = Chan_ngh_ind_base_scatter_loop_j->assign(uint64_t(0));
 //
 //        ngh_num = indPtr[Chan_indptr->value + 1] - indPtr[Chan_indptr->value];
 //
@@ -174,25 +174,25 @@
 //        Lc_j->lcUpdate(Lc_j->var < ngh_num);
 //
 //        Chan_j_lc->get();	// Nop	[0]Lc_j 
-//        Chan_j_lc->value = Chan_j_lc->assign(uint(0));
+//        Chan_j_lc->value = Chan_j_lc->assign(uint64_t(0));
 //
 //        Chan_indices->get();	// Add	[0]Chan_j_lc [1]Chan_ngh_ind_base_scatter_loop_j 
-//        Chan_indices->value = Chan_indices->assign(uint(0)) + Chan_indices->assign(uint(1));
+//        Chan_indices->value = Chan_indices->assign(uint64_t(0)) + Chan_indices->assign(uint64_t(1));
 //
 //        Lse_access_ngh->get();	// Load	[0]Chan_indices 
 //        Lse_access_ngh->value = indices[Lse_access_ngh->assign()];
 //
 //        Chan_ngh_ind->get();	// Nop	[0]Lse_access_ngh 
-//        Chan_ngh_ind->value = Chan_ngh_ind->assign(uint(0));
+//        Chan_ngh_ind->value = Chan_ngh_ind->assign(uint64_t(0));
 //
 //        Lse_ld_feat->get();	// Load	[0]Chan_ngh_ind 
 //        Lse_ld_feat->value = feat[Lse_ld_feat->assign()];
 //
 //        Chan_combine->get();	// Mac	[0]Lse_ld_feat 
-//        Chan_combine->value = Chan_combine->assign(uint(0));
+//        Chan_combine->value = Chan_combine->assign(uint64_t(0));
 //
 //        Chan_active->get();	// Relu	[0]Chan_combine 
-//        Chan_active->value = Chan_active->assign(uint(0));
+//        Chan_active->value = Chan_active->assign(uint64_t(0));
 //
 //        // *************************************************************************************
 //

@@ -29,7 +29,7 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     ChanGraph chanGraph(Viterbi_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 4;
+    uint64_t splitNum = 4;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Viterbi_Test::graphPartition(chanGraph, splitNum);
 
@@ -106,11 +106,11 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_t->getEnd, Lc_curr->getEnd, Lc_prev_->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -150,7 +150,7 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_t_lc->get();	// Nop	[0]Lc_t 
-        Chan_t_lc->value = Chan_t_lc->assign(uint(0));
+        Chan_t_lc->value = Chan_t_lc->assign(uint64_t(0));
 
         Lc_curr->var = Lc_curr->mux->mux(Lc_curr->var, 0, Lc_curr->sel);
         Lc_curr->mux->muxUpdate(Lc_curr->sel);
@@ -161,16 +161,16 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
         Lc_curr->lcUpdate(Lc_curr->var < N_STATES);
 
         Chan_curr_lc->get();	// Nop	[0]Lc_curr 
-        Chan_curr_lc->value = Chan_curr_lc->assign(uint(0));
+        Chan_curr_lc->value = Chan_curr_lc->assign(uint64_t(0));
 
         Chan_curr_N->get();	// Mul	[0]Lc_curr 
-        Chan_curr_N->value = Chan_curr_N->assign(uint(0)) * N_TOKENS;
+        Chan_curr_N->value = Chan_curr_N->assign(uint64_t(0)) * N_TOKENS;
 
         Chan_prev->get();	// Nop	
         Chan_prev->value = 0;
 
         Chan_t_lc_scatter_loop_curr->get();	// Nop	[0]Chan_t_lc 
-        Chan_t_lc_scatter_loop_curr->value = Chan_t_lc_scatter_loop_curr->assign(uint(0));
+        Chan_t_lc_scatter_loop_curr->value = Chan_t_lc_scatter_loop_curr->assign(uint64_t(0));
 
         Lc_prev_->var = Lc_prev_->mux->mux(Lc_prev_->var, 1, Lc_prev_->sel);
         Lc_prev_->mux->muxUpdate(Lc_prev_->sel);
@@ -181,41 +181,41 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
         Lc_prev_->lcUpdate(Lc_prev_->var < N_STATES);
 
         Chan_curr_N_obs->get();	// Add	[0]Chan_curr_N 
-        Chan_curr_N_obs->value = Chan_curr_N_obs->assign(uint(0)) + obs[Lc_t->var];
+        Chan_curr_N_obs->value = Chan_curr_N_obs->assign(uint64_t(0)) + obs[Lc_t->var];
 
         Chan_prev_N->get();	// Mul	[0]Chan_prev 
-        Chan_prev_N->value = Chan_prev_N->assign(uint(0)) * N_STATES;
+        Chan_prev_N->value = Chan_prev_N->assign(uint64_t(0)) * N_STATES;
 
         Lse_llike->get();	// Load	[0]Chan_t_lc_scatter_loop_curr [1]Chan_prev 
         Lse_llike->value = llike[Lse_llike->assign()];
 
         Chan_t_lc_relay_loop_curr->get();	// Nop	[0]Chan_t_lc_scatter_loop_curr 
-        Chan_t_lc_relay_loop_curr->value = Chan_t_lc_relay_loop_curr->assign(uint(0));
+        Chan_t_lc_relay_loop_curr->value = Chan_t_lc_relay_loop_curr->assign(uint64_t(0));
 
         Chan_prev_N_->get();	// Mul	[0]Lc_prev_ 
-        Chan_prev_N_->value = Chan_prev_N_->assign(uint(0)) * N_STATES;
+        Chan_prev_N_->value = Chan_prev_N_->assign(uint64_t(0)) * N_STATES;
 
         Chan_curr_lc_scatter_loop_prev_->get();	// Nop	[0]Chan_curr_lc 
-        Chan_curr_lc_scatter_loop_prev_->value = Chan_curr_lc_scatter_loop_prev_->assign(uint(0));
+        Chan_curr_lc_scatter_loop_prev_->value = Chan_curr_lc_scatter_loop_prev_->assign(uint64_t(0));
 
         Lse_emission->get();	// Load	[0]Chan_curr_N_obs 
         int a = Lse_emission->assign();
         Lse_emission->value = emission[Lse_emission->assign()];
 
         Chan_prev_N_curr->get();	// Add	[0]Chan_prev_N [1]Lc_curr 
-        Chan_prev_N_curr->value = Chan_prev_N_curr->assign(uint(0)) + Chan_prev_N_curr->assign(uint(1));
+        Chan_prev_N_curr->value = Chan_prev_N_curr->assign(uint64_t(0)) + Chan_prev_N_curr->assign(uint64_t(1));
 
         Chan_t_lc_relay_loop_curr_scatter_loop_prev_->get();	// Nop	[0]Chan_t_lc_relay_loop_curr 
-        Chan_t_lc_relay_loop_curr_scatter_loop_prev_->value = Chan_t_lc_relay_loop_curr_scatter_loop_prev_->assign(uint(0));
+        Chan_t_lc_relay_loop_curr_scatter_loop_prev_->value = Chan_t_lc_relay_loop_curr_scatter_loop_prev_->assign(uint64_t(0));
 
         Chan_prev_N_curr_->get();	// Add	[0]Chan_prev_N_ [1]Chan_curr_lc_scatter_loop_prev_ 
-        Chan_prev_N_curr_->value = Chan_prev_N_curr_->assign(uint(0)) + Chan_prev_N_curr_->assign(uint(1));
+        Chan_prev_N_curr_->value = Chan_prev_N_curr_->assign(uint64_t(0)) + Chan_prev_N_curr_->assign(uint64_t(1));
 
         Chan_curr_N_->get();	// Mul	[0]Chan_curr_lc_scatter_loop_prev_ 
-        Chan_curr_N_->value = Chan_curr_N_->assign(uint(0)) * N_TOKENS;
+        Chan_curr_N_->value = Chan_curr_N_->assign(uint64_t(0)) * N_TOKENS;
 
         Chan_prev_N_curr_shadow->get();	// Nop	[0]Chan_prev_N_curr 
-        Chan_prev_N_curr_shadow->value = Chan_prev_N_curr_shadow->assign(uint(0));
+        Chan_prev_N_curr_shadow->value = Chan_prev_N_curr_shadow->assign(uint64_t(0));
 
         Lse_transition->get();	// Load	[0]Chan_prev_N_curr 
         Lse_transition->value = transition[Lse_transition->assign()];
@@ -224,13 +224,13 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
         Lse_llike_->value = llike[Lse_llike_->assign()];
 
         Chan_curr_N_obs_->get();	// Add	[0]Chan_curr_N_ 
-        Chan_curr_N_obs_->value = Chan_curr_N_obs_->assign(uint(0)) + obs[Lc_t->var];
+        Chan_curr_N_obs_->value = Chan_curr_N_obs_->assign(uint64_t(0)) + obs[Lc_t->var];
 
         Chan_prev_N_curr_shadow_scatter_loop_prev_->get();	// Nop	[0]Chan_prev_N_curr_shadow 
-        Chan_prev_N_curr_shadow_scatter_loop_prev_->value = Chan_prev_N_curr_shadow_scatter_loop_prev_->assign(uint(0));
+        Chan_prev_N_curr_shadow_scatter_loop_prev_->value = Chan_prev_N_curr_shadow_scatter_loop_prev_->assign(uint64_t(0));
 
         Chan_llike_transition->get();	// Add	[0]Lse_llike [1]Lse_transition 
-        Chan_llike_transition->value = Chan_llike_transition->assign(uint(0)) + Chan_llike_transition->assign(uint(1));
+        Chan_llike_transition->value = Chan_llike_transition->assign(uint64_t(0)) + Chan_llike_transition->assign(uint64_t(1));
 
         Lse_emission_->get();	// Load	[0]Chan_curr_N_obs_ 
         Lse_emission_->value = emission[Lse_emission_->assign()];
@@ -239,15 +239,15 @@ void Viterbi_Test::viterbi_Base(Debug* debug)
         Lse_transition_->value = transition[Lse_transition_->assign()];
 
         Chan_min_p->get();	// Add	[0]Chan_llike_transition [1]Lse_emission 
-        Chan_min_p->value = Chan_min_p->assign(uint(0)) + Chan_min_p->assign(uint(1));
+        Chan_min_p->value = Chan_min_p->assign(uint64_t(0)) + Chan_min_p->assign(uint64_t(1));
 
         Chan_llike_transition_->get();	// Add	[0]Lse_llike_ [1]Lse_transition_ 
-        Chan_llike_transition_->value = Chan_llike_transition_->assign(uint(0)) + Chan_llike_transition_->assign(uint(1));
+        Chan_llike_transition_->value = Chan_llike_transition_->assign(uint64_t(0)) + Chan_llike_transition_->assign(uint64_t(1));
 
         Lse_llike_update->get();	// Store	[0]Lc_curr [1]Chan_min_p 
 
         Chan_p->get();	// Add	[0]Chan_llike_transition_ [1]Lse_emission_ 
-        Chan_p->value = Chan_p->assign(uint(0)) + Chan_p->assign(uint(1));
+        Chan_p->value = Chan_p->assign(uint64_t(0)) + Chan_p->assign(uint64_t(1));
 
         // *************************************************************************************
 

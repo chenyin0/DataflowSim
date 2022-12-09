@@ -4,7 +4,7 @@
 
 using namespace DFSim;
 
-//Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys) : 
+//Lse::Lse(uint64_t _size, uint64_t _cycle, MemSystem* _memSys) : 
 //    Channel(_size, _cycle), memSys(_memSys)
 //{
 //    //reqQueue.resize(_size);
@@ -13,7 +13,7 @@ using namespace DFSim;
 //    initial();
 //}
 //
-//Lse::Lse(uint _size, uint _cycle, MemSystem* _memSys, uint _speedup) :
+//Lse::Lse(uint64_t _size, uint64_t _cycle, MemSystem* _memSys, uint64_t _speedup) :
 //    Channel(_size, _cycle, _speedup), memSys(_memSys)
 //{
 //    //reqQueue.resize(_size);
@@ -22,7 +22,7 @@ using namespace DFSim;
 //    initial();
 //}
 
-Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys) :
+Lse::Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys) :
     Channel(_size, _cycle), isWrite(_isWrite), memSys(_memSys)
 {
     //reqQueue.resize(_size);
@@ -31,7 +31,7 @@ Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys) :
     initial();
 }
 
-Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup) :
+Lse::Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys, uint64_t _speedup) :
     Channel(_size, _cycle, _speedup), isWrite(_isWrite), memSys(_memSys)
 {
     //reqQueue.resize(_size);
@@ -40,7 +40,7 @@ Lse::Lse(uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speed
     initial();
 }
 
-Lse::Lse(string _moduleName, uint _size, uint _cycle, bool _isWrite, MemSystem* _memSys, uint _speedup)
+Lse::Lse(string _moduleName, uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys, uint64_t _speedup)
     : Channel(_moduleName, _size, _cycle, _speedup), isWrite(_isWrite), memSys(_memSys)
 {
     initial();
@@ -71,7 +71,7 @@ void Lse::initial()
     chanType = ChanType::Chan_Lse;
 }
 
-//void Lse::get(bool _isWrite, uint _addr)
+//void Lse::get(bool _isWrite, uint64_t _addr)
 //{
 //    checkConnect();
 //    pop();
@@ -79,7 +79,7 @@ void Lse::initial()
 //    statusUpdate();
 //}
 
-//void Lse::get(vector<int> data, uint& trig_cnt)
+//void Lse::get(vector<int> data, uint64_t& trig_cnt)
 //{
 //    checkConnect();
 //    pop();
@@ -105,7 +105,7 @@ vector<int> Lse::pop()
 
     if (popReady)
     {
-        uint reqQueueIndex = channel.front().lseReqQueueIndex;
+        uint64_t reqQueueIndex = channel.front().lseReqQueueIndex;
         lastPopVal = reqQueue[reqQueueIndex].first.addr;
         channel.pop_front();  // Pop channel
         if (isWrite)
@@ -154,15 +154,15 @@ void Lse::popChanBuffer()
     }
 }
 
-void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store addr!!!
+void Lse::pushReqQ(/*bool _isWrite, uint64_t _addr*/)  // chanBuffer[0] must store addr!!!
 {
-    //uint clk = ClkDomain::getInstance()->getClk();
+    //uint64_t clk = ClkDomain::getInstance()->getClk();
     //Data data = upstream.front()->channel.front();  // Inherit cond status
     Data data = chanBuffer[0].front();  // Inherit cond status
     data.valid = 1;
     data.last = 0;  // Reset last flag
     data.cycle = ClkDomain::getClk();  // Update cycle to current clk for measuring memory access latency
-    /*uint cycleTemp = data.cycle + cycle;
+    /*uint64_t cycleTemp = data.cycle + cycle;
     data.cycle = cycleTemp > clk ? cycleTemp : clk;*/
 
     // Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag;
@@ -222,7 +222,7 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
     }
 }
 
-//bool Lse::push(bool _isWrite, uint _addr)
+//bool Lse::push(bool _isWrite, uint64_t _addr)
 //{
 //    // Push data in channel
 //    if (checkUpstream())
@@ -250,7 +250,7 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 //
 //        if (memSys->addTransaction(_req))
 //        {
-//            uint index = _req.lseReqQueueIndex;
+//            uint64_t index = _req.lseReqQueueIndex;
 //            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
 //
 //            return true;
@@ -265,7 +265,7 @@ void Lse::pushReqQ(/*bool _isWrite, uint _addr*/)  // chanBuffer[0] must store a
 
 void Lse::statusUpdate()
 {
-    uint clk = ClkDomain::getInstance()->getClk();
+    uint64_t clk = ClkDomain::getInstance()->getClk();
     valid = 1;
 
     bool match = 1;
@@ -283,7 +283,7 @@ void Lse::statusUpdate()
     }
 
     // Select a ready req
-    uint id = currId - 1;
+    uint64_t id = currId - 1;
     auto& suspendReq = suspendReqVec[id]; // Traverse each suspendReq belongs to each speedup instance
     if (!suspendReq.first)  // If suspendReq is invalid
     {
@@ -390,8 +390,8 @@ void Lse::statusUpdate()
 
 void Lse::pushChannel()
 {
-    uint clk = ClkDomain::getInstance()->getClk();
-    //uint cnt = (std::numeric_limits<uint>::max)();  // Initial the max value
+    uint64_t clk = ClkDomain::getInstance()->getClk();
+    //uint64_t cnt = (std::numeric_limits<uint64_t>::max)();  // Initial the max value
     bool getValid = 0;
     pushChannelSuccess = 0;  // Clear pushChannelSuccess
 
@@ -507,11 +507,11 @@ void Lse::funcUpdate()
 //    }
 //}
 
-uint Lse::assign()
+uint64_t Lse::assign()
 {
     if (!this->channel.empty())
     {
-        uint index = channel.front().lseReqQueueIndex;
+        uint64_t index = channel.front().lseReqQueueIndex;
         return (reqQueue[index].first.addr - baseAddr) / (DATA_PRECISION / 8);
     }
     else
@@ -522,7 +522,7 @@ uint Lse::assign()
 
 void Lse::ackCallback(MemReq _req)
 {
-    uint index = _req.lseReqQueueIndex;
+    uint64_t index = _req.lseReqQueueIndex;
     if (!reqQueue[index].first.inflight)
     {
         Debug::throwError("Current req is not an inflight req!", __FILE__, __LINE__);
@@ -539,7 +539,7 @@ void Lse::ackCallback(MemReq _req)
 pair<bool, MemReq> Lse::peekReqQueue()
 {
     auto req = std::make_pair(0, MemReq());
-    uint id = currId - 1;
+    uint64_t id = currId - 1;
     if (suspendReqVec[id].first)
     {
         req.first = 1;
@@ -563,7 +563,7 @@ void Lse::setInflight(MemReq& _req)
 //        auto& req = suspendReq.second;
 //        if (memSys->addTransaction(req))
 //        {
-//            uint index = req.lseReqQueueIndex;
+//            uint64_t index = req.lseReqQueueIndex;
 //            reqQueue[index].first.inflight = 1;  // Req has been sent to memory
 //            suspendReq.first = 0;  // Clear current suspendReq
 //            sendSuccess = 1;
@@ -582,7 +582,7 @@ void Lse::setInflight(MemReq& _req)
 //
 //    return sendSuccess || reqInvalid;
 
-    uint id = currId - 1;
+    uint64_t id = currId - 1;
     if (!suspendReqVec[id].first)
     {
         Debug::throwError("Try to send an invalid request from Lse to MemSys", __FILE__, __LINE__);
@@ -594,23 +594,23 @@ void Lse::setInflight(MemReq& _req)
 #endif // DEBUG_MODE
 
         /*auto& req = suspendReq.second;*/
-        uint index = _req.lseReqQueueIndex;
+        uint64_t index = _req.lseReqQueueIndex;
         reqQueue[index].first.inflight = 1;  // Req has been sent to memory
         reqQueue[index].first.coalesced = _req.coalesced;
         suspendReqVec[id].first = 0; // Clear current suspendReq
     }
 }
 
-void Lse::updateMemAccessRecord(uint index)
+void Lse::updateMemAccessRecord(uint64_t index)
 {
-    uint latency = ClkDomain::getClk() - reqQueue[index].second.cycle;
+    uint64_t latency = ClkDomain::getClk() - reqQueue[index].second.cycle;
     latTotal += latency;
     avgMemAccessLat = latTotal / (++memAccessCnt);
     /*std::cout << "lat: " << latency << " cnt: " << memAccessCnt << " avg: " << avgMemAccessLat << std::endl;*/
 }
 
 #ifdef DEBUG_MODE  // Get private instance for debug
-const uint& Lse::getCurrReqId() const
+const uint64_t& Lse::getCurrReqId() const
 {
     return currReqId;
 }

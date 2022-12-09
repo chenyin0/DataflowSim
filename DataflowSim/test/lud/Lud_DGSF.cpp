@@ -277,7 +277,7 @@ void LudTest::lud_DGSF(Debug* debug)
     registry->init();  // Update registry and initial all the module in registry
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     int i = 1;
     int j1 = 0;
@@ -291,9 +291,9 @@ void LudTest::lud_DGSF(Debug* debug)
     //vector<int> res;  // Result
     //vector<int> temp; // temp_result
 
-    uint max_iter = 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
     // Execute
     while (iter < max_iter)
     {
@@ -383,8 +383,8 @@ void LudTest::lud_DGSF(Debug* debug)
 
         // loop interface: var k1
         chan_k1_fifo->get();
-        uint aik_addr = chan_k1_fifo->assign(chan_i_relay_loop_j1) * matrix_size + chan_k1_fifo->assign(lc_k1->loopVar);
-        uint akj_addr = chan_k1_fifo->assign(lc_k1->loopVar) * matrix_size + chan_k1_fifo->assign(chan_k1_fifo_keepMode);
+        uint64_t aik_addr = chan_k1_fifo->assign(chan_i_relay_loop_j1) * matrix_size + chan_k1_fifo->assign(lc_k1->loopVar);
+        uint64_t akj_addr = chan_k1_fifo->assign(lc_k1->loopVar) * matrix_size + chan_k1_fifo->assign(chan_k1_fifo_keepMode);
         chan_k1_fifo->value -= matrix[aik_addr] * matrix[akj_addr];
 
         chan_k1_fifo_delay->get();
@@ -448,8 +448,8 @@ void LudTest::lud_DGSF(Debug* debug)
 
         // loop interface: var k2
         chan_k2_fifo->get();
-        uint ajk_addr = chan_k2_fifo->assign(chan_k2_fifo_keepMode) * matrix_size + chan_k2_fifo->assign(lc_k2->loopVar);
-        uint aki_addr = chan_k2_fifo->assign(lc_k2->loopVar) * matrix_size + chan_k2_fifo->assign(chan_i_relay_loop_j2);
+        uint64_t ajk_addr = chan_k2_fifo->assign(chan_k2_fifo_keepMode) * matrix_size + chan_k2_fifo->assign(lc_k2->loopVar);
+        uint64_t aki_addr = chan_k2_fifo->assign(lc_k2->loopVar) * matrix_size + chan_k2_fifo->assign(chan_i_relay_loop_j2);
         chan_k1_fifo->value -= matrix[ajk_addr] * matrix[aki_addr];
 
         chan_k2_fifo_delay->get();

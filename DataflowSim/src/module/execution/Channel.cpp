@@ -5,20 +5,20 @@
 
 using namespace DFSim;
 
-Channel::Channel(uint _size, uint _cycle) : size(_size), cycle(_cycle)
+Channel::Channel(uint64_t _size, uint64_t _cycle) : size(_size), cycle(_cycle)
 {
     speedup = 1;  // Default speedup = 1, signify no speedup
     //currId = 1;  // Begin at 1
     initial();
 }
 
-Channel::Channel(uint _size, uint _cycle, uint _speedup) :
+Channel::Channel(uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     size(_size), cycle(_cycle), speedup(_speedup)
 {
     initial();
 }
 
-Channel::Channel(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+Channel::Channel(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     moduleName(_moduleName), size(_size), cycle(_cycle), speedup(_speedup)
 {
     //initial();
@@ -250,7 +250,7 @@ vector<int> Channel::get()
 }
 
 // Assign channel value to program varieties
-int Channel::assign(uint bufferId)
+int Channel::assign(uint64_t bufferId)
 {
     //if (!this->channel.empty())
     //{
@@ -271,19 +271,19 @@ int Channel::assign(uint bufferId)
 // Assign value according to upstream channel's pointer
 int Channel::assign(Channel* chan)
 {
-    uint bufferId = getChanId(chan);
+    uint64_t bufferId = getChanId(chan);
 
     return this->assign(bufferId);
 }
 
-uint Channel::assign()
+uint64_t Channel::assign()
 {
     Debug::throwError("Not use now!", __FILE__, __LINE__);
 
     return 0;
 }
 
-vector<int> Channel::push(int data, uint bufferId)
+vector<int> Channel::push(int data, uint64_t bufferId)
 {
     // Push data in channel
     if (checkUpstream(bufferId))
@@ -304,7 +304,7 @@ vector<int> Channel::push(int data, uint bufferId)
         return { 0, data };
 }
 
-bool Channel::checkUpstream(uint bufferId)
+bool Channel::checkUpstream(uint64_t bufferId)
 {
     bool ready = 1;
     if (!noUpstream)
@@ -317,7 +317,7 @@ bool Channel::checkUpstream(uint bufferId)
         //        break;
         //    }
         //}
-        uint chanId = bufferId;
+        uint64_t chanId = bufferId;
         if (!upstream[chanId]->valid)
         {
             ready = 0;
@@ -343,11 +343,11 @@ bool Channel::checkUpstream(uint bufferId)
     return ready;
 }
 
-void Channel::pushBuffer(int _data, uint _bufferId)
+void Channel::pushBuffer(int _data, uint64_t _bufferId)
 {
     if (!noUpstream)
     {
-        uint upstreamId = _bufferId;
+        uint64_t upstreamId = _bufferId;
         Data data = upstream[upstreamId]->channel.front();
         // If the upstream data isCond, data cond depends on the data value
         if (upstream[upstreamId]->isCond && branchMode)
@@ -433,7 +433,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
                     }
                     else  // For the chanBuffer which upstream is in keepMode 
                     {
-                        uint theOtherChannelId = (_bufferId + 1) % 2;
+                        uint64_t theOtherChannelId = (_bufferId + 1) % 2;
                         // Only when the chanBuffer which upstream is Lc receive a data, the chanBuffer which upstream is in keepMode can receive a data
                         // But the chanBufferId sequence of Lc and keepMode is uncertain, so need discuss in two situations
                         // 1) Lc is prior than keepMode; 
@@ -467,7 +467,7 @@ void Channel::pushBuffer(int _data, uint _bufferId)
 bool Channel::checkSend(Data _data, Channel* _upstream)
 {
     bool sendable = 1;
-    uint bufferId = getChanId(_upstream);
+    uint64_t bufferId = getChanId(_upstream);
     //// Find corresponding i of upstream
     //for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
     //{
@@ -581,7 +581,7 @@ int Channel::aluUpdate()
     }
 }
 
-bool Channel::checkGetLastData(uint bufferId) const
+bool Channel::checkGetLastData(uint64_t bufferId) const
 {
     bool getLastData = 0;
     if (!chanBuffer[bufferId].empty())
@@ -661,19 +661,19 @@ bool Channel::checkGetLastData(uint bufferId) const
 
 
 // class ChanBase
-ChanBase::ChanBase(uint _size, uint _cycle) :
+ChanBase::ChanBase(uint64_t _size, uint64_t _cycle) :
     Channel(_size, _cycle)
 {
     initial();
 }
 
-ChanBase::ChanBase(uint _size, uint _cycle, uint _speedup) :
+ChanBase::ChanBase(uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     Channel(_size, _cycle, _speedup)
 {
     initial();
 }
 
-ChanBase::ChanBase(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+ChanBase::ChanBase(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     Channel(_moduleName, _size, _cycle, _speedup)
 {
     initial();
@@ -695,7 +695,7 @@ void ChanBase::initial()
     chanType = ChanType::Chan_Base;
 }
 
-//bool ChanBase::checkUpstream(uint i)
+//bool ChanBase::checkUpstream(uint64_t i)
 //{
 //    bool ready = 1;
 //    if (!noUpstream)
@@ -708,7 +708,7 @@ void ChanBase::initial()
 //        //        break;
 //        //    }
 //        //}
-//        uint chanId = i;
+//        uint64_t chanId = i;
 //        if (!upstream[chanId]->valid)
 //        {
 //            ready = 0;
@@ -725,9 +725,9 @@ void ChanBase::initial()
 //    return ready;
 //}
 
-//void ChanBase::pushBuffer(int _data, uint _bufferId)
+//void ChanBase::pushBuffer(int _data, uint64_t _bufferId)
 //{
-//    uint upstreamId = _bufferId;
+//    uint64_t upstreamId = _bufferId;
 //    Data data = upstream[upstreamId]->channel.front();
 //    data.value = _data;
 //    data.cycle = ClkDomain::getInstance()->getClk() + cycle;  // Update cycle when push into chanBuffer
@@ -745,7 +745,7 @@ void ChanBase::pushChannel()
         //data.last = 0;  // Reset last flag
         //data.value = _data;  // No need data value
         //data.cycle = data.cycle + cycle;
-        //uint cycleTemp = data.cycle + cycle;
+        //uint64_t cycleTemp = data.cycle + cycle;
         //data.cycle = cycleTemp > clk ? cycleTemp : clk;
 
         // Update data last/graphSwitch flag; If only one input data's last = 1, set current data's last flag; 
@@ -1038,7 +1038,7 @@ vector<int> ChanBase::pop()
 //    }
 //}
 
-//vector<int> ChanBase::push(int data, uint i)
+//vector<int> ChanBase::push(int data, uint64_t i)
 //{
 //    // Push data in channel
 //    if (checkUpstream(i))
@@ -1052,7 +1052,7 @@ vector<int> ChanBase::pop()
 
 void ChanBase::statusUpdate()
 {
-    uint clk = ClkDomain::getInstance()->getClk();
+    uint64_t clk = ClkDomain::getInstance()->getClk();
     // Set valid
     valid = 1;
 
@@ -1083,7 +1083,7 @@ void ChanBase::statusUpdate()
     }
     else
     {
-        ////uint clk = ClkDomain::getInstance()->getClk();
+        ////uint64_t clk = ClkDomain::getInstance()->getClk();
         //Data data = channel.front();
 
         //if (data.cycle > clk)
@@ -1133,7 +1133,7 @@ void ChanBase::statusUpdate()
 
 bool ChanBase::checkDataMatch()
 {
-    uint clk = ClkDomain::getInstance()->getClk();
+    uint64_t clk = ClkDomain::getInstance()->getClk();
     bool match = 1;
 
     for (auto& buffer : chanBuffer)
@@ -1161,7 +1161,7 @@ bool ChanBase::checkDataMatch()
 //bool ChanBase::checkSend(Data _data, Channel* _upstream)
 //{
 //    bool sendable = 1;
-//    uint i = getChanId(_upstream);
+//    uint64_t i = getChanId(_upstream);
 //    //// Find corresponding i of upstream
 //    //for (size_t chanId = 0; chanId < upstream.size(); ++chanId)
 //    //{
@@ -1221,7 +1221,7 @@ bool ChanBase::checkDataMatch()
 //}
 //
 //// Assign channel value to program varieties
-//int ChanBase::assign(uint i)
+//int ChanBase::assign(uint64_t i)
 //{
 //    //if (!this->channel.empty())
 //    //{
@@ -1241,13 +1241,13 @@ bool ChanBase::checkDataMatch()
 
 
 // class ChanDGSF
-ChanDGSF::ChanDGSF(uint _size, uint _cycle, uint _speedup)
+ChanDGSF::ChanDGSF(uint64_t _size, uint64_t _cycle, uint64_t _speedup)
     : ChanBase(_size, _cycle, _speedup)
 {
     initial();
 }
 
-ChanDGSF::ChanDGSF(string _moduleName, uint _size, uint _cycle, uint _speedup)
+ChanDGSF::ChanDGSF(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup)
     : ChanBase(_moduleName, _size, _cycle, _speedup)
 {
     initial();
@@ -1274,7 +1274,7 @@ ChanDGSF::~ChanDGSF()
     }
 }
 
-vector<int> ChanDGSF::push(int data, uint bufferId)
+vector<int> ChanDGSF::push(int data, uint64_t bufferId)
 {
     // Push data in channel
     if (pushBufferEnable)
@@ -1297,7 +1297,7 @@ vector<int> ChanDGSF::push(int data, uint bufferId)
     return { 0, data };
 }
 
-void ChanDGSF::pushBuffer(int data, uint _bufferId)
+void ChanDGSF::pushBuffer(int data, uint64_t _bufferId)
 {
     // Push chanBuffer only when this buffer has not gotten the last data
     if (!getTheLastData[_bufferId])
@@ -1332,7 +1332,7 @@ void ChanDGSF::bpUpdate()
     }
 }
 
-//bool ChanDGSF::checkGetLastData(uint bufferId)
+//bool ChanDGSF::checkGetLastData(uint64_t bufferId)
 //{
 //    bool getLastData = 0;
 //    if (!chanBuffer[bufferId].empty())
@@ -1407,7 +1407,7 @@ void ChanDGSF::bpUpdate()
 
 //void ChanDGSF::statusUpdate()
 //{
-//    uint clk = ClkDomain::getInstance()->getClk();
+//    uint64_t clk = ClkDomain::getInstance()->getClk();
 //    // Set valid
 //    valid = 1;
 //
@@ -1431,7 +1431,7 @@ void ChanDGSF::bpUpdate()
 //    }
 //    else
 //    {
-//        ////uint clk = ClkDomain::getInstance()->getClk();
+//        ////uint64_t clk = ClkDomain::getInstance()->getClk();
 //        //Data data = channel.front();
 //
 //        //if (data.cycle > clk)
@@ -1515,7 +1515,7 @@ void ChanDGSF::bpUpdate()
 
 //void ChanDGSF::statusUpdate()
 //{
-//    uint clk = ClkDomain::getInstance()->getClk();
+//    uint64_t clk = ClkDomain::getInstance()->getClk();
 //    // set valid
 //    valid = 1;
 //
@@ -1525,7 +1525,7 @@ void ChanDGSF::bpUpdate()
 //    }
 //    else
 //    {
-//        //uint clk = ClkDomain::getInstance()->getClk();
+//        //uint64_t clk = ClkDomain::getInstance()->getClk();
 //        Data data = channel.front();
 //
 //        if (data.cycle > clk)
@@ -1594,19 +1594,19 @@ void ChanDGSF::bpUpdate()
 
 
 // class ChanSGMF
-ChanSGMF::ChanSGMF(uint _size, uint _cycle) :
+ChanSGMF::ChanSGMF(uint64_t _size, uint64_t _cycle) :
     ChanBase(_size, _cycle)/*, chanSize(_size)*/
 {
     init();
 }
 
-ChanSGMF::ChanSGMF(string _moduleName, uint _size, uint _cycle) :
+ChanSGMF::ChanSGMF(string _moduleName, uint64_t _size, uint64_t _cycle) :
     ChanBase(_moduleName, _size, _cycle, 1)
 {
     init();
 }
 
-//ChanSGMF::ChanSGMF(uint _size, uint _cycle, uint _bundleSize) : 
+//ChanSGMF::ChanSGMF(uint64_t _size, uint64_t _cycle, uint64_t _bundleSize) : 
 //    ChanBase(_size, _cycle)/*, chanSize(_size)*//*, chanBundleSize(_bundleSize)*/
 //{
 //    init();
@@ -1640,7 +1640,7 @@ void ChanSGMF::init()
     //for (auto& chan : chanBundle)
     //{
     //    //chan.resize(chanSize);
-    //    chan.resize(chanSize * std::max(cycle, static_cast<uint>(1)));  // Avoid tag conflict stall in multi-cycle channel
+    //    chan.resize(chanSize * std::max(cycle, static_cast<uint64_t>(1)));  // Avoid tag conflict stall in multi-cycle channel
     //}
 
     //matchQueue.resize(chanSize);
@@ -1698,13 +1698,13 @@ void ChanSGMF::init()
 //        }
 //    }
 //}
-void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
+void ChanSGMF::pushBuffer(int _data, uint64_t _bufferId, uint64_t _tag)
 {
     Data data;
     data.valid = 1;
     if (!noUpstream)
     {
-        uint upstreamId = _bufferId;
+        uint64_t upstreamId = _bufferId;
         Data data = upstream[upstreamId]->channel.front();
     }
     data.value = _data;
@@ -1727,7 +1727,7 @@ void ChanSGMF::pushBuffer(int _data, uint _bufferId, uint _tag)
     }
 
     // Tag 
-    uint tag = 0;
+    uint64_t tag = 0;
     if (!noUpstream)
     {
         if (!upstream[_bufferId]->keepMode)
@@ -1852,7 +1852,7 @@ vector<int> ChanSGMF::get()
 //}
 
 // For no upstream channel
-vector<int> ChanSGMF::get(vector<int> data, uint tag)
+vector<int> ChanSGMF::get(vector<int> data, uint64_t tag)
 {
     //if (chanBundleSize != 1)
     //{
@@ -1894,9 +1894,9 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
     if (popReady && (!keepMode || popLastReady)) // If keepMode = 0, popLastReady is irrelevant
     {
         //Data data = channel.front();
-        uint tag = channel.front().tag;
-        uint round = size / tagSize;
-        uint addr = (round - 1) * tagSize + tag;
+        uint64_t tag = channel.front().tag;
+        uint64_t round = size / tagSize;
+        uint64_t addr = (round - 1) * tagSize + tag;
 
         channel.pop_front();  // Pop channel(sendQueue)
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
@@ -1995,7 +1995,7 @@ vector<int> ChanSGMF::popChannel(bool popReady, bool popLastReady)
 //    }
 //}
 
-vector<int> ChanSGMF::push(int data, uint chanId, uint tag)
+vector<int> ChanSGMF::push(int data, uint64_t chanId, uint64_t tag)
 {
     // Push data in channel
     if (checkUpstream(chanId, tag))
@@ -2007,12 +2007,12 @@ vector<int> ChanSGMF::push(int data, uint chanId, uint tag)
         return { 0, data };
 }
 
-bool ChanSGMF::checkUpstream(uint bufferId, uint tag)
+bool ChanSGMF::checkUpstream(uint64_t bufferId, uint64_t tag)
 {
     bool ready = 1;
     if (!noUpstream)
     {
-        uint chanId = bufferId;
+        uint64_t chanId = bufferId;
         if (!upstream[chanId]->valid)
         {
             ready = 0;
@@ -2036,7 +2036,7 @@ bool ChanSGMF::checkUpstream(uint bufferId, uint tag)
     return ready;
 }
 
-void ChanSGMF::pushChannel(uint tag)
+void ChanSGMF::pushChannel(uint64_t tag)
 {
     if (!noUpstream)
     {
@@ -2045,11 +2045,11 @@ void ChanSGMF::pushChannel(uint tag)
         data.tag = tag;
         //data.value = _data;
         //data.cycle = data.cycle + cycle;
-        //uint cycleTemp = data.cycle + cycle;
+        //uint64_t cycleTemp = data.cycle + cycle;
         //data.cycle = cycleTemp > clk ? cycleTemp : clk;
 
         //// Bind tags for data; (Ignore the tag of upstream channel in keepMode)
-        //uint tag;
+        //uint64_t tag;
         //bool tagBind = 0;
         //for (auto& chan : upstreamBundle[chanId])
         //{
@@ -2190,8 +2190,8 @@ void ChanSGMF::pushChannel(uint tag)
             //    {
             //        if (!upstream[i]->keepMode)
             //        {
-            //            uint round = size / tagSize;
-            //            uint addr = (round - 1) * tagSize + tag;
+            //            uint64_t round = size / tagSize;
+            //            uint64_t addr = (round - 1) * tagSize + tag;
             //            chanBuffer[i][addr].valid = 0;  // Clear data
             //        }
             //        else
@@ -2276,7 +2276,7 @@ void ChanSGMF::statusUpdate()
     // Check tag match among channels, and send match ready data into matchQueue
     checkTagMatch();
 
-    uint clk = ClkDomain::getInstance()->getClk();
+    uint64_t clk = ClkDomain::getInstance()->getClk();
     // Check whether downstream channel avaliable to receive data
     if (!noDownstream && channel.empty())
     {
@@ -2329,7 +2329,7 @@ void ChanSGMF::statusUpdate()
 void ChanSGMF::shiftDataInChanBuffer()
 {
     // Shift data in multi-cycle chanBuffer
-    uint round = size / tagSize;
+    uint64_t round = size / tagSize;
     for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)  // Traverse each buffernel in bufferBundle
     {
         // Only shift buffer whose corresponding upstream is not in keepMode! or not has any upstream
@@ -2337,9 +2337,9 @@ void ChanSGMF::shiftDataInChanBuffer()
         {
             for (size_t tag = 0; tag < tagSize; ++tag)  // Traverse tag
             {
-                for (uint i = 0; i < round - 1; ++i)  // Shift from back to front in chanBuffer
+                for (uint64_t i = 0; i < round - 1; ++i)  // Shift from back to front in chanBuffer
                 {
-                    uint addrBase = (round - 2 - i) * tagSize;
+                    uint64_t addrBase = (round - 2 - i) * tagSize;
                     if (!chanBuffer[bufferId][addrBase + tagSize + tag].valid)  // Next round addr
                     {
                         if (chanBuffer[bufferId][addrBase + tag].valid)
@@ -2356,16 +2356,16 @@ void ChanSGMF::shiftDataInChanBuffer()
 
 void ChanSGMF::checkTagMatch()
 {
-    uint round = size / tagSize;
+    uint64_t round = size / tagSize;
     // Check tag match among channels
     for (size_t tag = 0; tag < tagSize; ++tag)
     {
-        //uint tag = i;
+        //uint64_t tag = i;
         Data data;
         data.valid = 1;
         bool match = 1;
-        //uint addr = (std::max(cycle, uint(1)) - 1) * chanSize + i;  // For multi-cycle channel, only check the bottom section's tag
-        uint addr = (round - 1) * tagSize + tag;  // For multi-cycle channel, only check the bottom section's tag
+        //uint64_t addr = (std::max(cycle, uint64_t(1)) - 1) * chanSize + i;  // For multi-cycle channel, only check the bottom section's tag
+        uint64_t addr = (round - 1) * tagSize + tag;  // For multi-cycle channel, only check the bottom section's tag
 
         for (size_t bufferId = 0; bufferId < chanBuffer.size(); ++bufferId)
         {
@@ -2432,7 +2432,7 @@ void ChanSGMF::checkTagMatch()
 
 bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
 {
-    uint tag = _data.tag;
+    uint64_t tag = _data.tag;
     bool sendable = 0;
     //bool upstreamMatch = 0;
     int chanId = getChanId(_upstream);
@@ -2536,15 +2536,15 @@ bool ChanSGMF::checkSend(Data _data, Channel* _upstream)
 //}
 
 // In SGMF mode, interface func assign is to get value of corresponding channel by chanId (e.g. Din1, Din2)
-int ChanSGMF::assign(uint bufferId)
+int ChanSGMF::assign(uint64_t bufferId)
 {
     if (!channel.empty())
     {
         if (!upstream[bufferId]->keepMode)
         {
-            uint tag = channel.front().tag;
-            uint round = size / tagSize;
-            uint addr = (round - 1) * tagSize + tag;
+            uint64_t tag = channel.front().tag;
+            uint64_t round = size / tagSize;
+            uint64_t addr = (round - 1) * tagSize + tag;
             return chanBuffer[bufferId][addr].value;
         }
         else
@@ -2561,26 +2561,26 @@ int ChanSGMF::assign(uint bufferId)
 
 int ChanSGMF::assign(Channel* chan)
 {
-    uint bufferId = getChanId(chan);
+    uint64_t bufferId = getChanId(chan);
 
     return this->assign(bufferId);
 }
 
 
 // ChanPartialMux
-ChanPartialMux::ChanPartialMux(uint _size, uint _cycle) :
+ChanPartialMux::ChanPartialMux(uint64_t _size, uint64_t _cycle) :
     ChanBase(_size, _cycle)
 {
     initial();
 }
 
-ChanPartialMux::ChanPartialMux(uint _size, uint _cycle, uint _speedup) :
+ChanPartialMux::ChanPartialMux(uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     ChanBase(_size, _cycle, _speedup)
 {
     initial();
 }
 
-ChanPartialMux::ChanPartialMux(string _moduleName, uint _size, uint _cycle, uint _speedup) :
+ChanPartialMux::ChanPartialMux(string _moduleName, uint64_t _size, uint64_t _cycle, uint64_t _speedup) :
     ChanBase(_moduleName, _size, _cycle, _speedup)
 {
     initial();
@@ -2593,7 +2593,7 @@ void ChanPartialMux::initial()
 
 bool ChanPartialMux::checkDataMatch()
 {
-    uint clk = ClkDomain::getInstance()->getClk();
+    uint64_t clk = ClkDomain::getInstance()->getClk();
     bool match = 1;
 
     if (!chanBuffer[0].empty())

@@ -28,7 +28,7 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     ChanGraph chanGraph(Cholesky_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 2;
+    uint64_t splitNum = 2;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Cholesky_Test::graphPartition(chanGraph, splitNum);
@@ -120,14 +120,14 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_i->getEnd, Lc_j->getEnd, Lc_k->getEnd, Lc_k1->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     // Pre-defined
     Lc_k1->loopVar->enable = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -167,13 +167,13 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_i_lc1->get();	// Nop	[0]Lc_i 
-        Chan_i_lc1->value = Chan_i_lc1->assign(uint(0));
+        Chan_i_lc1->value = Chan_i_lc1->assign(uint64_t(0));
 
         Chan_i_lc2->get();	// Nop	[0]Lc_i 
-        Chan_i_lc2->value = Chan_i_lc2->assign(uint(0));
+        Chan_i_lc2->value = Chan_i_lc2->assign(uint64_t(0));
 
         Chan_i_base->get();	// Mul	[0]Lc_i 
-        Chan_i_base->value = Chan_i_base->assign(uint(0)) * matrix_size;
+        Chan_i_base->value = Chan_i_base->assign(uint64_t(0)) * matrix_size;
 
         // Lc: Lc_j
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
@@ -194,28 +194,28 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
         Lc_k1->lcUpdate(Lc_k1->var < Lc_k1->loopVar->upstream[1]->value);
 
         Chan_i_base_k->get();	// Nop	[0]Chan_i_base 
-        Chan_i_base_k->value = Chan_i_base_k->assign(uint(0));
+        Chan_i_base_k->value = Chan_i_base_k->assign(uint64_t(0));
 
         Chan_i_base_k1->get();	// Nop	[0]Chan_i_base 
-        Chan_i_base_k1->value = Chan_i_base_k1->assign(uint(0));
+        Chan_i_base_k1->value = Chan_i_base_k1->assign(uint64_t(0));
 
         Chan_Aii_addr->get();	// Add	[0]Chan_i_base [1]Lc_i 
-        Chan_Aii_addr->value = Chan_Aii_addr->assign(uint(0)) + Chan_Aii_addr->assign(uint(1));
+        Chan_Aii_addr->value = Chan_Aii_addr->assign(uint64_t(0)) + Chan_Aii_addr->assign(uint64_t(1));
 
         Chan_j_lc->get();	// Nop	[0]Lc_j 
-        Chan_j_lc->value = Chan_j_lc->assign(uint(0));
+        Chan_j_lc->value = Chan_j_lc->assign(uint64_t(0));
 
         Chan_j_base->get();	// Mul	[0]Lc_j 
-        Chan_j_base->value = Chan_j_base->assign(uint(0)) * matrix_size;
+        Chan_j_base->value = Chan_j_base->assign(uint64_t(0)) * matrix_size;
 
         Chan_i_base_k_scatter_loop_j->get();	// Nop	[0]Chan_i_base_k 
-        Chan_i_base_k_scatter_loop_j->value = Chan_i_base_k_scatter_loop_j->assign(uint(0));
+        Chan_i_base_k_scatter_loop_j->value = Chan_i_base_k_scatter_loop_j->assign(uint64_t(0));
 
         Chan_i_base_k1_scatter_loop_k1->get();	// Nop	[0]Chan_i_base_k1 
-        Chan_i_base_k1_scatter_loop_k1->value = Chan_i_base_k1_scatter_loop_k1->assign(uint(0));
+        Chan_i_base_k1_scatter_loop_k1->value = Chan_i_base_k1_scatter_loop_k1->assign(uint64_t(0));
 
         Chan_Aii_addr_scatter_loop_k1->get();	// Nop	[0]Chan_Aii_addr 
-        Chan_Aii_addr_scatter_loop_k1->value = Chan_Aii_addr_scatter_loop_k1->assign(uint(0));
+        Chan_Aii_addr_scatter_loop_k1->value = Chan_Aii_addr_scatter_loop_k1->assign(uint64_t(0));
 
         // Lc: Lc_k
         Lc_k->var = Lc_k->mux->mux(Lc_k->var, 0, Lc_k->sel);
@@ -227,25 +227,25 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
         Lc_k->lcUpdate(Lc_k->var < Lc_k->loopVar->upstream[1]->value);
 
         Chan_j_base_shadow->get();	// Nop	[0]Chan_j_base 
-        Chan_j_base_shadow->value = Chan_j_base_shadow->assign(uint(0));
+        Chan_j_base_shadow->value = Chan_j_base_shadow->assign(uint64_t(0));
 
         Chan_Ajj_addr->get();	// Add	[0]Chan_j_base [1]Lc_j 
-        Chan_Ajj_addr->value = Chan_Ajj_addr->assign(uint(0)) + Chan_Ajj_addr->assign(uint(1));
+        Chan_Ajj_addr->value = Chan_Ajj_addr->assign(uint64_t(0)) + Chan_Ajj_addr->assign(uint64_t(1));
 
         Chan_Aij_addr->get();	// Add	[0]Chan_i_base_k_scatter_loop_j [1]Lc_j 
-        Chan_Aij_addr->value = Chan_Aij_addr->assign(uint(0)) + Chan_Aij_addr->assign(uint(1));
+        Chan_Aij_addr->value = Chan_Aij_addr->assign(uint64_t(0)) + Chan_Aij_addr->assign(uint64_t(1));
 
         Chan_i_base_k_relay_loop_j->get();	// Nop	[0]Chan_i_base_k_scatter_loop_j 
-        Chan_i_base_k_relay_loop_j->value = Chan_i_base_k_relay_loop_j->assign(uint(0));
+        Chan_i_base_k_relay_loop_j->value = Chan_i_base_k_relay_loop_j->assign(uint64_t(0));
 
         Chan_Aik1_addr->get();	// Add	[0]Chan_i_base_k1_scatter_loop_k1 [1]Lc_k1 
-        Chan_Aik1_addr->value = Chan_Aik1_addr->assign(uint(0)) + Chan_Aik1_addr->assign(uint(1));
+        Chan_Aik1_addr->value = Chan_Aik1_addr->assign(uint64_t(0)) + Chan_Aik1_addr->assign(uint64_t(1));
 
         Lse_Aii->get();	// Load	[0]Chan_Aii_addr_scatter_loop_k1 
         Lse_Aii->value = A[Lse_Aii->assign()];
 
         Chan_j_base_shadow_scatter_loop_k->get();	// Nop	[0]Chan_j_base_shadow 
-        Chan_j_base_shadow_scatter_loop_k->value = Chan_j_base_shadow_scatter_loop_k->assign(uint(0));
+        Chan_j_base_shadow_scatter_loop_k->value = Chan_j_base_shadow_scatter_loop_k->assign(uint64_t(0));
 
         Lse_Ajj->get();	// Load	[0]Chan_Ajj_addr 
         Lse_Ajj->value = A[Lse_Ajj->assign()];
@@ -254,49 +254,49 @@ void Cholesky_Test::cholesky_Base(Debug* debug)
         Lse_Aij->value = A[Lse_Aij->assign()];
 
         Chan_i_base_k_relay_loop_j_scatter_loop_k->get();	// Nop	[0]Chan_i_base_k_relay_loop_j 
-        Chan_i_base_k_relay_loop_j_scatter_loop_k->value = Chan_i_base_k_relay_loop_j_scatter_loop_k->assign(uint(0));
+        Chan_i_base_k_relay_loop_j_scatter_loop_k->value = Chan_i_base_k_relay_loop_j_scatter_loop_k->assign(uint64_t(0));
 
         Lse_Aik1->get();	// Load	[0]Chan_Aik1_addr 
         Lse_Aik1->value = A[Lse_Aik1->assign()];
 
         Chan_Ajk_addr->get();	// Add	[0]Chan_j_base_shadow_scatter_loop_k [1]Lc_k 
-        Chan_Ajk_addr->value = Chan_Ajk_addr->assign(uint(0)) + Chan_Ajk_addr->assign(uint(1));
+        Chan_Ajk_addr->value = Chan_Ajk_addr->assign(uint64_t(0)) + Chan_Ajk_addr->assign(uint64_t(1));
 
         Chan_Aij_shadow->get();	// Nop	[0]Lse_Aij 
-        Chan_Aij_shadow->value = Chan_Aij_shadow->assign(uint(0));
+        Chan_Aij_shadow->value = Chan_Aij_shadow->assign(uint64_t(0));
 
         Chan_Aik_addr->get();	// Add	[0]Lc_k [1]Chan_i_base_k_relay_loop_j_scatter_loop_k 
-        Chan_Aik_addr->value = Chan_Aik_addr->assign(uint(0)) + Chan_Aik_addr->assign(uint(1));
+        Chan_Aik_addr->value = Chan_Aik_addr->assign(uint64_t(0)) + Chan_Aik_addr->assign(uint64_t(1));
 
         Chan_Aik1_Aik1->get();	// Mul	[0]Lse_Aik1 
-        Chan_Aik1_Aik1->value = Chan_Aik1_Aik1->assign(uint(0)) * Chan_Aik1_Aik1->assign(uint(0));
+        Chan_Aik1_Aik1->value = Chan_Aik1_Aik1->assign(uint64_t(0)) * Chan_Aik1_Aik1->assign(uint64_t(0));
 
         Lse_Ajk->get();	// Load	[0]Chan_Ajk_addr 
         Lse_Ajk->value = A[Lse_Ajk->assign()];
 
         Chan_Aij_shadow_scatter_loop_k->get();	// Nop	[0]Chan_Aij_shadow 
-        Chan_Aij_shadow_scatter_loop_k->value = Chan_Aij_shadow_scatter_loop_k->assign(uint(0));
+        Chan_Aij_shadow_scatter_loop_k->value = Chan_Aij_shadow_scatter_loop_k->assign(uint64_t(0));
 
         Lse_Aik->get();	// Load	[0]Chan_Aik_addr 
         Lse_Aik->value = A[Lse_Aik->assign()];
 
         Chan_Aii_update->get();	// Sub	[0]Lse_Aii [1]Chan_Aik1_Aik1 
-        Chan_Aii_update->value = Chan_Aii_update->assign(uint(0)) - Chan_Aii_update->assign(uint(1));
+        Chan_Aii_update->value = Chan_Aii_update->assign(uint64_t(0)) - Chan_Aii_update->assign(uint64_t(1));
 
         Chan_Aik_Ajk->get();	// Mul	[0]Lse_Aik [1]Lse_Ajk 
-        Chan_Aik_Ajk->value = Chan_Aik_Ajk->assign(uint(0)) * Chan_Aik_Ajk->assign(uint(1));
+        Chan_Aik_Ajk->value = Chan_Aik_Ajk->assign(uint64_t(0)) * Chan_Aik_Ajk->assign(uint64_t(1));
 
         Chan_Aii_sqrt->get();	// Sqrt	[0]Chan_Aii_update 
-        Chan_Aii_sqrt->value = sqrt(Chan_Aii_sqrt->assign(uint(0)));
+        Chan_Aii_sqrt->value = sqrt(Chan_Aii_sqrt->assign(uint64_t(0)));
 
         Chan_Aij_update->get();	// Sub	[0]Chan_Aij_shadow_scatter_loop_k [1]Chan_Aik_Ajk 
-        Chan_Aij_update->value = Chan_Aij_update->assign(uint(0)) - Chan_Aij_update->assign(uint(1));
+        Chan_Aij_update->value = Chan_Aij_update->assign(uint64_t(0)) - Chan_Aij_update->assign(uint64_t(1));
 
         Chan_Aij_update_shadow->get();	// Nop	[0]Chan_Aij_update 
-        Chan_Aij_update_shadow->value = Chan_Aij_update_shadow->assign(uint(0));
+        Chan_Aij_update_shadow->value = Chan_Aij_update_shadow->assign(uint64_t(0));
 
         Chan_Aij_div->get();	// Div	[0]Chan_Aij_update_shadow [1]Lse_Ajj 
-        Chan_Aij_div->value = Chan_Aij_div->assign(uint(0)) / std::max(Chan_Aij_div->assign(uint(1)), 1);
+        Chan_Aij_div->value = Chan_Aij_div->assign(uint64_t(0)) / std::max(Chan_Aij_div->assign(uint64_t(1)), 1);
 
         if (Chan_Aij_div->valid && Chan_Aij_div->channel.front().last)
         {

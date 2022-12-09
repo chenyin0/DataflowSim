@@ -116,7 +116,7 @@
 //
 //        // Initiation
 //        begin->get(1); // trigger
-//        uint iter = 0;
+//        uint64_t iter = 0;
 //
 //        int i = 0;
 //        int j = 0;

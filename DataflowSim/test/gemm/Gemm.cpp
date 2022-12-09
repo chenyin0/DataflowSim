@@ -7,16 +7,16 @@ Dfg GemmTest::dfg;
 //ChanGraph GemmTest::chanGraph;
 //ControlTree GemmTest::chanGraphControlTree;
 
-const uint GemmTest::matrix_width = 60;
-const uint GemmTest::matrix_height = matrix_width;
-const uint GemmTest::block_size = 15;
+const uint64_t GemmTest::matrix_width = 60;
+const uint64_t GemmTest::matrix_height = matrix_width;
+const uint64_t GemmTest::block_size = 15;
 
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
-const uint GemmTest::m1_BaseAddr = 0;
-const uint GemmTest::m2_BaseAddr = 164 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height;
-const uint GemmTest::partialSum_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height * 2;
-const uint GemmTest::prod_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width * matrix_height * 2;
+const uint64_t GemmTest::m1_BaseAddr = 0;
+const uint64_t GemmTest::m2_BaseAddr = 164 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height;
+const uint64_t GemmTest::partialSum_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height * 2;
+const uint64_t GemmTest::prod_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width * matrix_height * 2;
 
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;
@@ -28,16 +28,16 @@ vector<int> GemmTest::prod_;
 
 // Performance parameter
 // Base
-uint GemmTest::Base_loop_j_speedup = 1;
+uint64_t GemmTest::Base_loop_j_speedup = 1;
 
 // DGSF
-uint GemmTest::DGSF_loop_k_speedup = 1;
-uint GemmTest::DGSF_loop_j_speedup = 4;
+uint64_t GemmTest::DGSF_loop_k_speedup = 1;
+uint64_t GemmTest::DGSF_loop_j_speedup = 4;
 
 
 void GemmTest::generateData()
 {
-    uint size = matrix_width * matrix_height;
+    uint64_t size = matrix_width * matrix_height;
     m1.resize(matrix_height);
     m2.resize(matrix_height);
     result.resize(matrix_height);
@@ -56,7 +56,7 @@ void GemmTest::generateData()
     }
 
     // Auto-sim
-    uint size_ = matrix_width * matrix_height;
+    uint64_t size_ = matrix_width * matrix_height;
     m1_.resize(size);
     m2_.resize(size);
     prod_.resize(size);

@@ -5,16 +5,16 @@ using namespace DFSimTest;
 Dfg LudTest::dfg;
 
 vector<int> LudTest::matrix;
-uint LudTest::matrix_size = 50;
-uint LudTest::baseAddr = 0;
+uint64_t LudTest::matrix_size = 50;
+uint64_t LudTest::baseAddr = 0;
 
-uint LudTest::Base_outer_loop_speedup = 1;
-uint LudTest::Base_inner_loop_speedup = 4;
+uint64_t LudTest::Base_outer_loop_speedup = 1;
+uint64_t LudTest::Base_inner_loop_speedup = 4;
 
-uint LudTest::DGSF_outer_loop_speedup = 2;
-uint LudTest::DGSF_inner_loop_speedup = 4;
+uint64_t LudTest::DGSF_outer_loop_speedup = 2;
+uint64_t LudTest::DGSF_inner_loop_speedup = 4;
 
-uint LudTest::DGSF_outer_loop_buffer_size = 2;
+uint64_t LudTest::DGSF_outer_loop_buffer_size = 2;
 
 void LudTest::generateData()
 {

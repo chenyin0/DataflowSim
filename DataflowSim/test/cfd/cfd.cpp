@@ -4,21 +4,21 @@ using namespace DFSimTest;
 
 Dfg Cfd_Test::dfg;
 
-uint Cfd_Test::nelr = 4096;
-uint Cfd_Test::VAR_DENSITY = 0;
-uint Cfd_Test::VAR_MOMENTUM = 1;
-uint Cfd_Test::VAR_DENSITY_ENERGY = 1 + 3;
+uint64_t Cfd_Test::nelr = 4096;
+uint64_t Cfd_Test::VAR_DENSITY = 0;
+uint64_t Cfd_Test::VAR_MOMENTUM = 1;
+uint64_t Cfd_Test::VAR_DENSITY_ENERGY = 1 + 3;
 ;
-uint Cfd_Test::block_length = 10;
+uint64_t Cfd_Test::block_length = 10;
 vector<int> Cfd_Test::variables;
 vector<int> Cfd_Test::normals;
 
-uint Cfd_Test::variables_BaseAddr = 0;
-uint Cfd_Test::normals_BaseAddr = 256985;
+uint64_t Cfd_Test::variables_BaseAddr = 0;
+uint64_t Cfd_Test::normals_BaseAddr = 256985;
 
 void Cfd_Test::generateData()
 {
-    uint size = nelr + VAR_DENSITY_ENERGY * nelr;
+    uint64_t size = nelr + VAR_DENSITY_ENERGY * nelr;
     variables.resize(size);
     for (size_t i = 0; i < variables.size(); ++i)
     {

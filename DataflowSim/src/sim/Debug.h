@@ -56,21 +56,21 @@ namespace DFSim
 
         // Only print the last "num" elements
         template <typename T>
-        void vecPrint(const string name, const vector<T>& vec, const uint num)
+        void vecPrint(const string name, const vector<T>& vec, const uint64_t num)
         {
         }
 
         template <>
-        void vecPrint<int>(const string name, const vector<int>& data, const uint num)  
+        void vecPrint<int>(const string name, const vector<int>& data, const uint64_t num)  
         {
             if (debug_mode != Debug_mode::Turn_off)
             {
                 _output_file << std::endl;
                 _output_file << name << ": " << std::endl;
-                uint size = data.size();
+                uint64_t size = data.size();
                 if (size > 0)
                 {
-                    uint init_index = size - 1;
+                    uint64_t init_index = size - 1;
                     for (size_t i = 0; i < num; ++i)
                     {
                         if (init_index >= i)
@@ -87,7 +87,7 @@ namespace DFSim
             }
         }
 
-        static void throwError(const string errorDescrip, const string fileName, const uint lineNum);
+        static void throwError(const string errorDescrip, const string fileName, const uint64_t lineNum);
 
 
     public:
@@ -98,6 +98,6 @@ namespace DFSim
         std::ofstream _null_file;  // Used in Print_off, not print to log_file
 
         // Format parameter
-        uint MemSys_SetWidth = 7;  // Default set 7
+        uint64_t MemSys_SetWidth = 7;  // Default set 7
     };
 }

@@ -32,13 +32,13 @@ namespace DFSimTest
         static vector<int> x;
         static vector<int> y;
 
-        static const uint A_BaseAddr;
-        static const uint B_BaseAddr;
-        static const uint x_BaseAddr;
-        static const uint y_BaseAddr;
+        static const uint64_t A_BaseAddr;
+        static const uint64_t B_BaseAddr;
+        static const uint64_t x_BaseAddr;
+        static const uint64_t y_BaseAddr;
 
-        static const uint _PB_N;
-        static const uint alpha;
-        static const uint beta;
+        static const uint64_t _PB_N;
+        static const uint64_t alpha;
+        static const uint64_t beta;
     };
 }

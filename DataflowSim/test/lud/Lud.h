@@ -32,18 +32,18 @@ namespace DFSimTest
         static Dfg dfg;
 
         static vector<int> matrix;
-        static uint matrix_size;
-        static uint baseAddr;
+        static uint64_t matrix_size;
+        static uint64_t baseAddr;
 
         // Performance parameter
         // Base
-        static uint Base_outer_loop_speedup;
-        static uint Base_inner_loop_speedup;
+        static uint64_t Base_outer_loop_speedup;
+        static uint64_t Base_inner_loop_speedup;
 
         //DGSF
-        static uint DGSF_outer_loop_speedup;
-        static uint DGSF_inner_loop_speedup;
+        static uint64_t DGSF_outer_loop_speedup;
+        static uint64_t DGSF_inner_loop_speedup;
 
-        static uint DGSF_outer_loop_buffer_size;
+        static uint64_t DGSF_outer_loop_buffer_size;
     };
 }

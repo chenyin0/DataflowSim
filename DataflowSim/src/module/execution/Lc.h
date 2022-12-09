@@ -54,15 +54,15 @@ namespace DFSim
         string moduleName;
         string masterName;  // If this module affiliates to a upper module, store the name of it, or else store "None";
         ModuleType moduleTypr = ModuleType::Lc;
-        uint moduleId;
+        uint64_t moduleId;
         bool sel = 0;  // Sel for loop control, default set to select initial value
-        uint loopNum = 0; // loop number
-        uint loopEnd = 0; // the number of finished loop
-        uint currLoopId = 0; // If current loop Id == loop number, loop end
-        deque<uint> loopNumQ; // Store each loop number
+        uint64_t loopNum = 0; // loop number
+        uint64_t loopEnd = 0; // the number of finished loop
+        uint64_t currLoopId = 0; // If current loop Id == loop number, loop end
+        deque<uint64_t> loopNumQ; // Store each loop number
         bool isOuterMostLoop = 0;  // Signify this is the outer-most loop, used in assigning "lastOuter" to the outer-most loop 
         //deque<bool> getLastOuter;  // LC->cond gets a last from outer loop
-        uint subgraphId = 0;
+        uint64_t subgraphId = 0;
 
     public:
         ChanBase* getEnd = nullptr;
@@ -84,10 +84,10 @@ LcDGSF usage:
     //class LcDGSF : public Lc
     //{
     //public:
-    //    LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint _graphSize);
+    //    LcDGSF(ChanDGSF* _loopVar, ChanDGSF* _getEnd, ChanDGSF* _sendEnd, Mux* _mux, uint64_t _graphSize);
     //    ~LcDGSF();
     //    void loopUpdate() override;
-    //    uint graphSize;
+    //    uint64_t graphSize;
 
     //public:
     //    ChanDGSF* loopVar;  // 1) Get condition result; 2) Used as getActive and sendActive;

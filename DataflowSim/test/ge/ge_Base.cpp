@@ -28,7 +28,7 @@ void Ge_Test::ge_Base(Debug* debug)
     ChanGraph chanGraph(Ge_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 4;
+    uint64_t splitNum = 4;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Ge_Test::graphPartition(chanGraph, splitNum);
@@ -131,15 +131,15 @@ void Ge_Test::ge_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_t->getEnd, Lc_j->getEnd, Lc_i->getEnd, Lc_k->getEnd, Lc_i1->getEnd, Lc_j1->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     // Pre-defined
     Lc_i1->loopVar->enable = 0;
-    uint graphSwitchCntAdditional = 0;
+    uint64_t graphSwitchCntAdditional = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -179,10 +179,10 @@ void Ge_Test::ge_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_t_lc1->get();	// Nop	[0]Lc_t 
-        Chan_t_lc1->value = Chan_t_lc1->assign(uint(0));
+        Chan_t_lc1->value = Chan_t_lc1->assign(uint64_t(0));
 
         Chan_t_lc2->get();	// Nop	[0]Lc_t 
-        Chan_t_lc2->value = Chan_t_lc2->assign(uint(0));
+        Chan_t_lc2->value = Chan_t_lc2->assign(uint64_t(0));
 
         // Lc: Lc_j
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 1, Lc_j->sel);
@@ -203,16 +203,16 @@ void Ge_Test::ge_Base(Debug* debug)
         Lc_i1->lcUpdate(Lc_i1->var >= 1);
 
         Chan_j_lc->get();	// Nop	[0]Lc_j 
-        Chan_j_lc->value = Chan_j_lc->assign(uint(0));
+        Chan_j_lc->value = Chan_j_lc->assign(uint64_t(0));
 
         Chan_j_n->get();	// Mul	[0]Lc_j 
-        Chan_j_n->value = Chan_j_n->assign(uint(0)) * matrix_size;
+        Chan_j_n->value = Chan_j_n->assign(uint64_t(0)) * matrix_size;
 
         Chan_i1_lc->get();	// Nop	[0]Lc_i1 
-        Chan_i1_lc->value = Chan_i1_lc->assign(uint(0));
+        Chan_i1_lc->value = Chan_i1_lc->assign(uint64_t(0));
 
         Chan_i1_n->get();	// Mul	[0]Lc_i1 
-        Chan_i1_n->value = Chan_i1_n->assign(uint(0)) * matrix_size;
+        Chan_i1_n->value = Chan_i1_n->assign(uint64_t(0)) * matrix_size;
 
         // Lc: Lc_i
         Lc_i->var = Lc_i->mux->mux(Lc_i->var, Lc_j->loopVar->upstream[1]->value + 1, Lc_i->sel);
@@ -224,7 +224,7 @@ void Ge_Test::ge_Base(Debug* debug)
         Lc_i->lcUpdate(Lc_i->var <= matrix_size);
 
         Chan_j_n_shadow->get();	// Nop	[0]Chan_j_n 
-        Chan_j_n_shadow->value = Chan_j_n_shadow->assign(uint(0));
+        Chan_j_n_shadow->value = Chan_j_n_shadow->assign(uint64_t(0));
 
         // Lc: Lc_j1
         Lc_j1->var = Lc_j1->mux->mux(Lc_j1->var, Lc_j1->loopVar->upstream[1]->value + 1, Lc_j1->sel);
@@ -236,25 +236,25 @@ void Ge_Test::ge_Base(Debug* debug)
         Lc_j1->lcUpdate(Lc_j1->var <= matrix_size);
 
         Chan_i1_n_shadow->get();	// Nop	[0]Chan_i1_n 
-        Chan_i1_n_shadow->value = Chan_i1_n_shadow->assign(uint(0));
+        Chan_i1_n_shadow->value = Chan_i1_n_shadow->assign(uint64_t(0));
 
         Chan_i_lc->get();	// Nop	[0]Lc_i 
-        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 
         Chan_i_n->get();	// Mul	[0]Lc_i 
-        Chan_i_n->value = Chan_i_n->assign(uint(0)) * matrix_size;
+        Chan_i_n->value = Chan_i_n->assign(uint64_t(0)) * matrix_size;
 
         Chan_j_lc_scatter_loop_i->get();	// Nop	[0]Chan_j_lc 
-        Chan_j_lc_scatter_loop_i->value = Chan_j_lc_scatter_loop_i->assign(uint(0));
+        Chan_j_lc_scatter_loop_i->value = Chan_j_lc_scatter_loop_i->assign(uint64_t(0));
 
         Chan_j_n_shadow_scatter_loop_i->get();	// Nop	[0]Chan_j_n_shadow 
-        Chan_j_n_shadow_scatter_loop_i->value = Chan_j_n_shadow_scatter_loop_i->assign(uint(0));
+        Chan_j_n_shadow_scatter_loop_i->value = Chan_j_n_shadow_scatter_loop_i->assign(uint64_t(0));
 
         Lse_x_j1->get();	// Load	[0]Lc_j1 
         Lse_x_j1->value = x[Lse_x_j1->assign()];
 
         Chan_i1_n_shadow_scatter_loop_j1->get();	// Nop	[0]Chan_i1_n_shadow 
-        Chan_i1_n_shadow_scatter_loop_j1->value = Chan_i1_n_shadow_scatter_loop_j1->assign(uint(0));
+        Chan_i1_n_shadow_scatter_loop_j1->value = Chan_i1_n_shadow_scatter_loop_j1->assign(uint64_t(0));
 
         // Lc: Lc_k
         Lc_k->var = Lc_k->mux->mux(Lc_k->var, 1, Lc_k->sel);
@@ -266,25 +266,25 @@ void Ge_Test::ge_Base(Debug* debug)
         Lc_k->lcUpdate(Lc_k->var <= matrix_size + 1);
 
         Chan_addr_jj->get();	// Add	[0]Chan_j_n_scatter_loop_i [1]Lc_j 
-        Chan_addr_jj->value = Chan_addr_jj->assign(uint(0)) + Chan_addr_jj->assign(uint(1));
+        Chan_addr_jj->value = Chan_addr_jj->assign(uint64_t(0)) + Chan_addr_jj->assign(uint64_t(1));
 
         Chan_addr_i1n1->get();	// Add	[0]Chan_i1_n_scatter_loop_j1 
-        Chan_addr_i1n1->value = Chan_addr_i1n1->assign(uint(0)) + matrix_size + 1;
+        Chan_addr_i1n1->value = Chan_addr_i1n1->assign(uint64_t(0)) + matrix_size + 1;
 
         Chan_addr_i1i1->get();	// Add	[0]Chan_i1_n_scatter_loop_j1 [1]Lc_i1 
-        Chan_addr_i1i1->value = Chan_addr_i1i1->assign(uint(0)) + Chan_addr_i1i1->assign(uint(1));
+        Chan_addr_i1i1->value = Chan_addr_i1i1->assign(uint64_t(0)) + Chan_addr_i1i1->assign(uint64_t(1));
 
         Chan_addr_i1j1->get();	// Add	[0]Chan_i1_n_scatter_loop_j1 [1]Lc_j1 
-        Chan_addr_i1j1->value = Chan_addr_i1j1->assign(uint(0)) + Chan_addr_i1j1->assign(uint(1));
+        Chan_addr_i1j1->value = Chan_addr_i1j1->assign(uint64_t(0)) + Chan_addr_i1j1->assign(uint64_t(1));
 
         Chan_addr_jj_scatter_loop_i->get();	// Nop	[0]Chan_addr_jj 
-        Chan_addr_jj_scatter_loop_i->value = Chan_addr_jj_scatter_loop_i->assign(uint(0));
+        Chan_addr_jj_scatter_loop_i->value = Chan_addr_jj_scatter_loop_i->assign(uint64_t(0));
 
         Chan_j_n_shadow_relay_loop_i->get();	// Nop	[0]Chan_j_n_shadow_scatter_loop_i 
-        Chan_j_n_shadow_relay_loop_i->value = Chan_j_n_shadow_relay_loop_i->assign(uint(0));
+        Chan_j_n_shadow_relay_loop_i->value = Chan_j_n_shadow_relay_loop_i->assign(uint64_t(0));
 
         Chan_j_n_shadow_relay_loop_i_scatter_loop_k->get();	// Nop	[0]Chan_j_n_shadow_relay_loop_i 
-        Chan_j_n_shadow_relay_loop_i_scatter_loop_k->value = Chan_j_n_shadow_relay_loop_i_scatter_loop_k->assign(uint(0));
+        Chan_j_n_shadow_relay_loop_i_scatter_loop_k->value = Chan_j_n_shadow_relay_loop_i_scatter_loop_k->assign(uint64_t(0));
 
         Lse_A_i1n1->get();	// Load	[0]Chan_addr_i1n1 
         Lse_A_i1n1->value = A[Lse_A_i1n1->assign()];
@@ -296,25 +296,25 @@ void Ge_Test::ge_Base(Debug* debug)
         Lse_A_i1j1->value = A[Lse_A_i1j1->assign()];
 
         Chan_addr_ij->get();	// Add	[0]Chan_i_n_scatter_loop_k [1]Chan_j_lc_scatter_loop_i 
-        Chan_addr_ij->value = Chan_addr_ij->assign(uint(0)) + Chan_addr_ij->assign(uint(1));
+        Chan_addr_ij->value = Chan_addr_ij->assign(uint64_t(0)) + Chan_addr_ij->assign(uint64_t(1));
 
         Chan_i_n_shadow->get();	// Nop	[0]Chan_i_n_scatter_loop_k 
-        Chan_i_n_shadow->value = Chan_i_n_shadow->assign(uint(0));
+        Chan_i_n_shadow->value = Chan_i_n_shadow->assign(uint64_t(0));
 
         Chan_addr_ik->get();	// Add	[0]Chan_i_n_scatter_loop_k [1]Lc_k 
-        Chan_addr_ik->value = Chan_addr_ik->assign(uint(0)) + Chan_addr_ik->assign(uint(1));
+        Chan_addr_ik->value = Chan_addr_ik->assign(uint64_t(0)) + Chan_addr_ik->assign(uint64_t(1));
 
         Lse_A_jj->get();	// Load	[0]Chan_addr_jj_scatter_loop_i 
         Lse_A_jj->value = A[Lse_A_jj->assign()];
 
         Chan_addr_jk->get();	// Add	[0]Lc_k [1]Chan_j_n_relay_loop_i_scatter_loop_k 
-        Chan_addr_jk->value = Chan_addr_jk->assign(uint(0)) + Chan_addr_jk->assign(uint(1));
+        Chan_addr_jk->value = Chan_addr_jk->assign(uint64_t(0)) + Chan_addr_jk->assign(uint64_t(1));
 
         Chan_A_i1j1_x_j1->get();	// Mul	[0]Lse_A_i1j1 [1]Lse_x_j1 
-        Chan_A_i1j1_x_j1->value = Chan_A_i1j1_x_j1->assign(uint(0)) * Chan_A_i1j1_x_j1->assign(uint(1));
+        Chan_A_i1j1_x_j1->value = Chan_A_i1j1_x_j1->assign(uint64_t(0)) * Chan_A_i1j1_x_j1->assign(uint64_t(1));
 
         Chan_i_n_shadow_scatter_loop_k->get();	// Nop	[0]Chan_i_n_shadow 
-        Chan_i_n_shadow_scatter_loop_k->value = Chan_i_n_shadow_scatter_loop_k->assign(uint(0));
+        Chan_i_n_shadow_scatter_loop_k->value = Chan_i_n_shadow_scatter_loop_k->assign(uint64_t(0));
 
         Lse_A_ij->get();	// Load	[0]Chan_addr_ij 
         Lse_A_ij->value = A[Lse_A_ij->assign()];
@@ -326,30 +326,30 @@ void Ge_Test::ge_Base(Debug* debug)
         Lse_A_jk->value = A[Lse_A_jk->assign()];
 
         Chan_sum_update->get();	// Add	[0]Chan_A_i1j1_x_j1 
-        Chan_sum_update->value = Chan_sum_update->assign(uint(0)) + Chan_sum_update->value;
+        Chan_sum_update->value = Chan_sum_update->assign(uint64_t(0)) + Chan_sum_update->value;
 
         Chan_c->get();	// Div	[0]Lse_A_ij [1]Lse_A_jj 
-        Chan_c->value = Chan_c->assign(uint(0)) / std::max(Chan_c->assign(uint(1)), 1);
+        Chan_c->value = Chan_c->assign(uint64_t(0)) / std::max(Chan_c->assign(uint64_t(1)), 1);
 
         //Lse_A_ik_update_store->get();	// Store	[0]Chan_addr_ik [1]Chan_A_ik_update 
 
         Chan_a_sum_shadow->get();	// Nop	[0]Chan_sum_update 
-        Chan_a_sum_shadow->value = Chan_a_sum_shadow->assign(uint(0));
+        Chan_a_sum_shadow->value = Chan_a_sum_shadow->assign(uint64_t(0));
 
         Chan_a_sum->get();	// Sub	[0]Lse_A_i1n1 [1]Chan_sum_update 
-        Chan_a_sum->value = Chan_a_sum->assign(uint(0)) - Chan_a_sum->assign(uint(1));
+        Chan_a_sum->value = Chan_a_sum->assign(uint64_t(0)) - Chan_a_sum->assign(uint64_t(1));
 
         Chan_c_scatter_loop_k->get();	// Nop	[0]Chan_c 
-        Chan_c_scatter_loop_k->value = Chan_c_scatter_loop_k->assign(uint(0));
+        Chan_c_scatter_loop_k->value = Chan_c_scatter_loop_k->assign(uint64_t(0));
 
         Chan_x_i1->get();	// Div	[0]Chan_a_sum [1]Lse_A_i1i1 
-        Chan_x_i1->value = Chan_x_i1->assign(uint(0)) / std::max(Chan_x_i1->assign(uint(1)), 1);
+        Chan_x_i1->value = Chan_x_i1->assign(uint64_t(0)) / std::max(Chan_x_i1->assign(uint64_t(1)), 1);
 
         Chan_c_A_jk->get();	// Mul	[0]Chan_c_scatter_loop_k [1]Lse_A_jk 
-        Chan_c_A_jk->value = Chan_c_A_jk->assign(uint(0)) * Chan_c_A_jk->assign(uint(1));
+        Chan_c_A_jk->value = Chan_c_A_jk->assign(uint64_t(0)) * Chan_c_A_jk->assign(uint64_t(1));
 
         Chan_A_ik_update->get();	// Sub	[0]Lse_A_ik [1]Chan_c_A_jk 
-        Chan_A_ik_update->value = Chan_A_ik_update->assign(uint(0)) - Chan_A_ik_update->assign(uint(1));
+        Chan_A_ik_update->value = Chan_A_ik_update->assign(uint64_t(0)) - Chan_A_ik_update->assign(uint64_t(1));
 
         //Lse_x_i1_store->get();	// Store	[0]Lc_i1_DGSF [1]Chan_x_i1_DGSF 
 

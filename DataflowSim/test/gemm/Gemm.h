@@ -93,14 +93,14 @@ namespace DFSimTest
         //static ChanGraph chanGraph;
         //static ControlTree chanGraphControlTree;
 
-        static const uint matrix_width;
-        static const uint matrix_height;
-        static const uint block_size;
+        static const uint64_t matrix_width;
+        static const uint64_t matrix_height;
+        static const uint64_t block_size;
 
-        static const uint m1_BaseAddr;
-        static const uint m2_BaseAddr;
-        static const uint partialSum_BaseAddr;
-        static const uint prod_BaseAddr;
+        static const uint64_t m1_BaseAddr;
+        static const uint64_t m2_BaseAddr;
+        static const uint64_t partialSum_BaseAddr;
+        static const uint64_t prod_BaseAddr;
 
         static vector<vector<int>> m1;
         static vector<vector<int>> m2;
@@ -112,10 +112,10 @@ namespace DFSimTest
 
         // Performance parameter
         // Base
-        static uint Base_loop_j_speedup;
+        static uint64_t Base_loop_j_speedup;
 
         // DGSF
-        static uint DGSF_loop_k_speedup;
-        static uint DGSF_loop_j_speedup;
+        static uint64_t DGSF_loop_k_speedup;
+        static uint64_t DGSF_loop_j_speedup;
     };
 }

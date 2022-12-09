@@ -6,9 +6,9 @@ Dfg Ge_Test::dfg;
 
 vector<int> Ge_Test::A;
 vector<int> Ge_Test::x;
-uint Ge_Test::matrix_size = 60;
-uint Ge_Test::baseAddr_A = 0;
-uint Ge_Test::baseAddr_x = 56847;
+uint64_t Ge_Test::matrix_size = 60;
+uint64_t Ge_Test::baseAddr_A = 0;
+uint64_t Ge_Test::baseAddr_x = 56847;
 
 void Ge_Test::generateData()
 {

@@ -187,7 +187,7 @@ void Spm::mem_req_complete(MemReq _req)
 
 //// For debug
 //#ifdef DEBUG_MODE
-//const vector<pair<MemReq, uint>>& Spm::getReqQueue() const
+//const vector<pair<MemReq, uint64_t>>& Spm::getReqQueue() const
 //{
 //    return reqQueue;
 //}

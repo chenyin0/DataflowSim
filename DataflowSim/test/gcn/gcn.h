@@ -29,11 +29,11 @@ namespace DFSimTest
         static void generateDfg();  // Generate Dfg with control tree
         static void graphPartition(ChanGraph& chanGraph, int partitionNum);
 
-        static void readMemTrace(deque<uint>& queue, const string& filePath);  // Read memory access trace
-        static void readMemTraceByCol(vector<deque<uint>>& queue, const string& filePath);
-        static bool readMemTraceByCol_blocked(vector<deque<uint>>& queue, const string& filePath, const uint& block_line_size, uint& line_id);
-        static void injectMemTrace(Channel* producerChan, Channel* consumerLse, deque<uint>& addr_q);  // Inject mem trace into Lse
-        static void bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint>& delay_qm, const string& arch_name);  // Bind delay (cycle) to data
+        static void readMemTrace(deque<uint64_t>& queue, const string& filePath);  // Read memory access trace
+        static void readMemTraceByCol(vector<deque<uint64_t>>& queue, const string& filePath);
+        static bool readMemTraceByCol_blocked(vector<deque<uint64_t>>& queue, const string& filePath, const uint64_t& block_line_size, uint64_t& line_id);
+        static void injectMemTrace(Channel* producerChan, Channel* consumerLse, deque<uint64_t>& addr_q);  // Inject mem trace into Lse
+        static void bindDelay(Channel* producerChan, Channel* consumeChan, deque<uint64_t>& delay_qm, const string& arch_name);  // Bind delay (cycle) to data
 
         // Construct DFG and chanGraph
         static Dfg dfg;
@@ -42,29 +42,29 @@ namespace DFSimTest
         static vector<int> indPtr;
         static vector<int> indices;
         static vector<int> feat;
-        static uint vertex_num;
-        static uint ngh_num;
+        static uint64_t vertex_num;
+        static uint64_t ngh_num;
 
-        static const uint indPtr_BaseAddr;
-        static const uint indices_BaseAddr;
-        static const uint feat_BaseAddr;
-        static uint feat_length;
+        static const uint64_t indPtr_BaseAddr;
+        static const uint64_t indices_BaseAddr;
+        static const uint64_t feat_BaseAddr;
+        static uint64_t feat_length;
 
         //static string dataset_name;
         //static string arch_name;
 
         // Performance parameter
         // Base
-        static uint speedup_aggr;
-        static uint speedup_combine;
-        static uint speedup_active;
+        static uint64_t speedup_aggr;
+        static uint64_t speedup_combine;
+        static uint64_t speedup_active;
         
-        static uint buffer_access_cnt;
-        static uint deg_th;
+        static uint64_t buffer_access_cnt;
+        static uint64_t deg_th;
 
         // Systolic array parameter
         // PE number = width * length
-        static uint systolic_array_width;
-        static uint systolic_array_length;
+        static uint64_t systolic_array_width;
+        static uint64_t systolic_array_length;
     };
 }

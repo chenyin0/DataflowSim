@@ -134,7 +134,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
     registry->init();  // Update registry and initial all the module in registry
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     int i = 0;
     int j = 0;
@@ -143,14 +143,14 @@ void BfsTest::bfs_SGMF(Debug* debug)
     Data data;
     data.valid = 1;
     data.value = initialNode;
-    uint queueBufferId = chan_queue->getChanId(chan_check_mark);
+    uint64_t queueBufferId = chan_queue->getChanId(chan_check_mark);
     chan_queue->chanBuffer[queueBufferId].push_back(data);
 
-    uint nodeCnt = 0;
+    uint64_t nodeCnt = 0;
 
-    uint max_iter = 200000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 200000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
     // Execute
     while (iter < max_iter)
@@ -192,8 +192,8 @@ void BfsTest::bfs_SGMF(Debug* debug)
         chan_peek->value = chan_peek->assign(lse_ld_node) - nodeBaseAddr;  // Addr -> index
 
         //** Loop Lc_j
-        uint edgeBegin = nodes[chan_peek->value].begin;
-        uint edgeEnd = nodes[chan_peek->value].end;
+        uint64_t edgeBegin = nodes[chan_peek->value].begin;
+        uint64_t edgeEnd = nodes[chan_peek->value].end;
 
         j = lc_j->mux->mux(j, edgeBegin, lc_j->sel);
         //std::cout << j << std::endl;
@@ -217,14 +217,14 @@ void BfsTest::bfs_SGMF(Debug* debug)
         lse_ld_edge->value = lse_ld_edge->assign() - edgeBaseAddr;  // Addr -> index
 
         chan_level_addr->get();
-        uint edgeIndex = chan_level_addr->assign(lse_ld_edge);
+        uint64_t edgeIndex = chan_level_addr->assign(lse_ld_edge);
         chan_level_addr->value = edges[edgeIndex].dst + levelBaseAddr;
 
         lse_ld_level->get();
         lse_ld_level->value = lse_ld_level->assign() - levelBaseAddr;
 
         chan_check_mark->get();
-        uint levelIndex = chan_check_mark->assign(lse_ld_level);
+        uint64_t levelIndex = chan_check_mark->assign(lse_ld_level);
 
         if (level[levelIndex] == -1)
         {

@@ -444,7 +444,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     graphScheduler->schedulerInit();  // Initial graph scheduler
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     //int jj = 0;
     //int kk = 0;
@@ -455,13 +455,13 @@ void GemmTest::gemm_DGSF(Debug* debug)
     vector<int> res;  // Result
     vector<int> temp; // temp_result
 
-    uint graphId = 0; // For debug
-    vector<pair<uint, uint>> subgraphRecord;  // For debug
+    uint64_t graphId = 0; // For debug
+    vector<pair<uint64_t, uint64_t>> subgraphRecord;  // For debug
 
-    uint max_iter = /*53248;*/6888290;
-    uint segment = max_iter / 100;
-    uint percent = 0;
-    uint clk = 0;
+    uint64_t max_iter = /*53248;*/6888290;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
+    uint64_t clk = 0;
 
     //*** Record run time
     clock_t startTime, endTime;
@@ -594,8 +594,8 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lse_ld_m1->value = lse_ld_m1->assign() - m1_BaseAddr;
 
         chan_m1_getData_DGSF_LOOP->get();
-        uint m1_rowId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) / matrix_width;
-        uint m1_colId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) % matrix_width;
+        uint64_t m1_rowId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) / matrix_width;
+        uint64_t m1_colId = chan_m1_getData_DGSF_LOOP->assign(lse_ld_m1) % matrix_width;
         int m1_data = m1[m1_rowId][m1_colId];
         chan_m1_getData_DGSF_LOOP->value = m1_data;
 
@@ -640,9 +640,9 @@ void GemmTest::gemm_DGSF(Debug* debug)
         chan_m1_getData_DGSF_DAE->value = chan_m1_getData_DGSF_DAE->assign(chan_m1_getData_DGSF_DAE_temp);
 
         chan_mul->get();
-        uint m2_addr_ack = chan_mul->assign(lse_ld_m2_DGSF_DAE);
-        uint m2_rowId = m2_addr_ack / matrix_width;
-        uint m2_colId = m2_addr_ack % matrix_width;
+        uint64_t m2_addr_ack = chan_mul->assign(lse_ld_m2_DGSF_DAE);
+        uint64_t m2_rowId = m2_addr_ack / matrix_width;
+        uint64_t m2_colId = m2_addr_ack % matrix_width;
         int m2_data = m2[m2_rowId][m2_colId];
         chan_mul->value = chan_mul->assign(chan_m1_getData_DGSF_DAE) * m2_data;
 
@@ -659,9 +659,9 @@ void GemmTest::gemm_DGSF(Debug* debug)
         lse_ld_partialSum->value = lse_ld_partialSum->assign() - partialSum_BaseAddr;
 
         chan_partialSum->get();
-        uint partialSum_addr_ack = chan_partialSum->assign(lse_ld_partialSum);
-        uint partialSum_rowId = partialSum_addr_ack / matrix_width;
-        uint partialSum_colId = partialSum_addr_ack % matrix_width;
+        uint64_t partialSum_addr_ack = chan_partialSum->assign(lse_ld_partialSum);
+        uint64_t partialSum_rowId = partialSum_addr_ack / matrix_width;
+        uint64_t partialSum_colId = partialSum_addr_ack % matrix_width;
         int partialSum_data = m2[partialSum_rowId][partialSum_colId];
         chan_partialSum->value = chan_partialSum->assign(chan_mul_delay) + partialSum_data;
 
@@ -848,15 +848,15 @@ void GemmTest::gemm_DGSF(Debug* debug)
 
     debug->getFile() << "******* Channel Utilization *********" << std::endl;
 
-    uint chanNum = 0;
-    uint avgWeight = 0;
+    uint64_t chanNum = 0;
+    uint64_t avgWeight = 0;
     float chanUtilAvg = 0;
-    uint chanActiveNumTotal = 0;
+    uint64_t chanActiveNumTotal = 0;
     for (auto& entry : registry->getRegistryTable())
     {
         if (entry.moduleType == ModuleType::Channel && entry.chanPtr->subgraphId != 100)
         {
-            uint activeNum = entry.chanPtr->activeCnt;
+            uint64_t activeNum = entry.chanPtr->activeCnt;
             float utilization = std::min(static_cast<float>(activeNum) / static_cast<float>((entry.chanPtr->speedup * entry.chanPtr->activeClkCnt)) * 100, float(100));
             //debug->getFile() << "ChanName: " << entry.chanPtr->moduleName << "\t" << std::fixed << utilization << std::setprecision(2) << "%" << std::endl;
 
@@ -925,7 +925,7 @@ void GemmTest::gemm_DGSF(Debug* debug)
     debug->getFile() << "*******************************" << std::endl;
     debug->getFile() << "Subgraph switch record: " << std::endl;
     debug->getFile() << std::endl;
-    uint deltaTime = 0;
+    uint64_t deltaTime = 0;
     for (size_t i = 0; i < subgraphRecord.size(); ++i)
     {
         auto item = subgraphRecord[i];

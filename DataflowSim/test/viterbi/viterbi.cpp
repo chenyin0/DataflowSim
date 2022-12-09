@@ -4,13 +4,13 @@ using namespace DFSimTest;
 
 Dfg Viterbi_Test::dfg;
 
-const uint Viterbi_Test::N_OBS = 50;
-const uint Viterbi_Test::N_STATES = 50;
-const uint Viterbi_Test::N_TOKENS = 50;
+const uint64_t Viterbi_Test::N_OBS = 50;
+const uint64_t Viterbi_Test::N_STATES = 50;
+const uint64_t Viterbi_Test::N_TOKENS = 50;
 
-const uint Viterbi_Test::llike_BaseAddr = 0;
-const uint Viterbi_Test::transition_BaseAddr = 21648;
-const uint Viterbi_Test::emission_BaseAddr = 497516;
+const uint64_t Viterbi_Test::llike_BaseAddr = 0;
+const uint64_t Viterbi_Test::transition_BaseAddr = 21648;
+const uint64_t Viterbi_Test::emission_BaseAddr = 497516;
 
 vector<int> Viterbi_Test::obs;
 vector<int> Viterbi_Test::llike;

@@ -32,7 +32,7 @@ Address bit fields:
 #include "Mshr.h"
 
 typedef unsigned char _u8;
-//typedef unsigned long long uint;
+//typedef unsigned long long uint64_t;
 
 namespace DFSim
 {
@@ -41,18 +41,18 @@ namespace DFSim
     //enum class Cache_write_strategy;
     //enum class Cache_write_allocate;
 
-    using ReqQueueBank = deque<pair<CacheReq, uint>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
+    using ReqQueueBank = deque<pair<CacheReq, uint64_t>>;  // Emulate bank conflict, <CacheReq, cache_access_latency[level]>
 
     class Cache_Line
     {
     public:
-        uint tag;
+        uint64_t tag;
         /** fifo_count records the first access time£¬lru_count records the last access time */
         union
         {
-            uint count;
-            uint lru_count;
-            uint fifo_count;
+            uint64_t count;
+            uint64_t lru_count;
+            uint64_t fifo_count;
         };
         _u8 flag;
         //_u8* buf;
@@ -66,7 +66,7 @@ namespace DFSim
 
         // Interface function for MemSystem
         bool addTransaction(MemReq _req);  // Add transaction to Cache
-        MemReq callBack(uint ackQueueId);  // Get memory access results from Cache
+        MemReq callBack(uint64_t ackQueueId);  // Get memory access results from Cache
 
         // Interface func with DRAM
         //void sendReq2Mem(DRAMSim::MultiChannelMemorySystem* mem);  // Send memory req to DRAM (DRAMSim2)
@@ -86,38 +86,38 @@ namespace DFSim
     private:
         void init();
         void config_check();  // Check whether parameters are configured correctly
-        int check_cache_hit(uint set_base, uint addr, int level);
+        int check_cache_hit(uint64_t set_base, uint64_t addr, int level);
         /** Get the free cacheline of current set */
-        int get_cache_free_line(uint set_base, int level);
+        int get_cache_free_line(uint64_t set_base, int level);
         /** Write to this cacheline */
-        void set_cache_line(uint index, uint addr, int level);
+        void set_cache_line(uint64_t index, uint64_t addr, int level);
         ///** Analyze a operation */
-        //void do_cache_op(uint addr, Cache_operation oper_style);
+        //void do_cache_op(uint64_t addr, Cache_operation oper_style);
         ///** Read trace files */
         //void load_trace(const char* filename);
 
         /**lock a cache line*/
-        int lock_cache_line(uint addr, int level);
+        int lock_cache_line(uint64_t addr, int level);
         /**unlock a cache line*/
-        int unlock_cache_line(uint addr, int level);
+        int unlock_cache_line(uint64_t addr, int level);
 
         //void re_init();
 
         CacheReq transMemReq2CacheReq(const MemReq& memReq);
         MemReq transCacheReq2MemReq(const CacheReq& cacheReq);
 
-        uint getCacheTag(const uint addr, const uint level);
-        uint getCacheSetIndex(const uint addr, const uint level);
+        uint64_t getCacheTag(const uint64_t addr, const uint64_t level);
+        uint64_t getCacheSetIndex(const uint64_t addr, const uint64_t level);
     public:
-        uint getCacheBank(const uint addr, const uint level);
-        uint getCacheBlockId(const uint addr, const uint level);  // For memSystem coalescing
+        uint64_t getCacheBank(const uint64_t addr, const uint64_t level);
+        uint64_t getCacheBlockId(const uint64_t addr, const uint64_t level);  // For memSystem coalescing
     private:
-        uint getCacheBlockOffset(const uint addr, const uint level);
-        bool sendReq2CacheBank(const CacheReq cacheReq, const uint level);
-        //bool addrCoaleseCheck(const uint addr, const uint level);
+        uint64_t getCacheBlockOffset(const uint64_t addr, const uint64_t level);
+        bool sendReq2CacheBank(const CacheReq cacheReq, const uint64_t level);
+        //bool addrCoaleseCheck(const uint64_t addr, const uint64_t level);
         bool sendReq2reqQueue2Mem(const CacheReq cacheReq);
-        bool setCacheBlock(uint addr, uint level);  // Set a cacheblock which the addr belongs to a specific cache level 
-        bool writeBackDirtyCacheline(const uint tag, const uint setIndex, const uint level);
+        bool setCacheBlock(uint64_t addr, uint64_t level);  // Set a cacheblock which the addr belongs to a specific cache level 
+        bool writeBackDirtyCacheline(const uint64_t tag, const uint64_t setIndex, const uint64_t level);
 
         //void updateReqQueueOfCacheLevel();
         //void updateCacheLine();
@@ -133,10 +133,10 @@ namespace DFSim
         const vector<vector<deque<CacheReq>>>& getAckQueue() const { return DFSim::Cache::ackQueue; }
         const deque<MemReq>& getReqQueue2Mem() const { return reqQueue2Mem; }
         const vector<Mshr>& getMshr() const { return mshr; }
-        const uint& getCacheAccessCnt() const { return cacheAccessCnt; }
-        const uint& getMemAccessCnt() const { return memAccessCnt; }
-        const vector<uint>& getReqQueueSizePerBank() const { return reqQueueSizePerBank; }
-        const vector<uint>& getAckQueueSizePerBank() const { return ackQueueSizePerBank; }
+        const uint64_t& getCacheAccessCnt() const { return cacheAccessCnt; }
+        const uint64_t& getMemAccessCnt() const { return memAccessCnt; }
+        const vector<uint64_t>& getReqQueueSizePerBank() const { return reqQueueSizePerBank; }
+        const vector<uint64_t>& getAckQueueSizePerBank() const { return ackQueueSizePerBank; }
 #endif // DEBUG_MODE
 
     private:
@@ -152,15 +152,15 @@ namespace DFSim
 
 #if (CACHE_MAXLEVEL == 2)
         // 2 level cache
-        vector<uint> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
-        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
-        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
+        vector<uint64_t> a_cache_size = { CACHE_SIZE_L1, CACHE_SIZE_L2 };  // Cache size of each level (byte)
+        vector<uint64_t> a_cache_line_size = { CACHE_LINE_SIZE_L1, CACHE_LINE_SIZE_L2 };  // Cacheline size of each level (byte)
+        vector<uint64_t> a_mapping_ways = { CACHE_MAPPING_WAY_L1, CACHE_MAPPING_WAY_L2 };  // Way number in each set
 
-        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };
-        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
-        vector<uint> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
-        vector<pair<uint, uint>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
+        vector<uint64_t> cache_access_latency = { CACHE_ACCESS_LATENCY_L1, CACHE_ACCESS_LATENCY_L2 };  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint64_t> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1, CACHE_REQ_Q_SIZE_PER_BANK_L2 };
+        vector<uint64_t> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1, CACHE_ACK_Q_SIZE_PER_BANK_L2 };
+        vector<uint64_t> bankNum = { CACHE_BANK_NUM_L1, CACHE_BANK_NUM_L2 };  // L1 = 8, L2 = 16
+        vector<pair<uint64_t, uint64_t>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1),
                                                  std::make_pair(CACHE_MSHR_ENTRY_NUM_L2, CACHE_MSHR_SIZE_PER_ENTRY_L2) };
 
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU , Cache_swap_style::CACHE_SWAP_LRU };
@@ -169,15 +169,15 @@ namespace DFSim
 
 #elif (CACHE_MAXLEVEL == 1)
         // 1 level cache
-        vector<uint> a_cache_size = { CACHE_SIZE_L1 };  // Cache size of each level (byte)
-        vector<uint> a_cache_line_size = { CACHE_LINE_SIZE_L1 };  // Cacheline size of each level (byte)
-        vector<uint> a_mapping_ways = { CACHE_MAPPING_WAY_L1 };  // Way number in each set
+        vector<uint64_t> a_cache_size = { CACHE_SIZE_L1 };  // Cache size of each level (byte)
+        vector<uint64_t> a_cache_line_size = { CACHE_LINE_SIZE_L1 };  // Cacheline size of each level (byte)
+        vector<uint64_t> a_mapping_ways = { CACHE_MAPPING_WAY_L1 };  // Way number in each set
 
-        vector<uint> cache_access_latency = { CACHE_ACCESS_LATENCY_L1 };  // L1 cycle = 1; L2 cycle = 4;
-        vector<uint> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1 };
-        vector<uint> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1 };
-        vector<uint> bankNum = { CACHE_BANK_NUM_L1 };  // L1 = 8, L2 = 16
-        vector<pair<uint, uint>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1) };
+        vector<uint64_t> cache_access_latency = { CACHE_ACCESS_LATENCY_L1 };  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint64_t> reqQueueSizePerBank = { CACHE_REQ_Q_SIZE_PER_BANK_L1 };
+        vector<uint64_t> ackQueueSizePerBank = { CACHE_ACK_Q_SIZE_PER_BANK_L1 };
+        vector<uint64_t> bankNum = { CACHE_BANK_NUM_L1 };  // L1 = 8, L2 = 16
+        vector<pair<uint64_t, uint64_t>> mshrPara = { std::make_pair(CACHE_MSHR_ENTRY_NUM_L1, CACHE_MSHR_SIZE_PER_ENTRY_L1) };
 
         vector<Cache_swap_style> cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU };
         vector<Cache_write_strategy> cache_write_strategy = { Cache_write_strategy::WRITE_BACK };
@@ -185,28 +185,28 @@ namespace DFSim
 #endif
 
         /** Cache size of each level£¬byte */
-        vector<uint> cache_size = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_size = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cacheline size */
-        vector<uint> cache_line_size = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_size = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cacheline number */
-        vector<uint> cache_line_num = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_num = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Bank number */
-        vector<uint> cache_bank_num = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_bank_num = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Bank shift*/
-        //vector<uint> cache_bank_shifts = vector<uint>(CACHE_MAXLEVEL);
+        //vector<uint64_t> cache_bank_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Way number of each set*/
-        vector<uint> cache_mapping_ways = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_mapping_ways = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cache set number */
-        vector<uint> cache_set_size = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_set_size = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cache set shift */
-        vector<uint> cache_set_shifts = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_set_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cacheline shift */
-        vector<uint> cache_line_shifts = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Cache array, Pointer array */
         vector<Cache_Line*> caches = vector<Cache_Line*>(CACHE_MAXLEVEL);
 
         /** Instruction counter */
-        uint tick_count;
+        uint64_t tick_count;
         /** Cache buffer */
         //_u8 *cache_buf[CACHE_MAXLEVEL];
         /** Replacement algorithm */
@@ -216,17 +216,17 @@ namespace DFSim
         // Write allocate
         vector<Cache_write_allocate> write_allocate = vector<Cache_write_allocate>(CACHE_MAXLEVEL);
         /** Read/write counter */
-        uint cache_r_count, cache_w_count;
+        uint64_t cache_r_count, cache_w_count;
         /** Access memory counter£¬cache --> memory */
-        uint cache_w_memory_count;
+        uint64_t cache_w_memory_count;
         /** Hit/miss counter */
-        vector<uint> cache_hit_count = vector<uint>(CACHE_MAXLEVEL);
-        vector<uint> cache_miss_count = vector<uint>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_hit_count = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_miss_count = vector<uint64_t>(CACHE_MAXLEVEL);
         ///** Record free cacheline */
-        //vector<uint> cache_free_num = vector<uint>(CACHE_MAXLEVEL);
+        //vector<uint64_t> cache_free_num = vector<uint64_t>(CACHE_MAXLEVEL);
         /** Profiling counter **/
-        uint cacheAccessCnt = 0;
-        uint memAccessCnt = 0;
+        uint64_t cacheAccessCnt = 0;
+        uint64_t memAccessCnt = 0;
 
         vector<Mshr> mshr;
         vector<vector<ReqQueueBank>> reqQueue;  // Emulate L1~Ln cache access latency (pair<req, latency>), fifo mode
@@ -234,8 +234,8 @@ namespace DFSim
         vector<deque<bool>> reqBankConflict;  // Record bank visiting, emulate bank confliction
         vector<deque<bool>> ackBankConflict;  // Record bank visiting, emulate bank confliction
         deque<MemReq> reqQueue2Mem;  // reqQueue to DRAM (Beyond llc reqQueue)
-        //vector<vector<uint>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
-        vector<uint> reqQueueBankPtr;  // Round-robin to send reqQueue req to next cachelevel
-        vector<uint> ackQueueBankPtr;  // Round-robin to traverse ackQueue
+        //vector<vector<uint64_t>> sendPtr;  // sendPtr of each level cache's each bank ( sendPtr[level][bank] )
+        vector<uint64_t> reqQueueBankPtr;  // Round-robin to send reqQueue req to next cachelevel
+        vector<uint64_t> ackQueueBankPtr;  // Round-robin to traverse ackQueue
     };
 }

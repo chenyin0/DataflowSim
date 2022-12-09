@@ -164,7 +164,7 @@ void Mux::bpUpdate()
     bool bp = 0;
     for (auto& channel : outChan->downstream)  // Check outChan's downstream rather than outChan, due to the outChan is like a pass wire.
     {
-        uint chanId = channel->getChanId(outChan);
+        uint64_t chanId = channel->getChanId(outChan);
         if (!channel->isFeedback && channel->bp[chanId])
         {
             bp = 1;
@@ -534,7 +534,7 @@ void MuxSGMF::pushOutChan()
     }
     else
     {
-        uint tag = upstreamDataStatus.tag;
+        uint64_t tag = upstreamDataStatus.tag;
         // outChan is a single & noUpstream channel
         outChan->get({ 1 }, tag);  // Non-loopVar inherits tag
     }

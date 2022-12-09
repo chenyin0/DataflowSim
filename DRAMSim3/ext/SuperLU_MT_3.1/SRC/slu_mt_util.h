@@ -117,7 +117,8 @@ typedef float    flops_t;
 typedef unsigned char Logical;
 
 #if ( MACH==DEC || MACH==PTHREAD )
-#include <pthread.h>
+//#include <pthread.h>
+#include "../pthread/Pre-built.2/include/pthread.h"
 typedef pthread_mutex_t mutex_t;
 #elif ( MACH==SGI || MACH==ORIGIN )
 typedef int mutex_t;

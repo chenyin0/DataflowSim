@@ -143,11 +143,11 @@ void HotSpot_Test::hotSpot_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_r->getEnd, Lc_c->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -188,10 +188,10 @@ void HotSpot_Test::hotSpot_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_r_lc->get();	// Nop	[0]Lc_r 
-        Chan_r_lc->value = Chan_r_lc->assign(uint(0));
+        Chan_r_lc->value = Chan_r_lc->assign(uint64_t(0));
 
         Chan_r_lc_scatter_loop_c->get();	// Nop	[0]Chan_r_lc 
-        Chan_r_lc_scatter_loop_c->value = Chan_r_lc_scatter_loop_c->assign(uint(0));
+        Chan_r_lc_scatter_loop_c->value = Chan_r_lc_scatter_loop_c->assign(uint64_t(0));
 
         // Lc: Lc_c
         Lc_c->var = Lc_c->mux->mux(Lc_c->var, 0, Lc_c->sel);
@@ -203,66 +203,66 @@ void HotSpot_Test::hotSpot_Base(Debug* debug)
         Lc_c->lcUpdate(Lc_c->var < block_size);
 
         Chan_cond1->get();	// And	[0]Chan_r_lc_scatter_loop_c [1]Lc_c 
-        //Chan_cond1->value = (Chan_cond1->assign(uint(0)) == 0) && (Chan_cond1->assign(uint(1)) == 0);
+        //Chan_cond1->value = (Chan_cond1->assign(uint64_t(0)) == 0) && (Chan_cond1->assign(uint64_t(1)) == 0);
         Chan_cond1->value = Util::uRandom(1, 10) > 3 ? 1 : 0;
 
         Chan_temp_rc_addr->get();	// Add	[0]Chan_r_lc_scatter_loop_c [1]Lc_c 
-        Chan_temp_rc_addr->value = Chan_temp_rc_addr->assign(uint(0)) + Chan_temp_rc_addr->assign(uint(1));
+        Chan_temp_rc_addr->value = Chan_temp_rc_addr->assign(uint64_t(0)) + Chan_temp_rc_addr->assign(uint64_t(1));
 
         Chan_cond2->get();	// And	[0]Chan_cond1 [1]Chan_r_lc_scatter_loop_c [2]Lc_c 
-        //Chan_cond2->value = (Chan_cond2->assign(uint(1)) == 0) && (Chan_cond2->assign(uint(2)) == 16 - 1);
+        //Chan_cond2->value = (Chan_cond2->assign(uint64_t(1)) == 0) && (Chan_cond2->assign(uint64_t(2)) == 16 - 1);
         Chan_cond2->value = Util::uRandom(1, 10) > 7 ? 1 : 0;
 
         Chan_cond3->get();	// Nop	[0]Chan_cond2 [1]Chan_r_lc_scatter_loop_c 
-        //Chan_cond3->value = Chan_cond3->assign(uint(1));
+        //Chan_cond3->value = Chan_cond3->assign(uint64_t(1));
         Chan_cond3->value = Util::uRandom(1, 10) > 7 ? 1 : 0;
 
         Chan_power_c_cond2_addr->get();	// And	[0]Chan_cond2 [1]Lc_c 
-        Chan_power_c_cond2_addr->value = Chan_power_c_cond2_addr->assign(uint(0)) + Chan_power_c_cond2_addr->assign(uint(1));
+        Chan_power_c_cond2_addr->value = Chan_power_c_cond2_addr->assign(uint64_t(0)) + Chan_power_c_cond2_addr->assign(uint64_t(1));
 
         Chan_temp_c_cond2_addr->get();	// And	[0]Chan_cond2 [1]Lc_c 
-        Chan_temp_c_cond2_addr->value = Chan_temp_c_cond2_addr->assign(uint(0)) + Chan_temp_c_cond2_addr->assign(uint(1));
+        Chan_temp_c_cond2_addr->value = Chan_temp_c_cond2_addr->assign(uint64_t(0)) + Chan_temp_c_cond2_addr->assign(uint64_t(1));
 
         Chan_power_c_cond3_t_addr->get();	// And	[0]Chan_cond3 [1]Lc_c 
-        Chan_power_c_cond3_t_addr->value = Chan_power_c_cond3_t_addr->assign(uint(0)) + Chan_power_c_cond3_t_addr->assign(uint(1));
+        Chan_power_c_cond3_t_addr->value = Chan_power_c_cond3_t_addr->assign(uint64_t(0)) + Chan_power_c_cond3_t_addr->assign(uint64_t(1));
 
         Chan_temp_c_cond3_t_addr->get();	// And	[0]Chan_cond3 [1]Lc_c 
-        Chan_temp_c_cond3_t_addr->value = Chan_temp_c_cond3_t_addr->assign(uint(0)) + Chan_temp_c_cond3_t_addr->assign(uint(1));
+        Chan_temp_c_cond3_t_addr->value = Chan_temp_c_cond3_t_addr->assign(uint64_t(0)) + Chan_temp_c_cond3_t_addr->assign(uint64_t(1));
 
         Chan_power_c_cond3_f_addr->get();	// And	[0]Chan_cond3 [1]Lc_c 
-        Chan_power_c_cond3_f_addr->value = Chan_power_c_cond3_f_addr->assign(uint(0)) + Chan_power_c_cond3_f_addr->assign(uint(1));
+        Chan_power_c_cond3_f_addr->value = Chan_power_c_cond3_f_addr->assign(uint64_t(0)) + Chan_power_c_cond3_f_addr->assign(uint64_t(1));
         
         //std::cout << Chan_power_c_cond3_f_addr->channelCond << "\t" << Chan_cond3->value << std::endl;
         /*if (Chan_power_c_cond3_f_addr->valid)
             std::cout << Chan_power_c_cond3_f_addr->chanBuffer[0].front().cond << "\t"<< Chan_power_c_cond3_f_addr->channel.front().cond << std::endl;*/
 
         Chan_temp_c_cond3_f_addr->get();	// And	[0]Chan_cond3 [1]Lc_c 
-        Chan_temp_c_cond3_f_addr->value = Chan_temp_c_cond3_f_addr->assign(uint(0)) + Chan_temp_c_cond3_f_addr->assign(uint(1));
+        Chan_temp_c_cond3_f_addr->value = Chan_temp_c_cond3_f_addr->assign(uint64_t(0)) + Chan_temp_c_cond3_f_addr->assign(uint64_t(1));
 
         Chan_delta_merge_cond1->get();	// selPartial	[0]Chan_cond1 [1]Chan_delta_cond1 [2]Chan_delta_merge_cond2 
-        Chan_delta_merge_cond1->value = Chan_delta_merge_cond1->assign(uint(0)) ? Chan_delta_merge_cond1->assign(uint(1)) : Chan_delta_merge_cond1->assign(uint(2));
+        Chan_delta_merge_cond1->value = Chan_delta_merge_cond1->assign(uint64_t(0)) ? Chan_delta_merge_cond1->assign(uint64_t(1)) : Chan_delta_merge_cond1->assign(uint64_t(2));
 
         Chan_delta_cond1->get();	// Mul	[0]Chan_cond1 
-        Chan_delta_cond1->value = Chan_delta_cond1->assign(uint(0)) * CAP * RX * RY * RZ;
+        Chan_delta_cond1->value = Chan_delta_cond1->assign(uint64_t(0)) * CAP * RX * RY * RZ;
 
         Lse_temp_rc->get();	// Load	[0]Chan_temp_rc_addr 
-        uint i = Lse_temp_rc->assign();
+        uint64_t i = Lse_temp_rc->assign();
         Lse_temp_rc->value = temp[Lse_temp_rc->assign()];
 
         Chan_delta_merge_cond2->get();	// selPartial	[0]Chan_cond2 [1]Chan_delta_cond2 [2]Chan_delta_merge_cond3 
-        Chan_delta_merge_cond2->value = Chan_delta_merge_cond2->assign(uint(0)) ? Chan_delta_merge_cond2->assign(uint(1)) : Chan_delta_merge_cond2->assign(uint(2));
+        Chan_delta_merge_cond2->value = Chan_delta_merge_cond2->assign(uint64_t(0)) ? Chan_delta_merge_cond2->assign(uint64_t(1)) : Chan_delta_merge_cond2->assign(uint64_t(2));
 
         Chan_delta_cond2->get();	// Mul	[0]Chan_cond2 [1]Lse_power_c_cond2 [2]Lse_temp_c_1_cond2 [3]Lse_temp_c_cond2 [4]Lse_temp_c_col_cond2 
-        Chan_delta_cond2->value = Chan_delta_cond2->assign(uint(1)) * Chan_delta_cond2->assign(uint(2)) * Chan_delta_cond2->assign(uint(3)) * Chan_delta_cond2->assign(uint(4));
+        Chan_delta_cond2->value = Chan_delta_cond2->assign(uint64_t(1)) * Chan_delta_cond2->assign(uint64_t(2)) * Chan_delta_cond2->assign(uint64_t(3)) * Chan_delta_cond2->assign(uint64_t(4));
 
         Chan_delta_merge_cond3->get();	// selPartial	[0]Chan_cond3 [1]Chan_delta_cond3_t [2]Chan_delta_cond3_f 
-        Chan_delta_merge_cond3->value = Chan_delta_merge_cond3->assign(uint(0)) ? Chan_delta_merge_cond3->assign(uint(1)) : Chan_delta_merge_cond3->assign(uint(2));
+        Chan_delta_merge_cond3->value = Chan_delta_merge_cond3->assign(uint64_t(0)) ? Chan_delta_merge_cond3->assign(uint64_t(1)) : Chan_delta_merge_cond3->assign(uint64_t(2));
 
         Chan_delta_cond3_t->get();	// Mul	[0]Chan_cond3 [1]Lse_power_c_cond3_t [2]Lse_temp_c_1_cond3_t [3]Lse_temp_c_cond3_t [4]Lse_temp_c_col_cond3_t 
-        Chan_delta_cond3_t->value = Chan_delta_cond3_t->assign(uint(0)) * Chan_delta_cond3_t->assign(uint(1)) * Chan_delta_cond3_t->assign(uint(2)) * Chan_delta_cond3_t->assign(uint(3)) * Chan_delta_cond3_t->assign(uint(4));
+        Chan_delta_cond3_t->value = Chan_delta_cond3_t->assign(uint64_t(0)) * Chan_delta_cond3_t->assign(uint64_t(1)) * Chan_delta_cond3_t->assign(uint64_t(2)) * Chan_delta_cond3_t->assign(uint64_t(3)) * Chan_delta_cond3_t->assign(uint64_t(4));
 
         Chan_delta_cond3_f->get();	// Mul	[0]Chan_cond3 [1]Lse_power_c_cond3_f [2]Lse_temp_c_1_cond3_f [3]Lse_temp_c_cond3_f [4]Lse_temp_c_col_cond3_f 
-        Chan_delta_cond3_f->value = Chan_delta_cond3_f->assign(uint(0)) * Chan_delta_cond3_f->assign(uint(1)) * Chan_delta_cond3_f->assign(uint(2)) * Chan_delta_cond3_f->assign(uint(3)) * Chan_delta_cond3_f->assign(uint(4));
+        Chan_delta_cond3_f->value = Chan_delta_cond3_f->assign(uint64_t(0)) * Chan_delta_cond3_f->assign(uint64_t(1)) * Chan_delta_cond3_f->assign(uint64_t(2)) * Chan_delta_cond3_f->assign(uint64_t(3)) * Chan_delta_cond3_f->assign(uint64_t(4));
 
         Lse_power_c_cond2->get();	// Load	[0]Chan_power_c_cond2_addr 
         Lse_power_c_cond2->value = power[Lse_power_c_cond2->assign()];
@@ -301,7 +301,7 @@ void HotSpot_Test::hotSpot_Base(Debug* debug)
         Lse_temp_c_col_cond3_f->value = temp[Lse_temp_c_col_cond3_f->assign()];
 
         Chan_result->get();	// Add	[0]Lse_temp_rc [1]Chan_delta_merge_cond1 
-        Chan_result->value = Chan_result->assign(uint(0)) + Chan_result->assign(uint(1));
+        Chan_result->value = Chan_result->assign(uint64_t(0)) + Chan_result->assign(uint64_t(1));
 
         // *************************************************************************************
 

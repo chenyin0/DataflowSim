@@ -21,7 +21,7 @@ namespace DFSim
         virtual void fakeFunc() {};
 
         // For subgraph partition
-        uint subgraphId = 0;
+        uint64_t subgraphId = 0;
     };
 
     struct Dfg_Node : public Node
@@ -35,7 +35,7 @@ namespace DFSim
         int constVal = 0;  // For constant
 
         // For load/store
-        uint baseAddr = 0;
+        uint64_t baseAddr = 0;
         vector<int>* memorySpace = nullptr;  // For load/store node
     };
 
@@ -49,16 +49,16 @@ namespace DFSim
                                       //    add a scatter channel to distribute the data in the lower loop region)
         bool isPhysicalChan = true;  // This chan is only a logic chan (e.g. Relay_mode)
         
-        uint size = 2;
-        uint speedup = 1;
-        uint cycle = 0;
+        uint64_t size = 2;
+        uint64_t speedup = 1;
+        uint64_t cycle = 0;
 
         // For constant
         vector<int> constVal;
-        uint constLocation = 0;  // 0 => const Sub a; 1 => a Sub const
+        uint64_t constLocation = 0;  // 0 => const Sub a; 1 => a Sub const
 
         // For load/store
-        uint baseAddr = 0;  
+        uint64_t baseAddr = 0;  
         vector<int>* memorySpace = nullptr;
     };
 
@@ -75,14 +75,14 @@ namespace DFSim
         void addNextNodesActive(const string& _nodeName, const vector<string>& _next_nodes_active);
         void completeConnect();
         void removeRedundantConnect();
-        auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint>::iterator;
+        auto findNodeIndex(const string& _nodeName)->unordered_map<string, uint64_t>::iterator;
         bool findNode(const string& _nodeName);
         void addNodes2CtrlTree(const string& targetCtrlRegion, const vector<string>& nodes_);
         auto csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
-        auto genAdjacentMatrix()->vector<vector<uint>>;
-        uint genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
-        void subgraphPartition(uint _subgraphNum, Debug* _debug);
-        void sortSubgraphId(deque<Node*>& nodes, uint subgraphNum);  // Sort subgraphId to consistent with dataflow sequence
+        auto genAdjacentMatrix()->vector<vector<uint64_t>>;
+        uint64_t genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
+        void subgraphPartition(uint64_t _subgraphNum, Debug* _debug);
+        void sortSubgraphId(deque<Node*>& nodes, uint64_t subgraphNum);  // Sort subgraphId to consistent with dataflow sequence
         vector<string> bfsTraverseNodes();  // Generate simulation sequence
         vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
         vector<string> bfsTraverseNodes(vector<string> dfgNodes);
@@ -92,15 +92,15 @@ namespace DFSim
         void plotDot(std::fstream& fileName_, ControlTree& _controlTree);
         void printDotNodeConnect(std::fstream& fileName_);
         virtual void printDotNodeLabel(std::fstream& fileName_) = 0;
-        //vector<pair<string, uint>> traverseControlRegionsDfs(ControlTree& _controlTree);  // pair<controlRegionName, level>
+        //vector<pair<string, uint64_t>> traverseControlRegionsDfs(ControlTree& _controlTree);  // pair<controlRegionName, level>
         void printDotControlRegion(std::fstream& fileName_, ControlTree& _controlTree);
         //void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_, vector<string>& nodes_, string& controlType_);
-        vector<idx_t> metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint divideNum);
-        void printSubgraphPartition(const uint& divideNum, Debug* debug);
+        vector<idx_t> metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum);
+        void printSubgraphPartition(const uint64_t& divideNum, Debug* debug);
 
     public:
         deque<Node*> nodes;
-        unordered_map<string, uint> nodeIndexDict;
+        unordered_map<string, uint64_t> nodeIndexDict;
         ControlTree controlTree;
     };
 
@@ -112,7 +112,7 @@ namespace DFSim
         void addNode(const string& _nodeName, const string& _nodeOp, const int& _constVal);
         void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes);
         void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodesData, const vector<string>& _preNodesActive);
-        void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint& baseAddr_);
+        void addNode(const string& _nodeName, const string& _nodeOp, const vector<string>& _preNodes, vector<int>* memorySpace_, const uint64_t& baseAddr_);
         //void addNode(const string& _nodeName, const string& _nodeOp, const string& _preNode);
         void setTheTailNode(const string& targetCtrlRegion, string nodeName);
         void plotDot();
@@ -145,7 +145,7 @@ namespace DFSim
         void setSpeedup(Debug* debug);
         void pathBalance();
         vector<ControlRegion> genLoopHierarchy(ControlTree& _controlTree);
-        void subgraphPartitionCtrlRegion(uint _partitionNum, Debug* _debug);
+        void subgraphPartitionCtrlRegion(uint64_t _partitionNum, Debug* _debug);
        
     private:
         void printDotNodeLabel(std::fstream& fileName_) override;

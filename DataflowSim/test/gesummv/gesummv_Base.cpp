@@ -29,7 +29,7 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
     ChanGraph chanGraph(Gesummv_Test::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 3;
+    uint64_t splitNum = 3;
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     Gesummv_Test::graphPartition(chanGraph, splitNum);
 
@@ -93,11 +93,11 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_i->getEnd, Lc_j->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -138,10 +138,10 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_i_lc->get();	// Nop	[0]Lc_i 
-        Chan_i_lc->value = Chan_i_lc->assign(uint(0));
+        Chan_i_lc->value = Chan_i_lc->assign(uint64_t(0));
 
         Chan_i_PB_N->get();	// Mul	[0]Lc_i 
-        Chan_i_PB_N->value = Chan_i_PB_N->assign(uint(0)) * _PB_N;
+        Chan_i_PB_N->value = Chan_i_PB_N->assign(uint64_t(0)) * _PB_N;
 
         // Lc: Lc_j
         Lc_j->var = Lc_j->mux->mux(Lc_j->var, 0, Lc_j->sel);
@@ -156,16 +156,16 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
         Lse_x->value = x[Lse_x->assign()];
 
         //Chan_i_lc_scatter_loop_j->get();	// Nop	[0]Chan_i_lc 
-        //Chan_i_lc_scatter_loop_j->value = Chan_i_lc_scatter_loop_j->assign(uint(0));
+        //Chan_i_lc_scatter_loop_j->value = Chan_i_lc_scatter_loop_j->assign(uint64_t(0));
 
         Chan_i_PB_N_scatter_loop_j->get();	// Nop	[0]Chan_i_PB_N 
-        Chan_i_PB_N_scatter_loop_j->value = Chan_i_PB_N_scatter_loop_j->assign(uint(0));
+        Chan_i_PB_N_scatter_loop_j->value = Chan_i_PB_N_scatter_loop_j->assign(uint64_t(0));
 
         //Lse_y->get();	// Load	[0]Chan_i_lc_scatter_loop_j 
         //Lse_y->value = y[Lse_y->assign()];
 
         Chan_addr->get();	// ADD	[0]Chan_i_PB_N_scatter_loop_j [1]Lc_j 
-        Chan_addr->value = Chan_addr->assign(uint(0)) + Chan_addr->assign(uint(1));
+        Chan_addr->value = Chan_addr->assign(uint64_t(0)) + Chan_addr->assign(uint64_t(1));
 
         Lse_A->get();	// Load	[0]Chan_addr 
         Lse_A->value = A[Lse_A->assign()];
@@ -174,25 +174,25 @@ void Gesummv_Test::gesummv_Base(Debug* debug)
         Lse_B->value = B[Lse_B->assign()];
 
         Chan_A_x->get();	// Mul	[0]Lse_A [1]Lse_x 
-        Chan_A_x->value = Chan_A_x->assign(uint(0)) * Chan_A_x->assign(uint(1));
+        Chan_A_x->value = Chan_A_x->assign(uint64_t(0)) * Chan_A_x->assign(uint64_t(1));
 
         Chan_B_x->get();	// Mul	[0]Lse_B [1]Lse_x 
-        Chan_B_x->value = Chan_B_x->assign(uint(0)) * Chan_B_x->assign(uint(1));
+        Chan_B_x->value = Chan_B_x->assign(uint64_t(0)) * Chan_B_x->assign(uint64_t(1));
 
         Chan_tmp->get();	// Add	[0]Chan_A_x 
-        Chan_tmp->value = Chan_tmp->assign(uint(0)) + Chan_tmp->value;
+        Chan_tmp->value = Chan_tmp->assign(uint64_t(0)) + Chan_tmp->value;
 
         Chan_y_update->get();	// Add	[0]Chan_B_x 
-        Chan_y_update->value = Chan_y_update->assign(uint(0)) + Chan_y_update->value;
+        Chan_y_update->value = Chan_y_update->assign(uint64_t(0)) + Chan_y_update->value;
 
         Chan_alpha_tmp->get();	// Mul	[0]Chan_tmp 
-        Chan_alpha_tmp->value = Chan_alpha_tmp->assign(uint(0)) * alpha;
+        Chan_alpha_tmp->value = Chan_alpha_tmp->assign(uint64_t(0)) * alpha;
 
         Chan_beta_y->get();	// Mul	[0]Chan_y_update 
-        Chan_beta_y->value = Chan_beta_y->assign(uint(0)) * beta;
+        Chan_beta_y->value = Chan_beta_y->assign(uint64_t(0)) * beta;
 
         Chan_y_update_i->get();	// Add	[0]Chan_alpha_tmp [1]Chan_beta_y 
-        Chan_y_update_i->value = Chan_y_update_i->assign(uint(0)) + Chan_y_update_i->assign(uint(1));
+        Chan_y_update_i->value = Chan_y_update_i->assign(uint64_t(0)) + Chan_y_update_i->assign(uint64_t(1));
 
 
         // *************************************************************************************

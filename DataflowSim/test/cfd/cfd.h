@@ -27,14 +27,14 @@ namespace DFSimTest
 
         static Dfg dfg;
 
-        static uint nelr;
-        static uint VAR_DENSITY;
-        static uint VAR_MOMENTUM;
-        static uint VAR_DENSITY_ENERGY;
-        static uint block_length;
+        static uint64_t nelr;
+        static uint64_t VAR_DENSITY;
+        static uint64_t VAR_MOMENTUM;
+        static uint64_t VAR_DENSITY_ENERGY;
+        static uint64_t block_length;
 
-        static uint variables_BaseAddr;
-        static uint normals_BaseAddr;
+        static uint64_t variables_BaseAddr;
+        static uint64_t normals_BaseAddr;
         static vector<int> variables;
         static vector<int> normals;
     };

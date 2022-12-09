@@ -167,13 +167,13 @@ void AesTest::aes_DGSF(Debug* debug)
     graphScheduler->schedulerInit();  // Initial graph scheduler
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     int i = 1;
 
-    uint max_iter = 500000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 500000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
     // Execute
     while (iter < max_iter)
     {
@@ -242,9 +242,9 @@ void AesTest::aes_DGSF(Debug* debug)
         chan_falsePathOutput_DGSF->value = chan_falsePathOutput_DGSF->assign(chan_falsePath_aes_addRoundKey);
 
         chan_branch_merge->get();
-        uint cond = chan_branch_merge->assign(chan_cond_DGSF);
-        uint trueData = chan_branch_merge->assign(chan_truePathOutput_DGSF);
-        uint falseData = chan_branch_merge->assign(chan_falsePathOutput_DGSF);
+        uint64_t cond = chan_branch_merge->assign(chan_cond_DGSF);
+        uint64_t trueData = chan_branch_merge->assign(chan_truePathOutput_DGSF);
+        uint64_t falseData = chan_branch_merge->assign(chan_falsePathOutput_DGSF);
         chan_branch_merge->value = cond ? trueData : falseData;
 
 

@@ -27,17 +27,17 @@ namespace DFSimTest
 
         static Dfg dfg;
 
-        static const uint N_OBS;
-        static const uint N_STATES;
-        static const uint N_TOKENS;
+        static const uint64_t N_OBS;
+        static const uint64_t N_STATES;
+        static const uint64_t N_TOKENS;
 
         static vector<int> obs;
         static vector<int> llike;
         static vector<int> transition;
         static vector<int> emission;
 
-        static const uint llike_BaseAddr;
-        static const uint transition_BaseAddr;
-        static const uint emission_BaseAddr;
+        static const uint64_t llike_BaseAddr;
+        static const uint64_t transition_BaseAddr;
+        static const uint64_t emission_BaseAddr;
     };
 }

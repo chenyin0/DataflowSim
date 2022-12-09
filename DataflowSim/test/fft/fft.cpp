@@ -4,16 +4,16 @@ using namespace DFSimTest;
 
 Dfg FFT_Test::dfg;
 
-const uint FFT_Test::fft_size = 4096;
+const uint64_t FFT_Test::fft_size = 4096;
 vector<int> FFT_Test::real;
 vector<int> FFT_Test::img;
 vector<int> FFT_Test::real_twid;
 vector<int> FFT_Test::img_twid;
 
-const uint FFT_Test::real_BaseAddr = 0;
-const uint FFT_Test::img_BaseAddr = 5280;
-const uint FFT_Test::real_twid_BaseAddr = 26890;
-const uint FFT_Test::img_twid_BaseAddr = 58947;
+const uint64_t FFT_Test::real_BaseAddr = 0;
+const uint64_t FFT_Test::img_BaseAddr = 5280;
+const uint64_t FFT_Test::real_twid_BaseAddr = 26890;
+const uint64_t FFT_Test::img_twid_BaseAddr = 58947;
 
 void FFT_Test::generateData()
 {

@@ -26,16 +26,16 @@ namespace DFSimTest
         static void graphPartition(ChanGraph& chanGraph, int partitionNum);
 
         static Dfg dfg;
-        static const uint fft_size;
+        static const uint64_t fft_size;
 
         static vector<int> real;
         static vector<int> img;
         static vector<int> real_twid;
         static vector<int> img_twid;
 
-        static const uint real_BaseAddr;
-        static const uint img_BaseAddr;
-        static const uint real_twid_BaseAddr;
-        static const uint img_twid_BaseAddr;
+        static const uint64_t real_BaseAddr;
+        static const uint64_t img_BaseAddr;
+        static const uint64_t real_twid_BaseAddr;
+        static const uint64_t img_twid_BaseAddr;
     };
 }

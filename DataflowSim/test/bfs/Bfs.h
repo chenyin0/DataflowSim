@@ -68,13 +68,13 @@ namespace DFSimTest
 
     struct Node_t
     {
-        uint begin;
-        uint end;
+        uint64_t begin;
+        uint64_t end;
     };
 
     struct Edge_t
     {
-        uint dst;
+        uint64_t dst;
     };
 
     class BfsTest
@@ -84,13 +84,13 @@ namespace DFSimTest
         static void generateData();
 
     private:
-        static const uint initialNode;  // Traverse from this node
-        static const uint edgeNum;
-        static const uint nodeNum;
+        static const uint64_t initialNode;  // Traverse from this node
+        static const uint64_t edgeNum;
+        static const uint64_t nodeNum;
 
-        static const uint edgeBaseAddr;
-        static const uint nodeBaseAddr;
-        static const uint levelBaseAddr;
+        static const uint64_t edgeBaseAddr;
+        static const uint64_t nodeBaseAddr;
+        static const uint64_t levelBaseAddr;
 
         static vector<int> memData;
         static vector<Edge_t> edges;

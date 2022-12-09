@@ -25,18 +25,18 @@ namespace DFSim
     public:
         ControlTree();
         ControlRegion& getCtrlRegion(const string& controlRegionName_);
-        auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint>::iterator;
+        auto findControlRegionIndex(const string& controlRegionName_)->unordered_map<string, uint64_t>::iterator;
         void addControlRegion(const vector<tuple<string, string, string>>& controlRegions_);  // pair<controlRegionName, controlRegionType>
         //void addNodes(const string& targetCtrlRegion, const vector<string>& nodes_);
         void addUpperControlRegion(const string& targetCtrlRegion, const string& ctrlRegions_);
         void addLowerControlRegion(const string& targetCtrlRegion, const vector<string>& ctrlRegions_);
         //void setTheTailNode(const string& targetCtrlRegion, const string& nodeName);
         void completeControlRegionHierarchy();
-        vector<pair<string, uint>> traverseControlRegionsDfs();
+        vector<pair<string, uint64_t>> traverseControlRegionsDfs();
         void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_);
 
     public:
         vector<ControlRegion> controlRegionTable;
-        unordered_map<string, uint> controlRegionIndexDict;
+        unordered_map<string, uint64_t> controlRegionIndexDict;
     };
 }

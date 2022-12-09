@@ -6,13 +6,13 @@ Dfg Sort_Test::dfg;
 
 string Sort_Test::filePath = "./test/sort/input.dat";
 
-uint Sort_Test::SIZE = pow(2, 13);
+uint64_t Sort_Test::SIZE = pow(2, 13);
 
 vector<int> Sort_Test::temp(3 * SIZE);
 vector<int> Sort_Test::a;
 
-uint Sort_Test::temp_BaseAddr = 0;
-uint Sort_Test::a_BaseAddr = 5159;
+uint64_t Sort_Test::temp_BaseAddr = 0;
+uint64_t Sort_Test::a_BaseAddr = 5159;
 
 void Sort_Test::genInputData()
 {
@@ -31,7 +31,7 @@ void Sort_Test::generateData()
     std::ifstream _infile;
     _infile.open(filePath);
 
-    uint k = 0;
+    uint64_t k = 0;
     string temp_str;
     while (getline(_infile, temp_str))
     {

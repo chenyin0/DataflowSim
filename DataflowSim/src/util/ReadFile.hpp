@@ -66,10 +66,10 @@ namespace DFSim
             {
                 istringstream is(*it);                   
                 string s;
-                uint col = 0;
+                uint64_t col = 0;
                 while (is >> s)                          //以空格为界，把istringstream中数据取出放入到依次s中
                 {
-                    uint tmp = std::stoi(s.c_str());
+                    uint64_t tmp = std::stoi(s.c_str());
                     if (col > container.size() - 1)
                     {
                         // Column size exceeds to the size of input container
@@ -83,15 +83,15 @@ namespace DFSim
         }
 
         template<class Container>
-        static bool readFileByColumn_blocked(typename Container& container, const string& filePath, const uint& block_line_size, uint& line_id)
+        static bool readFileByColumn_blocked(typename Container& container, const string& filePath, const uint64_t& block_line_size, uint64_t& line_id)
         {
             ifstream infile;
             infile.open(filePath);
             DEBUG_ASSERT(infile.is_open());
             vector<string> vec;
             string temp;
-            uint read_line_cnt = 0;
-            uint line_ptr = 0;  // Record line ptr
+            uint64_t read_line_cnt = 0;
+            uint64_t line_ptr = 0;  // Record line ptr
             bool begin_read = false;
             while (getline(infile, temp))
             {
@@ -116,10 +116,10 @@ namespace DFSim
             {
                 istringstream is(*it);
                 string s;
-                uint col = 0;
+                uint64_t col = 0;
                 while (is >> s)
                 {
-                    uint tmp = std::stoi(s.c_str());
+                    uint64_t tmp = std::stoi(s.c_str());
                     if (col > container.size() - 1)
                     {
                         // Column size exceeds to the size of input container

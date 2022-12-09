@@ -28,7 +28,7 @@ void LudTest::lud_Base_auto(Debug* debug)
     ChanGraph chanGraph(LudTest::dfg);
     chanGraph.addSpecialModeChan();
 
-    uint splitNum = 7;
+    uint64_t splitNum = 7;
     //chanGraph.subgraphPartition(splitNum, debug);
     //chanGraph.subgraphPartitionCtrlRegion(splitNum, debug);
     LudTest::graphPartition(chanGraph, splitNum);
@@ -142,15 +142,15 @@ void LudTest::lud_Base_auto(Debug* debug)
     watchdog.addCheckPointChan({ Lc_i->getEnd, Lc_j1->getEnd, Lc_k1->getEnd, Lc_j2->getEnd, Lc_k2->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     // Pre-defined
     Lc_j1->loopVar->enable = 1;
     Lc_j2->loopVar->enable = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -189,10 +189,10 @@ void LudTest::lud_Base_auto(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_i_lc1->get();	// Nop	[0]Lc_i 
-        Chan_i_lc1->value = Chan_i_lc1->assign(uint(0));
+        Chan_i_lc1->value = Chan_i_lc1->assign(uint64_t(0));
 
         Chan_i_lc2->get();	// Nop	[0]Lc_i 
-        Chan_i_lc2->value = Chan_i_lc2->assign(uint(0));
+        Chan_i_lc2->value = Chan_i_lc2->assign(uint64_t(0));
 
         Lc_j1->var = Lc_j1->mux->mux(Lc_j1->var, Lc_j1->loopVar->upstream[1]->value, Lc_j1->sel);
         Lc_j1->mux->muxUpdate(Lc_j1->sel);
@@ -211,19 +211,19 @@ void LudTest::lud_Base_auto(Debug* debug)
         Lc_j2->lcUpdate(Lc_j2->var < matrix_size);
 
         Chan_j1_lc->get();	// Nop	[0]Lc_j1 
-        Chan_j1_lc->value = Chan_j1_lc->assign(uint(0));
+        Chan_j1_lc->value = Chan_j1_lc->assign(uint64_t(0));
 
         Chan_i_lc1_scatter_loop_j1->get();	// Nop	[0]Chan_i_lc1 
-        Chan_i_lc1_scatter_loop_j1->value = Chan_i_lc1_scatter_loop_j1->assign(uint(0));
+        Chan_i_lc1_scatter_loop_j1->value = Chan_i_lc1_scatter_loop_j1->assign(uint64_t(0));
 
         Chan_j2_lc->get();	// Nop	[0]Lc_j2 
-        Chan_j2_lc->value = Chan_j2_lc->assign(uint(0));
+        Chan_j2_lc->value = Chan_j2_lc->assign(uint64_t(0));
 
         Chan_j_size->get();	// Mul	[0]Lc_j2 
-        Chan_j_size->value = Chan_j_size->assign(uint(0)) * matrix_size;
+        Chan_j_size->value = Chan_j_size->assign(uint64_t(0)) * matrix_size;
 
         Chan_i_lc2_scatter_loop_j2->get();	// Nop	[0]Chan_i_lc2 
-        Chan_i_lc2_scatter_loop_j2->value = Chan_i_lc2_scatter_loop_j2->assign(uint(0));
+        Chan_i_lc2_scatter_loop_j2->value = Chan_i_lc2_scatter_loop_j2->assign(uint64_t(0));
 
         Lc_k1->var = Lc_k1->mux->mux(Lc_k1->var, 0, Lc_k1->sel);
         Lc_k1->mux->muxUpdate(Lc_k1->sel);
@@ -234,7 +234,7 @@ void LudTest::lud_Base_auto(Debug* debug)
         Lc_k1->lcUpdate(Lc_k1->var < /*matrix_size*/Lc_k1->loopVar->upstream[1]->value);
 
         Chan_i_size->get();	// Mul	[0]Chan_i_lc1_scatter_loop_j1 
-        Chan_i_size->value = Chan_i_size->assign(uint(0)) * matrix_size;
+        Chan_i_size->value = Chan_i_size->assign(uint64_t(0)) * matrix_size;
 
         Lc_k2->var = Lc_k2->mux->mux(Lc_k2->var, 0, Lc_k2->sel);
         Lc_k2->mux->muxUpdate(Lc_k2->sel);
@@ -245,79 +245,79 @@ void LudTest::lud_Base_auto(Debug* debug)
         Lc_k2->lcUpdate(Lc_k2->var < /*matrix_size*/Lc_k2->loopVar->upstream[1]->value);
 
         Chan_j_size_shadow->get();	// Nop	[0]Chan_j_size 
-        Chan_j_size_shadow->value = Chan_j_size_shadow->assign(uint(0));
+        Chan_j_size_shadow->value = Chan_j_size_shadow->assign(uint64_t(0));
 
         Chan_j_size_i->get();	// Add	[0]Chan_j_size [1]Chan_i_lc2_scatter_loop_j2 
-        Chan_j_size_i->value = Chan_j_size_i->assign(uint(0)) + Chan_j_size_i->assign(uint(1));
+        Chan_j_size_i->value = Chan_j_size_i->assign(uint64_t(0)) + Chan_j_size_i->assign(uint64_t(1));
 
         Chan_i_size_->get();	// Mul	[0]Chan_i_lc2_scatter_loop_j2 
-        Chan_i_size_->value = Chan_i_size_->assign(uint(0)) * matrix_size;
+        Chan_i_size_->value = Chan_i_size_->assign(uint64_t(0)) * matrix_size;
 
         Chan_i_lc2_relay_loop_j2->get();	// Nop	[0]Chan_i_lc2_scatter_loop_j2 
-        Chan_i_lc2_relay_loop_j2->value = Chan_i_lc2_relay_loop_j2->assign(uint(0));
+        Chan_i_lc2_relay_loop_j2->value = Chan_i_lc2_relay_loop_j2->assign(uint64_t(0));
 
         Chan_k1_size->get();	// Mul	[0]Lc_k1 
-        Chan_k1_size->value = Chan_k1_size->assign(uint(0)) * matrix_size;
+        Chan_k1_size->value = Chan_k1_size->assign(uint64_t(0)) * matrix_size;
 
         Chan_j1_lc_scatter_loop_k1->get();	// Nop	[0]Chan_j1_lc 
-        Chan_j1_lc_scatter_loop_k1->value = Chan_j1_lc_scatter_loop_k1->assign(uint(0));
+        Chan_j1_lc_scatter_loop_k1->value = Chan_j1_lc_scatter_loop_k1->assign(uint64_t(0));
 
         Chan_i_size_shadow->get();	// Nop	[0]Chan_i_size 
-        Chan_i_size_shadow->value = Chan_i_size_shadow->assign(uint(0));
+        Chan_i_size_shadow->value = Chan_i_size_shadow->assign(uint64_t(0));
 
         Chan_i_size_j->get();	// Add	[0]Chan_i_size [1]Lc_j1 
-        Chan_i_size_j->value = Chan_i_size_j->assign(uint(0)) + Chan_i_size_j->assign(uint(1));
+        Chan_i_size_j->value = Chan_i_size_j->assign(uint64_t(0)) + Chan_i_size_j->assign(uint64_t(1));
 
         Chan_k2_size->get();	// Mul	[0]Lc_k2 
-        Chan_k2_size->value = Chan_k2_size->assign(uint(0)) * matrix_size;
+        Chan_k2_size->value = Chan_k2_size->assign(uint64_t(0)) * matrix_size;
 
         Chan_j_size_shadow_scatter_loop_k2->get();	// Nop	[0]Chan_j_size_shadow 
-        Chan_j_size_shadow_scatter_loop_k2->value = Chan_j_size_shadow_scatter_loop_k2->assign(uint(0));
+        Chan_j_size_shadow_scatter_loop_k2->value = Chan_j_size_shadow_scatter_loop_k2->assign(uint64_t(0));
 
         Lse_sum_j2->get();	// Load	[0]Chan_j_size_i 
         Lse_sum_j2->value = matrix[Lse_sum_j2->assign()];
 
         Chan_i_size_i->get();	// Add	[0]Chan_i_size_ [1]Chan_i_lc2_scatter_loop_j2 
-        Chan_i_size_i->value = Chan_i_size_i->assign(uint(0)) + Chan_i_size_i->assign(uint(1));
+        Chan_i_size_i->value = Chan_i_size_i->assign(uint64_t(0)) + Chan_i_size_i->assign(uint64_t(1));
 
         Chan_i_lc2_relay_loop_j2_scatter_loop_k2->get();	// Nop	[0]Chan_i_lc2_relay_loop_j2 
-        Chan_i_lc2_relay_loop_j2_scatter_loop_k2->value = Chan_i_lc2_relay_loop_j2_scatter_loop_k2->assign(uint(0));
+        Chan_i_lc2_relay_loop_j2_scatter_loop_k2->value = Chan_i_lc2_relay_loop_j2_scatter_loop_k2->assign(uint64_t(0));
 
         Chan_k_size_j->get();	// Add	[0]Chan_k1_size [1]Chan_j1_lc_scatter_loop_k1 
-        Chan_k_size_j->value = Chan_k_size_j->assign(uint(0)) + Chan_k_size_j->assign(uint(1));
+        Chan_k_size_j->value = Chan_k_size_j->assign(uint64_t(0)) + Chan_k_size_j->assign(uint64_t(1));
 
         Chan_i_size_shadow_scatter_loop_k1->get();	// Nop	[0]Chan_i_size_shadow 
-        Chan_i_size_shadow_scatter_loop_k1->value = Chan_i_size_shadow_scatter_loop_k1->assign(uint(0));
+        Chan_i_size_shadow_scatter_loop_k1->value = Chan_i_size_shadow_scatter_loop_k1->assign(uint64_t(0));
 
         Lse_sum_j1->get();	// Load	[0]Chan_i_size_j 
         Lse_sum_j1->value = matrix[Lse_sum_j1->assign()];
 
         Chan_j_size_k->get();	// Add	[0]Chan_j_size_shadow_scatter_loop_k2 [1]Lc_k2 
-        Chan_j_size_k->value = Chan_j_size_k->assign(uint(0)) + Chan_j_size_k->assign(uint(1));
+        Chan_j_size_k->value = Chan_j_size_k->assign(uint64_t(0)) + Chan_j_size_k->assign(uint64_t(1));
 
         Chan_sum_j2_shadow->get();	// Nop	[0]Lse_sum_j2 
-        Chan_sum_j2_shadow->value = Chan_sum_j2_shadow->assign(uint(0));
+        Chan_sum_j2_shadow->value = Chan_sum_j2_shadow->assign(uint64_t(0));
 
         Lse_a_i_size_i->get();	// Load	[0]Chan_i_size_i 
         Lse_a_i_size_i->value = matrix[Lse_a_i_size_i->assign()];
 
         Chan_k_size_i->get();	// Add	[0]Chan_k2_size [1]Chan_i_lc2_relay_loop_j2_scatter_loop_k2 
-        Chan_k_size_i->value = Chan_k_size_i->assign(uint(0))+Chan_k_size_i->assign(uint(1));
+        Chan_k_size_i->value = Chan_k_size_i->assign(uint64_t(0))+Chan_k_size_i->assign(uint64_t(1));
 
         Lse_a2->get();	// Load	[0]Chan_k_size_j 
         Lse_a2->value = matrix[Lse_a2->assign()];
 
         Chan_i_size_k->get();	// Add	[0]Chan_i_size_shadow_scatter_loop_k1 [1]Lc_k1 
-        Chan_i_size_k->value = Chan_i_size_k->assign(uint(0))+Chan_i_size_k->assign(uint(1));
+        Chan_i_size_k->value = Chan_i_size_k->assign(uint64_t(0))+Chan_i_size_k->assign(uint64_t(1));
 
         Chan_sum_j1_shadow->get();	// Nop	[0]Lse_sum_j1 
-        Chan_sum_j1_shadow->value = Chan_sum_j1_shadow->assign(uint(0));
+        Chan_sum_j1_shadow->value = Chan_sum_j1_shadow->assign(uint64_t(0));
 
         Lse_a3->get();	// Load	[0]Chan_j_size_k 
         Lse_a3->value = matrix[Lse_a3->assign()];
 
         Chan_sum_j2_shadow_scatter_loop_k2->get();	// Nop	[0]Chan_sum_j2_shadow 
-        Chan_sum_j2_shadow_scatter_loop_k2->value = Chan_sum_j2_shadow_scatter_loop_k2->assign(uint(0));
+        Chan_sum_j2_shadow_scatter_loop_k2->value = Chan_sum_j2_shadow_scatter_loop_k2->assign(uint64_t(0));
 
         Lse_a4->get();	// Load	[0]Chan_k_size_i 
         Lse_a4->value = matrix[Lse_a4->assign()];
@@ -326,28 +326,28 @@ void LudTest::lud_Base_auto(Debug* debug)
         Lse_a1->value = matrix[Lse_a1->assign()];
 
         Chan_sum_j1_shadow_scatter_loop_k1->get();	// Nop	[0]Chan_sum_j1_shadow 
-        Chan_sum_j1_shadow_scatter_loop_k1->value = Chan_sum_j1_shadow_scatter_loop_k1->assign(uint(0));
+        Chan_sum_j1_shadow_scatter_loop_k1->value = Chan_sum_j1_shadow_scatter_loop_k1->assign(uint64_t(0));
 
         Chan_a3_a4->get();	// Mul	[0]Lse_a3 [1]Lse_a4 
-        Chan_a3_a4->value = Chan_a3_a4->assign(uint(0))*Chan_a3_a4->assign(uint(1));
+        Chan_a3_a4->value = Chan_a3_a4->assign(uint64_t(0))*Chan_a3_a4->assign(uint64_t(1));
 
         Chan_a1_a2->get();	// Mul	[0]Lse_a1 [1]Lse_a2 
-        Chan_a1_a2->value = Chan_a1_a2->assign(uint(0))*Chan_a1_a2->assign(uint(1));
+        Chan_a1_a2->value = Chan_a1_a2->assign(uint64_t(0))*Chan_a1_a2->assign(uint64_t(1));
 
         Chan_sum_update_k2->get();	// Sub	[0]Chan_sum_j2_shadow_scatter_loop_k2 [1]Chan_a3_a4 
-        Chan_sum_update_k2->value = Chan_sum_update_k2->assign(uint(0))-Chan_sum_update_k2->assign(uint(1));
+        Chan_sum_update_k2->value = Chan_sum_update_k2->assign(uint64_t(0))-Chan_sum_update_k2->assign(uint64_t(1));
 
         Chan_sum_update_k1->get();	// Sub	[0]Chan_sum_j1_shadow_scatter_loop_k1 [1]Chan_a1_a2 
-        Chan_sum_update_k1->value = Chan_sum_update_k1->assign(uint(0))-Chan_sum_update_k1->assign(uint(1));
+        Chan_sum_update_k1->value = Chan_sum_update_k1->assign(uint64_t(0))-Chan_sum_update_k1->assign(uint64_t(1));
 
         Chan_sum_update_k2_drain->get();	// Nop	[0]Chan_sum_update_k2 
-        Chan_sum_update_k2_drain->value = Chan_sum_update_k2_drain->assign(uint(0));
+        Chan_sum_update_k2_drain->value = Chan_sum_update_k2_drain->assign(uint64_t(0));
 
         Chan_sum_update_k1_drain->get();	// Nop	[0]Chan_sum_update_k1 
-        Chan_sum_update_k1_drain->value = Chan_sum_update_k1_drain->assign(uint(0));
+        Chan_sum_update_k1_drain->value = Chan_sum_update_k1_drain->assign(uint64_t(0));
 
         Chan_sum_div->get();	// Div	[0]Chan_sum_update_k2_drain [1]Lse_a_i_size_i 
-        Chan_sum_div->value = Chan_sum_div->assign(uint(0)) / std::max(Chan_sum_div->assign(uint(1)), 1);
+        Chan_sum_div->value = Chan_sum_div->assign(uint64_t(0)) / std::max(Chan_sum_div->assign(uint64_t(1)), 1);
 
         Lse_a_update_j1->get();	// Store	[0]Chan_i_size_j [1]Chan_sum_update_k1_drain 
 

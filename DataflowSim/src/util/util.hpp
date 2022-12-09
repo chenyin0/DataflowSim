@@ -90,11 +90,11 @@ namespace DFSim
     public:
 
         /** generate a uniform random number in [a, b] */
-        static uint uRandom(uint a_, uint b_)
+        static uint64_t uRandom(uint64_t a_, uint64_t b_)
         {
             const auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
             std::default_random_engine e(seed);
-            const std::uniform_int_distribution<uint> u(a_, b_);
+            const std::uniform_int_distribution<uint64_t> u(a_, b_);
             return u(e);
         }
 
@@ -149,30 +149,30 @@ namespace DFSim
 
         /** find element index in a vector */
         template <typename Type>
-        static uint findIndex(const vector<Type>& vec_, Type& ele_)
+        static uint64_t findIndex(const vector<Type>& vec_, Type& ele_)
         {
             auto itr = std::find(vec_.begin(), vec_.end(), ele_);
-            return std::find(vec_.begin(), vec_.end(), ele_) == vec_.end() ? UINT_MAX : static_cast<uint>(std::distance(vec_.begin(), itr));
+            return std::find(vec_.begin(), vec_.end(), ele_) == vec_.end() ? UINT_MAX : static_cast<uint64_t>(std::distance(vec_.begin(), itr));
         }
 
         template <typename Type>
-        static uint findIndex(const vector<Type>& vec_, Type&& ele_)
+        static uint64_t findIndex(const vector<Type>& vec_, Type&& ele_)
         {
             auto itr = std::find(vec_.begin(), vec_.end(), ele_);
-            return itr == vec_.end() ? UINT_MAX : static_cast<uint>(std::distance(vec_.begin(), itr));
+            return itr == vec_.end() ? UINT_MAX : static_cast<uint64_t>(std::distance(vec_.begin(), itr));
         }
 
         template <typename Type, typename Cmp>
-        static uint findIndex(const vector<Type>& vec_, Cmp cmp_)
+        static uint64_t findIndex(const vector<Type>& vec_, Cmp cmp_)
         {
             auto itr = std::find_if(vec_.begin(), vec_.end(), cmp_);
-            return itr == vec_.end() ? UINT_MAX : static_cast<uint>(std::distance(vec_.begin(), itr));
+            return itr == vec_.end() ? UINT_MAX : static_cast<uint64_t>(std::distance(vec_.begin(), itr));
         }
 
         template <typename Key, typename Value>
-        static vector<uint> findKeyByValue(const unordered_map<Key, Value>& map_, const Value& v_)
+        static vector<uint64_t> findKeyByValue(const unordered_map<Key, Value>& map_, const Value& v_)
         {
-            vector<uint> result;
+            vector<uint64_t> result;
             for (auto& ele : map_)
                 if (ele->second == v_)
                     result.push_back(ele->first);
@@ -180,9 +180,9 @@ namespace DFSim
         }
 
         template <typename Key, typename Value>
-        static vector<uint> findKeyByValue(const map<Key, Value>& map_, const Value& v_)
+        static vector<uint64_t> findKeyByValue(const map<Key, Value>& map_, const Value& v_)
         {
-            vector<uint> result;
+            vector<uint64_t> result;
             for (auto& ele : map_)
                 if (ele->second == v_)
                     result.push_back(ele->first);
@@ -190,7 +190,7 @@ namespace DFSim
         }
 
         template <typename Type, typename Cmp>
-        static uint findMinIndex(vector<Type>& container_, Cmp cmp_)
+        static uint64_t findMinIndex(vector<Type>& container_, Cmp cmp_)
         {
             if (container_.size() == 0)
                 return UINT_MAX;
@@ -216,9 +216,9 @@ namespace DFSim
         //static Type findSameValueInVectors(const vector<vector<Type>>& vec_)
         //{
         //    vector<Type> temp = vec_[0];
-        //    for (uint i = 1; i < vec_.size(); i++)
+        //    for (uint64_t i = 1; i < vec_.size(); i++)
         //    {
-        //        uint index_vec = 0; uint index_tmp = 0;
+        //        uint64_t index_vec = 0; uint64_t index_tmp = 0;
         //        while (index_vec < vec_[i].size() && index_tmp < temp.size())
         //        {
         //            if (vec_[i][index_vec] == temp[index_tmp]) {
@@ -243,7 +243,7 @@ namespace DFSim
             auto curr = temp.begin();
             while (curr != temp.end()) {
                 bool break_flag = false;
-                for (uint j = 1; j < vec_.size(); j++) {
+                for (uint64_t j = 1; j < vec_.size(); j++) {
                     if (std::find(vec_[j].begin(), vec_[j].end(), *curr) == vec_[j].end()) {
                         curr=temp.erase(curr);
                         break_flag = true;

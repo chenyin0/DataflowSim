@@ -116,11 +116,11 @@ void FFT_Test::fft_Base(Debug* debug)
     watchdog.addCheckPointChan({ Lc_span->getEnd, Lc_odd_lp->getEnd });
 
     registry->getChan("Chan_begin")->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
-    uint max_iter = 5000000;// 5000000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 5000000;// 5000000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
 
 
     //*** Record run time
@@ -160,7 +160,7 @@ void FFT_Test::fft_Base(Debug* debug)
         Chan_begin->valid = 0;
 
         Chan_span_lc->get();	// Nop	[0]Lc_span 
-        Chan_span_lc->value = Chan_span_lc->assign(uint(0));
+        Chan_span_lc->value = Chan_span_lc->assign(uint64_t(0));
 
         // Lc: Lc_odd_lp
         Lc_odd_lp->var = Lc_odd_lp->mux->mux(Lc_odd_lp->var, Lc_span->var, Lc_odd_lp->sel);
@@ -175,13 +175,13 @@ void FFT_Test::fft_Base(Debug* debug)
         Chan_log->value = Chan_log->value + 1;
 
         Chan_span_lc_scatter_loop_odd->get();	// Nop	[0]Chan_span_lc 
-        Chan_span_lc_scatter_loop_odd->value = Chan_span_lc_scatter_loop_odd->assign(uint(0));
+        Chan_span_lc_scatter_loop_odd->value = Chan_span_lc_scatter_loop_odd->assign(uint64_t(0));
 
         Chan_odd->get();	// Or	[0]Lc_odd_lp [1]Chan_span_lc 
-        Chan_odd->value = Chan_odd->assign(uint(0)) | Chan_odd->assign(uint(1));
+        Chan_odd->value = Chan_odd->assign(uint64_t(0)) | Chan_odd->assign(uint64_t(1));
 
         Chan_even->get();	// Xor	[0]Chan_odd [1]Chan_span_lc 
-        Chan_even->value = Chan_even->assign(uint(0)) ^ Chan_even->assign(uint(1));
+        Chan_even->value = Chan_even->assign(uint64_t(0)) ^ Chan_even->assign(uint64_t(1));
 
         Lse_real_odd_val->get();	// Load	[0]Chan_odd 
         Lse_real_odd_val->value = real[Lse_real_odd_val->assign()];
@@ -196,28 +196,28 @@ void FFT_Test::fft_Base(Debug* debug)
         Lse_img_even_val->value = img[Lse_img_even_val->assign()];
 
         Chan_tt->get();	// Shl	[0]Chan_even [1]Chan_log 
-        Chan_tt->value = Chan_tt->assign(uint(0)) << Chan_tt->assign(uint(1));
+        Chan_tt->value = Chan_tt->assign(uint64_t(0)) << Chan_tt->assign(uint64_t(1));
 
         Chan_real_even_val_update->get();	// Add	[0]Lse_real_even_val [1]Lse_real_odd_val 
-        Chan_real_even_val_update->value = Chan_real_even_val_update->assign(uint(0)) + Chan_real_even_val_update->assign(uint(1));
+        Chan_real_even_val_update->value = Chan_real_even_val_update->assign(uint64_t(0)) + Chan_real_even_val_update->assign(uint64_t(1));
 
         Chan_real_odd_val_update->get();	// Sub	[0]Lse_real_even_val [1]Lse_real_odd_val 
-        Chan_real_odd_val_update->value = Chan_real_odd_val_update->assign(uint(0)) - Chan_real_odd_val_update->assign(uint(1));
+        Chan_real_odd_val_update->value = Chan_real_odd_val_update->assign(uint64_t(0)) - Chan_real_odd_val_update->assign(uint64_t(1));
 
         Chan_img_even_val_update->get();	// Add	[0]Lse_img_even_val [1]Lse_img_odd_val 
-        Chan_img_even_val_update->value = Chan_img_even_val_update->assign(uint(0)) + Chan_img_even_val_update->assign(uint(1));
+        Chan_img_even_val_update->value = Chan_img_even_val_update->assign(uint64_t(0)) + Chan_img_even_val_update->assign(uint64_t(1));
 
         Chan_img_odd_val_update->get();	// Sub	[0]Lse_img_even_val [1]Lse_img_odd_val 
-        Chan_img_odd_val_update->value = Chan_img_odd_val_update->assign(uint(0)) - Chan_img_odd_val_update->assign(uint(1));
+        Chan_img_odd_val_update->value = Chan_img_odd_val_update->assign(uint64_t(0)) - Chan_img_odd_val_update->assign(uint64_t(1));
 
         Chan_rootindex->get();	// And	[0]Chan_tt 
-        Chan_rootindex->value = Chan_rootindex->assign(uint(0)) & (fft_size - 1);
+        Chan_rootindex->value = Chan_rootindex->assign(uint64_t(0)) & (fft_size - 1);
 
         Chan_rootindex_cmp->get();	// Cmp	[0]Chan_rootindex 
-        Chan_rootindex_cmp->value = Chan_rootindex_cmp->assign(uint(0)) > 0 ? 1 : 0;
+        Chan_rootindex_cmp->value = Chan_rootindex_cmp->assign(uint64_t(0)) > 0 ? 1 : 0;
 
         Chan_rootindex_active->get();	// Nop	[0]Chan_rootindex_cmp [1]Chan_rootindex 
-        Chan_rootindex_active->value = Chan_rootindex_active->assign(uint(1));
+        Chan_rootindex_active->value = Chan_rootindex_active->assign(uint64_t(1));
 
         Lse_real_twid_val->get();	// Load	[0]Chan_rootindex_active 
         Lse_real_twid_val->value = real_twid[Lse_real_twid_val->assign()];
@@ -226,25 +226,25 @@ void FFT_Test::fft_Base(Debug* debug)
         Lse_img_twid_val->value = img_twid[Lse_img_twid_val->assign()];
 
         Chan_real_twid_real->get();	// Mul	[0]Lse_real_twid_val [1]Chan_real_odd_val_update 
-        Chan_real_twid_real->value = Chan_real_twid_real->assign(uint(0)) * Chan_real_twid_real->assign(uint(1));
+        Chan_real_twid_real->value = Chan_real_twid_real->assign(uint64_t(0)) * Chan_real_twid_real->assign(uint64_t(1));
 
         Chan_real_twid_img->get();	// Mul	[0]Lse_real_twid_val [1]Chan_img_odd_val_update 
-        Chan_real_twid_img->value = Chan_real_twid_img->assign(uint(0)) * Chan_real_twid_img->assign(uint(1));
+        Chan_real_twid_img->value = Chan_real_twid_img->assign(uint64_t(0)) * Chan_real_twid_img->assign(uint64_t(1));
 
         Chan_img_twid_img->get();	// Mul	[0]Lse_img_twid_val [1]Chan_img_odd_val_update 
-        Chan_img_twid_img->value = Chan_img_twid_img->assign(uint(0)) * Chan_img_twid_img->assign(uint(1));
+        Chan_img_twid_img->value = Chan_img_twid_img->assign(uint64_t(0)) * Chan_img_twid_img->assign(uint64_t(1));
 
         Chan_img_twid_real->get();	// Mul	[0]Lse_img_twid_val [1]Chan_real_odd_val_update 
-        Chan_img_twid_real->value = Chan_img_twid_real->assign(uint(0)) * Chan_img_twid_real->assign(uint(1));
+        Chan_img_twid_real->value = Chan_img_twid_real->assign(uint64_t(0)) * Chan_img_twid_real->assign(uint64_t(1));
 
         Chan_real_odd_update->get();	// Sub	[0]Chan_real_twid_real [1]Chan_img_twid_img 
-        Chan_real_odd_update->value = Chan_real_odd_update->assign(uint(0)) - Chan_real_odd_update->assign(uint(1));
+        Chan_real_odd_update->value = Chan_real_odd_update->assign(uint64_t(0)) - Chan_real_odd_update->assign(uint64_t(1));
 
         Chan_img_odd_update->get();	// Add	[0]Chan_real_twid_img [1]Chan_img_twid_real 
-        Chan_img_odd_update->value = Chan_img_odd_update->assign(uint(0)) + Chan_img_odd_update->assign(uint(1));
+        Chan_img_odd_update->value = Chan_img_odd_update->assign(uint64_t(0)) + Chan_img_odd_update->assign(uint64_t(1));
 
         Chan_branch_merge->get();	// selPartial	[0]Chan_rootindex_cmp [1]Chan_real_odd_update [2]Chan_rootindex 
-        Chan_branch_merge->value = Chan_branch_merge->assign(uint(0)) ? Chan_branch_merge->assign(uint(1)) : Chan_branch_merge->assign(uint(2));
+        Chan_branch_merge->value = Chan_branch_merge->assign(uint64_t(0)) ? Chan_branch_merge->assign(uint64_t(1)) : Chan_branch_merge->assign(uint64_t(2));
 
         // *************************************************************************************
 

@@ -117,13 +117,13 @@ void AesTest::aes_Base(Debug* debug)
     registry->init();  // Update registry and initial all the module in registry
 
     begin->get({ 1 });
-    uint iter = 0;
+    uint64_t iter = 0;
 
     int i = 1;
 
-    uint max_iter = 500000;
-    uint segment = max_iter / 100;
-    uint percent = 0;
+    uint64_t max_iter = 500000;
+    uint64_t segment = max_iter / 100;
+    uint64_t percent = 0;
     // Execute
     while (iter < max_iter)
     {
@@ -177,9 +177,9 @@ void AesTest::aes_Base(Debug* debug)
         chan_falsePath_aes_addRoundKey->value = chan_falsePath_aes_addRoundKey->assign(chan_falsePath_aes_expandEncKey);
 
         chan_branch_merge->get();
-        uint cond = chan_branch_merge->assign(chan_cond);
-        uint trueData = chan_branch_merge->assign(chan_truePath_aes_addRoundKey);
-        uint falseData = chan_branch_merge->assign(chan_falsePath_aes_addRoundKey);
+        uint64_t cond = chan_branch_merge->assign(chan_cond);
+        uint64_t trueData = chan_branch_merge->assign(chan_truePath_aes_addRoundKey);
+        uint64_t falseData = chan_branch_merge->assign(chan_falsePath_aes_addRoundKey);
         chan_branch_merge->value = cond ? trueData : falseData;
 
 
