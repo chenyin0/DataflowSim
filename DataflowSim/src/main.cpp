@@ -60,11 +60,13 @@ int main(int argc, char** argv)
     std::cout << "Begin test" << std::endl;
 
     string dataset, arch_name, deg_th;
-    if (-1 == parseOptions(argc, argv, dataset, arch_name, deg_th))
+    /*if (-1 == parseOptions(argc, argv, dataset, arch_name, deg_th))
     {
         printf("Get parameter failed!\n");
         exit(-1);
-    }
+    }*/
+    dataset = "cora";
+    arch_name = "hygcn";
 
     string input_file_path;
     string log_file_path;

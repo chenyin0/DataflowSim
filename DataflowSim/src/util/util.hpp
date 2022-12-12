@@ -35,6 +35,8 @@
  *  */
 
 #include "../define/Define.hpp"
+#include "limits.h"
+#include <random>
 
 namespace DFSim
 {
