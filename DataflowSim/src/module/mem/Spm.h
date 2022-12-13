@@ -8,6 +8,7 @@ TODO:
 
 #include "../../define/Define.hpp"
 #include "../../define/Para.h"
+#include "../../sim/global.h"
 #include "../DataType.h"
 //#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
 #include "../../../../DRAMSim3/src/dramsim3.h"
@@ -45,8 +46,8 @@ namespace DFSim
     private:
         uint64_t sendPtr = 0;
         vector<pair<MemReq, uint64_t>> reqQueue;  // pair<req, latency>
-        uint64_t bankNum = SPM_BANK_NUM;
-        uint64_t bankDepth = SPM_BANK_DEPTH;
+        uint64_t bankNum = Global::spm_bank_num;
+        uint64_t bankDepth = Global::spm_bank_depth;
         uint64_t memAccessCnt = 0;
     };
 }

@@ -14,9 +14,9 @@ const uint64_t GemmTest::block_size = 15;
 // Address map: 
 // 0x00 -> matrix_m1 -> matrix_m2 -> matrix_paritial
 const uint64_t GemmTest::m1_BaseAddr = 0;
-const uint64_t GemmTest::m2_BaseAddr = 164 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height;
-const uint64_t GemmTest::partialSum_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width* matrix_height * 2;
-const uint64_t GemmTest::prod_BaseAddr = 330 * CACHE_LINE_SIZE_L1;  // matrix_width * matrix_height * 2;
+const uint64_t GemmTest::m2_BaseAddr = 164 * Global::cache_line_size_L1;  // matrix_width* matrix_height;
+const uint64_t GemmTest::partialSum_BaseAddr = 330 * Global::cache_line_size_L1;  // matrix_width* matrix_height * 2;
+const uint64_t GemmTest::prod_BaseAddr = 330 * Global::cache_line_size_L1;  // matrix_width * matrix_height * 2;
 
 vector<vector<int>> GemmTest::m1;
 vector<vector<int>> GemmTest::m2;

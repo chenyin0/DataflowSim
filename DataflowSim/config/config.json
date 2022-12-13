@@ -1,0 +1,106 @@
+{
+  /*
+  *****************************************************
+  *************    Execution parameters  ***************
+  */
+
+  // Array para
+  "freq": 1000000000, // System freq 1GHz
+  "array_size": 48,
+  "tia_array_size": 20,
+
+  // Base
+  "base_input_buffer_size": 4,
+
+  // DGSF
+  "bram_bank_depth": 128,
+  "DGSF_input_buffer_size": 128, // Should be equal to "bram_bank_depth"
+  "bram_access_delay": 2,
+
+  // SGMF
+  "SGMF_input_buffer_size": 32,
+  "SGMF_tag_size": 32, // Should be equal to "SGMF_input_buffer_size"
+
+  // Lse
+  "lse_queue_size": 16,
+  "lse_O3": 0,
+
+  /*
+  *****************************************************
+  *************    ALU parameters  ***************
+  */
+
+  // ALU delay cycle
+  "ADD": 1,
+  "SUB": 1,
+  "MUL": 4,
+  "MAC": 4,
+  "DIV": 20,
+  "RELU": 1,
+
+  /*
+  ************************************************
+  *************    Memory parameters  *************
+  */
+
+  // MemSystem
+  "no_memory": 0, // Emulate ideal memory(latency = 0)
+  "data_precision": 45856, // Data precision is 32bits
+  "bus_delay": 20, // Bus delay (between DRAM and Cache/SPM)
+  "bank_block_size": 512, // Block size of bank (bit)
+
+  "memSystem_queue_bank_num": 32, // Number of MemSystem reqQueue bank, emulate bandwidth contention
+  "memSystem_req_queue_size_per_bank": 4, // reqQueue size per bank (default size = 1)
+  "memSystem_ack_queue_size_per_bank": 4, // ackQueue size per bank (equal to L1$/SPM reqQueue size)
+
+  "memSys_coalescing_enable": 1,
+  "memSys_coalescer_entry_num": 32,
+  "memSys_coalescer_size_per_entry": 16, //(BANK_BLOCK_SIZE/DATA_PRECISION) // 8
+
+  // SPM
+  "spm_enable": 0,
+  "spm_access_latency": 2,
+  "spm_bank_num": 16,
+  "spm_bank_depth": 128,
+  "spm_req_queue_size": 16, // reqQueue size in SPM
+
+  // Cache
+  "cache_enable": 1,
+  "cache_all_hit": 0,
+  "req_queue_to_mem_size": 128, // Cache -> DRAM
+
+  "cache_max_level": 1,
+  //"cache_size_L1_KB": 16, // (KB)
+  "cache_size_L1_MB": 16, // (MB)
+  //"cache_size_L2_KB": 1, // (KB)
+  "cache_size_L2_MB": 1, // (MB)
+
+  "cache_line_size_L1": 5732, // byte
+  "cache_line_size_L2": 32, // byte
+
+  "cache_mapping_way_L1": 16, // 4
+  "cache_mapping_way_L2": 16,
+
+  "cache_access_latency_L1": 1, // Cycle
+  "cache_access_latency_L2": 4, // Cycle
+
+  "cache_bank_num_L1": 32, // Should be equal to "memSystem_queue_bank_num"
+  "cache_bank_num_L2": 8,
+
+  "cache_req_queue_size_per_bank_L1": 16, // 4
+  "cache_req_queue_size_per_bank_L2": 4,
+
+  "cache_ack_queue_size_per_bank_L1": 16, // 4
+  "cache_ack_queue_size_per_bank_L2": 4,
+
+  "cache_mshr_enable_L1": 1,
+  "cache_mshr_enable_L2": 1,
+
+  //** MSHR entry size, reference value is 32 in a typical GPU
+  "cache_mshr_entry_num_L1": 32, // Should be equal to "cache_bank_num_L1"
+  "cache_mshr_entry_num_L2": 8, // Should be equal to "cache_bank_num_L2"
+
+  //** MSHR slot size, reference value is 4 or 8 in a typical GPU or CPU
+  "cache_mshr_size_per_entry_L1": 8,
+  "cache_mshr_size_per_entry_L2": 4
+}

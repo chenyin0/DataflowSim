@@ -1,6 +1,7 @@
 #include "./Lse.h"
 #include "../ClkSys.h"
 #include "../../sim/Debug.h"
+#include "../../sim/global.h"
 
 using namespace DFSim;
 
@@ -183,7 +184,7 @@ void Lse::pushReqQ(/*bool _isWrite, uint64_t _addr*/)  // chanBuffer[0] must sto
     req.valid = 1;
     //req.addr = chanBuffer[0].front().value;  // Address must stored in chanBuffer[0]!!!
     //req.addr = chanBuffer[0].front().value + baseAddr;  // Address must stored in chanBuffer[0]!!!
-    req.addr = chanBuffer[0].front().value * (DATA_PRECISION / 8) + baseAddr;  // Address must stored in chanBuffer[0] (Byte)
+    req.addr = chanBuffer[0].front().value * (Global::data_precision / 8) + baseAddr;  // Address must stored in chanBuffer[0] (Byte)
     req.isWrite = isWrite;
     req.lseId = lseId;
 
@@ -325,7 +326,7 @@ void Lse::statusUpdate()
             if (reqQueue[sendMemPtr].second.cycle <= clk)  // Satisfy clk restriction
             {
                 req.lseReqQueueIndex = sendMemPtr;
-                if (NO_MEMORY || noLatencyMode)
+                if (Global::no_memory || noLatencyMode)
                 {
                     reqQueue[req.lseReqQueueIndex].first.inflight = 1;  // Set to inflight virtually
                     ackCallback(req);  // Send back ack directly(Not send reqs to memSys)
@@ -397,7 +398,7 @@ void Lse::pushChannel()
 
     if (channel.size() < size)
     {
-        if (LSE_O3)  // If lse OoO
+        if (Global::lse_O3)  // If lse OoO
         {
             for (size_t i = 0; i < reqQueue.size(); ++i)
             {
@@ -512,21 +513,22 @@ uint64_t Lse::assign()
     if (!this->channel.empty())
     {
         uint64_t index = channel.front().lseReqQueueIndex;
-        return (reqQueue[index].first.addr - baseAddr) / (DATA_PRECISION / 8);
+        return (reqQueue[index].first.addr - baseAddr) / (Global::data_precision / 8);
     }
     else
     {
-        return lastPopVal >= baseAddr ? (lastPopVal - baseAddr) / (DATA_PRECISION / 8) : 0;
+        return lastPopVal >= baseAddr ? (lastPopVal - baseAddr) / (Global::data_precision / 8) : 0;
     }
 }
 
 void Lse::ackCallback(MemReq _req)
 {
     uint64_t index = _req.lseReqQueueIndex;
-    if (!reqQueue[index].first.inflight)
+    // Debug_yin 22.12.13 Disable temporarily
+    /*if (!reqQueue[index].first.inflight)
     {
         Debug::throwError("Current req is not an inflight req!", __FILE__, __LINE__);
-    }
+    }*/
     reqQueue[index].first.ready = 1;
     reqQueue[index].first.inflight = 0;
     //reqQueue[index].first.cnt = _req.cnt;

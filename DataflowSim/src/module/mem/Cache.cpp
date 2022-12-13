@@ -11,18 +11,52 @@ Cache::Cache()
 
 void Cache::init() 
 {
+    reqQueue.resize(Global::cache_max_level);
+    ackQueue.resize(Global::cache_max_level);
+    reqBankConflict.resize(Global::cache_max_level);
+    ackBankConflict.resize(Global::cache_max_level);
+    reqQueueBankPtr.resize(Global::cache_max_level);
+    ackQueueBankPtr.resize(Global::cache_max_level);
+    //sendPtr.resize(Global::cache_max_level);
+
+    if (Global::cache_max_level == 1)
+    {
+        a_cache_size = { Global::cache_size_L1 };  // Cache size of each level (byte)
+        a_cache_line_size = { Global::cache_line_size_L1 };  // Cacheline size of each level (byte)
+        a_mapping_ways = { Global::cache_mapping_way_L1 };  // Way number in each set
+
+        cache_access_latency = { Global::cache_access_latency_L1 };  // L1 cycle = 1; L2 cycle = 4;
+        reqQueueSizePerBank = { Global::cache_req_queue_size_per_bank_L1 };
+        ackQueueSizePerBank = { Global::cache_ack_queue_size_per_bank_L1 };
+        bankNum = { Global::cache_bank_num_L1 };  // L1 = 8, L2 = 16
+        mshrPara = { std::make_pair(Global::cache_mshr_entry_num_L1, Global::cache_mshr_size_per_entry_L1) };
+
+        cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU };
+        cache_write_strategy = { Cache_write_strategy::WRITE_BACK };
+        cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE };
+    }
+    else if (Global::cache_max_level == 2)
+    {
+        a_cache_size = { Global::cache_size_L1, Global::cache_size_L2 };  // Cache size of each level (byte)
+        a_cache_line_size = { Global::cache_line_size_L1, Global::cache_line_size_L2 };  // Cacheline size of each level (byte)
+        a_mapping_ways = { Global::cache_mapping_way_L1, Global::cache_mapping_way_L2 };  // Way number in each set
+
+        cache_access_latency = { Global::cache_access_latency_L1, Global::cache_access_latency_L2 };  // L1 cycle = 1; L2 cycle = 4;
+        reqQueueSizePerBank = { Global::cache_req_queue_size_per_bank_L1, Global::cache_req_queue_size_per_bank_L2 };
+        ackQueueSizePerBank = { Global::cache_ack_queue_size_per_bank_L1, Global::cache_ack_queue_size_per_bank_L2 };
+        bankNum = { Global::cache_bank_num_L1, Global::cache_bank_num_L2 };  // L1 = 8, L2 = 16
+        mshrPara = { std::make_pair(Global::cache_mshr_entry_num_L1, Global::cache_mshr_size_per_entry_L1),
+                std::make_pair(Global::cache_mshr_entry_num_L2, Global::cache_mshr_size_per_entry_L2) };
+
+        cache_swap_style = { Cache_swap_style::CACHE_SWAP_LRU, Cache_swap_style::CACHE_SWAP_LRU };
+        cache_write_strategy = { Cache_write_strategy::WRITE_BACK, Cache_write_strategy::WRITE_BACK };
+        cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE, Cache_write_allocate::WRITE_ALLOCATE };
+    }
+
     // Check whether configuration is correct
     config_check();
 
-    reqQueue.resize(CACHE_MAXLEVEL);
-    ackQueue.resize(CACHE_MAXLEVEL);
-    reqBankConflict.resize(CACHE_MAXLEVEL);
-    ackBankConflict.resize(CACHE_MAXLEVEL);
-    reqQueueBankPtr.resize(CACHE_MAXLEVEL);
-    ackQueueBankPtr.resize(CACHE_MAXLEVEL);
-    //sendPtr.resize(CACHE_MAXLEVEL);
-
-    for (_u8 i = 0; i < CACHE_MAXLEVEL; ++i)
+    for (_u8 i = 0; i < Global::cache_max_level; ++i)
     {
         cache_size[i] = a_cache_size[i];
         cache_line_size[i] = a_cache_line_size[i];
@@ -68,7 +102,7 @@ void Cache::init()
         memset(caches[i], 0, sizeof(Cache_Line) * cache_line_num[i]);
     }
 
-    reqQueue2Mem.resize(cache_bank_num[CACHE_MAXLEVEL - 1]);  // Size equals to LLC bank number
+    reqQueue2Mem.resize(cache_bank_num[Global::cache_max_level - 1]);  // Size equals to LLC bank number
 
     cache_r_count = 0;
     cache_w_count = 0;
@@ -80,41 +114,41 @@ void Cache::init()
 
 void Cache::config_check()
 {
-    if(CACHE_MAXLEVEL < 1)
-        Debug::throwError("Parameter \"CACHE_MAXLEVEL\" can not be less than 1", __FILE__, __LINE__);
+    if(Global::cache_max_level < 1)
+        Debug::throwError("Parameter \"Global::cache_max_level\" can not be less than 1", __FILE__, __LINE__);
 
-    if(a_cache_size.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"Cache_size\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if(a_cache_size.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"Cache_size\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (a_cache_line_size.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"Cache_line_size\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (a_cache_line_size.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"Cache_line_size\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (a_mapping_ways.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"Mapping_ways\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (a_mapping_ways.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"Mapping_ways\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (cache_access_latency.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"Cache_access_latency\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (cache_access_latency.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"Cache_access_latency\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (reqQueueSizePerBank.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"ReqQueueSize\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (reqQueueSizePerBank.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"ReqQueueSize\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (bankNum.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"BankNum\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (bankNum.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"BankNum\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (cache_swap_style.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"cache_swap_style\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (cache_swap_style.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"cache_swap_style\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (cache_write_strategy.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"cache_write_strategy\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (cache_write_strategy.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"cache_write_strategy\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
-    if (cache_write_allocate.size() != CACHE_MAXLEVEL)
-        Debug::throwError("Parameter \"cache_write_allocate\" demension not consistent with CACHE_MAXLEVEL", __FILE__, __LINE__);
+    if (cache_write_allocate.size() != Global::cache_max_level)
+        Debug::throwError("Parameter \"cache_write_allocate\" demension not consistent with Global::cache_max_level", __FILE__, __LINE__);
 
 }
 
 Cache::~Cache() 
 {
-    for (uint64_t i = 0; i < CACHE_MAXLEVEL; ++i)
+    for (uint64_t i = 0; i < Global::cache_max_level; ++i)
     {
         free(caches[i]);
     }
@@ -238,7 +272,7 @@ bool Cache::writeBackDirtyCacheline(const uint64_t tag, const uint64_t setIndex,
     cacheReq.addr = (tag << (cache_set_shifts[level] + cache_line_shifts[level])) | (setIndex << cache_line_shifts[level]);
     cacheReq.cacheOp = Cache_operation::WRITEBACK_DIRTY_BLOCK;
 
-    if (level < CACHE_MAXLEVEL - 1)
+    if (level < Global::cache_max_level - 1)
     {
         if (sendReq2CacheBank(cacheReq, level + 1))
         {
@@ -438,7 +472,7 @@ MemReq Cache::callBack(uint64_t ackQueueId)
 
 bool Cache::sendReq2reqQueue2Mem(const CacheReq cacheReq)
 {
-    if (reqQueue2Mem.size() < REQ_QUEUE_TO_MEM_SIZE)
+    if (reqQueue2Mem.size() < Global::req_queue_to_mem_size)
     {
         reqQueue2Mem.push_back(transCacheReq2MemReq(cacheReq));
         return true;
@@ -506,7 +540,7 @@ void Cache::sendReq2Mem(dramsim3::MemorySystem* mem)
 // Receive cache block(cacheline) from DRAM 
 void Cache::mem_req_complete(MemReq _req)
 {
-    uint64_t llc = CACHE_MAXLEVEL - 1;
+    uint64_t llc = Global::cache_max_level - 1;
     uint64_t addr = _req.addr;
 
     // Update cacheline
@@ -548,7 +582,7 @@ void Cache::updateReqQueueLatency()
 
 void Cache::resetBankConflictRecorder()
 {
-    for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)
+    for (size_t level = 0; level < Global::cache_max_level; ++level)
     {
         uint64_t reqBankNum = reqBankConflict[level].size();
         uint64_t ackBankNum = ackBankConflict[level].size();
@@ -559,7 +593,7 @@ void Cache::resetBankConflictRecorder()
 
 void Cache::updateReqQueue()
 {
-    for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)  // Traverse each cache level, exclude L1 cache
+    for (size_t level = 0; level < Global::cache_max_level; ++level)  // Traverse each cache level, exclude L1 cache
     {
         for (size_t i = 0; i < reqQueue[level].size(); ++i)  // Traverse each bank, round-robin
         {
@@ -603,7 +637,7 @@ void Cache::updateReqQueue()
                                     //reqQueueBank.pop_front();
                                     req.first.ready = 1;
 
-                                    //if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+                                    //if (level < Global::cache_max_level - 1)  // If it isn't LLC, send the req to the next level cache
                                     //{
                                     //    if (sendReq2CacheBank(req.first, level + 1))  // Send req to next level cache in "write_through"
                                     //    {
@@ -663,7 +697,7 @@ void Cache::updateAckQueue()
     // 2. The ready entry in mshr
     // 3. The ready req in reqQueue.front()
 
-    for (int level = CACHE_MAXLEVEL - 1; level >= 0; --level)
+    for (int level = Global::cache_max_level - 1; level >= 0; --level)
     {
         //*** Pop ackQueue
         if (level > 0)  // If level = 0, pop by callback function!
@@ -753,12 +787,12 @@ void Cache::updateAckQueue()
 
 void Cache::sendMshrOutstandingReq()
 {
-    for (size_t level = 0; level < CACHE_MAXLEVEL; ++level)
+    for (size_t level = 0; level < Global::cache_max_level; ++level)
     {
         // Get outstanding req without bank conflict
         auto reqVec = mshr[level].getOutstandingReq();
         vector<uint64_t> mshrEntryId;
-        if (level < CACHE_MAXLEVEL - 1)  // If it isn't LLC, send the req to the next level cache
+        if (level < Global::cache_max_level - 1)  // If it isn't LLC, send the req to the next level cache
         {
             for (auto& req : reqVec)
             {

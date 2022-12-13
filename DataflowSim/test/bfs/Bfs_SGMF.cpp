@@ -22,6 +22,7 @@ void BfsTest::bfs_SGMF(Debug* debug)
     //*** Declare registry
     Registry* registry = new Registry(memSys);
 
+    uint64_t SGMF_INPUT_BUFF_SIZE = Global::SGMF_input_buffer_size;
     //*** Declare Lse
     Lse* lse_ld_node = new Lse(SGMF_INPUT_BUFF_SIZE, 0, false, memSys);  // Load node
     Lse* lse_ld_edge = new Lse(SGMF_INPUT_BUFF_SIZE, 0, false, memSys);  // Load edge

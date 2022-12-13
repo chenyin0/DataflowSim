@@ -5,7 +5,7 @@ using namespace DFSim;
 
 Spm::Spm()
 {
-    reqQueue.resize(SPM_REQ_QUEUE_SIZE);
+    reqQueue.resize(Global::spm_req_queue_size);
 }
 
 bool Spm::addTransaction(MemReq _req)
@@ -27,7 +27,7 @@ bool Spm::addTransaction(MemReq _req)
         {
             _req.spmReqQueueIndex = i;  // Record the entry of reqQueue in SPM
             reqQueue[i].first = _req;
-            reqQueue[i].second = SPM_ACCESS_LATENCY;  // Emulate SPM access latency
+            reqQueue[i].second = Global::spm_access_latency;  // Emulate SPM access latency
             addSuccess = 1;
             break;
         }

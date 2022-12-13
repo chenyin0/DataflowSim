@@ -51,6 +51,7 @@ void AesTest::aes_Base(Debug* debug)
     ChanBase* end = new ChanBase(1, 0);
     end->noDownstream = 1;
 
+    uint64_t BASE_INPUT_BUFF_SIZE = Global::base_input_buffer_size;
     // loop i
     ChanBase* chan_aes_subByte = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, Base_speedup);
     ChanBase* chan_aes_shiftRows = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2, Base_speedup);

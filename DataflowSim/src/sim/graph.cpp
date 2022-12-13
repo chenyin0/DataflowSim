@@ -666,9 +666,9 @@ void Graph::printSubgraphPartition(const uint64_t& divideNum, Debug* debug)
     }
 
     //uint64_t arraySize = 64;
-    uint64_t maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
+    uint64_t maxCoalesceRate = Global::bank_block_size / Global::data_precision;
     // TODO: Figure out actual coalesceRate of each subgraph
-    uint64_t coalesceRate = std::min(ARRAY_SIZE / (actualNodeNum / divideNum), maxCoalesceRate);
+    uint64_t coalesceRate = std::min(Global::array_size / (actualNodeNum / divideNum), maxCoalesceRate);
     float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
     float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
     float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
@@ -2028,7 +2028,7 @@ void ChanGraph::addNodeDelay()
         const auto& chanNodePtr = dynamic_cast<Chan_Node*>(chanNode);
         if (chanNodePtr->node_type == "ChanDGSF")
         {
-            chanNodePtr->cycle = BRAM_ACCESS_DELAY;
+            chanNodePtr->cycle = Global::bram_access_delay;
         }
         else
         {
@@ -2038,27 +2038,27 @@ void ChanGraph::addNodeDelay()
             }
             else if (chanNodePtr->node_op == "Mul")
             {
-                chanNodePtr->cycle = MUL;
+                chanNodePtr->cycle = Global::MUL;
             }
             else if (chanNodePtr->node_op == "Add")
             {
-                chanNodePtr->cycle = ADD;
+                chanNodePtr->cycle = Global::ADD;
             }
             else if (chanNodePtr->node_op == "Sub")
             {
-                chanNodePtr->cycle = SUB;
+                chanNodePtr->cycle = Global::SUB;
             }
             else if (chanNodePtr->node_op == "Div")
             {
-                chanNodePtr->cycle = DIV;
+                chanNodePtr->cycle = Global::DIV;
             }
             else if (chanNodePtr->node_op == "Mac")
             {
-                chanNodePtr->cycle = MAC;
+                chanNodePtr->cycle = Global::MAC;
             }
             else if (chanNodePtr->node_op == "Relu")
             {
-                chanNodePtr->cycle = RELU;
+                chanNodePtr->cycle = Global::RELU;
             }
             else
             {
@@ -2108,7 +2108,7 @@ void ChanGraph::addChanDGSF()
                 addNode(nodeName, "ChanDGSF", "Nop", "Normal", node->controlRegionName);
                 const auto& chanPtr = dynamic_cast<Chan_Node*>(getNode(nodeName));
                 chanPtr->isPhysicalChan = false;
-                chanPtr->size = DGSF_INPUT_BUFF_SIZE;
+                chanPtr->size = Global::DGSF_input_buffer_size;
                 //chanPtr->speedup = dynamic_cast<Chan_Node*>(node)->speedup;
                 addNodes2CtrlTree(node->controlRegionName, { nodeName });
                 getNode(nodeName)->subgraphId = node->subgraphId;
@@ -2203,7 +2203,7 @@ void ChanGraph::setSpeedup(Debug* debug)
     for (auto& subgraph : subgraphNodes)
     {
         uint64_t nodeNum = subgraph.second;
-        uint64_t _speedup = ARRAY_SIZE / nodeNum;
+        uint64_t _speedup = Global::array_size / nodeNum;
         subgraphSpeedupTable[subgraph.first] = _speedup;  // Record _speedup of each subgraph
         if (_speedup < 1)
         {

@@ -49,6 +49,7 @@ TODO:
 #include "../../define/Define.hpp"
 #include "../DataType.h"
 #include "../../define/Para.h"
+#include "../../sim/global.h"
 
 namespace DFSim
 {
@@ -319,7 +320,7 @@ class ChanSGMF usage:
         //vector<vector<Channel*>> upstreamBundle;  // { { Din1's upstream }, { Din2's upstream } ... }
         //vector<vector<ChanSGMF*>> downstreamBundle;  // { { to whose Din1 }, { to whose Din2 } ...}
         //deque<Data> popFifo;  // Store match ready data
-        uint64_t tagSize = TAG_SIZE;  // Number of tags
+        uint64_t tagSize = Global::SGMF_tag_size;  // Number of tags
         bool tagUpdateMode = 0;  // In this mode, update the data's tag when it been pushed in channel (Used in loopVar or loop feedback)
 
         //ArchType archType = ArchType::SGMF;

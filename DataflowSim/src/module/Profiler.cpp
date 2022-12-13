@@ -1,5 +1,6 @@
 #include "./Profiler.h"
 #include "../define/hw_para.hpp"
+#include "../sim/global.h"
 
 using namespace DFSim;
 
@@ -46,7 +47,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
     debug->getFile() << std::setw(20) << lseName
         << "\taccessCnt: " << std::setw(5) << _lsePtr->memAccessCnt
-        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::max(std::min(_lsePtr->speedup, uint64_t(BANK_BLOCK_SIZE / DATA_PRECISION)), uint64_t(1))
+        << "\taccessCntCoalesce: " << std::setw(5) << _lsePtr->memAccessCnt / std::max(std::min(_lsePtr->speedup, uint64_t(Global::bank_block_size / Global::data_precision)), uint64_t(1))
         << "\tAvgLat: " << std::setw(5) << _lsePtr->avgMemAccessLat
         << "\treqBlockRate: " << std::fixed << std::setprecision(1) << std::setw(5) << reqBlockRate << "%"
         << "\treqBlockCnt: " << std::setw(5) << _lsePtr->memReqBlockCnt
@@ -56,7 +57,7 @@ void Profiler::printLseProfiling(string lseName, Lse* _lsePtr)
 
 void Profiler::printCacheMissRate()
 {
-    uint64_t cacheLevel = CACHE_MAXLEVEL;
+    uint64_t cacheLevel = Global::cache_max_level;
     for (size_t level = 0; level < cacheLevel; ++level)
     {
         double missRate = memSys->cache->get_miss_rate(level);
@@ -265,18 +266,18 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
     {
         for (size_t subgraphId = 0; subgraphId < subgraphNodeNum.size(); ++subgraphId)
         {
-            totalPeCycle += (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] * _graphScheduler->subgraphActiveCnt[subgraphId];
+            totalPeCycle += (Global::array_size / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId] * _graphScheduler->subgraphActiveCnt[subgraphId];
             std::cout << "graphId: " << subgraphId
                 << "\t ActiveNum: " << _graphScheduler->subgraphActiveCnt[subgraphId]
-                << "\t NodeNum: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId]
-                << "\t Speedup: " << (ARRAY_SIZE / subgraphNodeNum[subgraphId]) << std::endl;
+                << "\t NodeNum: " << (Global::array_size / subgraphNodeNum[subgraphId]) * subgraphNodeNum[subgraphId]
+                << "\t Speedup: " << (Global::array_size / subgraphNodeNum[subgraphId]) << std::endl;
         }
         // Debug_yin_21.08.27
         //totalPeCycle = ARRAY_SIZE * ClkDomain::getClk();
     }
     else
     {
-        totalPeCycle = (ARRAY_SIZE / subgraphNodeNum[0]) * subgraphNodeNum[0] * ClkDomain::getClk();
+        totalPeCycle = (Global::array_size / subgraphNodeNum[0]) * subgraphNodeNum[0] * ClkDomain::getClk();
         //totalPeCycle = ARRAY_SIZE * ClkDomain::getClk();
     }
 
@@ -338,7 +339,7 @@ void Profiler::printPowerProfiling()
     //uint64_t aluActiveTimes = chanActiveNumTotal;
     uint64_t reg_active_times = chanActiveNumTotal * 3;
     uint64_t pe_ctrl_active_times = chanActiveNumTotal;
-    uint64_t contextBuffer_active_times = graphSwitchTimes * ARRAY_SIZE;
+    uint64_t contextBuffer_active_times = graphSwitchTimes * Global::array_size;
 
     float alu_dynamic_energy = 0;
     //for (auto& entry : registry->getRegistryTable())
@@ -376,7 +377,7 @@ void Profiler::printPowerProfiling()
     {
         if (entry.moduleType == ModuleType::Channel)
         {
-            uint64_t coalesceRate = std::min(entry.chanPtr->speedup, uint64_t(BANK_BLOCK_SIZE / DATA_PRECISION));
+            uint64_t coalesceRate = std::min(entry.chanPtr->speedup, uint64_t(Global::bank_block_size / Global::data_precision));
             if (entry.chanPtr->chanType == ChanType::Chan_Lse)
             {
                 dataBuffer_mem_req_access_times += entry.chanPtr->activeCnt / coalesceRate;
@@ -521,7 +522,7 @@ float Profiler::transEnergy2Power(float _energy)
 float Profiler::transEnergy2Power(float _energy, uint64_t _cycle)
 {
     float energy = _energy / static_cast<float>(_cycle);  // pJ
-    float power = energy * static_cast<float>(FREQ) / 1000000;  // uW
+    float power = energy * static_cast<float>(Global::freq) / 1000000;  // uW
     return power / 1000;  // Transfer to mW
 }
 
@@ -546,7 +547,7 @@ void Profiler::tiaProfiling()
     avgReqBlockRate = totalReqBlockRate / static_cast<float>(std::max(reqNum, uint64_t(1)));
 
     float resII = 1.2;  // Update to Modulo mapper
-    uint64_t cycle = (totalOpNum / TIA_ARRAY_SIZE) / (1 - avgReqBlockRate) * resII;
+    uint64_t cycle = (totalOpNum / Global::tia_array_size) / (1 - avgReqBlockRate) * resII;
     std::cout << "feataetager" << totalReqBlockRate << "\t" << reqNum << std::endl;
     float utilization = (1 - avgReqBlockRate) / resII;
 

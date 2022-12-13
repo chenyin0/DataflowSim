@@ -42,7 +42,7 @@ bool Coalescer::send2Coalescer(uint64_t _blockAddr, deque<MemReq> _reqQueue)
 
     //return false; 
 
-    if (coalescerTable.size() < MEMSYS_COALESCER_ENTRY_NUM)
+    if (coalescerTable.size() < Global::memSys_coalescer_entry_num)
     {
         //deque<MemReq> reqQueue;
         //for (auto& req : _reqVec)

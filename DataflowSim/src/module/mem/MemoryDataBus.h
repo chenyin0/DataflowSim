@@ -2,6 +2,7 @@
 #include "../../define/Define.hpp"
 #include "../DataType.h"
 #include "../../define/Para.h"
+#include "../../sim/global.h"
 
 namespace DFSim
 {
@@ -27,7 +28,7 @@ namespace DFSim
 #endif // DEBUG_MODE
 
     private:
-        uint64_t busDelay = BUS_DELAY;
+        uint64_t busDelay = Global::bus_delay;
         deque<pair<MemReq, uint64_t>> busDelayFifo;  // Emulate bus delay when receive data from DRAM
     };
 }

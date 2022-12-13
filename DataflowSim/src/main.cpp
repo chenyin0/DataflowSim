@@ -59,12 +59,13 @@ int main(int argc, char** argv)
     DFSim::ClkDomain clk();
     std::cout << "Begin test" << std::endl;
 
-    string dataset, arch_name, deg_th;
+    string config_file, dataset, arch_name, deg_th;
     /*if (-1 == parseOptions(argc, argv, dataset, arch_name, deg_th))
     {
         printf("Get parameter failed!\n");
         exit(-1);
     }*/
+    config_file = "./config/config.json";
     dataset = "cora";
     arch_name = "hygcn";
 
@@ -84,6 +85,8 @@ int main(int argc, char** argv)
 
     //DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
     DFSim::Debug* debug = new DFSim::Debug(log_file_path);
+
+    Global::load_config(config_file);
 
 #ifdef ARCH
     debug->getFile() << std::endl;

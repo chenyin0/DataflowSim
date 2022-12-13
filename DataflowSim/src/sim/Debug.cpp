@@ -1,4 +1,5 @@
 #include "Debug.h"
+#include "../sim/global.h"
 
 using namespace DFSim;
 
@@ -801,7 +802,7 @@ void Debug::memSysPrint(const MemSystem* _memSys)
             // Print cache reqQueue2Mem
             auto req2Mem = _memSys->cache->getReqQueue2Mem();
             _output_file << "reqQueue2Mem:";
-            _output_file << " Total_size: " << REQ_QUEUE_TO_MEM_SIZE;
+            _output_file << " Total_size: " << Global::req_queue_to_mem_size;
             _output_file << " Curr_size: " << req2Mem.size() << std::endl;
             for (auto& req : req2Mem)
             {

@@ -25,6 +25,7 @@ Address bit fields:
 
 #include "../../define/Define.hpp"
 #include "../../define/Para.h"
+#include "../../sim/global.h"
 #include "../DataType.h"
 #include "../EnumType.h"
 //#include "../../../../DRAMSim2/src/MultiChannelMemorySystem.h"
@@ -184,46 +185,60 @@ namespace DFSim
         vector<Cache_write_allocate> cache_write_allocate = { Cache_write_allocate::WRITE_ALLOCATE };
 #endif
 
+        vector<uint64_t> a_cache_size;  // Cache size of each level (byte)
+        vector<uint64_t> a_cache_line_size;  // Cacheline size of each level (byte)
+        vector<uint64_t> a_mapping_ways;  // Way number in each set
+
+        vector<uint64_t> cache_access_latency;  // L1 cycle = 1; L2 cycle = 4;
+        vector<uint64_t> reqQueueSizePerBank;
+        vector<uint64_t> ackQueueSizePerBank;
+        vector<uint64_t> bankNum;  // L1 = 8, L2 = 16
+        vector<pair<uint64_t, uint64_t>> mshrPara;
+
+        vector<Cache_swap_style> cache_swap_style;
+        vector<Cache_write_strategy> cache_write_strategy;
+        vector<Cache_write_allocate> cache_write_allocate;
+
         /** Cache size of each level£¬byte */
-        vector<uint64_t> cache_size = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_size = vector<uint64_t>(Global::cache_max_level);
         /** Cacheline size */
-        vector<uint64_t> cache_line_size = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_size = vector<uint64_t>(Global::cache_max_level);
         /** Cacheline number */
-        vector<uint64_t> cache_line_num = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_num = vector<uint64_t>(Global::cache_max_level);
         /** Bank number */
-        vector<uint64_t> cache_bank_num = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_bank_num = vector<uint64_t>(Global::cache_max_level);
         /** Bank shift*/
-        //vector<uint64_t> cache_bank_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
+        //vector<uint64_t> cache_bank_shifts = vector<uint64_t>(Global::cache_max_level);
         /** Way number of each set*/
-        vector<uint64_t> cache_mapping_ways = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_mapping_ways = vector<uint64_t>(Global::cache_max_level);
         /** Cache set number */
-        vector<uint64_t> cache_set_size = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_set_size = vector<uint64_t>(Global::cache_max_level);
         /** Cache set shift */
-        vector<uint64_t> cache_set_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_set_shifts = vector<uint64_t>(Global::cache_max_level);
         /** Cacheline shift */
-        vector<uint64_t> cache_line_shifts = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_line_shifts = vector<uint64_t>(Global::cache_max_level);
         /** Cache array, Pointer array */
-        vector<Cache_Line*> caches = vector<Cache_Line*>(CACHE_MAXLEVEL);
+        vector<Cache_Line*> caches = vector<Cache_Line*>(Global::cache_max_level);
 
         /** Instruction counter */
         uint64_t tick_count;
         /** Cache buffer */
-        //_u8 *cache_buf[CACHE_MAXLEVEL];
+        //_u8 *cache_buf[Global::cache_max_level];
         /** Replacement algorithm */
-        vector<Cache_swap_style> swap_style = vector<Cache_swap_style>(CACHE_MAXLEVEL);
+        vector<Cache_swap_style> swap_style = vector<Cache_swap_style>(Global::cache_max_level);
         // Write strategy
-        vector<Cache_write_strategy> write_strategy = vector<Cache_write_strategy>(CACHE_MAXLEVEL);
+        vector<Cache_write_strategy> write_strategy = vector<Cache_write_strategy>(Global::cache_max_level);
         // Write allocate
-        vector<Cache_write_allocate> write_allocate = vector<Cache_write_allocate>(CACHE_MAXLEVEL);
+        vector<Cache_write_allocate> write_allocate = vector<Cache_write_allocate>(Global::cache_max_level);
         /** Read/write counter */
         uint64_t cache_r_count, cache_w_count;
         /** Access memory counter£¬cache --> memory */
         uint64_t cache_w_memory_count;
         /** Hit/miss counter */
-        vector<uint64_t> cache_hit_count = vector<uint64_t>(CACHE_MAXLEVEL);
-        vector<uint64_t> cache_miss_count = vector<uint64_t>(CACHE_MAXLEVEL);
+        vector<uint64_t> cache_hit_count = vector<uint64_t>(Global::cache_max_level);
+        vector<uint64_t> cache_miss_count = vector<uint64_t>(Global::cache_max_level);
         ///** Record free cacheline */
-        //vector<uint64_t> cache_free_num = vector<uint64_t>(CACHE_MAXLEVEL);
+        //vector<uint64_t> cache_free_num = vector<uint64_t>(Global::cache_max_level);
         /** Profiling counter **/
         uint64_t cacheAccessCnt = 0;
         uint64_t memAccessCnt = 0;

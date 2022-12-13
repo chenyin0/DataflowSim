@@ -53,6 +53,15 @@ void AesTest::aes_DGSF(Debug* debug)
     ChanBase* end = new ChanBase(1, 0);
     end->noDownstream = 1;
 
+    uint64_t BASE_INPUT_BUFF_SIZE = Global::base_input_buffer_size;
+    uint64_t LSE_QUEUE_SIZE = Global::lse_queue_size;
+    uint64_t DGSF_INPUT_BUFF_SIZE = Global::DGSF_input_buffer_size;
+    uint64_t BRAM_ACCESS_DELAY = Global::bram_access_delay;
+    uint64_t ADD = Global::ADD;
+    uint64_t SUB = Global::SUB;
+    uint64_t MUL = Global::MUL;
+    uint64_t DIV = Global::DIV;
+
     // loop i
     ChanBase* chan_aes_subByte = new ChanBase(1 * BASE_INPUT_BUFF_SIZE, 1, DGSF_non_branch_speedup);
     ChanBase* chan_aes_shiftRows = new ChanBase(2 * BASE_INPUT_BUFF_SIZE, 2, DGSF_non_branch_speedup);

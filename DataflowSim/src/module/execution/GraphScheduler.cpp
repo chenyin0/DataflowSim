@@ -1,5 +1,6 @@
 #include "./GraphScheduler.h"
 #include "../../sim/Debug.h"
+#include "../../sim/global.h"
 
 using namespace DFSim;
 
@@ -688,7 +689,7 @@ bool GraphScheduler::checkProducerChanFinish(vector<ChanDGSF*> producerChans)
         {
             for (size_t bufferId = 0; bufferId < chan->chanBuffer.size(); ++bufferId)
             {
-                if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt < DGSF_INPUT_BUFF_SIZE))
+                if (!(chan->chanBuffer[bufferId].empty() || chan->chanDataCnt < Global::DGSF_input_buffer_size))
                 {
                     finish = 0;
                     break;

@@ -119,6 +119,11 @@ void LudTest::lud_DGSF(Debug* debug)
     ChanBase* end = new ChanBase(1, 0);
     end->noDownstream = 1;
 
+    uint64_t BASE_INPUT_BUFF_SIZE = Global::base_input_buffer_size;
+    uint64_t ADD = Global::ADD;
+    uint64_t SUB = Global::SUB;
+    uint64_t MUL = Global::MUL;
+
     // loop i
     ChanBase* chan_j1_fifo_DGSF = new ChanBase(BASE_INPUT_BUFF_SIZE, 0, 1);  // Store each row of upper matrix(U); Use ChanBase to replace ChanDGSF
 

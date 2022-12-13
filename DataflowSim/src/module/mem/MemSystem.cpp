@@ -7,19 +7,19 @@ using namespace DFSim;
 
 MemSystem::MemSystem()
 {
-    reqQueue.resize(MEMSYS_QUEUE_BANK_NUM);
-    ackQueue.resize(MEMSYS_QUEUE_BANK_NUM);
+    reqQueue.resize(Global::memSystem_queue_bank_num);
+    ackQueue.resize(Global::memSystem_queue_bank_num);
 
-    if (SPM_ENABLE)
+    if (Global::spm_enable)
     {
         spm = new Spm();
-        bankRecorder.resize(SPM_BANK_NUM);
+        bankRecorder.resize(Global::spm_bank_num);
     }
     
-    if (CACHE_ENABLE)
+    if (Global::cache_enable)
     {
         cache = new Cache();
-        bankRecorder.resize(CACHE_BANK_NUM_L1);
+        bankRecorder.resize(Global::cache_bank_num_L1);
     }
 
     memDataBus = new MemoryDataBus();
@@ -42,7 +42,7 @@ MemSystem::MemSystem()
 
     auto tCK_ = mem->GetTCK();
     dramsimClkFreqHz = (uint64_t)(1.0 / (tCK_ * 1e-9));
-    hostClkFreqHz = FREQ;
+    hostClkFreqHz = Global::freq;
 }
 
 MemSystem::~MemSystem()
@@ -68,20 +68,20 @@ uint64_t MemSystem::registerLse(Lse* _lse)
 
 uint64_t MemSystem::addrBias(uint64_t _addr) 
 {
-    if (DATA_PRECISION % 8 != 0)
+    if (Global::data_precision % 8 != 0)
     {
         Debug::throwError("DATA_PRECISION is not in multiples of byte!", __FILE__, __LINE__);
     }
     else
     {
-        return _addr << (uint64_t)log2(DATA_PRECISION / 8);
+        return _addr << (uint64_t)log2(Global::data_precision / 8);
     }
 }
 
 bool MemSystem::addTransaction(MemReq _req)
 {
     uint64_t bankId = getBankId(_req.addr);
-    if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
+    if (reqQueue[bankId].size() < Global::memSystem_req_queue_size_per_bank)
     {
         reqQueue[bankId].push_back(_req);
         return true;
@@ -96,7 +96,7 @@ bool MemSystem::addTransaction(MemReq _req)
 
 uint64_t MemSystem::getBankId(uint64_t _addr)
 {
-    if (CACHE_ENABLE)
+    if (Global::cache_enable)
     {
         return cache->getCacheBank(_addr, 0);
     }
@@ -107,7 +107,7 @@ uint64_t MemSystem::getBankId(uint64_t _addr)
 
 uint64_t MemSystem::getAddrTag(uint64_t _addr)
 {
-    if (CACHE_ENABLE)
+    if (Global::cache_enable)
     {
         return cache->getCacheBlockId(_addr, 0);
     }
@@ -140,7 +140,7 @@ void MemSystem::getLseReq()
         {
             bool sendSuccess = 0;
             uint64_t bankId = getBankId(req.second.addr);
-            if (reqQueue[bankId].size() < MEMSYS_REQ_QUEUE_SIZE_PER_BANK)
+            if (reqQueue[bankId].size() < Global::memSystem_req_queue_size_per_bank)
             {
                 auto& entry = bankRecorder[bankId];
                 if (!entry.valid)  // If this entry has not been visited in this round
@@ -168,7 +168,7 @@ void MemSystem::getLseReq()
                                     entry.hasRegisteredCoalescer = 1;
                                 }
 
-                                if (entry.reqQueue.size() < MEMSYS_COALESCER_SIZY_PER_ENTRY)
+                                if (entry.reqQueue.size() < Global::memSys_coalescer_size_per_entry)
                                 {
                                     req.second.coalesced = 1;
                                     entry.reqQueue.push_back(req.second);
@@ -223,7 +223,7 @@ void MemSystem::getLseReq()
             }
         }
 
-        coalescerFreeEntryNum = MEMSYS_COALESCER_ENTRY_NUM - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
+        coalescerFreeEntryNum = Global::memSys_coalescer_entry_num - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
     }
 }
 
@@ -380,9 +380,9 @@ void MemSystem::send2Cache()
             if (!reqQueue[i].empty())
             {
                 MemReq& req = reqQueue[i].front();
-                if (CACHE_ALL_HIT)
+                if (Global::cache_all_hit)
                 {
-                    if (ackQueue[i].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
+                    if (ackQueue[i].size() < Global::memSystem_ack_queue_size_per_bank)
                     {
                         ackQueue[i].emplace_back(req);
                         reqQueue[i].pop_front();
@@ -412,7 +412,7 @@ void MemSystem::getFromCache()
     {
         for (size_t queueId = 0; queueId < ackQueue.size(); ++queueId)
         {
-            if (ackQueue[queueId].size() < MEMSYS_ACK_QUEUE_SIZE_PER_BANK)
+            if (ackQueue[queueId].size() < Global::memSystem_ack_queue_size_per_bank)
             {
                 auto ack = cache->callBack(queueId);
                 if (ack.valid)
@@ -438,7 +438,7 @@ void MemSystem::getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks)
 
 void MemSystem::returnReqAck()
 {
-    if (SPM_ENABLE)
+    if (Global::spm_enable)
     {
         // Send reqAck back to SPM
         for (auto& reqAck : reqAckStack)
@@ -447,7 +447,7 @@ void MemSystem::returnReqAck()
         }
     }
 
-    if (CACHE_ENABLE)
+    if (Global::cache_enable)
     {
         // Send reqAck back to Cache
         for (auto& reqAck : reqAckStack)
@@ -468,12 +468,12 @@ void MemSystem::MemSystemUpdate()
     if (ClkDomain::getInstance()->checkClkAdd())  // MemorySystem update only when clk updated
     {
         // Send back ack from on-chip memory to memSys
-        if (SPM_ENABLE)
+        if (Global::spm_enable)
         {
             getFromSpm();  // Get callback from SPM
         }
 
-        if (CACHE_ENABLE)
+        if (Global::cache_enable)
         {
             getFromCache();  // Get callback from Cache
         }
@@ -486,14 +486,14 @@ void MemSystem::MemSystemUpdate()
         dramUpdate();  // Update DRAMSim3
 
         // Send req to on-chip memory
-        if (SPM_ENABLE)
+        if (Global::spm_enable)
         {
             send2Spm();  // Send req to SPM
             spm->spmUpdate();
             spm->sendReq2Mem(mem);
         }
 
-        if (CACHE_ENABLE)
+        if (Global::cache_enable)
         {
             send2Cache();
             cache->cacheUpdate();

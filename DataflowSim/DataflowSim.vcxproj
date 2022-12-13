@@ -93,7 +93,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Debug;D:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib;D:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DRAMSim2.lib;DRAMSim3.lib;jsoncpp_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -128,7 +128,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>D:\GitRepo\DataflowSim\x64\Release;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Release;E:\GitRepo\DataflowSim\x64\Release;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\GitRepo\DataflowSim\x64\Release;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib;E:\GitRepo\DataflowSim\x64\Release;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DRAMSim3.lib;jsoncpp_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
@@ -270,14 +270,10 @@
     <None Include="config\config.json" />
     <None Include="lib\jsoncpp\include\PreventInBuildInstalls.cmake" />
     <None Include="lib\jsoncpp\include\PreventInSourceBuilds.cmake" />
-    <None Include="lib\jsoncpp\lib\Debug\jsoncpp.exp" />
-    <None Include="lib\jsoncpp\lib\Debug\jsoncpp_static.pdb" />
     <None Include="resource\Bfs\input.data" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp.lib" />
-    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp_static.lib" />
-    <Library Include="lib\jsoncpp\lib\Release\jsoncpp_static.lib" />
+    <Library Include="lib\jsoncpp\lib\jsoncpp_static.lib" />
     <Library Include="lib\metis\metis.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

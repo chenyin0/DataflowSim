@@ -17,6 +17,7 @@ void LudTest::lud_Base(Debug* debug)
 
 
     //*** Declare Lse
+    uint64_t LSE_QUEUE_SIZE = Global::lse_queue_size;
     Lse* lse_ld_aii = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, Base_outer_loop_speedup);  // load a[i][i]
     Lse* lse_ld_aij = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, Base_outer_loop_speedup);  // load a[i][j]
     Lse* lse_ld_aik = new Lse(LSE_QUEUE_SIZE, 0, false, memSys, Base_inner_loop_speedup);  // Load a[i][k]
@@ -118,6 +119,12 @@ void LudTest::lud_Base(Debug* debug)
     begin->noUpstream = 1;
     ChanBase* end = new ChanBase(1, 0);
     end->noDownstream = 1;
+
+    uint64_t BASE_INPUT_BUFF_SIZE = Global::base_input_buffer_size;
+    uint64_t ADD = Global::ADD;
+    uint64_t SUB = Global::SUB;
+    uint64_t MUL = Global::MUL;
+    uint64_t DIV = Global::DIV;
 
     // loop j1
     ChanBase* chan_i_relay_loop_j1 = new ChanBase(BASE_INPUT_BUFF_SIZE * Base_outer_loop_speedup, 0, Base_outer_loop_speedup);  // Relay channel in loop j1 for chan_i_lc

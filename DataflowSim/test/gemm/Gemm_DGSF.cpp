@@ -61,6 +61,14 @@ void GemmTest::gemm_DGSF(Debug* debug)
     //*** Declare Watchdog
     Watchdog watchdog = Watchdog(pow(2, 7), 50);
 
+    uint64_t BASE_INPUT_BUFF_SIZE = Global::base_input_buffer_size;
+    uint64_t LSE_QUEUE_SIZE = Global::lse_queue_size;
+    uint64_t DGSF_INPUT_BUFF_SIZE = Global::DGSF_input_buffer_size;
+    uint64_t BRAM_ACCESS_DELAY = Global::bram_access_delay;
+    uint64_t ADD = Global::ADD;
+    uint64_t SUB = Global::SUB;
+    uint64_t MUL = Global::MUL;
+    uint64_t DIV = Global::DIV;
 
     //*** Declare Lse
     Lse* lse_ld_m1 = new Lse(LSE_QUEUE_SIZE * DGSF_loop_k_speedup, 0, false, memSys, DGSF_loop_k_speedup);  // Load M1
