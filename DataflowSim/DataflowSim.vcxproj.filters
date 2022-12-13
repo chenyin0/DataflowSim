@@ -101,6 +101,27 @@
     <Filter Include="test\gcn">
       <UniqueIdentifier>{7e3c3222-9170-4565-ac8a-d51b6999f7bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\jsoncpp">
+      <UniqueIdentifier>{64d1098b-574e-42a8-92b9-e678438e88af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jsoncpp\include">
+      <UniqueIdentifier>{5af862c5-27ca-431b-92f8-8ed90c685ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jsoncpp\include\json">
+      <UniqueIdentifier>{ff7a7325-587d-4194-b6d2-b8f42a05a343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jsoncpp\lib">
+      <UniqueIdentifier>{64b150aa-7f8e-4020-80dd-e18b1f72b7d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jsoncpp\lib\Debug">
+      <UniqueIdentifier>{2deb88b6-688c-4953-bb35-adaf13b883e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jsoncpp\lib\Release">
+      <UniqueIdentifier>{098feff2-1e17-495c-936a-061125f1ea8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{6c6f7948-49a5-4a3b-998d-4b675003c6a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\util.hpp">
@@ -229,6 +250,36 @@
     </ClInclude>
     <ClInclude Include="test\gcn\gcn.h">
       <Filter>test\gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\allocator.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\assertions.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\config.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\forwards.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\json.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\json_features.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\reader.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\value.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\version.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jsoncpp\include\json\writer.h">
+      <Filter>lib\jsoncpp\include\json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -444,6 +495,9 @@
     <Text Include="resource\Lud\Lud_log_DGSF.txt">
       <Filter>resource\lud</Filter>
     </Text>
+    <Text Include="lib\jsoncpp\include\CMakeLists.txt">
+      <Filter>lib\jsoncpp\include</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataflowSim.rc" />
@@ -452,10 +506,34 @@
     <None Include="resource\Bfs\input.data">
       <Filter>resource\bfs</Filter>
     </None>
+    <None Include="lib\jsoncpp\include\PreventInBuildInstalls.cmake">
+      <Filter>lib\jsoncpp\include</Filter>
+    </None>
+    <None Include="lib\jsoncpp\include\PreventInSourceBuilds.cmake">
+      <Filter>lib\jsoncpp\include</Filter>
+    </None>
+    <None Include="lib\jsoncpp\lib\Debug\jsoncpp.exp">
+      <Filter>lib\jsoncpp\lib\Debug</Filter>
+    </None>
+    <None Include="lib\jsoncpp\lib\Debug\jsoncpp_static.pdb">
+      <Filter>lib\jsoncpp\lib\Debug</Filter>
+    </None>
+    <None Include="config\config.json">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\metis\metis.lib">
       <Filter>lib\metis</Filter>
+    </Library>
+    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp.lib">
+      <Filter>lib\jsoncpp\lib\Debug</Filter>
+    </Library>
+    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp_static.lib">
+      <Filter>lib\jsoncpp\lib\Debug</Filter>
+    </Library>
+    <Library Include="lib\jsoncpp\lib\Release\jsoncpp_static.lib">
+      <Filter>lib\jsoncpp\lib\Release</Filter>
     </Library>
   </ItemGroup>
 </Project>

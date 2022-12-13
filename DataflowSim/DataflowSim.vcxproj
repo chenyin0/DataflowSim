@@ -93,8 +93,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DRAMSim2.lib;DRAMSim3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\GitRepo\DataflowSim\x64\Debug;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Debug;D:\GitRepo\DataflowSim\x64\Debug;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DRAMSim2.lib;DRAMSim3.lib;jsoncpp_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,12 +128,22 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>D:\GitRepo\DataflowSim\x64\Release;E:\GitRepo\DataflowSim\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DRAMSim3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\GitRepo\DataflowSim\x64\Release;D:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Release;E:\GitRepo\DataflowSim\x64\Release;E:\GitRepo\DataflowSim\DataflowSim\lib\jsoncpp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DRAMSim3.lib;jsoncpp_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="lib\jsoncpp\include\json\allocator.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\assertions.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\config.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\forwards.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\json.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\json_features.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\reader.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\value.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\version.h" />
+    <ClInclude Include="lib\jsoncpp\include\json\writer.h" />
     <ClInclude Include="lib\metis\metis.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\define\Define.hpp" />
@@ -239,6 +249,7 @@
     <ClCompile Include="test\viterbi\viterbi_Base.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="lib\jsoncpp\include\CMakeLists.txt" />
     <Text Include="resource\Aes\Aes_log_Base.txt" />
     <Text Include="resource\Aes\Aes_log_DGSF.txt" />
     <Text Include="resource\Bfs\Bfs_log_SGMF.txt" />
@@ -256,12 +267,25 @@
     <ResourceCompile Include="DataflowSim.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config\config.json" />
+    <None Include="lib\jsoncpp\include\PreventInBuildInstalls.cmake" />
+    <None Include="lib\jsoncpp\include\PreventInSourceBuilds.cmake" />
+    <None Include="lib\jsoncpp\lib\Debug\jsoncpp.exp" />
+    <None Include="lib\jsoncpp\lib\Debug\jsoncpp_static.pdb" />
     <None Include="resource\Bfs\input.data" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp.lib" />
+    <Library Include="lib\jsoncpp\lib\Debug\jsoncpp_static.lib" />
+    <Library Include="lib\jsoncpp\lib\Release\jsoncpp_static.lib" />
     <Library Include="lib\metis\metis.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties config_4config_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
