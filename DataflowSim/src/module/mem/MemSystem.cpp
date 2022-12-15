@@ -1,7 +1,7 @@
 #include "./MemSystem.h"
 #include "../ClkSys.h"
 #include "../../sim/Debug.h"
-//#include "../../util/util.hpp"  // Debug_yin_04.12
+// #include "../../util/util.hpp"  // Debug_yin_04.12
 
 using namespace DFSim;
 
@@ -15,7 +15,7 @@ MemSystem::MemSystem()
         spm = new Spm();
         bankRecorder.resize(Global::spm_bank_num);
     }
-    
+
     if (Global::cache_enable)
     {
         cache = new Cache();
@@ -25,17 +25,22 @@ MemSystem::MemSystem()
     memDataBus = new MemoryDataBus();
 
     //// DRAMSim2
-    //mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
-    //TransactionCompleteCB* read_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_read_complete);
-    //TransactionCompleteCB* write_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_write_complete);
+    // mem = new DRAMSim::MultiChannelMemorySystem("../DRAMSim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "../DRAMSim2/ini/system.ini", ".", "example_app", 16384);
+    // TransactionCompleteCB* read_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_read_complete);
+    // TransactionCompleteCB* write_cb = new Callback<MemoryDataBus, void, unsigned, uint64_t, uint64_t>(&(*memDataBus), &MemoryDataBus::mem_write_complete);
     ////TransactionCompleteCB* read_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_read_complete);
     ////TransactionCompleteCB* write_cb = new Callback<Spm, void, unsigned, uint64_t, uint64_t>(&(*spm), &Spm::mem_write_complete);
-    //mem->RegisterCallbacks(read_cb, write_cb, power_callback);
-    //mem->setCPUClockSpeed(FREQ)
+    // mem->RegisterCallbacks(read_cb, write_cb, power_callback);
+    // mem->setCPUClockSpeed(FREQ)
 
     // DRAMSim3
     /*dramsim3::Config config("configs/HBM1_4Gb_x128.ini", ".");*/
-    const std::string& config_file = "../DRAMSim3/configs/HBM1_4Gb_x128.ini";
+#ifdef WINDOWS
+    const std::string &config_file = "../DRAMSim3/configs/HBM1_4Gb_x128.ini";
+#endif
+#ifdef LINUX
+    const std::string &config_file = "./DataflowSim/lib/dramsim3/configs/HBM1_4Gb_x128.ini";
+#endif
     std::function<void(uint64_t)> read_callback = std::bind(&MemoryDataBus::mem_read_complete, memDataBus, std::placeholders::_1);
     std::function<void(uint64_t)> write_callback = std::bind(&MemoryDataBus::mem_write_complete, memDataBus, std::placeholders::_1);
     mem = dramsim3::GetMemorySystem(config_file, ".", read_callback, write_callback);
@@ -53,20 +58,20 @@ MemSystem::~MemSystem()
     delete memDataBus;
 }
 
-uint64_t MemSystem::registerLse(Lse* _lse)
+uint64_t MemSystem::registerLse(Lse *_lse)
 {
     lseRegistry.push_back(_lse);
-    uint64_t lseId = lseRegistry.size() - 1;  // Index in LseRegistry
+    uint64_t lseId = lseRegistry.size() - 1; // Index in LseRegistry
 
     // Add lseReqTable
-    //vector<Lse*> lseVec( _lse->speedup, _lse );
-    //lseReqTable.insert(lseReqTable.end(), lseVec.begin(), lseVec.end());
+    // vector<Lse*> lseVec( _lse->speedup, _lse );
+    // lseReqTable.insert(lseReqTable.end(), lseVec.begin(), lseVec.end());
     lseReqTable.insert(lseReqTable.end(), _lse);
 
     return lseId;
 }
 
-uint64_t MemSystem::addrBias(uint64_t _addr) 
+uint64_t MemSystem::addrBias(uint64_t _addr)
 {
     if (Global::data_precision % 8 != 0)
     {
@@ -127,14 +132,14 @@ void MemSystem::getLseReq()
 {
     bool ptrUpdateLock = 0;
     // Debug_yin_04.12
-    uint64_t ptr = reqQueueWritePtr;  // Record inital ptr
-    //uint64_t ptr = Util::uRandom(0, lseReqTable.size() - 1);
+    uint64_t ptr = reqQueueWritePtr; // Record inital ptr
+    // uint64_t ptr = Util::uRandom(0, lseReqTable.size() - 1);
 
     // Generate all the valid req in this round
     for (size_t i = 0; i < lseReqTable.size(); ++i)
     {
         ptr = (ptr + i) % lseReqTable.size();
-        Lse* _lse = lseReqTable[ptr];
+        Lse *_lse = lseReqTable[ptr];
         auto req = _lse->peekReqQueue();
         if (req.first)
         {
@@ -142,15 +147,15 @@ void MemSystem::getLseReq()
             uint64_t bankId = getBankId(req.second.addr);
             if (reqQueue[bankId].size() < Global::memSystem_req_queue_size_per_bank)
             {
-                auto& entry = bankRecorder[bankId];
-                if (!entry.valid)  // If this entry has not been visited in this round
+                auto &entry = bankRecorder[bankId];
+                if (!entry.valid) // If this entry has not been visited in this round
                 {
                     entry.valid = 1;
                     entry.addrTag = getAddrTag(req.second.addr);
                     entry.reqQueue.push_back(req.second);
                     sendSuccess = 1;
                 }
-                else  // If corresponding bank is occupied in this round, check whether can be coaleseced with the perior one
+                else // If corresponding bank is occupied in this round, check whether can be coaleseced with the perior one
                 {
                     // 1) A write req not send to coalescer and 2) Any req can't coalesce with a write req
                     if (!req.second.isWrite && !entry.reqQueue.front().isWrite)
@@ -158,7 +163,7 @@ void MemSystem::getLseReq()
                         if (coalescerFreeEntryNum > 0)
                         {
                             uint64_t addrTag = getAddrTag(req.second.addr);
-                            if (addrTag == entry.addrTag)  // Check whether is coalesceable
+                            if (addrTag == entry.addrTag) // Check whether is coalesceable
                             {
                                 // If the first time coalescing, occupy a coalscer entry
                                 if (!entry.hasRegisteredCoalescer)
@@ -185,7 +190,7 @@ void MemSystem::getLseReq()
                 lseRegistry[req.second.lseId]->setInflight(req.second);
                 //_lse->setInflight(req.second);
             }
-#ifdef DEBUG_MODE 
+#ifdef DEBUG_MODE
             else
             {
                 _lse->memReqBlockCnt++;
@@ -199,7 +204,7 @@ void MemSystem::getLseReq()
     if (ClkDomain::checkClkAdd())
     {
         // Send to coalescer
-        for (auto& entry : bankRecorder)
+        for (auto &entry : bankRecorder)
         {
             if (entry.valid && entry.hasRegisteredCoalescer)
             {
@@ -210,20 +215,20 @@ void MemSystem::getLseReq()
         // Send to memSystem's reqQueue
         for (size_t entryId = 0; entryId < bankRecorder.size(); ++entryId)
         {
-            auto& entry = bankRecorder[entryId];
+            auto &entry = bankRecorder[entryId];
             if (entry.valid)
             {
-                auto& req = entry.reqQueue.front();
+                auto &req = entry.reqQueue.front();
                 req.coalesced = entry.hasRegisteredCoalescer ? 1 : 0;
-                if (addTransaction(req))  // Use the front request to represent all the coalesced address
+                if (addTransaction(req)) // Use the front request to represent all the coalesced address
                 {
-                    //entry.hasSent2Mem = 1;
+                    // entry.hasSent2Mem = 1;
                     resetBankRecorder(entryId);
                 }
             }
         }
 
-        coalescerFreeEntryNum = Global::memSys_coalescer_entry_num - coalescer.getCoalescerOccupiedEntryNum();  // Update coalescer free entry number
+        coalescerFreeEntryNum = Global::memSys_coalescer_entry_num - coalescer.getCoalescerOccupiedEntryNum(); // Update coalescer free entry number
     }
 }
 
@@ -242,15 +247,15 @@ void MemSystem::sendBack2Lse()
         ptr = (ptr + i) % ackQueue.size();
         if (!ackQueue[ptr].empty())
         {
-            auto& req = ackQueue[ptr].front();
+            auto &req = ackQueue[ptr].front();
             if (req.coalesced)
             {
                 uint64_t addrTag = getAddrTag(req.addr);
                 uint64_t coalescerEntryId = coalescer.searchCoalescer(addrTag);
-                auto& coalescerQueue = coalescer.coalescerTable[coalescerEntryId].coalescerQueue;
+                auto &coalescerQueue = coalescer.coalescerTable[coalescerEntryId].coalescerQueue;
                 for (auto iter = coalescerQueue.begin(); iter != coalescerQueue.end();)
                 {
-                    auto& lseId = iter->lseId;
+                    auto &lseId = iter->lseId;
                     if (!lseRecorder[lseId])
                     {
                         lseRecorder[lseId] = 1;
@@ -271,10 +276,10 @@ void MemSystem::sendBack2Lse()
             }
             else
             {
-                if (!lseRecorder[req.lseId])  // If not Lse contention, pop ackQueue
+                if (!lseRecorder[req.lseId]) // If not Lse contention, pop ackQueue
                 {
                     lseRecorder[req.lseId] = 1;
-                    lseRegistry[req.lseId]->ackCallback(req);  // Write back ack to Lse
+                    lseRegistry[req.lseId]->ackCallback(req); // Write back ack to Lse
                     ackQueue[ptr].pop_front();
                 }
             }
@@ -297,13 +302,13 @@ int MemSystem::getAckQueueEntry(vector<MemReq> _queue)
 
 void MemSystem::send2Spm()
 {
-    //if (spm != nullptr)
+    // if (spm != nullptr)
     //{
-    //    for (size_t i = 0; i < reqQueue.size(); ++i)
-    //    {
-    //        if (!reqQueue[i].empty())
-    //        {
-    //            MemReq& req = reqQueue[i].front();
+    //     for (size_t i = 0; i < reqQueue.size(); ++i)
+    //     {
+    //         if (!reqQueue[i].empty())
+    //         {
+    //             MemReq& req = reqQueue[i].front();
 
     //            int ackQueueEntry = getAckQueueEntry(ackQueue[i]);
     //            if (ackQueueEntry != -1)  // If find a empty entry of ackQueue
@@ -318,7 +323,7 @@ void MemSystem::send2Spm()
     //        }
     //    }
     //}
-    //else
+    // else
     //{
     //    Debug::throwError("Not define SPM!", __FILE__, __LINE__);
     //}
@@ -346,7 +351,7 @@ void MemSystem::send2Cache()
     if (cache != nullptr)
     {
         //  Debug_yin_22.06.10 annotate the code below
-        //if (CACHE_ALL_HIT)
+        // if (CACHE_ALL_HIT)
         //{
         //    for (size_t queueId = 0; queueId < ackQueue.size(); ++queueId)
         //    {
@@ -360,7 +365,7 @@ void MemSystem::send2Cache()
         //        }
         //    }
         //}
-        //else
+        // else
         //{
         //    for (size_t i = 0; i < reqQueue.size(); ++i)
         //    {
@@ -379,7 +384,7 @@ void MemSystem::send2Cache()
         {
             if (!reqQueue[i].empty())
             {
-                MemReq& req = reqQueue[i].front();
+                MemReq &req = reqQueue[i].front();
                 if (Global::cache_all_hit)
                 {
                     if (ackQueue[i].size() < Global::memSystem_ack_queue_size_per_bank)
@@ -391,7 +396,7 @@ void MemSystem::send2Cache()
                 }
                 else
                 {
-                    if (cache->addTransaction(req))  // Send req to cache
+                    if (cache->addTransaction(req)) // Send req to cache
                     {
                         reqQueue[i].pop_front();
                         cache->updateCacheAccessCnt();
@@ -430,7 +435,7 @@ void MemSystem::getFromCache()
 
 void MemSystem::getReqAckFromMemoryDataBus(vector<MemReq> _reqAcks)
 {
-    for (auto& reqAck : _reqAcks)
+    for (auto &reqAck : _reqAcks)
     {
         reqAckStack.push_back(reqAck);
     }
@@ -441,7 +446,7 @@ void MemSystem::returnReqAck()
     if (Global::spm_enable)
     {
         // Send reqAck back to SPM
-        for (auto& reqAck : reqAckStack)
+        for (auto &reqAck : reqAckStack)
         {
             spm->mem_req_complete(reqAck);
         }
@@ -450,7 +455,7 @@ void MemSystem::returnReqAck()
     if (Global::cache_enable)
     {
         // Send reqAck back to Cache
-        for (auto& reqAck : reqAckStack)
+        for (auto &reqAck : reqAckStack)
         {
             cache->mem_req_complete(reqAck);
         }
@@ -464,31 +469,31 @@ void MemSystem::MemSystemUpdate()
     // MemSys -> Lse
     sendBack2Lse();
 
-    // MemSys update in a reverse sequence to avoid data stall 
-    if (ClkDomain::getInstance()->checkClkAdd())  // MemorySystem update only when clk updated
+    // MemSys update in a reverse sequence to avoid data stall
+    if (ClkDomain::getInstance()->checkClkAdd()) // MemorySystem update only when clk updated
     {
         // Send back ack from on-chip memory to memSys
         if (Global::spm_enable)
         {
-            getFromSpm();  // Get callback from SPM
+            getFromSpm(); // Get callback from SPM
         }
 
         if (Global::cache_enable)
         {
-            getFromCache();  // Get callback from Cache
+            getFromCache(); // Get callback from Cache
         }
 
         // DRAM & memory bus
         returnReqAck();
         getReqAckFromMemoryDataBus(memDataBus->MemoryDataBusUpdate());
 
-        //mem->update();  // Deprecated for DRAMSim2
-        dramUpdate();  // Update DRAMSim3
+        // mem->update();  // Deprecated for DRAMSim2
+        dramUpdate(); // Update DRAMSim3
 
         // Send req to on-chip memory
         if (Global::spm_enable)
         {
-            send2Spm();  // Send req to SPM
+            send2Spm(); // Send req to SPM
             spm->spmUpdate();
             spm->sendReq2Mem(mem);
         }
@@ -505,14 +510,14 @@ void MemSystem::MemSystemUpdate()
     getLseReq();
 }
 
-const uint64_t& MemSystem::getMemAccessCnt() const
+const uint64_t MemSystem::getMemAccessCnt() const
 {
     uint64_t memAccessCnt = 0;
     if (cache != nullptr)
     {
         memAccessCnt += cache->getMemAccessCnt();
     }
-    
+
     if (spm != nullptr)
     {
         memAccessCnt += spm->getMemAccessCnt();
@@ -546,30 +551,30 @@ void MemSystem::dramUpdate()
     }
 }
 
-//#ifdef DEBUG_MODE
+// #ifdef DEBUG_MODE
 //// For Debug
-//const vector<Lse*>& MemSystem::getLseRegistry() const
+// const vector<Lse*>& MemSystem::getLseRegistry() const
 //{
-//    return lseRegistry;
-//}
+//     return lseRegistry;
+// }
 //
-//const vector<deque<MemReq>>& MemSystem::getReqQueue() const
+// const vector<deque<MemReq>>& MemSystem::getReqQueue() const
 //{
-//    return reqQueue;
-//}
+//     return reqQueue;
+// }
 //
-//const vector<deque<MemReq>>& MemSystem::getAckQueue() const
+// const vector<deque<MemReq>>& MemSystem::getAckQueue() const
 //{
-//    return ackQueue;
-//}
+//     return ackQueue;
+// }
 //
-//const Coalescer& MemSystem::getCoalescer() const
+// const Coalescer& MemSystem::getCoalescer() const
 //{
-//    return coalescer;
-//}
+//     return coalescer;
+// }
 //
-//const uint64_t& MemSystem::getMemAccessCnt() const
+// const uint64_t& MemSystem::getMemAccessCnt() const
 //{
-//    return memAccessCnt;
-//}
-//#endif
+//     return memAccessCnt;
+// }
+// #endif

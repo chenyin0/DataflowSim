@@ -1,6 +1,7 @@
 #include "../../define/Define.hpp"
 #include "Cache.h"
 #include "../../sim/Debug.h"
+#include "string.h"
 
 using namespace DFSim;
 
@@ -107,7 +108,7 @@ void Cache::init()
     cache_r_count = 0;
     cache_w_count = 0;
     cache_w_memory_count = 0;
-    // Used in cacheline replace£¬update cacheline_count to tick_count when cache hit or miss;
+    // Used in cacheline replaceï¿½ï¿½update cacheline_count to tick_count when cache hit or miss;
     tick_count = 0;
     srand((unsigned)time(NULL));
 }
@@ -692,8 +693,8 @@ void Cache::updateReqQueue()
 
 void Cache::updateAckQueue()
 {
-    // ackqueue priority£º
-    // 1. The req hit in Upper cache level£¬and set mshr ready in the same time
+    // ackqueue priorityï¿½ï¿½
+    // 1. The req hit in Upper cache levelï¿½ï¿½and set mshr ready in the same time
     // 2. The ready entry in mshr
     // 3. The ready req in reqQueue.front()
 

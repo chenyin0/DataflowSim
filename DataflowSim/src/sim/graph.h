@@ -81,7 +81,7 @@ namespace DFSim
         auto csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>>;
         auto genAdjacentMatrix()->vector<vector<uint64_t>>;
         uint64_t genEdgeWeight(Node* node, Node* nextNode, vector<ControlRegion>& _loopHierarchy);
-        void subgraphPartition(uint64_t _subgraphNum, Debug* _debug);
+        // void subgraphPartition(uint64_t _subgraphNum, Debug* _debug);
         void sortSubgraphId(deque<Node*>& nodes, uint64_t subgraphNum);  // Sort subgraphId to consistent with dataflow sequence
         vector<string> bfsTraverseNodes();  // Generate simulation sequence
         vector<string> bfsTraverseControlTree(ControlTree& ctrlTree);
@@ -95,7 +95,7 @@ namespace DFSim
         //vector<pair<string, uint64_t>> traverseControlRegionsDfs(ControlTree& _controlTree);  // pair<controlRegionName, level>
         void printDotControlRegion(std::fstream& fileName_, ControlTree& _controlTree);
         //void printSubgraphDot(std::fstream& fileName_, string& controlRegionName_, vector<string>& nodes_, string& controlType_);
-        vector<idx_t> metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum);
+        // vector<idx_t> metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum);
         void printSubgraphPartition(const uint64_t& divideNum, Debug* debug);
 
     public:

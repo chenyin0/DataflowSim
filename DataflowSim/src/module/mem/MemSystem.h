@@ -51,7 +51,7 @@ namespace DFSim
         void MemSystemUpdate();
 
         static void power_callback(double a, double b, double c, double d) {}  // Unused
-        const uint64_t& getMemAccessCnt() const;
+        const uint64_t getMemAccessCnt() const;
 
     private:
         void getLseReq();

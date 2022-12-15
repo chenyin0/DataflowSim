@@ -6,8 +6,8 @@
 *****************************************************
 *************    Simulation parameters  ***************
 */
-#define WINDOWS WINDOWS
-//#define LINUX LINUX
+// #define WINDOWS WINDOWS
+#define LINUX LINUX
 #define DEBUG_MODE DEBUG_MODE
 
 

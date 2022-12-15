@@ -13,7 +13,7 @@ namespace DFSim
         Debug(string fileName);
         ~Debug();
 
-        std::ofstream& getFile()
+        std::ofstream &getFile()
         {
             if (debug_mode != Debug_mode::Turn_off)
             {
@@ -25,43 +25,43 @@ namespace DFSim
             }
         }
 
-        void chanPrint(const string name, const Channel* channel);
-        void chanPrint(const string name, const ChanSGMF* channel);
-        void lsePrint(const string _name, const Lse* _lse);
-        void memSysPrint(const MemSystem* _memSys);
-        void printRegistry(const Registry* _registry);
-        void printSimNodes(ChanGraph& _chanGraph);
-        void printSimInfo(const vector<Channel*>& _chans, const vector<Lc*> _lc);
-        void printGraphScheduler(const GraphScheduler* _graphScheduler);
+        void chanPrint(const string name, const Channel *channel);
+        void chanPrint(const string name, const ChanSGMF *channel);
+        void lsePrint(const string _name, const Lse *_lse);
+        void memSysPrint(const MemSystem *_memSys);
+        void printRegistry(const Registry *_registry);
+        void printSimNodes(ChanGraph &_chanGraph);
+        void printSimInfo(const vector<Channel *> &_chans, const vector<Lc *> _lc);
+        void printGraphScheduler(const GraphScheduler *_graphScheduler);
 
-        template <typename T>
-        void vecPrint(const string name, const vector<T>& vec)
-        {
-        }
+        // template <typename T>
+        // void vecPrint(const string name, const vector<T> &vec)
+        // {
+        // }
 
-        template <>
-        void vecPrint<int>(const string name, const vector<int>& data)
-        {
-            if (debug_mode != Debug_mode::Turn_off)
-            {
-                _output_file << std::endl;
-                _output_file << name << ": " << std::endl;
-                for (auto i : data)
-                {
-                    _output_file << i << " ";
-                }
-                _output_file << std::endl;
-            }
-        }
+        // template <>
+        // void vecPrint<int>(const string name, const vector<int> &data)
+        // {
+        //     if (debug_mode != Debug_mode::Turn_off)
+        //     {
+        //         _output_file << std::endl;
+        //         _output_file << name << ": " << std::endl;
+        //         for (auto i : data)
+        //         {
+        //             _output_file << i << " ";
+        //         }
+        //         _output_file << std::endl;
+        //     }
+        // }
 
-        // Only print the last "num" elements
-        template <typename T>
-        void vecPrint(const string name, const vector<T>& vec, const uint64_t num)
-        {
-        }
+        // // Only print the last "num" elements
+        // template <typename T>
+        // void vecPrint(const string name, const vector<T>& vec, const uint64_t num)
+        // {
+        // }
 
-        template <>
-        void vecPrint<int>(const string name, const vector<int>& data, const uint64_t num)  
+        // template <>
+        void vecPrint(const string name, const vector<int>& data, const uint64_t num)
         {
             if (debug_mode != Debug_mode::Turn_off)
             {
@@ -89,15 +89,14 @@ namespace DFSim
 
         static void throwError(const string errorDescrip, const string fileName, const uint64_t lineNum);
 
-
     public:
         Debug_mode debug_mode = Debug_mode::Print_detail;
 
     private:
         std::ofstream _output_file;
-        std::ofstream _null_file;  // Used in Print_off, not print to log_file
+        std::ofstream _null_file; // Used in Print_off, not print to log_file
 
         // Format parameter
-        uint64_t MemSys_SetWidth = 7;  // Default set 7
+        uint64_t MemSys_SetWidth = 7; // Default set 7
     };
 }

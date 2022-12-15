@@ -29,46 +29,60 @@
 #include <ctime>
 #include <ratio>
 #include <chrono>
-
 #include <limits>
-
 #include <time.h>
 
-//using uint64_t = std::size_t;
+// #include <stdio.h>
+#include "./Para.h"
+
+// using uint64_t = std::size_t;
 using uint64_t = uint64_t;
-//using uint64 = uint64_t;
-using std::shared_ptr;
-using std::unique_ptr;
-using std::make_shared;
-using std::make_unique;
-using std::vector;
+// using uint64 = uint64_t;
+using std::accumulate;
 using std::array;
-using std::list;
-using std::string;
-using std::queue;
-using std::deque;
-using std::ostream;
-using std::stack;
-using std::set;
-using std::map;
-using std::function;
-using std::tuple;
-using std::pair;
-using std::unordered_set;
-using std::unordered_map;
-using std::bitset;
-using std::for_each;
 using std::begin;
+using std::bitset;
+using std::copy;
+using std::copy_if;
+using std::deque;
 using std::end;
 using std::find;
 using std::find_if;
-using std::copy;
-using std::copy_if;
+using std::for_each;
+using std::function;
+using std::list;
+using std::make_shared;
+using std::make_unique;
+using std::map;
+using std::ostream;
+using std::pair;
+using std::queue;
+using std::set;
+using std::shared_ptr;
+using std::stack;
+using std::string;
 using std::transform;
-using std::accumulate;
+using std::tuple;
+using std::unique_ptr;
+using std::unordered_map;
+using std::unordered_set;
+using std::vector;
 
 #define interface struct
-#define DEBUG_ASSERT(x) if ( !((void)0,(x))) { __debugbreak(); }
+#ifdef WINDOWS
+#define DEBUG_ASSERT(x)  \
+    if (!((void)0, (x))) \
+    {                    \
+        __debugbreak();  \
+    }
+#endif
+#ifdef LINUX
+#define DEBUG_ASSERT(x)  \
+    if (!((void)0, (x))) \
+    {                    \
+        void __builtin_trap(); \
+    }
+#endif
 #define DEBUG_CONSOLE true
 
 #define str(s) #s
@@ -94,20 +108,18 @@ public:
         return _value;
     }
 
-    bool* operator& ()
+    bool *operator&()
     {
         return &_value;
     }
 
-    const bool* operator&() const
+    const bool *operator&() const
     {
         return &_value;
     }
 
 private:
-
     bool _value;
-
 };
 
 #define Bool Bool

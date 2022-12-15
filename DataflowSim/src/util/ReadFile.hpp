@@ -1,5 +1,5 @@
 #pragma once
-#include "../define/define.hpp"
+#include "../define/Define.hpp"
 
 using namespace std;
 
@@ -67,7 +67,7 @@ namespace DFSim
     //            istringstream is(*it);                   
     //            string s;
     //            uint64_t col = 0;
-    //            while (is >> s)                          //ÒÔ¿Õ¸ñÎª½ç£¬°ÑistringstreamÖÐÊý¾ÝÈ¡³ö·ÅÈëµ½ÒÀ´ÎsÖÐ
+    //            while (is >> s)                          //ï¿½Ô¿Õ¸ï¿½Îªï¿½ç£¬ï¿½ï¿½istringstreamï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ëµ½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
     //            {
     //                uint64_t tmp = std::stoi(s.c_str());
     //                if (col > container.size() - 1)
@@ -175,7 +175,7 @@ namespace DFSim
                 istringstream is(*it);
                 string s;
                 uint64_t col = 0;
-                while (is >> s)                          //ÒÔ¿Õ¸ñÎª½ç£¬°ÑistringstreamÖÐÊý¾ÝÈ¡³ö·ÅÈëµ½ÒÀ´ÎsÖÐ
+                while (is >> s)                          //ï¿½Ô¿Õ¸ï¿½Îªï¿½ç£¬ï¿½ï¿½istringstreamï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ëµ½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
                 {
                     uint64_t tmp = std::stoi(s.c_str());
                     if (col > container.size() - 1)

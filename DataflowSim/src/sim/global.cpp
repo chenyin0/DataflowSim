@@ -12,7 +12,12 @@ Gemm
 Bfs
 */
 App_name Global::app_name = App_name::GCN;
+#ifdef WINDOWS
 string Global::file_path = "./resource/" + App_name_convert::toString(app_name) + "/";
+#endif
+#ifdef LINUX
+string Global::file_path = "./DataflowSim/resource/" + App_name_convert::toString(app_name) + "/";
+#endif
 
 //** Define Arch
 #ifdef Base
@@ -96,7 +101,7 @@ uint64_t Global::cache_mshr_entry_num_L2;
 uint64_t Global::cache_mshr_size_per_entry_L1;
 uint64_t Global::cache_mshr_size_per_entry_L2;
 
-void Global::load_config(const string& config_path)
+void Global::load_config(const string &config_path)
 {
     std::cout << ">> Load Config ..." << std::endl;
     std::ifstream ifs(config_path);

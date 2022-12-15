@@ -1,36 +1,36 @@
 #pragma once
 
 /**
- * Ê¹ÓÃËµÃ÷
+ * Ê¹ï¿½ï¿½Ëµï¿½ï¿½
  *
- * SingletonÎªÒ»¸öµ¥Àý»ùÀà£¬ÈÎºÎÐèÒªµÄµ¥ÀýÀàÖ»Ðè¼Ì³Ð×Ô´ËÀà¼´Îªµ¥ÀýÀà
- * ±»¼Ì³ÐÀàÐèÒª½«´ËÀà×÷ÎªËüµÄÓÑÔª£¬¹¹Ôìº¯ÊýÐ´³ÉË½ÓÐ
- * Í¨¹ýgetInstance()À´»ñÈ¡ÊµÀýµÄÖ¸Õë
+ * SingletonÎªÒ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à£¬ï¿½Îºï¿½ï¿½ï¿½Òªï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Ì³ï¿½ï¿½Ô´ï¿½ï¿½à¼´Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½Ð´ï¿½ï¿½Ë½ï¿½ï¿½
+ * Í¨ï¿½ï¿½getInstance()ï¿½ï¿½ï¿½ï¿½È¡Êµï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
  * 
- * UtilÎª¹¤¾ßÀà£¬ÄÚ²¿·â×°ÁË³£ÓÃµÄ¹¤¾ßº¯Êý£¬È«²¿Îª¾²Ì¬º¯Êý
- * Í¨¹ýUtil::xxx()À´µ÷ÓÃ
+ * UtilÎªï¿½ï¿½ï¿½ï¿½ï¿½à£¬ï¿½Ú²ï¿½ï¿½ï¿½×°ï¿½Ë³ï¿½ï¿½ÃµÄ¹ï¿½ï¿½ßºï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Îªï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½
+ * Í¨ï¿½ï¿½Util::xxx()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  * 
- * Util::uRandom·µ»ØÒ»¸öÇø¼äÄÚµÄËæ»úÊý£¬×¢ÒâÇø¼äÎª×ó±ÕÓÒ±ÕÇø¼ä
+ * Util::uRandomï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½
  * 
- * Util::splitString½«Ò»¸ö×Ö·û´®°´¸ø¶¨µÄ×Ö·û´®½øÐÐÇÐ¸î
- * ÀýÈçsplitString("aaababaabaaa", 'b')½«·µ»Ø{"aaa", "a", "aa", "aaa"}
+ * Util::splitStringï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½
+ * ï¿½ï¿½ï¿½ï¿½splitString("aaababaabaaa", 'b')ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{"aaa", "a", "aa", "aaa"}
  * 
- * Util::deleteAllMark½«µÚÒ»¸ö×Ö·û´®ÖÐµÄËùÓÐÆ¥ÅäµÚ¶þ¸ö×Ö·û´®µÄÄÚÈÝÉ¾³ý
- * ÀýÈçdeleteAllMark("aaababaabaaa", 'b')»á½«Ô­×Ö·û´®¸ü¸ÄÎª"aaaaaaaaa"
+ * Util::deleteAllMarkï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½deleteAllMark("aaababaabaaa", 'b')ï¿½á½«Ô­ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª"aaaaaaaaa"
  * 
- * Util::findIndex·µ»ØÊý×éÖÐÆ¥ÅäÖµµÄÏÂ±ê£¬¿ÉÒÔ°´ÔªËØ²éÕÒ£¬Ò²¿ÉÒÔ×Ô¶¨ÒåcmpÆ¥Åäº¯Êý
+ * Util::findIndexï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ï¿½Öµï¿½ï¿½ï¿½Â±ê£¬ï¿½ï¿½ï¿½Ô°ï¿½Ôªï¿½Ø²ï¿½ï¿½Ò£ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½cmpÆ¥ï¿½äº¯ï¿½ï¿½
  * 
- * Util::findKeyByValue¸ù¾ÝÖµ²éÕÒ¼ü£¬Ö§³Ömap/unordered_map
- * ²»Ö§³Ö×Ô¶¨Òåcmpº¯Êý£¬ÐèÒªµÄ»°ÔÙÌí¼Ó¶ÔÓ¦Ö§³Ö
+ * Util::findKeyByValueï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ò¼ï¿½ï¿½ï¿½Ö§ï¿½ï¿½map/unordered_map
+ * ï¿½ï¿½Ö§ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½cmpï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½Ó¦Ö§ï¿½ï¿½
 
- * Util::cast ¶ÔÈÝÆ÷(vector/list/queue...)ÖÐÔªËØ½øÐÐÀàÐÍ×ª»»£¬Ä¿Ç°½öÖ§³Övector£¬ÆäËûÈÝÆ÷×ÔÐÐÌí¼Ó
+ * Util::cast ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(vector/list/queue...)ï¿½ï¿½Ôªï¿½Ø½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Ä¿Ç°ï¿½ï¿½Ö§ï¿½ï¿½vectorï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  * 
- * ÐÐ 2019.7.4
+ * ï¿½ï¿½ 2019.7.4
  *
- * ²¹³ä£º
- * SingletonµÄ×ÓÀà±£³Öµ¥ÀýÈÔÈ»ÐèÒª¹¹Ôìº¯ÊýË½ÓÐ£¡
+ * ï¿½ï¿½ï¿½ä£º
+ * Singletonï¿½ï¿½ï¿½ï¿½ï¿½à±£ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½È»ï¿½ï¿½Òªï¿½ï¿½ï¿½ìº¯ï¿½ï¿½Ë½ï¿½Ð£ï¿½
  *
- * ÐÐ 2019.10.6
+ * ï¿½ï¿½ 2019.10.6
  * 
  *  */
 
@@ -96,7 +96,7 @@ namespace DFSim
         {
             const auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
             std::default_random_engine e(seed);
-            const std::uniform_int_distribution<uint64_t> u(a_, b_);
+            std::uniform_int_distribution<uint64_t> u(a_, b_);
             return u(e);
         }
 
@@ -262,7 +262,7 @@ namespace DFSim
         static std::vector<std::string> splitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored)
         {
             std::vector<std::string> resultStringVector;
-            std::replace_if(srcStr.begin(), srcStr.end(), [&](const char& c) {if (delimStr.find(c) != std::string::npos) { return true; } else { return false; }}/*pred*/, delimStr.at(0));//½«³öÏÖµÄËùÓÐ·Ö¸ô·û¶¼Ìæ»»³ÉÎªÒ»¸öÏàÍ¬µÄ×Ö·û£¨·Ö¸ô·û×Ö·û´®µÄµÚÒ»¸ö£©
+            std::replace_if(srcStr.begin(), srcStr.end(), [&](const char& c) {if (delimStr.find(c) != std::string::npos) { return true; } else { return false; }}/*pred*/, delimStr.at(0));//ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ð·Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ»»ï¿½ï¿½ÎªÒ»ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Äµï¿½Ò»ï¿½ï¿½ï¿½ï¿½
             size_t pos = srcStr.find(delimStr.at(0));
             std::string addedString = "";
             while (pos != std::string::npos) {
@@ -298,18 +298,18 @@ namespace DFSim
         
         /** Convert element type in Vector */
         template<
-            typename L, // Ô´ÀàÐÍ
-            typename R  // Ä¿±êÀàÐÍ
+            typename L, // Ô´ï¿½ï¿½ï¿½ï¿½
+            typename R  // Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         >
             static std::vector<R>cast(const std::vector<L>& left, std::vector<R>*) 
         {
             std::vector<R> right;
             std::transform(
-                left.begin(), // ÊäÈëÈÝÆ÷µü´úÆ÷(¿ªÊ¼)
-                left.end(), // ÊäÈëÈÝÆ÷µü´úÆ÷(½áÎ²)
-                std::insert_iterator<std::vector<R>>(right, right.begin()), // Êä³öµü´úÆ÷
-                [](L l)->R { return static_cast<R>(l);/*cast(l, (R*)nullptr);*/ } // lambda±í´ïÊ½µ÷ÓÃÉÏÃæµÄ¶¨ÒåµÄCastº¯ÊýÍê³ÉÔªËØÀàÐÍ×ª»»
-                // Èç¹ûÉÏÃæµÄcastº¯ÊýÎÞ·¨Âú×ãÒªÇó£¬Çë×ÔÐÐ¸ù¾ÝÐèÒªÀ©Õ¹¡£
+                left.begin(), // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½Ê¼)
+                left.end(), // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½Î²)
+                std::insert_iterator<std::vector<R>>(right, right.begin()), // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                [](L l)->R { return static_cast<R>(l);/*cast(l, (R*)nullptr);*/ } // lambdaï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½Castï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½castï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Õ¹ï¿½ï¿½
             );
             return std::move(right);
         }

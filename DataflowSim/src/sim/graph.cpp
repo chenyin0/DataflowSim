@@ -362,196 +362,196 @@ auto Graph::csrFormat()->tuple<vector<int64_t>, vector<int64_t>, vector<int64_t>
     return make_tuple(indPtr, ind, val);
 }
 
-vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum)
-{
-    idx_t nVertices = xadj.size() - 1;  // Vertex number
-    idx_t nEdges = adjncy.size() / 2;  // Edge number
-    idx_t nWeights = 1;
-    idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
-    idx_t objval;
-    std::vector<idx_t> part(nVertices, 0);
-    idx_t options[METIS_NOPTIONS];
-    METIS_SetDefaultOptions(options);
-    options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
-    options[METIS_OPTION_CONTIG] = 1;
-    options[METIS_OPTION_NITER] = 100;
+// vector<idx_t> Graph::metisGraphPartition(vector<idx_t> xadj, vector<idx_t> adjncy, vector<idx_t> adjwgt, uint64_t divideNum)
+// {
+//     idx_t nVertices = xadj.size() - 1;  // Vertex number
+//     idx_t nEdges = adjncy.size() / 2;  // Edge number
+//     idx_t nWeights = 1;
+//     idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
+//     idx_t objval;
+//     std::vector<idx_t> part(nVertices, 0);
+//     idx_t options[METIS_NOPTIONS];
+//     METIS_SetDefaultOptions(options);
+//     options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+//     options[METIS_OPTION_CONTIG] = 1;
+//     options[METIS_OPTION_NITER] = 100;
 
-    int ufactor = 4096;
-    bool validPartition = 1;
-    while (1)  // Ensure each subgraph at least has one node
-    {
-        validPartition = 1;
-        options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
-        // TODO: select the best graph split function!
-        if (divideNum > 8)
-        {
-            int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        }
-        else
-        {
-            int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        }
+//     int ufactor = 4096;
+//     bool validPartition = 1;
+//     while (1)  // Ensure each subgraph at least has one node
+//     {
+//         validPartition = 1;
+//         options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+//         // TODO: select the best graph split function!
+//         if (divideNum > 8)
+//         {
+//             int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+//         }
+//         else
+//         {
+//             int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+//         }
 
-        for (size_t i = 0; i < divideNum; ++i)
-        {
-            if (find(part.begin(), part.end(), i) == part.end())
-            {
-                validPartition = 0;
-                ufactor >>= 1;
-                break;
-            }
-        }
+//         for (size_t i = 0; i < divideNum; ++i)
+//         {
+//             if (find(part.begin(), part.end(), i) == part.end())
+//             {
+//                 validPartition = 0;
+//                 ufactor >>= 1;
+//                 break;
+//             }
+//         }
 
-        if (validPartition)
-        {
-            break;
-        }
-    }
+//         if (validPartition)
+//         {
+//             break;
+//         }
+//     }
 
-    return part;
-}
+//     return part;
+// }
 
-void Graph::subgraphPartition(uint64_t _subgraphNum, Debug* _debug)
-{
-    uint64_t divideNum = _subgraphNum;
-    if (_subgraphNum > 1)
-    {
-        auto dfgCsr = csrFormat();
-        vector<idx_t> cluster;
-        vector<idx_t> xadj = std::get<0>(dfgCsr);
-        vector<idx_t> adjncy = std::get<1>(dfgCsr);
-        vector<idx_t> adjwgt = std::get<2>(dfgCsr);
+// void Graph::subgraphPartition(uint64_t _subgraphNum, Debug* _debug)
+// {
+//     uint64_t divideNum = _subgraphNum;
+//     if (_subgraphNum > 1)
+//     {
+//         auto dfgCsr = csrFormat();
+//         vector<idx_t> cluster;
+//         vector<idx_t> xadj = std::get<0>(dfgCsr);
+//         vector<idx_t> adjncy = std::get<1>(dfgCsr);
+//         vector<idx_t> adjwgt = std::get<2>(dfgCsr);
 
-        //idx_t nVertices = xadj.size() - 1;  // Vertex number
-        //idx_t nEdges = adjncy.size() / 2;  // Edge number
-        //idx_t nWeights = 1;
-        //idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
-        //idx_t objval;
-        //std::vector<idx_t> part(nVertices, 0);
-        //idx_t options[METIS_NOPTIONS];
-        //METIS_SetDefaultOptions(options);
-        //options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
-        //options[METIS_OPTION_CONTIG] = 1;
-        //options[METIS_OPTION_NITER] = 100;
+//         //idx_t nVertices = xadj.size() - 1;  // Vertex number
+//         //idx_t nEdges = adjncy.size() / 2;  // Edge number
+//         //idx_t nWeights = 1;
+//         //idx_t nParts = static_cast<idx_t>(divideNum);  // Subgraph number
+//         //idx_t objval;
+//         //std::vector<idx_t> part(nVertices, 0);
+//         //idx_t options[METIS_NOPTIONS];
+//         //METIS_SetDefaultOptions(options);
+//         //options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
+//         //options[METIS_OPTION_CONTIG] = 1;
+//         //options[METIS_OPTION_NITER] = 100;
 
-        //int ufactor = 4096;
-        //bool validPartition = 1;
-        //while (1)  // Ensure each subgraph at least has one node
-        //{
-        //    validPartition = 1;
-        //    options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
-        //    // TODO: select the best graph split function!
-        //    if (divideNum > 8)
-        //    {
-        //        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        //    }
-        //    else
-        //    {
-        //        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
-        //    }
+//         //int ufactor = 4096;
+//         //bool validPartition = 1;
+//         //while (1)  // Ensure each subgraph at least has one node
+//         //{
+//         //    validPartition = 1;
+//         //    options[METIS_OPTION_UFACTOR] = ufactor;  // Don't care of task balancing
+//         //    // TODO: select the best graph split function!
+//         //    if (divideNum > 8)
+//         //    {
+//         //        int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+//         //    }
+//         //    else
+//         //    {
+//         //        int ret = METIS_PartGraphRecursive(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+//         //    }
 
-        //    for (size_t i = 0; i < divideNum; ++i)
-        //    {
-        //        if (find(part.begin(), part.end(), i) == part.end())
-        //        {
-        //            validPartition = 0;
-        //            ufactor >>= 1;
-        //            break;
-        //        }
-        //    }
+//         //    for (size_t i = 0; i < divideNum; ++i)
+//         //    {
+//         //        if (find(part.begin(), part.end(), i) == part.end())
+//         //        {
+//         //            validPartition = 0;
+//         //            ufactor >>= 1;
+//         //            break;
+//         //        }
+//         //    }
 
-        //    if (validPartition)
-        //    {
-        //        break;
-        //    }
-        //}
+//         //    if (validPartition)
+//         //    {
+//         //        break;
+//         //    }
+//         //}
 
-        auto part = metisGraphPartition(xadj, adjncy, adjwgt, divideNum);
+//         auto part = metisGraphPartition(xadj, adjncy, adjwgt, divideNum);
 
-        //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
+//         //int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj.data(), adjncy.data(), NULL, NULL, adjwgt.data(), &nParts, NULL, NULL, options, &objval, part.data());
 
-        for (size_t i = 0; i < part.size(); ++i)
-        {
-            nodes[i]->subgraphId = part[i];
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < nodes.size(); ++i)
-        {
-            nodes[i]->subgraphId = 0;
-        }
-    }
+//         for (size_t i = 0; i < part.size(); ++i)
+//         {
+//             nodes[i]->subgraphId = part[i];
+//         }
+//     }
+//     else
+//     {
+//         for (size_t i = 0; i < nodes.size(); ++i)
+//         {
+//             nodes[i]->subgraphId = 0;
+//         }
+//     }
 
-    sortSubgraphId(nodes, divideNum);
+//     sortSubgraphId(nodes, divideNum);
 
-    //// Print each subgraph
-    //for (size_t i = 0; i < devideNum; ++i)
-    //{
-    //    std::cout << "SubgraphId: " << i << std::endl;
-    //    for (auto& node : nodes)
-    //    {
-    //        if (node->subgraphId == i)
-    //        {
-    //            std::cout << "\t" << node->node_name << std::endl;
-    //        }
-    //    }
-    //}
+//     //// Print each subgraph
+//     //for (size_t i = 0; i < devideNum; ++i)
+//     //{
+//     //    std::cout << "SubgraphId: " << i << std::endl;
+//     //    for (auto& node : nodes)
+//     //    {
+//     //        if (node->subgraphId == i)
+//     //        {
+//     //            std::cout << "\t" << node->node_name << std::endl;
+//     //        }
+//     //    }
+//     //}
 
-    //uint64_t adjacentEdgeNum = 0;
-    //for (size_t i = 0; i < nodes.size(); ++i)
-    //{
-    //    uint64_t partId = nodes[i]->subgraphId;
-    //    vector<string> preNodes;
-    //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
-    //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
-    //    for (auto& preNode : preNodes)
-    //    {
-    //        if (getNode(preNode)->subgraphId != partId)
-    //        {
-    //            adjacentEdgeNum++;
-    //        }
-    //    }
-    //}
+//     //uint64_t adjacentEdgeNum = 0;
+//     //for (size_t i = 0; i < nodes.size(); ++i)
+//     //{
+//     //    uint64_t partId = nodes[i]->subgraphId;
+//     //    vector<string> preNodes;
+//     //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_data.begin(), nodes[i]->pre_nodes_data.end());
+//     //    preNodes.insert(preNodes.end(), nodes[i]->pre_nodes_active.begin(), nodes[i]->pre_nodes_active.end());
+//     //    for (auto& preNode : preNodes)
+//     //    {
+//     //        if (getNode(preNode)->subgraphId != partId)
+//     //        {
+//     //            adjacentEdgeNum++;
+//     //        }
+//     //    }
+//     //}
 
-    //uint64_t actualNodeNum = 0;
-    //uint64_t memNormAccessNum = 0;
-    //for (auto& node : nodes)
-    //{
-    //    auto nodePtr = dynamic_cast<Chan_Node*>(node);
-    //    if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
-    //    {
-    //        ++actualNodeNum;
-    //    }
+//     //uint64_t actualNodeNum = 0;
+//     //uint64_t memNormAccessNum = 0;
+//     //for (auto& node : nodes)
+//     //{
+//     //    auto nodePtr = dynamic_cast<Chan_Node*>(node);
+//     //    if (nodePtr->isPhysicalChan && nodePtr->node_op != "Nop")
+//     //    {
+//     //        ++actualNodeNum;
+//     //    }
 
-    //    if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
-    //    {
-    //        ++memNormAccessNum;
-    //    }
-    //}
+//     //    if (nodePtr->node_op == "Load" || nodePtr->node_op == "Store")
+//     //    {
+//     //        ++memNormAccessNum;
+//     //    }
+//     //}
 
-    //uint64_t arraySize = 64;
-    //uint64_t maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
-    //// TODO: Figure out actual coalesceRate of each subgraph
-    //uint64_t coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
-    //float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
-    //float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
-    //float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
+//     //uint64_t arraySize = 64;
+//     //uint64_t maxCoalesceRate = BANK_BLOCK_SIZE / DATA_PRECISION;
+//     //// TODO: Figure out actual coalesceRate of each subgraph
+//     //uint64_t coalesceRate = std::min(arraySize / (actualNodeNum / divideNum), maxCoalesceRate);
+//     //float memAccessInterNum = static_cast<float>(adjacentEdgeNum) / static_cast<float>(coalesceRate);
+//     //float memAccessNormalNum = static_cast<float>(memNormAccessNum) / static_cast<float>(coalesceRate);
+//     //float memAccessTotalNum = memAccessInterNum + memAccessNormalNum;
 
-    //std::cout << std::endl;
-    //std::cout << ">>> Part_num: " << _partitionNum << std::endl;
-    //std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
-    //std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
-    //std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
-    //std::cout << std::endl;
-    //std::cout << "coalesce_rate: " << coalesceRate << std::endl;
-    //std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
-    //std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
-    //std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
-    //std::cout << std::endl;
+//     //std::cout << std::endl;
+//     //std::cout << ">>> Part_num: " << _partitionNum << std::endl;
+//     //std::cout << "totalActualNodeNum: " << actualNodeNum << std::endl;
+//     //std::cout << "normalMemAccessNum: " << memNormAccessNum << std::endl;
+//     //std::cout << "adjEdgeNum: " << adjacentEdgeNum << std::endl;
+//     //std::cout << std::endl;
+//     //std::cout << "coalesce_rate: " << coalesceRate << std::endl;
+//     //std::cout << "mem_access_num_inter: " << memAccessInterNum << std::endl;
+//     //std::cout << "mem_access_num_normal: " << memAccessNormalNum << std::endl;
+//     //std::cout << "total_mem_access_num: " << memAccessTotalNum << std::endl;
+//     //std::cout << std::endl;
 
-    printSubgraphPartition(divideNum, _debug);
-}
+//     printSubgraphPartition(divideNum, _debug);
+// }
 
 void Graph::sortSubgraphId(deque<Node*>& nodes, uint64_t subgraphNum)
 {

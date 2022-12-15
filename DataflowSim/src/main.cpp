@@ -23,11 +23,12 @@
 #include "../test/hotspot/hotspot.h"
 #include "../test/gcn/gcn.h"
 
-//#include "./module/execution/Channel.h"
+// #include "./module/execution/Channel.h"
+#include "string.h"
 
 using namespace DFSim;
 
-int parseOptions(int argc, char** argv, string& dataset, string& arch_name, string& deg_th)
+int parseOptions(int argc, char **argv, string &dataset, string &arch_name, string &deg_th)
 {
     int i = 0;
     if (argc == 1)
@@ -54,7 +55,7 @@ int parseOptions(int argc, char** argv, string& dataset, string& arch_name, stri
     return 0;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     DFSim::ClkDomain clk();
     std::cout << "Begin test" << std::endl;
@@ -65,8 +66,13 @@ int main(int argc, char** argv)
         printf("Get parameter failed!\n");
         exit(-1);
     }*/
+#ifdef WINDOWS
     config_file = "./config/config.json";
-    dataset = "cora";
+#endif
+#ifdef LINUX
+    config_file = "./DataflowSim/config/config.json";
+#endif
+    dataset = "citeseer";
     arch_name = "hygcn";
 
     string input_file_path;
@@ -83,8 +89,8 @@ int main(int argc, char** argv)
         log_file_path = Global::file_path + "results/" + dataset + "_" + arch_name + "_" + deg_th + ".txt";
     }
 
-    //DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
-    DFSim::Debug* debug = new DFSim::Debug(log_file_path);
+    // DFSim::Debug* debug = new DFSim::Debug(Global::file_path + App_name_convert::toString(Global::app_name) + string("_log_") + string(xstr(ARCH)) + string(".txt"));
+    DFSim::Debug *debug = new DFSim::Debug(log_file_path);
 
     Global::load_config(config_file);
 
@@ -104,13 +110,13 @@ int main(int argc, char** argv)
         switch (Global::arch)
         {
         case ArchType::Base:
-            //DFSimTest::simpleFlow_Base(debug);
+            // DFSimTest::simpleFlow_Base(debug);
             break;
         case ArchType::DGSF:
-            //DFSimTest::simpleFlow_DGSF(debug);
+            // DFSimTest::simpleFlow_DGSF(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::simpleFlow_SGMF(debug);
+            // DFSimTest::simpleFlow_SGMF(debug);
             break;
         }
 
@@ -121,13 +127,13 @@ int main(int argc, char** argv)
         switch (Global::arch)
         {
         case ArchType::Base:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            // DFSimTest::MemoryTest::memory_test(debug);
             break;
         case ArchType::DGSF:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            // DFSimTest::MemoryTest::memory_test(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            // DFSimTest::MemoryTest::memory_test(debug);
             break;
         }
 
@@ -140,13 +146,13 @@ int main(int argc, char** argv)
         case ArchType::Base:
             // Debug_yin_05.05
             DFSimTest::GemmTest::gemm_Base_auto_sim(debug);
-            //DFSimTest::GemmTest::gemm_Base(debug);
+            // DFSimTest::GemmTest::gemm_Base(debug);
             break;
         case ArchType::DGSF:
             DFSimTest::GemmTest::gemm_DGSF(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            // DFSimTest::MemoryTest::memory_test(debug);
             break;
         }
 
@@ -157,10 +163,10 @@ int main(int argc, char** argv)
         switch (Global::arch)
         {
         case ArchType::Base:
-            //DFSimTest::GemmTest::gemm_base(debug);
+            // DFSimTest::GemmTest::gemm_base(debug);
             break;
         case ArchType::DGSF:
-            //DFSimTest::MemoryTest::memory_test(debug);
+            // DFSimTest::MemoryTest::memory_test(debug);
             break;
         case ArchType::SGMF:
             DFSimTest::BfsTest::bfs_SGMF(debug);
@@ -180,7 +186,7 @@ int main(int argc, char** argv)
             DFSimTest::AesTest::aes_DGSF(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::AesTest::bfs_SGMF(debug);
+            // DFSimTest::AesTest::bfs_SGMF(debug);
             break;
         }
 
@@ -191,14 +197,14 @@ int main(int argc, char** argv)
         switch (Global::arch)
         {
         case ArchType::Base:
-            //DFSimTest::LudTest::lud_Base(debug);
+            // DFSimTest::LudTest::lud_Base(debug);
             DFSimTest::LudTest::lud_Base_auto(debug);
             break;
         case ArchType::DGSF:
             DFSimTest::LudTest::lud_DGSF(debug);
             break;
         case ArchType::SGMF:
-            //DFSimTest::LudTest::lud_SGMF(debug);
+            // DFSimTest::LudTest::lud_SGMF(debug);
             break;
         }
 
@@ -211,12 +217,12 @@ int main(int argc, char** argv)
         case ArchType::Base:
             DFSimTest::FFT_Test::fft_Base(debug);
             break;
-        //case ArchType::DGSF:
-        //    DFSimTest::AesTest::aes_DGSF(debug);
-        //    break;
-        //case ArchType::SGMF:
-        //    //DFSimTest::AesTest::bfs_SGMF(debug);
-        //    break;
+            // case ArchType::DGSF:
+            //     DFSimTest::AesTest::aes_DGSF(debug);
+            //     break;
+            // case ArchType::SGMF:
+            //     //DFSimTest::AesTest::bfs_SGMF(debug);
+            //     break;
         }
 
         break;
@@ -228,12 +234,12 @@ int main(int argc, char** argv)
         case ArchType::Base:
             DFSimTest::Viterbi_Test::viterbi_Base(debug);
             break;
-            //case ArchType::DGSF:
-            //    DFSimTest::AesTest::aes_DGSF(debug);
-            //    break;
-            //case ArchType::SGMF:
-            //    //DFSimTest::AesTest::bfs_SGMF(debug);
-            //    break;
+            // case ArchType::DGSF:
+            //     DFSimTest::AesTest::aes_DGSF(debug);
+            //     break;
+            // case ArchType::SGMF:
+            //     //DFSimTest::AesTest::bfs_SGMF(debug);
+            //     break;
         }
 
         break;
@@ -309,8 +315,8 @@ int main(int argc, char** argv)
         switch (Global::arch)
         {
         case ArchType::Base:
-            //DFSimTest::GCN_Test::gcn_Base(debug);
-            //DFSimTest::GCN_Test::gcn_Base_trace(debug);
+            // DFSimTest::GCN_Test::gcn_Base(debug);
+            // DFSimTest::GCN_Test::gcn_Base_trace(debug);
             DFSimTest::GCN_Test::gcn_Base_trace_systolic(debug, input_file_path, dataset, arch_name, deg_th);
             break;
         }
@@ -321,17 +327,17 @@ int main(int argc, char** argv)
         std::cout << "Not selected a simulation function" << std::endl;
     }
 
-//#ifdef DGSF
-//    DFSimTest::simpleFlow_DGSF(debug);
-//#endif
-//#ifdef Base
-//    DFSimTest::simpleFlow_Base(debug);
-//#endif
-//#ifdef SGMF
-//    DFSimTest::simpleFlow_SGMF(debug);
-//#endif
+    // #ifdef DGSF
+    //     DFSimTest::simpleFlow_DGSF(debug);
+    // #endif
+    // #ifdef Base
+    //     DFSimTest::simpleFlow_Base(debug);
+    // #endif
+    // #ifdef SGMF
+    //     DFSimTest::simpleFlow_SGMF(debug);
+    // #endif
 
-    //DFSimTest::MemoryTest::memory_test(debug);
+    // DFSimTest::MemoryTest::memory_test(debug);
 
     delete debug;
     return 0;
