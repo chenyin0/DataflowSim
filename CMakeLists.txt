@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 # Set the project name
 project(DataflowSim)
 
+# set (CMAKE_BUILD_TYPE "Debug")
+set (CMAKE_BUILD_TYPE "Release")
+
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 add_compile_options()
