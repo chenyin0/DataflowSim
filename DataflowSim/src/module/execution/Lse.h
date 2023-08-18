@@ -1,8 +1,8 @@
 /*
 Module Lse:
 
-1. Trigger mode: 
-    Applicate scenario: 
+1. Trigger mode:
+    Applicate scenario:
         Inner loop executes many times then trigger outer loop execute once
     //Usage:
     //    uint64_t trig_cnt = 3;  // Define trig_cnt in the benchmark_config.cpp
@@ -33,43 +33,43 @@ namespace DFSim
     public:
         /*Lse(uint64_t _size, uint64_t _cycle, MemSystem* _memSys);
         Lse(uint64_t _size, uint64_t _cycle, MemSystem* _memSys, uint64_t _speedup);*/
-        Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys);
-        Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys, uint64_t _speedup);
-        Lse(string _moduleName, uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem* _memSys, uint64_t _speedup);
+        Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem *_memSys);
+        Lse(uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem *_memSys, uint64_t _speedup);
+        Lse(string _moduleName, uint64_t _size, uint64_t _cycle, bool _isWrite, MemSystem *_memSys, uint64_t _speedup);
         ~Lse();
 
-        //void get(bool _isWrite, uint64_t _addr);  // Load/store addr
-        //void get(vector<int> data);  // Load/store addr
-        // Trigger mode (e.g. inner loop executes many times then trigger outer loop execute once,
-        // or upper pe updates local reg many times then sends the data to lse once)
-        //void get(vector<int> data, uint64_t& trig_cnt);
-        /*void get(bool _isWrite, uint64_t _addr, uint64_t& trig_cnt);*/  
-        virtual uint64_t assign() override;  // Return corresponding addr
-        //bool checkSend(Data _data, Channel* upstream) override;
-        void ackCallback(MemReq _req);  // Callback func for MemSys
-        void setInflight(MemReq& _req);  // Set req inflight to signify this req has been sent to memSys
-        pair<bool, MemReq> peekReqQueue();  // Peek the suspendReq by arbitor in memSys
+        // void get(bool _isWrite, uint64_t _addr);  // Load/store addr
+        // void get(vector<int> data);  // Load/store addr
+        //  Trigger mode (e.g. inner loop executes many times then trigger outer loop execute once,
+        //  or upper pe updates local reg many times then sends the data to lse once)
+        // void get(vector<int> data, uint64_t& trig_cnt);
+        /*void get(bool _isWrite, uint64_t _addr, uint64_t& trig_cnt);*/
+        virtual uint64_t assign() override; // Return corresponding addr
+        // bool checkSend(Data _data, Channel* upstream) override;
+        void ackCallback(MemReq _req);     // Callback func for MemSys
+        void setInflight(MemReq &_req);    // Set req inflight to signify this req has been sent to memSys
+        pair<bool, MemReq> peekReqQueue(); // Peek the suspendReq by arbitor in memSys
 
     protected:
         void initial();
-        //bool checkUpstream(uint64_t bufferId) override;
-        //bool push(bool _isWrite, uint64_t _addr);  // Push memory access request into reqQueue
-        //void push(bool _isWrite, uint64_t _addr, bool& trigger);  // Trigger mode
-        //void pushReqQ(bool _isWrite, uint64_t _addr);
-        void pushReqQ();  // chanBuffer[0] must store addr!!!
-        vector<int> pop() override;  // Pop memory request from reqQueue when the data has sent to the downstream channel
+        // bool checkUpstream(uint64_t bufferId) override;
+        // bool push(bool _isWrite, uint64_t _addr);  // Push memory access request into reqQueue
+        // void push(bool _isWrite, uint64_t _addr, bool& trigger);  // Trigger mode
+        // void pushReqQ(bool _isWrite, uint64_t _addr);
+        void pushReqQ();            // chanBuffer[0] must store addr!!!
+        vector<int> pop() override; // Pop memory request from reqQueue when the data has sent to the downstream channel
         void statusUpdate() override;
         void pushChannel();
-        //bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
+        // bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
         void popChanBuffer();
-        //void bpUpdate() override;
+        // void bpUpdate() override;
         virtual void funcUpdate() override;
 
         void updateMemAccessRecord(uint64_t _reqIndex);
 
-#ifdef DEBUG_MODE  // Get private instance for debug
+#ifdef DEBUG_MODE // Get private instance for debug
     public:
-        const uint64_t& getCurrReqId() const;
+        const uint64_t &getCurrReqId() const;
 #endif // DEBUG_MODE
 
     public:
@@ -77,8 +77,8 @@ namespace DFSim
         // MemReq: keep req; Data: keep status;
         vector<pair<MemReq, Data>> reqQueue;
         vector<pair<bool, MemReq>> suspendReqVec; // Outstanding req, need send to memSys; <valid, req>; The vector size equal to the LSE speedup
-        bool noLatencyMode = 0;  // Emulate no latency memory access
-        vector<int>* memorySpace = nullptr;  // Point to load/store array
+        bool noLatencyMode = 0;                   // Emulate no latency memory access
+        vector<int> *memorySpace = nullptr;       // Point to load/store array
         uint64_t baseAddr = 0;
 
         // Profiling
@@ -87,21 +87,23 @@ namespace DFSim
         uint64_t memAccessCnt = 0;
         uint64_t latTotal = 0;
 
-        uint64_t memReqCnt = 0;  // Send req to memSystem reqQueue
-        uint64_t memReqBlockCnt = 0;  // Send unsuccessfully due memSystem reqQueue is full
+        uint64_t memReqCnt = 0;      // Send req to memSystem reqQueue
+        uint64_t memReqBlockCnt = 0; // Send unsuccessfully due memSystem reqQueue is full
 
     protected:
         uint64_t lseId;
         uint64_t lastPopVal = 0;
         // reqQueue ptr
-        uint64_t pushQueuePtr = 0;  // Push req to reqQueue
+        uint64_t pushQueuePtr = 0; // Push req to reqQueue
         uint64_t sendChanPtr = 0;  // Send ready req to channel
-        uint64_t sendMemPtr = 0;  // Send req to memory system
-        
+        uint64_t sendMemPtr = 0;   // Send req to memory system
+
         bool isWrite;
-        uint64_t orderId = 0;  // Record request sequence
-        uint64_t currReqId = 0;  // Used in Lse in order
-        MemSystem* memSys = nullptr;
-        deque<int> valueQueue;  // Store value in store mode  
+        uint64_t orderId = 0;   // Record request sequence
+        uint64_t currReqId = 0; // Used in Lse in order
+        MemSystem *memSys = nullptr;
+
+    public:
+        deque<int> valueQueue; // Store value in store mode  (Temporally set to public for GCN trace injection)
     };
 }

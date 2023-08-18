@@ -5,15 +5,15 @@
 namespace DFSim
 {
     /**
-     * ！- 修改为正确的单例类，clk用全局静态变量来实现
-     * ！- 使用clk用类名调用
+     * Implement clk with global static variable
+     * Call clk by class ClkDomain
      *
-     * 使用前先初始化 ClkDomain::initClk()
-     * 每个周期调用自加 ClkDomain::selfAdd()
-     * 若需要人工设置初始值，用ClkDomain::setClk(xxx)
-     * 采样时钟用 ClkDomain::getClk()
+     * Initial at first: ClkDomain::initClk()
+     * Call selfAdd each cycle to update clk: ClkDomain::selfAdd()
+     * Set the initial value manually if need: ClkDomain::setClk(xxx)
+     * Get current clk: ClkDomain::getClk()
      *
-     * 行 2019.10.6
+     * 2019.10.6
      */
     class ClkDomain : public Singleton<ClkDomain>
     {
