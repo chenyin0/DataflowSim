@@ -59,18 +59,23 @@ We focus on the benchmark suits with sufficient parallelism, which can be unroll
 ## Software stacks
 
 1. Use Clang to generate the target benchmark's LLVM IR, and generate the corresponding dataflow graph (DFG) and control flow graph (CFG) by the LLVM built-in pass.
-2. Separate the original dataflow graph (DFG) according to control regions to get multiple independent sub-DFGs (Details are in this paper<a href="#ref-subgraph">[5]</a>).
+2. Separate the original dataflow graph (DFG) according to control regions to get multiple independent sub-DFGs (Details are in paper <a href="#ref-subgraph">[5]</a> and <a href="#ref-reschedule">[6]</a>).
 3. Define the network topology and mapping the intact DFG or sub-DFGs under this topology to get the interconnection information (including the hop times, path-balance buffer size, the minimum array size that can be routed etc. ) by [DFMapper](https://github.com/chenyin0/DFMapper).
 4. Use the hardware ISAs provided in [DFSim](https://github.com/chenyin0/DataflowSim) (or define customized ones) to build the micro-architecture of your own accelerators and evaluate the PPA (perf, power and area).
 5. Change different hardware ISAs of the execution mode, memory behavior and interconnect topology to help designers realize a design space exploration. This is an agile development framework in the micro-architecture level.
 
 
 
-## Build usages
+## Compilation
+```bash
+bash make.sh
+```
 
-TBD
-
-
+## Running the code
+```python
+python run.py
+```
+(you can configure different architectures and benchmarks in run.py)
 
 ## References
 
@@ -83,4 +88,6 @@ TBD
 <span name="ref-polybench">[4] Pouchet, Louis-Noël. "Polybench: The polyhedral benchmark suite." *URL: http://www.cs.ucla.edu/pouchet/software/polybench* 437 (2012).</span>
 
 <span name="ref-subgraph">[5] Chen Yin, et al. "Subgraph Decoupling and Rescheduling for Increased Utilization in CGRA Architecture", DATE 2021</span>.
+
+<span name="ref-reschedule">[6] Chen Yin, et al. "A Reschedulable Dataflow-SIMD Execution for Increased Utilization in CGRA Cross-Domain Acceleration", TCAD 2022</span>.
 
