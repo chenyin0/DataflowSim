@@ -370,3 +370,5 @@ MigrationBackup/
 # File path
 **/resource/**/*.dot
 **/resource/**/*.txt
+
+build/
