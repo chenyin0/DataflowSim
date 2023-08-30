@@ -49,6 +49,8 @@ namespace DFSim
         void ackCallback(MemReq _req);     // Callback func for MemSys
         void setInflight(MemReq &_req);    // Set req inflight to signify this req has been sent to memSys
         pair<bool, MemReq> peekReqQueue(); // Peek the suspendReq by arbitor in memSys
+        void statusUpdate() override;
+        vector<int> pop() override; // Pop memory request from reqQueue when the data has sent to the downstream channel
 
     protected:
         void initial();
@@ -57,8 +59,8 @@ namespace DFSim
         // void push(bool _isWrite, uint64_t _addr, bool& trigger);  // Trigger mode
         // void pushReqQ(bool _isWrite, uint64_t _addr);
         void pushReqQ();            // chanBuffer[0] must store addr!!!
-        vector<int> pop() override; // Pop memory request from reqQueue when the data has sent to the downstream channel
-        void statusUpdate() override;
+        // vector<int> pop() override; // Pop memory request from reqQueue when the data has sent to the downstream channel
+        // void statusUpdate() override;
         void pushChannel();
         // bool sendReq(MemReq _req);  // Call MemSystem's addTransaction func
         void popChanBuffer();

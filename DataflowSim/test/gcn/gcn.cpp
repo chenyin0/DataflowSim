@@ -16,7 +16,7 @@ uint64_t GCN_Test::ngh_num;
 // Address map:
 // const uint64_t GCN_Test::indPtr_BaseAddr = 0;
 // const uint64_t GCN_Test::indices_BaseAddr = 0;
-const uint64_t GCN_Test::feat_BaseAddr = 0;
+const uint64_t GCN_Test::feat_base_addr = 0;
 
 // string GCN_Test::dataset_name = "cora";
 // string GCN_Test::dataset_name = "citeseer";
@@ -245,6 +245,64 @@ void GCN_Test::bindDelay(Channel *producerChan, Channel *consumeChan, deque<uint
     }
 }
 
+// Inject to Lse
+bool GCN_Test::Send2Lse(Lse &lse_, Data &data_)
+{
+    bool sendSuccess = false;
+    if (lse_.chanBuffer[0].size() < lse_.size)
+    {
+        lse_.chanBuffer[0].push_back(data_);
+        sendSuccess = true;
+    }
+
+    return sendSuccess;
+}
+
+void GCN_Test::UpdateLse(vector<Lse *> &lses, vector<Data> &ports)
+{
+    for (auto lse_id = 0; lse_id < lses.size(); ++lse_id)
+    {
+        auto &lse = lses[lse_id];
+        auto &port = ports[lse_id];
+        lse->statusUpdate();
+        if (!lse->channel.empty() && !port.valid)
+        {
+            port = lse->channel.front();
+            port.valid = 1;
+            lse->pop();
+        }
+    }
+}
+
+void GCN_Test::arbiter(vector<Data> &producers, vector<Data> &consumers)
+{
+    bool sendSuccess = false;
+    uint64_t consumer_port_id_record = 0;
+    for (auto &producer_port : producers)
+    {
+        if (producer_port.valid)
+        {
+            for (auto consumer_port_id = consumer_port_id_record; consumer_port_id < consumers.size(); ++consumer_port_id)
+            {
+                auto &consumer_port = consumers[consumer_port_id];
+                if (!consumer_port.valid)
+                {
+                    consumer_port = producer_port;
+                    producer_port.valid = false;
+                    consumer_port_id_record += consumer_port_id;
+                    sendSuccess = true;
+                    break;
+                }
+            }
+
+            if (!sendSuccess)
+            {
+                break;
+            }
+        }
+    }
+}
+
 void GCN_Test::generateDfg()
 {
     //** ControlRegion
@@ -270,7 +328,7 @@ void GCN_Test::generateDfg()
 
     // Aggregation
     dfg.addNode("traverse_root", "Nop", {"i_lc"});
-    dfg.addNode("ld_ngh", "Load", {"traverse_root"}, &feat, feat_BaseAddr);
+    dfg.addNode("ld_ngh", "Load", {"traverse_root"}, &feat, feat_base_addr);
 
     ////** Aggregation
     //// Traverse vertex

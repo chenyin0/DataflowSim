@@ -244,22 +244,22 @@ void Profiler::printChanProfiling(GraphScheduler* _graphScheduler)
     }
 
     vector<uint64_t> subgraphNodeNum(_graphScheduler->subgraphActiveCnt.size());
-    for (auto& entry : registry->getRegistryTable())
-    {
-        if (entry.moduleType == ModuleType::Channel
-            && entry.chanPtr->isPhysicalChan
-            && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)
-            && entry.chanPtr->moduleName != "Chan_begin"
-            && entry.chanPtr->moduleName != "Chan_end"
-            /*&& entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
-            && entry.chanPtr->moduleName != "Lse_a_update_j1"
-            && entry.chanPtr->moduleName != "Chan_sum_update_k2_drain"
-            && entry.chanPtr->moduleName != "Chan_sum_div"
-            && entry.chanPtr->moduleName != "Lse_a_update_j2"*/)
-        {
-            subgraphNodeNum[entry.chanPtr->subgraphId]++;
-        }
-    }
+    // for (auto& entry : registry->getRegistryTable())
+    // {
+    //     if (entry.moduleType == ModuleType::Channel
+    //         && entry.chanPtr->isPhysicalChan
+    //         && (entry.chanPtr->masterName == "None" || entry.chanPtr->isLoopVar)
+    //         && entry.chanPtr->moduleName != "Chan_begin"
+    //         && entry.chanPtr->moduleName != "Chan_end"
+    //         /*&& entry.chanPtr->moduleName != "Chan_sum_update_k1_drain"
+    //         && entry.chanPtr->moduleName != "Lse_a_update_j1"
+    //         && entry.chanPtr->moduleName != "Chan_sum_update_k2_drain"
+    //         && entry.chanPtr->moduleName != "Chan_sum_div"
+    //         && entry.chanPtr->moduleName != "Lse_a_update_j2"*/)
+    //     {
+    //         subgraphNodeNum[entry.chanPtr->subgraphId]++;
+    //     }
+    // }
 
     uint64_t totalPeCycle = 0;
     if (subgraphNodeNum.size() > 1)

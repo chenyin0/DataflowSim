@@ -38,7 +38,12 @@ namespace DFSimTest
 
         static vector<std::shared_ptr<Lse>> createLse(uint64_t _lseNum, uint64_t _lseSize, MemSystem *_memSys);
         static void injectLse(vector<std::shared_ptr<Lse>> &_lseVec, deque<uint64_t> &src_v, deque<uint64_t> &dst_v);
+        static void injectLse(Lse *lse, deque<uint64_t> &src_v, deque<uint64_t> &dst_v);
         static void lseIssue(vector<std::shared_ptr<Lse>> &_lseVec, std::shared_ptr<MsgCoalescer> msgCoalescer);
+
+        static bool Send2Lse(Lse &lse_, Data &data_);
+        static void UpdateLse(vector<Lse *> &lses, vector<Data> &ports);     // Direct mapping between lses and ports
+        static void arbiter(vector<Data> &producer, vector<Data> &comsumer); // Send data from producer to comsumer
 
         // Construct DFG and chanGraph
         static Dfg dfg;
@@ -52,7 +57,7 @@ namespace DFSimTest
 
         static const uint64_t indPtr_BaseAddr;
         static const uint64_t indices_BaseAddr;
-        static const uint64_t feat_BaseAddr;
+        static const uint64_t feat_base_addr;
         static uint64_t feat_length;
 
         // static string dataset_name;
